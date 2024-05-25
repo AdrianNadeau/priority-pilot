@@ -1,0 +1,279 @@
+<%- contentFor('HeaderCss') %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+
+</script>
+
+
+<%- contentFor('breadcrumb') %>
+<ul class="list-inline menu-left mb-0">
+    <li class="list-inline-item">
+        <button type="button" class="button-menu-mobile open-left waves-effect">
+            <i class="ion-navicon"></i>
+        </button>
+    </li>
+    <li class="hide-phone list-inline-item app-search">
+        <h3 class="page-title">Radar</h3>
+    </li>
+</ul>
+
+
+<%- contentFor('body') %>
+<div class="page-content-wrapper">
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-lg-12">
+                
+                <div class="card-body text-center">
+                    <canvas id="humpChart" width="500" height="100"></canvas>
+                </div>
+                
+                
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3">
+                
+                <div class="card-body">
+                    ACT:		12.5 Weeks<br/>
+                    APS:		$350K<br/>
+                    D2D:		15%<br/>
+                    POI:		30%<br/>
+                    CRs:		8 (22%)<br/>
+
+                </div>
+            </div>
+            <div class="col-lg-3">
+                
+                <div class="card-body">
+                    <canvas id="myBubbleChart" style="width:300px;"></canvas>
+                    
+
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card-body">
+                    <div style="padding-bottom: 50px;padding-top:20px; display: flex;padding-right:10px;">
+                        <div style="text-align: center;">
+                            
+                            <strong>$$</strong><br/>
+                            Full: $1.5M<br/>
+                            Used: $1.1M<br/>
+                            Avail: $0.4M
+                        </div>
+                       
+                        <div style="text-align: center;">
+                           
+                            <strong>EFFORT</strong><br/>
+                            40K PH<br/>
+                            35K PH<br/>
+                            5K PH
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="row">
+            <div class="col-lg-3 text-align:center">
+                
+                <div class="card-body text-align:center">
+                    <strong>Priority</strong>
+                    <br>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px">15</button>
+                    <br/>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">1.2 M</button>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                
+                <div class="card-body text-align:center">
+                    <strong>In Flight</strong>
+                    <br>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px">25</button>
+                    <br/>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">2.0 M</button>
+                    
+                    
+
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card-body text-align:center">
+                    <strong>Complete</strong>
+                    <br>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px">10</button>
+                    <br/>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">$75K</button>
+                    
+                    
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+<%- contentFor('FooterJs') %>
+
+
+<%- contentFor('BottomJs') %>
+<script>
+    const ctx = document.getElementById('humpChart').getContext('2d');
+
+    // Define the static mountain-like hump
+    const humpData = {
+        labels: ['Project A', 'Project B', 'Project C', 'Project D', 'Project E'],
+        datasets: [{
+            label: 'Static Hump',
+            data: [0.3, 0.6, 0.8, 0.6, 0.3],
+            backgroundColor: 'rgba(173, 216, 230, 0.2)',
+            borderColor: 'rgba(173, 216, 230, 1)',
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.4
+        }]
+    };
+
+    // Dynamic data points for projects
+    const projectData = [0.10, 0.5, 0.7, 0.5, 0.2, 0.3, 0.10]; // Example dynamic data
+
+    // Calculate y-values for dynamic data based on the hump curve
+    const dynamicData = humpData.datasets[0].data.map((value, index) => {
+        const x = index / (humpData.datasets[0].data.length - 1); // Normalize x-axis values
+        const y = value + (projectData[index] - 0.5) * 0.3; // Adjust y-values based on project data
+        return y;
+    });
+
+    // Update the static hump data with dynamic data
+    humpData.datasets = [{
+        label: 'Dynamic Data',
+        data: dynamicData,
+        backgroundColor: 'gray',
+        borderColor: 'gray',
+        borderWidth: 2,
+        pointRadius: 15,
+        pointBackgroundColor: 'yellow',
+        pointBorderColor: '#fff',
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgba(244, 144, 255, 1)',
+        tension: 0.4
+    }];
+
+    const humpChart = new Chart(ctx, {
+        type: 'line',
+        data: humpData,
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Projects'
+                    }
+                },
+                y: {
+                    min: 0,
+                    max: 1,
+                    ticks: {
+                        callback: function(value) {
+                            return value === 0.5 ? 'Progress' : '';
+                        },
+                        stepSize: 0.1
+                    },
+                    title: {
+                        display: true,
+                        text: 'Status'
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Dynamic Data on Static Hump Line'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.raw.toFixed(2);
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+<script>
+    // Generate random data
+    function generateRandomData(numPoints) {
+        const data = [];
+        for (let i = 0; i < numPoints; i++) {
+            data.push({
+                x: Math.random() * 10,   // Random business change value (0 to 10)
+                y: Math.random() * 10,   // Random technical complexity value (0 to 10)
+                r: Math.random() * 20    // Random bubble size (0 to 20)
+            });
+        }
+        return data;
+    }
+
+    // Sample data
+    const initialData = generateRandomData(10);
+
+    const data = {
+        datasets: [{
+            label: 'Projects',
+            data: initialData,
+            backgroundColor: '#519ce0 ', // Bubble color
+        }]
+    };
+
+    // Configuration options
+    const options = {
+        responsive: true,
+        scales: {
+            x: {
+                type: 'linear',
+                position: 'bottom',
+                title: {
+                    display: true,
+                    text: 'Technical Complexity '
+                }
+            },
+            y: {
+                type: 'linear',
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Business Change'
+                }
+            }
+        }
+    };
+
+    // Create the bubble chart
+    const ctx_bubble = document.getElementById('myBubbleChart').getContext('2d');
+    const myBubbleChart = new Chart(ctx_bubble, {
+        type: 'bubble',
+        data: data,
+        options: options
+    });
+
+    // Function to add more random data points
+    function addRandomData(numPointsToAdd) {
+        const newData = generateRandomData(numPointsToAdd);
+        myBubbleChart.data.datasets[0].data = myBubbleChart.data.datasets[0].data.concat(newData);
+        myBubbleChart.update();
+    }
+
+    // Add more random data points every 2 seconds
+    //setInterval(function() {
+        //addRandomData(5); // Add 5 new random data points
+    //}, 2000);
+</script>

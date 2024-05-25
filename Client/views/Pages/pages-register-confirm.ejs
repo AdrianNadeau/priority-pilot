@@ -1,0 +1,142 @@
+
+<% include ../Partials/HeaderRoot  %>
+
+        <!-- Loader -->
+        <div id="preloader"><div id="status"><div class="spinner"></div></div></div>
+
+        <!-- Begin page -->
+        <div class="accountbg"></div>
+        <div class="wrapper-page">
+
+            <div class="card">
+                <div class="card-body">
+               
+                    <h3 class="text-center m-0">
+                        <!-- Priority Pilot -->
+                        <a href="/" class="logo logo-admin"><img src="public/assets/images/logo.png" alt="logo"></a>
+                    </h3>
+
+                    <div class="p-3">
+                        <p class="text-muted text-center">Confirmed emailed - login account</p><br/>
+                        <form action="/persons" class="needs-validation" novalidate method="POST">
+                            <input type="hidden" name ="register_yn" id="register_yn" value="y"/>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <!-- First column of form fields -->
+                                    <div class="form-group needs-validation" novalidate>
+                                      <label for="email">Email</label>
+                                      <input type="email" class="form-control" id="email"  name="email" required>
+                                      <div class="invalid-feedback">
+                                          Please enter valid email.
+                                  </div>
+                                    <div class="form-group needs-validation" novalidate>
+                                        <label for="first_name">First Name</label>
+                                        <input type="text" class="form-control" id="first_name"  name="first_name" required>
+                                        <div class="invalid-feedback">
+                                            Please enter first name.
+                                        </div>
+                                    </div>
+                                    <div class="form-group needs-validation" novalidate>
+                                      <label for="last_name">Last Name</label>
+                                      <input type="text" class="form-control" id="last_name"  name="last_name" required>
+                                      <div class="invalid-feedback">
+                                          Please enter first name.
+                                  </div>
+                                  <div class="form-group needs-validation" novalidate>
+                                      <label for="initials">Initials</label>
+                                      <input type="text" class="form-control" id="initials"  name="initials">
+                                  </div>
+                                  <div class="form-group needs-validation" novalidate>
+                                    <label for="role">Role</label>
+                                    <input type="text" class="form-control" id="role"  name="role">
+                                </div>
+                                  <div class="form-group needs-validation" novalidate>
+                                      <label for="password">Password</label>
+                                      <input type="password" class="form-control" id="password"  name="password">
+                                  </div>
+                                  
+                               
+                            <!-- Add more rows and columns if needed -->
+                            <div class="modal-footer">
+                                <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                            </div>
+                        </form>
+                        <!-- <a href="/">Dashboard</a> -->
+                        
+
+                        <!-- <form class="form-horizontal m-t-30 needs-validation" novalidate action="/register" method="POST">
+
+                            <div class="form-group needs-validation" novalidate>
+                                <label for="company_name">Company Name</label>
+                                <input type="text" class="form-control" id="company_name"  name="company_name" placeholder="Enter Name..." required>
+                                <div class="invalid-feedback">
+                                    Please add company name.
+                                  </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="company_headline">Company Headline</label>
+                                <input type="text" class="form-control" id="company_headline" name="company_headline" placeholder="Enter Headline...">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="company_description">Company Description</label>
+                                <input type="text" class="form-control" id="company_description" name = "company_description" placeholder="Enter Description...">
+                            </div>
+                            <div class="form-group">
+                                <label for="company_logo">Company Logo</label>
+                                <input type="text" class="form-control" id="company_logo" name = "company_logo" placeholder="Upload Logo (uploaded to storage)">
+                            </div>
+
+
+                            <div class="form-group row m-t-20">
+                                <div class="col-12 text-center">
+                                    <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Register</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group m-t-10 mb-0 row">
+                                <div class="col-12 m-t-20">
+                                    <p class="font-14 text-muted mb-0">By registering you agree to the Priority Pilot <a href="#">Terms of Use</a></p>
+                                </div>
+                                <div class="col-12 m-t-20">
+                                    <p class="font-14 text-muted mb-0">Already have an account? <a href="/login">Login</a></p>
+                                </div>
+                            </div>
+                        </form> -->
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="m-t-40 text-center">
+                <p class="font-14 text-muted mb-0">©  <%= new Date().getFullYear() - 1; %> - <%= new Date().getFullYear(); %> Priority Pilot.</p>
+                
+            </div>
+
+        </div>
+
+
+        <% include ../Partials/FooterRoot  %>
+        <script>
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+(function () {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  var forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+</script>

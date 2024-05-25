@@ -1,0 +1,214 @@
+<%- contentFor('HeaderCss') %>
+<!-- Bootstrap CSS -->
+
+
+<%- contentFor('breadcrumb') %>
+<ul class="list-inline menu-left mb-0">
+    <li class="list-inline-item">
+        <button type="button" class="button-menu-mobile open-left waves-effect">
+            <i class="ion-navicon"></i>
+        </button>
+    </li>
+    
+    <li class="hide-phone list-inline-item app-search">
+        <h3 class="page-title">Projects</h3>
+        <button type="button" class="btn btn-primary waves-effect waves-light" id="btnAddProject">Add Project</button>
+        
+    </li>
+</ul>
+
+<%- contentFor('body') %>
+<div class="page-content-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+              <div class="card-body" style="border:0px !important;">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Prime</th>
+                                        <th>Sponsor</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        <th>Health</th>
+                                        <th>Phase</th>
+                                    </tr>
+                                </thead>
+                               
+                                <% projects.forEach(function(project) { %>
+                                  <tbody>
+                                      <tr style="cursor: pointer;">
+                                        <input type="hidden" name="project_id" value = "<%= project.id %>"/>
+                                        <td><%= project.id %></td>
+                                        <td><%= project.project_name %></td>
+
+                                        <% if(project.prime_last_name){ %>
+                                            <td><%= project.prime_last_name %>, <%= project.prime_first_name %> </td>
+                                        <% } else { %>
+                                            <td>N/A</td>
+                                        <% } %>
+
+                                        <% if(project.sponsor_last_name){ %>
+                                          <td><%= project.sponsor_last_name %>, <%= project.sponsor_first_name %> </td>
+                                        <% } else { %>
+                                          <td>N/A</td>
+                                        <% } %>
+                                       
+                                        
+                                        <td><%= project.start_date %></td>
+                                        <td><%= project.end_date %></td>
+                                        <td><%= project.health %></td>
+                                        <td><%= project.phase_name %></td>
+                                        
+                                      </tr>
+                                  </tbody>
+                              <% }); %>
+                              
+                             
+                            </table>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<%- contentFor('FooterJs') %>
+
+<%- contentFor('BottomJs') %>
+<script>
+  (function () {
+    'use strict'
+  
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+  
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })()
+  document.getElementById('progress').addEventListener('keydown', function(event) {
+    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
+    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
+        // Allow: Ctrl+A
+        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+C
+        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+V
+        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+X
+        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: home, end, left, right
+        (event.keyCode >= 35 && event.keyCode <= 39)) {
+             // let it happen, don't do anything
+             return;
+    }
+    // Ensure that it is a number and stop the keypress if not
+    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
+        alert("Only numbers are allowed")
+        event.preventDefault();
+    }
+});
+document.getElementById('project_cost').addEventListener('keydown', function(event) {
+    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
+    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
+        // Allow: Ctrl+A
+        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+C
+        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+V
+        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+X
+        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: home, end, left, right
+        (event.keyCode >= 35 && event.keyCode <= 39)) {
+             // let it happen, don't do anything
+             return;
+    }
+    // Ensure that it is a number and stop the keypress if not
+    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
+        alert("Only numbers are allowed")
+        event.preventDefault();
+    }
+})
+function clearModalFields() {
+        // Get all input elements within the modal
+        var inputs = document.querySelectorAll('#addProject input, #addProject textarea, #addProject select');
+
+        // Loop through each input element
+        inputs.forEach(function(input) {
+           // Reset the value of the input element
+           if (input.id === 'project_cost'|| input.id === 'progress') {
+                input.value = '0'; // Set project_cost to 0
+            } else {
+                input.value = ''; // Clear other fields
+            }
+        });
+    }
+     // Get the clear button element
+     var addProjectBtn = document.getElementById('btnAddProject');
+     
+
+// Add a click event listener to the clear button
+addProjectBtn.addEventListener("click", function() {
+    // Call the function to clear all modal fields
+    // clearModalFields();
+    alert("send to add edit")
+    window.location.replace("/projects/add/")
+    
+    return;
+    
+});
+ // Wait for the DOM to be ready
+ document.addEventListener("DOMContentLoaded", function() {
+        // Get all table rows
+        var rows = document.querySelectorAll(".table tbody tr");
+
+        // Loop through each row
+        rows.forEach(function(row) {
+          
+            // Add a click event listener to each row
+            row.addEventListener("click", function() {
+                // pages-project-edit
+                var projectId = row.querySelector('input[name="project_id"]').value;
+                console.log("projectid:",projectId)
+                // window.location.replace('/Pages/pages-projects-edit');
+                 // Send a GET request to the server with the project ID
+                  fetch('/projects/' + projectId)
+                    .then(response => {
+                      if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                      }
+                      return response.json(); // Parse the JSON response
+                    })
+                    .then(data => {
+                      // Handle the response data here
+                      console.log("RESPONSE:",data);
+                      // Redirect or perform any other action based on the response
+                      // For example, if you want to redirect to a new page:
+                      // window.location.href = '/projects/' + projectId;
+                    })
+                    .catch(error => {
+                      console.error('There was a problem with the fetch operation:', error);
+                    });
+                  
+                 
+            });
+        });
+    });
+    
+</script>

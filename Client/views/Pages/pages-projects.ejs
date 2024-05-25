@@ -1,0 +1,427 @@
+<%- contentFor('HeaderCss') %>
+<!-- Bootstrap CSS -->
+<style>
+  #pitch_message {
+      display: none;
+  }
+</style>
+
+
+<%- contentFor('breadcrumb') %>
+<ul class="list-inline menu-left mb-0">
+    <li class="list-inline-item">
+        <button type="button" class="button-menu-mobile open-left waves-effect">
+            <i class="ion-navicon"></i>
+        </button>
+    </li>
+    
+    <li class="hide-phone list-inline-item app-search">
+        <h3 class="page-title">Projects</h3>
+        <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Project</button>
+        
+    </li>
+</ul>
+
+<%- contentFor('body') %>
+<div class="page-content-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+              <div class="card-body" style="border:0px !important;">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Prime</th>
+                                        <th>Sponsor</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        
+                                        <th>Phase</th>
+                                    </tr>
+                                </thead>
+                               
+                                <% projects.forEach(function(project) { %>
+                                  <tbody>
+                                      <tr style="cursor: pointer;">
+                                        <input type="hidden" name="project_id" value = "<%= project.id %>"/>
+                                        <td><%= project.id %></td>
+                                        <td><%= project.project_name %></td>
+
+                                        <% if(project.prime_last_name){ %>
+                                            <td><%= project.prime_last_name %>, <%= project.prime_first_name %> </td>
+                                        <% } else { %>
+                                            <td>N/A</td>
+                                        <% } %>
+
+                                        <% if(project.sponsor_last_name){ %>
+                                          <td><%= project.sponsor_last_name %>, <%= project.sponsor_first_name %> </td>
+                                        <% } else { %>
+                                          <td>N/A</td>
+                                        <% } %>
+                                       
+                                        
+                                        <td>
+                                          <% if(project.start_date){ %>
+                                              <%= project.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                                            <%}%>
+                                       </td>
+                                       <td>
+                                        <% if(project.end_date){ %>
+                                            <%= project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                                          <%}%>
+                                     </td>
+                                        
+                                        <td><%= project.phase_name %></td>
+                                        
+                                      </tr>
+                                  </tbody>
+                              <% }); %>
+                              
+                             
+                            </table>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 m-t-30">
+                <!-- project modal content -->
+                <div id="addProject" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="modal-content" style="width: 900px;">
+                          <div class="modal-header">
+                              <h5 class="modal-title mt-0">Add Project</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                          </div>
+                          <div class="modal-body">
+                              <form action="/projects" class="needs-validation" novalidate method="POST">
+                                  <div class="row">
+                                      <div class="col-md-6">
+                                          <!-- First column of form fields -->
+                                          <div class="form-group needs-validation" novalidate>
+                                              <label for="project_name">Name</label>
+                                              <input type="text" class="form-control" id="project_name"  name="project_name" required>
+                                              <div class="invalid-feedback">
+                                                  Please enter project name.
+                                              </div>
+                                          </div>
+                                          <div class="form-group" >
+                                              <label for="project_headline">Headline</label>
+                                              <input type="text" class="form-control" id="project_headline"  name="project_headline"  >
+                                          </div>
+                                          <div class="form-group" >
+                                            <label for="project_description">Description</label>
+                                            <textarea rows="4" class="form-control" id="project_description"  name="project_description" ></textarea>
+                                        </div>
+                                        <div class="form-group" >
+                                            <label for="project_headline">Why?</label>
+                                            <textarea rows="4" class="form-control" id="project_why"  name="project_why" ></textarea>
+                                        </div>
+                                        <div class="form-group" >
+                                          <label for="project_headline">What?</label>
+                                          <textarea rows="4" class="form-control" id="project_what"  name="project_what"  ></textarea>
+                                         
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="datepicker">Start Date:</label>
+                                          <input type="date" id="start_date" name="start_date" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="datepicker">End Date:</label>
+                                          <input type="date" id="end_date" name="end_date" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="datepicker">Next Milestone Date:</label>
+                                          <input type="date" id="next_milestone_date" name="next_milestone_date" class="form-control">
+                                        </div>
+                                      
+                                      </div>
+                                      <div class="col-md-6">
+                                        <div class="form-group">
+                                         
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="phase">Phase:</label>
+                                          <select name ="phase_id_fk" id = "phase_id_fk">
+                                            
+                                            <% phases.forEach(function(phase){ %>
+                                              <option value="<%= phase.id %>"><%= phase.phase_name %></option>
+                                            <% }) %>
+                                          </select>
+                                          <textarea name="pitch_message" rows=4 id="pitch_message" placeholder="Enter your pitch message here"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="priority">Priority:</label>
+                                          <select name = "priority_id_fk" id = "priority_id_fk">
+                                           
+                                            <% priorities.forEach(function(priority){ %>
+                                              <option value= "<%= priority.id %>"><%= priority.priority_name %></option>
+                                            <% }) %>
+                                          </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                          <label for="sponsor">Sponsor:</label>
+                                          <select name = "sponsor_id_fk" id = "sponsor_id_fk">
+
+                                            <% sponsors.forEach(function(sponsor){ %>
+                                              <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %> </option>
+                                            <% }) %>
+
+                                          </select>
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="prime">Prime:</label>
+                                          <select name = "prime_id_fk" id = "prime_id_fk">
+                                            
+                                            <% primes.forEach(function(prime){ %>
+                                              <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %> </option>
+                                            <% }) %>
+                                          </select>
+                                        </div>
+                                        
+                                        <div class="form-group" >
+                                          <label for="effort">Effort (PH)</label><br/>
+                                          <input type="text" style="width:100px;" class="form-control" id="effort"  name="effort" >
+                                      </div>
+                                      <div class="form-group" >
+                                        <label for="benefit">Benefit (ROI or $)</label><br/>
+                                        <input type="text" style="width:100px;" class="form-control" id="benefit"  name="benefit" >
+                                    </div>
+                                        <div class="form-group">
+                                          <label for="impact">Impact:</label>
+                                          <select name = "impact" id = "impact">
+                                            
+                                            <% for (var i = 1; i <= 10; i++) { %>
+                                              <option value="<%= i %>"><%= i %></option>
+                                            <% } %>
+                                          </select>
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="complexity">Complexity:</label>
+                                          <select  name = "complexity" id = "complexity">
+                                            
+                                            <% for (var i = 1; i <= 10; i++) { %>
+                                              <option value="<%= i %>"><%= i %></option>
+                                            <% } %>
+                                          </select>
+                                        </div>
+                                        <div class="form-group" >
+                                          <label for="project_cost">Estimated Cost</label>
+                                          <input type="text" class="form-control" id="project_cost"  name="project_cost" value="0">
+                                         
+                                      </div>
+                                      
+                                       
+                                       <div class="form-group" >
+                                        <label for="project_tags">Tags (comma separated)</label>
+                                        <input type="text" class="form-control" id="project_tags"  name="project_tags" >
+                                       
+                                    </div>
+                          
+                            
+                                    <div class="form-group" >
+                                        <label class="form-label" for="logo"></label>
+                                        <input type="file" class="form-control" id="logo" name="logo" />
+                                    </div>
+                                      </div>
+                                  </div>
+                                  <!-- Add more rows and columns if needed -->
+                                  <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+                                      <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                                      <!-- if edit, add delete button -->
+                                      <!-- <button class="btn btn-danger w-md waves-effect waves-light" onClick='openDeleteModal()' type="button">Delete</button> -->
+                                      <!-- if edit, add delete button -->
+                                  </div>
+                              </form>
+                          </div>
+                      </div><!-- /.modal-content -->
+                  </div><!-- /.modal-dialog -->
+              </div><!-- /.modal -->
+              
+            </div>
+        </div> <!-- end row -->
+    </div>
+</div>
+
+<%- contentFor('FooterJs') %>
+
+<%- contentFor('BottomJs') %>
+<script>
+  (function () {
+    'use strict'
+  
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+  
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })()
+ document.getElementById('project_cost').addEventListener('keydown', function(event) {
+    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
+    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
+        // Allow: Ctrl+A
+        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+C
+        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+V
+        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+X
+        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: home, end, left, right
+        (event.keyCode >= 35 && event.keyCode <= 39)) {
+             // let it happen, don't do anything
+             return;
+    }
+    // Ensure that it is a number and stop the keypress if not
+    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
+        alert("Only numbers are allowed")
+        event.preventDefault();
+    }
+})
+document.getElementById('effort').addEventListener('keydown', function(event) {
+    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
+    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
+        // Allow: Ctrl+A
+        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+C
+        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+V
+        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+X
+        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: home, end, left, right
+        (event.keyCode >= 35 && event.keyCode <= 39)) {
+             // let it happen, don't do anything
+             return;
+    }
+    // Ensure that it is a number and stop the keypress if not
+    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
+        alert("Only numbers are allowed")
+        event.preventDefault();
+    }
+})
+document.getElementById('benefit').addEventListener('keydown', function(event) {
+    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
+    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
+        // Allow: Ctrl+A
+        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+C
+        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+V
+        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+X
+        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: home, end, left, right
+        (event.keyCode >= 35 && event.keyCode <= 39)) {
+             // let it happen, don't do anything
+             return;
+    }
+    // Ensure that it is a number and stop the keypress if not
+    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
+        alert("Only numbers are allowed")
+        event.preventDefault();
+    }
+})
+function clearModalFields() {
+        // Get all input elements within the modal
+        var inputs = document.querySelectorAll('#addProject input, #addProject textarea, #addProject select');
+
+        // Loop through each input element
+        inputs.forEach(function(input) {
+           // Reset the value of the input element
+           if (input.id === 'project_cost'|| input.id === 'progress') {
+                input.value = '0'; // Set project_cost to 0
+            } else {
+                input.value = ''; // Clear other fields
+            }
+        });
+    }
+     // Get the clear button element
+     var addProjectBtn = document.getElementById('btnAddProject');
+
+// Add a click event listener to the clear button
+addProjectBtn.addEventListener("click", function() {
+    // Call the function to clear all modal fields
+    clearModalFields();
+    
+});
+ // Wait for the DOM to be ready
+ document.addEventListener("DOMContentLoaded", function() {
+        // Get all table rows
+        var rows = document.querySelectorAll(".table tbody tr");
+
+        // Loop through each row
+        rows.forEach(function(row) {
+          
+            // Add a click event listener to each row
+            row.addEventListener("click", function() {
+                // pages-project-edit
+                var projectId = row.querySelector('input[name="project_id"]').value;
+                console.log("projectid:",projectId)
+                
+                  fetch('/projects/' + projectId)
+                    .then(response => {
+                      if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                      }
+                      return response.json(); // Parse the JSON response
+                    })
+                    .then(data => {
+                      // Handle the response data here
+                      console.log("RESPONSE:",data);
+                     
+                    })
+                    .catch(error => {
+                      console.error('There was a problem with the fetch operation:', error);
+                    });
+                  
+                 
+            });
+        });
+        const projectCost = document.getElementById('project_cost');
+        console.log('projectCost',projectCost);
+        projectCost.addEventListener('input', function () {
+        let input = projectCost.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except the decimal point
+
+        if (input.includes('.')) {
+            const parts = input.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas to the integer part
+            input = parts.join('.');
+        } else {
+            input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas if no decimal part
+        }
+
+        projectCost.value = input;
+    });
+    document.getElementById('phase_id_fk').addEventListener('change', function() {
+            var textarea = document.getElementById('pitch_message');
+            if (this.value == '1') {
+                textarea.style.width = '300px';
+                
+                textarea.style.display = 'block';
+            } else {
+                textarea.style.display = 'none';
+            }
+    });
+});
+
+    
+
+    
+</script>

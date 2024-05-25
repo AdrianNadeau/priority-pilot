@@ -1,0 +1,58 @@
+<%- contentFor('HeaderCss') %>
+<link href="public/assets/plugins/c3/c3.min.css" rel="stylesheet" type="text/css" />
+
+
+<%- contentFor('breadcrumb') %>
+<ul class="list-inline menu-left mb-0">
+    <li class="list-inline-item">
+        <button type="button" class="button-menu-mobile open-left waves-effect">
+            <i class="ion-navicon"></i>
+        </button>
+    </li>
+    <li class="hide-phone list-inline-item app-search">
+        <h3 class="page-title">Mission Control</h3>
+    </li>
+</ul>
+
+<%- contentFor('body') %>
+
+<div class="page-content-wrapper">
+    <div class="container-fluid">
+        <div class="container">
+            <div class="container" >
+                <div class="row" style="border: 2px solid red;">
+                  <div class="col-5" style="border: 2px solid red;">
+                    1 of 3
+                  </div>
+                  <div class="col-5" style="border: 2px solid red;">
+                    2 of 3
+                  </div>
+                  <div class="col-2" style="border: 2px solid red;">
+                    3 of 3
+                  </div>
+                </div>
+            
+           
+          </div>
+       
+        
+      
+    </div>
+</div>
+
+
+
+
+<%- contentFor('FooterJs') %>
+<script src="public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
+<!--C3 Chart-->
+<script src="public/assets/plugins/d3/d3.min.js"></script>
+<script src="public/assets/plugins/c3/c3.min.js"></script>
+<!-- KNOB JS -->
+<script src="public/assets/plugins/jquery-knob/excanvas.js"></script>
+<script src="public/assets/plugins/jquery-knob/jquery.knob.js"></script>
+<!-- Page specific js -->
+<script src="public/assets/pages/dashboard.js"></script>
+
+ <%- contentFor('BottomJs') %>
+ 
