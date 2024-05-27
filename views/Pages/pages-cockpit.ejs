@@ -1,0 +1,542 @@
+<%- contentFor('HeaderCss') %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+
+<style>
+  canvas {
+      background-color: white;
+  }
+  .green-circle, .yellow-circle, .red-circle {
+            display: inline-block;  /* Allows the span to have width and height */
+            width: 10px !important;   /* Diameter of the circle with !important */
+            height: 10px !important;  /* Diameter of the circle with !important */
+            border-radius: 50%;      /* Makes the span a circle */
+        }
+        .green-circle {
+            background-color: green; /* Color of the circle */
+        }
+        .yellow-circle {
+            background-color: yellow; /* Color of the circle */
+        }
+        .red-circle {
+            background-color: red; /* Color of the circle */
+        }
+</style>
+
+<%- contentFor('breadcrumb') %>
+<ul class="list-inline menu-left mb-0">
+    <li class="list-inline-item">
+        <button type="button" class="button-menu-mobile open-left waves-effect">
+            <i class="ion-navicon"></i>
+        </button>
+    </li>
+    <li class="hide-phone list-inline-item app-search" >
+        <h3 class="page-title">Cockpit</h3>
+    </li>
+</ul>
+
+<%- contentFor('body') %>
+
+<div class="page-content-wrapper">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-8">
+        <div class="mini-stat clearfix bg-white">
+          <div class="mini-stat-info">
+            
+            <span class="counter" style="padding-bottom:20px;"><%=project[0].project_name%></span>
+          </div>
+          
+          <div>
+            <strong>Headline:</strong> <%=project[0].project_headline %>
+            <!-- <strong>Headline:</strong> Able to take a call from anywhere in the world. -->
+          </div>
+          <div>
+            <strong>Sponsor:</strong> 
+            <% if(project[0].sponsor_last_name){ %>
+                <%=project[0].sponsor_last_name %>, <%=project[0].sponsor_last_name %>
+            <%}%>
+           
+            </div>
+          <div>
+            <strong>Prime:</strong> 
+            <% if(project[0].prime_last_name){ %>
+                <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
+            <%}%>
+            
+          </div>
+          <div>
+            <strong>Start:</strong> 
+            <% if(project[0].start_date){ %>
+              <%= project[0].start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+            <%}%>
+        </div>
+          
+         
+        <div>
+          <strong>End:</strong> 
+          <% if(project[0].end_date){ %>
+            <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+          <%}%>
+      </div>
+        
+        <div>
+          <div>
+          <strong>Next Milestone Date:</strong> 
+          <% if(project[0].next_milestone_date){ %>
+            <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+          <%}%>
+        
+        
+        </div>
+       
+          <div>
+            <strong>Investment:</strong>
+            
+              $<%=formattedCost %>
+          
+          </div>
+          <div>
+            <strong>Effort:</strong>
+            <%=project[0].effort %> PH
+               
+          
+          </div>
+          <div>
+            
+            <strong>Why:</strong>
+            <textarea class="form-control" id="project_why" rows="3" disabled><%=project[0].project_why %>
+            </textarea>
+          
+          </div>
+          <div>
+            
+            <strong>What:</strong>
+            <textarea class="form-control" id="project_what" rows="3" disabled><%=project[0].project_what %> 
+            </textarea>
+           
+          </div>
+          <div>
+            <strong>Tags:</strong>
+            <br/>
+            <button type="button" class="btn btn-warning">Strategy</button>&nbsp;<button type="button" class="btn btn-primary">Customer Service</button>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        <div>
+          <strong>Change Log:</strong>
+          <br/>
+            <% if (changeLogs) { %>
+              <% changeLogs.forEach(function(change) { %>
+                <%= change.change_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                
+                 - <%= change.change_headline %><br/>
+              <% }); %>
+          <% } %>
+          
+          <br/>
+          <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addChange" id="btnAddChange">Add Change Log</button>
+          
+          
+  
+         
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    </div>
+      
+    <div class="col-4">
+      
+      <input type="hidden" id="status_project_id" name="status_project_id" value="<%=project[0].id %>"/>
+      <input type="hidden" id="prime_id_fk" name="prime_id_fk" value="<%=project[0].prime_id_fk %>"/>
+
+      
+      <div class="mini-stat clearfix bg-white" style="min-height: 680px;">
+        
+         
+      
+        <div class="mini-stat-info">
+        
+          
+        </div>
+        <br/>
+        
+        <canvas id="statusChart" width="300" height="200" ></canvas>
+        <% if (project[0].start_date) { %>
+          Start: <%= project[0].start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
+        <%}%>
+        <% if (project[0].end_date) { %>
+          Start: <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/><br/>
+        <%}%>
+        <strong>Status Updates:</strong>
+          <br/>
+          <% if (statuses) { %>
+            <% statuses.forEach(function(status) { %>
+                <% 
+                let healthStatus = status && status.health ? status.health.trim().toLowerCase() : ''; 
+                if (healthStatus === 'green') { 
+                %>
+                    <span class="green-circle"></span>
+                <% } else if (healthStatus === 'yellow') { %>
+                    <span class="yellow-circle"></span>
+                <% } else if (healthStatus === 'red') { %>
+                    <span class="red-circle"></span>
+                <% } %>
+        
+                <%= status.status_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %> - <%=status.accomplishments%>
+                <% if (status.progress) { %>
+                  [<%=status.progress%>%]
+              <% } %><br/>
+            
+                <% }); %>
+        <% } %>
+        
+        
+        
+
+        <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
+  </div>
+    
+     
+
+</div>
+<div class="row">
+  <div class="col-md-6 m-t-30">
+      <!-- project modal content -->
+      <div id="addChange" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title mt-0">Add Change Log</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <form action="/change_logs" class="needs-validation" novalidate method="POST">
+                      <input type="hidden" name="project_id" id="project_id" value="<%=project[0].id %>"/>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <!-- First column of form fields -->
+                                <div class="form-group needs-validation" novalidate>
+                                  <%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                                
+                              </div>
+                              
+                                <div class="form-group needs-validation" novalidate>
+                                  <label for="change_headline">Headline</label>
+                                  <input type="text" class="form-control" id="change_headline"  name="change_headline"  required>
+                                
+                              </div>
+                                <div class="form-group needs-validation" novalidate>
+                                    <label for="change_reason">Change Reason</label>
+                                    <textarea class="form-control" id="change_reason" name="change_reason" rows="3" required></textarea>
+                                  
+                                    <div class="invalid-feedback">
+                                        Please enter change reason.
+                                    </div>
+                                </div>
+                                
+                              <div class="form-group needs-validation" novalidate>
+                                <label for="change_explanation">Change Details</label>
+                                <textarea class="form-control" id="change_explanation" name="change_explanation" rows="3"></textarea>
+                              
+                                
+                            </div>
+                              
+                            </div>
+
+                          </div>
+                        <!-- Add more rows and columns if needed -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+                            <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                            <!-- if edit, add delete button -->
+                            <!-- <button class="btn btn-danger w-md waves-effect waves-light" onClick='openDeleteModal()' type="button">Delete</button> -->
+                            <!-- if edit, add delete button -->
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    
+  </div>
+</div> <!-- end row -->
+<div class="row">
+  <div class="col-md-6 m-t-30">
+      <!-- project modal content -->
+      <div id="addStatus" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title mt-0">Add Status</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <form action="/statuses" class="needs-validation" novalidate method="POST">
+                      <input type="hidden" name="project_id" id="project_id" value="<%=project[0].id %>"/>
+                      <input type="hidden" name="prime_id" id="prime_id_fk" value="<%=project[0].prime_id_fk %>"/>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <!-- First column of form fields -->
+                                <div class="form-group needs-validation" novalidate>
+                                  
+                                  <strong>Date: </strong><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
+                                  <strong>Prime:</strong><% if(project[0].prime_last_name) %>
+                                  <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
+                                  
+                                
+                              </div>
+                                
+                                <div class="form-group needs-validation" novalidate>
+                                  <strong>Accomplishments:</strong><br/>
+                                  <textarea class="form-control" id="status_accomplishments" name="status_accomplishments" rows="3"></textarea>
+                                
+                              </div>
+                              <div class="form-group needs-validation" novalidate>
+                                <strong>Issues:</strong><br/>
+                                <textarea class="form-control" id="issue" name="issue" rows="3"></textarea>
+                              
+                              </div>
+                              <div class="form-group needs-validation" novalidate>
+                                <strong>Actions:</strong><br/>
+                                <textarea class="form-control" id="action" name="actions" rows="3"></textarea>
+                              
+                            </div>
+                            <div class="form-group needs-validation" novalidate>
+                              <strong>Progress:</strong>
+                              <input type="text" class="form-control" id="progress"  name="progress" >
+                            
+                          </div>
+                          <div class="form-group needs-validation" novalidate>
+                            <strong>Health:</strong>
+                            <select name = "health" id = "health">
+                                <option value="Green">Green</option>
+                                <option value="Yellow">Yellow</option>
+                                <option value="Red">Red</option>
+                              
+                            </select>
+                          
+                        </div>
+                        <div class="form-group needs-validation" novalidate>
+                          <strong>Attachment:</strong>
+                        <input type="file" class="form-control" id="attachment" name="attachment" />
+                        
+                      </div>
+                       <!-- Add more rows and columns if needed -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+                            <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    
+  </div>
+</div> <!-- end row -->
+
+<%- contentFor('FooterJs') %>
+<script src="/public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
+<!--C3 Chart-->
+<script src="/public/assets/plugins/d3/d3.min.js"></script>
+<script src="/public/assets/plugins/c3/c3.min.js"></script>
+<!-- KNOB JS -->
+<script src="/public/assets/plugins/jquery-knob/excanvas.js"></script>
+<script src="/public/assets/plugins/jquery-knob/jquery.knob.js"></script>
+<!-- Page specific js -->
+<script src="/public/assets/pages/dashboard.js"></script>
+
+ <%- contentFor('BottomJs') %>
+
+ <script>
+  // Get the context of the canvas element
+  var ctx = document.getElementById('statusChart').getContext('2d');
+  
+  //******************************* Define the start date for the line graph ******************************
+  var startDate = new Date('<%=project[0].start_date%>');
+  var year = startDate.getFullYear();
+  var month = startDate.getMonth() + 1; // Months are zero-based, so we add 1
+  var day = startDate.getDate();
+
+  // Format month and day with leading zeros if necessary
+  month = month < 10 ? '0' + month : month;
+  day = day < 10 ? '0' + day : day;
+  // Formatted date in the format "yyyy-mm-dd"
+  var formattedStartDate = year + '-' + month + '-' + day;
+  console.log("formattedStartDate:",formattedStartDate)
+ 
+  //******************************* Define the end date for the line graph ******************************
+  var endDate = new Date('<%=project[0].end_date%>');
+  var year = endDate.getFullYear();
+  var month = endDate.getMonth() + 1; // Months are zero-based, so we add 1
+  var day = endDate.getDate();
+  // Format month and day with leading zeros if necessary
+  month = month < 10 ? '0' + month : month;
+  day = day < 10 ? '0' + day : day;
+  // Formatted date in the format "yyyy-mm-dd"
+  var formattedEndDate = year + '-' + month + '-' + day;
+  console.log("formattedEndDate:",formattedEndDate)
+
+//******************************* Get middle date for hump on line graph ******************************
+var startDate = new Date(formattedStartDate);
+var endDate = new Date(formattedEndDate);
+// Calculate the difference in milliseconds
+var difference = endDate - startDate;
+// Calculate the middle date in milliseconds
+var middleTime = startDate.getTime() + difference / 2;
+// Create a new Date object for the middle time
+var middleDate = new Date(middleTime);
+// Format the middle date as "yyyy-mm-dd"
+var formattedMiddleDate = middleDate.toISOString().split('T')[0];
+console.log("health:<%=statusColor%>");
+
+//******************************* Get last status date and color to put on graph ******************************
+var statusDate = new Date('<%=lastStatusDate%>');
+  var year = statusDate.getFullYear();
+  var month = statusDate.getMonth() + 1; // Months are zero-based, so we add 1
+  var day = statusDate.getDate();
+
+  // Format month and day with leading zeros if necessary
+  month = month < 10 ? '0' + month : month;
+  day = day < 10 ? '0' + day : day;
+  // Formatted date in the format "yyyy-mm-dd"
+  var formattedStatusDate = year + '-' + month + '-' + day;
+  console.log("formattedStartDate:",formattedStatusDate)
+  var dataPoints = [
+    { x: new Date(formattedStartDate).getTime(), y: 0 },
+    { x: new Date(formattedMiddleDate).getTime(), y: 0.5 },
+    { x: new Date(formattedEndDate).getTime(), y: 0 }
+  ];
+
+  // Define the data and configuration for the chart
+  var statusChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+          datasets: [{
+            label: 'Status ',
+            data: dataPoints,
+            borderColor: 'gray',
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0, // Hide points
+            tension: 0.2 // Adjust tension for smoother curve
+          }]
+      },
+      options: {
+          scales: {
+              x: {
+                  type: 'time',
+                  time: {
+                      unit: 'month',
+                      tooltipFormat: 'MMM yyyy',
+                      displayFormats: {
+                          month: 'MMM yyyy'
+                      }
+                  },
+                  title: {
+                      display: false,
+                      text: 'Date'
+                  }
+              },
+              y: {
+                  min: 0,
+                  max: 1,
+                  ticks: {
+                      callback: function(value) {
+                          return value === 0.5 ? '' : '';
+                      },
+                      stepSize: 0.5
+                  },
+                  title: {
+                      display: false,
+                      text: 'Status'
+                  }
+              }
+          },
+          plugins: {
+              title: {
+                  display: false,
+                  text: 'Project Health'
+              },
+              tooltip: {
+                  callbacks: {
+                      label: function(context) {
+                          var label = context.dataset.label || '';
+                          if (label) {
+                              label += ': ';
+                          }
+                          if (context.raw.y === 0) {
+                              label += '';
+                          } else if (context.raw.y === 1) {
+                              label += '';
+                          } else {
+                              label += '';
+                          }
+                          return label;
+                      }
+                  }
+              },
+              annotation: {
+                  annotations: {
+                      text1: {
+                          type: 'label',
+                          content: ['Uncertainty'],
+                          xValue: new Date('2024-05-19').getTime(),
+                          yValue: 1.05,
+                          xAdjust: -50,
+                          yAdjust: 0,
+                          color: 'green',
+                          backgroundColor: 'green',
+                          font: {
+                              size: 12
+                          }
+                      },
+                      text2: {
+                          type: 'label',
+                          content: ['Certainty'],
+                          xValue: new Date(formattedEndDate).getTime(),
+                          yValue: 1.05,
+                          xAdjust: 50,
+                          yAdjust: 0,
+                          color: 'black',
+                          backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                          font: {
+                              size: 12
+                          }
+                      }
+                  }
+              }
+          }
+      }
+  });
+  document.getElementById('progress').addEventListener('keydown', function(event) {
+    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
+    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
+        // Allow: Ctrl+A
+        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+C
+        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+V
+        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: Ctrl+X
+        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
+        // Allow: home, end, left, right
+        (event.keyCode >= 35 && event.keyCode <= 39)) {
+             // let it happen, don't do anything
+             return;
+    }
+    // Ensure that it is a number and stop the keypress if not
+    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
+        alert("Only numbers are allowed")
+        event.preventDefault();
+    }
+})
+</script>
+
+
+ 
+ 
