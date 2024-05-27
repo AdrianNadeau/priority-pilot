@@ -21,5 +21,5 @@ module.exports = app => {
     // Create a new Company
     router.delete("/", companies.deleteAll);
   
-    app.use('/api/companies', router);
+    app.use('/companies', router);
   };

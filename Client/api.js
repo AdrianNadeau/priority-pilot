@@ -1,12 +1,12 @@
 var express = require('express');
 const axios = require('axios');
+
 var API = express.Router();
 require('dotenv').config()
 
-
 ////////////////// AUTHENTICATION API ////////////////////////////////
 API.get('/login', (req, res) => {
-      
+     
       res.render('pages/pages-login'); 
   });
   
@@ -19,42 +19,6 @@ API.get('/register', function(req, res)
 {
       res.render('Pages/pages-register');
 });
-// API.post('/register', async function(req, res)
-// {
-//       console.log("Post register")
-//       //call register backend api 
-//       process.env.API_COMPANY_URL
-//       try {
-//             const response = await axios.get('http://localhost:3000/companies');
-//             console.log(response.data);
-//       } catch (error) {
-//             console.error('Error fetching data from API:', error);
-//       }
-//       try {
-            
-//             // Example API call to an external API
-//             console.log("COMPANY_API:",process.env.API_COMPANY_URL)
-//             res.json({ message: 'Hello from API' });
-//             // axios.post(process.env.API_COMPANY_URL, {
-//             //       company_name: 'Company1',
-//             //       company_headline:'Desc'
-                  
-//             //     })
-//             //     .then(function (response) {
-//             //       console.log(response);
-//             //       res.send(response);
-//             //     })
-//             //     .catch(function (error) {
-//             //       console.log(error);
-//             //       res.send(error);
-//             //     });
-//             // Render the index.ejs template with data from the API
-//             // res.render('index', { data });
-//         } catch (error) {
-//             console.error('Error fetching data from API:', error);
-//             // res.render('pages/pages-login'); 
-//         }
-// });
 API.get('/confirm', function(req, res)
 {
       res.render('Pages/pages-register-confirm');
@@ -85,7 +49,69 @@ API.get('/session-expired', function(req, res)
 ////////////////// END AUTHENTICATION API ////////////////////////////////
 
 ////////////////// COMPANIES API ////////////////////////////////
+API.get('/', function(req, res) {
+      res.sendFile(path.join(__dirname, '/views/index.html'));
+});
+API.get('/login', function(req, res) {
+     
+      res.sendFile(path.join(__dirname, '/views/login.html'));
+});
+API.get('/register', function(req, res) {
+      res.sendFile(path.join(__dirname, '/views/register.html'));
+});
+API.post('/register', async function(req, res) {
+      // Log the body of the request
+      console.log("COMPANY URL:",process.env.API_COMPANY_URL)
+      console.log("api register company:", req.body);
+      fetch('http://localhost:3000/companies/', {
+            method: 'POST', // Specifies the request method as POST
+            headers: {
+            'Content-Type': 'application/json', // Sets the content type to JSON
+            // You can include other headers here as needed
+            },
+            body: JSON.stringify({
+                  company_name: req.body.companu_name,
+                  company_headline: req.body.companu_name,
+                  company_description: req.body.company_description,
+                  company_logo: req.body.company_logo
+            }),
+            })
+            .then(response => response.json()) // Parse the JSON response
+            .then(data => {
+                  console.log('Success:', data); // Handle the response data
+            })
+            .catch(error => {
+                  console.error('Error:', error); // Handle any errors
+      });
+});
+//       try {
+//             const response = await axios.post('http://localhost:3000/companies/', {
+//             company_name: req.body.companu_name,
+//             company_headline: req.body.companu_name,
+//             company_description: req.body.company_description,
+//             company_logo: req.body.company_logo
 
+//          });
+//         res.send(response.data); // Send only the data part of the response
+//     } catch (error) {
+//          console.error('Error fetching data from API:', error);
+//          res.status(500).send(error.message); // Send a 500 status with the error message
+//     }
+
+// API.post('/register', async function(req, res)
+// {
+    
+//     // Log the body of the request
+//     console.log("register company:",req.body)
+
+
+// });
+API.get('/companies', function(req, res)
+{
+      console.log('req',req)
+      res.send("GET ALL COMPANIES!!!!")
+      
+});
 // API.get('/pages-coming-soon', function(req, res)
 // {
 //       res.render('Pages/pages-coming-soon');

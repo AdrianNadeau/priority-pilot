@@ -6,6 +6,8 @@ var http = require('http').Server(app);
 var bCrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 const uuid = require('uuid');
+var cors = require('cors')
+require('dotenv').config()
 
 
 
@@ -20,11 +22,12 @@ const uuid = require('uuid');
 app.get('', (req, res) => {
   res.json({ message: 'Priority Pilot API is healthy...' });
 });
-// Parse JSON bodies for application/json content type
-app.use(bodyParser.json());
 
-// Parse URL-encoded bodies for application/x-www-form-urlencoded content type
-app.use(bodyParser.urlencoded({ extended: true }));
+// Parse JSON bodies for application/json content type
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cors())
+
 
 const sessionMiddleware = session({
 
@@ -34,18 +37,6 @@ const sessionMiddleware = session({
   rolling: true // Force regeneration of session ID for each request
 });
 app.use(sessionMiddleware);
-
-
-// Add Authentication Route file with app
-// app.use('/', Authrouter); 
-// app.use('/control', DashboardRouter);
-
-
-//For set layouts of html view
-// var expressLayouts = require('express-ejs-layouts');
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'ejs');
-// app.use(expressLayouts);
 
 // Add Route file with app
 let port = process.env.PORT;
