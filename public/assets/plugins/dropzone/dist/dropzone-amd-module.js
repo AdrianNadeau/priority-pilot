@@ -1788,7 +1788,7 @@ var Dropzone = function (_Emitter) {
 
             // Recursively call readEntries() again, since browser only handle
             // the first 100 entries.
-            // See: https://developer.mozilla.org/en-US/docs/Web/API/DirectoryReader#readEntries
+            // See: https://developer.mozilla.org/en-US/docs/Web DirectoryReader#readEntries
             readEntries();
           }
           return null;

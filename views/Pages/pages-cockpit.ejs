@@ -103,14 +103,14 @@
                
           
           </div>
-          <div>
+          <div style="padding-top:20px;">
             
             <strong>Why:</strong>
             <textarea class="form-control" id="project_why" rows="3" disabled><%=project[0].project_why %>
             </textarea>
           
           </div>
-          <div>
+          <div style="padding-top:20px;">
             
             <strong>What:</strong>
             <textarea class="form-control" id="project_what" rows="3" disabled><%=project[0].project_what %> 
@@ -118,13 +118,12 @@
            
           </div>
           <div>
-            <strong>Tags:</strong>
-            <br/>
-            <button type="button" class="btn btn-warning">Strategy</button>&nbsp;<button type="button" class="btn btn-primary">Customer Service</button>
+           <!-- tags -->
+            
           </div>
-          <div class="clearfix"></div>
+         
         </div>
-        <div>
+        <div style="padding-top:20px;">
           <strong>Change Log:</strong>
           <br/>
             <% if (changeLogs) { %>
@@ -164,13 +163,32 @@
         </div>
         <br/>
         
-        <canvas id="statusChart" width="300" height="200" ></canvas>
+        
         <% if (project[0].start_date) { %>
-          Start: <%= project[0].start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
+          <strong>Start:</strong> <%= project[0].start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
         <%}%>
         <% if (project[0].end_date) { %>
-          Start: <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/><br/>
+          <strong>End:</strong> <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
         <%}%>
+        <% if (lastStatusDate) { %>
+          <strong>Last Status:</strong> <%= lastStatusDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+        <%}%>
+        <% if (statusColor) { %>
+          <% 
+             let healthStatus = statusColor ? statusColor.trim().toLowerCase() : ''; 
+             if (healthStatus === 'green') { 
+           %>
+               <span class="green-circle"></span>
+           <% } else if (healthStatus === 'yellow') { %>
+                 <span class="yellow-circle"></span>
+             <% } else if (healthStatus === 'red') { %>
+                   <span class="red-circle"></span>
+             <% } %>
+            
+       <% } %>
+          
+        
+      <div style="padding-top:20px;padding-bottom:20px;">
         <strong>Status Updates:</strong>
           <br/>
           <% if (statuses) { %>
@@ -185,8 +203,8 @@
                 <% } else if (healthStatus === 'red') { %>
                     <span class="red-circle"></span>
                 <% } %>
-        
                 <%= status.status_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %> - <%=status.accomplishments%>
+                
                 <% if (status.progress) { %>
                   [<%=status.progress%>%]
               <% } %><br/>
@@ -194,11 +212,32 @@
                 <% }); %>
         <% } %>
         
-        
-        
 
-        <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
+       
+      </div>
+      <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
+       <br/><br/> 
+       <div class="row">
+        <div class="col-md-6 text-center">
+          <strong>$$</strong>
+          <ul class="list-unstyled">
+              <li>Full: $1.5M</li>
+              <li>Used: $1.1M</li>
+              <li>Avail: $0.4M</li>
+          </ul>
+        </div>
+        <div class="col-md-6 text-center">
+          <strong>Effort</strong>
+        <ul class="list-unstyled">
+            <li>40K PH</li>
+            <li>35K PH</li>
+            <li>5K PH</li>
+        </ul>
+        </div>
+    </div>
+        
   </div>
+  
     
      
 

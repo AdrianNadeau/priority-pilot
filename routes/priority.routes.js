@@ -21,5 +21,5 @@ module.exports = app => {
     // Create a new Priority
     router.delete("/", priorities.deleteAll);
   
-    app.use('/api/priorities', router);
+    app.use('/priorities', router);
   };

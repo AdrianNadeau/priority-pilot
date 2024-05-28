@@ -118,28 +118,29 @@
                                             <label for="project_description">Description</label>
                                             <textarea rows="4" class="form-control" id="project_description"  name="project_description" ></textarea>
                                         </div>
-                                        <div class="form-group" >
-                                            <label for="project_headline">Why?</label>
-                                            <textarea rows="4" class="form-control" id="project_why"  name="project_why" ></textarea>
+                                        <div id="leftElements">
+                                          <div class="form-group" >
+                                              <label for="project_headline">Why?</label>
+                                              <textarea rows="4" class="form-control" id="project_why"  name="project_why" ></textarea>
+                                          </div>
+                                          <div class="form-group" >
+                                            <label for="project_headline">What?</label>
+                                            <textarea rows="4" class="form-control" id="project_what"  name="project_what"  ></textarea>
+                                          
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="datepicker">Start Date:</label>
+                                            <input type="date" id="start_date" name="start_date" class="form-control">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="datepicker">End Date:</label>
+                                            <input type="date" id="end_date" name="end_date" class="form-control">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="datepicker">Next Milestone Date:</label>
+                                            <input type="date" id="next_milestone_date" name="next_milestone_date" class="form-control">
+                                          </div>
                                         </div>
-                                        <div class="form-group" >
-                                          <label for="project_headline">What?</label>
-                                          <textarea rows="4" class="form-control" id="project_what"  name="project_what"  ></textarea>
-                                         
-                                        </div>
-                                        <div class="form-group">
-                                          <label for="datepicker">Start Date:</label>
-                                          <input type="date" id="start_date" name="start_date" class="form-control">
-                                        </div>
-                                        <div class="form-group">
-                                          <label for="datepicker">End Date:</label>
-                                          <input type="date" id="end_date" name="end_date" class="form-control">
-                                        </div>
-                                        <div class="form-group">
-                                          <label for="datepicker">Next Milestone Date:</label>
-                                          <input type="date" id="next_milestone_date" name="next_milestone_date" class="form-control">
-                                        </div>
-                                      
                                       </div>
                                       <div class="col-md-6">
                                         <div class="form-group">
@@ -155,16 +156,17 @@
                                           </select>
                                           <textarea name="pitch_message" rows=4 id="pitch_message" placeholder="Enter your pitch message here"></textarea>
                                         </div>
-                                        <div class="form-group">
-                                          <label for="priority">Priority:</label>
-                                          <select name = "priority_id_fk" id = "priority_id_fk">
-                                           
-                                            <% priorities.forEach(function(priority){ %>
-                                              <option value= "<%= priority.id %>"><%= priority.priority_name %></option>
-                                            <% }) %>
-                                          </select>
-                                        </div>
-                                        
+                                        <div id="otherPhaseFields">
+                                          <div class="form-group">
+                                            <label for="priority">Priority:</label>
+                                            <select name = "priority_id_fk" id = "priority_id_fk">
+                                            
+                                              <% priorities.forEach(function(priority){ %>
+                                                <option value= "<%= priority.id %>"><%= priority.priority_name %></option>
+                                              <% }) %>
+                                            </select>
+                                          </div>
+                                       
                                         <div class="form-group">
                                           <label for="sponsor">Sponsor:</label>
                                           <select name = "sponsor_id_fk" id = "sponsor_id_fk">
@@ -184,16 +186,16 @@
                                             <% }) %>
                                           </select>
                                         </div>
-                                        
-                                        <div class="form-group" >
+                                      </div>
+                                        <div class="form-group" id="effort_option" >
                                           <label for="effort">Effort (PH)</label><br/>
                                           <input type="text" style="width:100px;" class="form-control" id="effort"  name="effort" >
                                       </div>
-                                      <div class="form-group" >
+                                      <div class="form-group"  id="benefit_option" >
                                         <label for="benefit">Benefit (ROI or $)</label><br/>
                                         <input type="text" style="width:100px;" class="form-control" id="benefit"  name="benefit" >
                                     </div>
-                                        <div class="form-group">
+                                        <div class="form-group" id="impact_option">
                                           <label for="impact">Impact:</label>
                                           <select name = "impact" id = "impact">
                                             
@@ -202,7 +204,7 @@
                                             <% } %>
                                           </select>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="form-group"  id="complexity_option">
                                           <label for="complexity">Complexity:</label>
                                           <select  name = "complexity" id = "complexity">
                                             
@@ -211,19 +213,19 @@
                                             <% } %>
                                           </select>
                                         </div>
-                                        <div class="form-group" >
+                                        <div class="form-group"  id="cost_option">
                                           <label for="project_cost">Estimated Cost</label>
                                           <input type="text" class="form-control" id="project_cost"  name="project_cost" value="0">
                                          
                                       </div>
                                       
                                        
-                                       <div class="form-group" >
+                                       <div class="form-group" id="tags_option" >
                                         <label for="project_tags">Tags (comma separated)</label>
                                         <input type="text" class="form-control" id="project_tags"  name="project_tags" >
                                        
                                     </div>
-                          
+                                  </div>
                             
                                     <div class="form-group" >
                                         <label class="form-label" for="logo"></label>
@@ -373,7 +375,7 @@ addProjectBtn.addEventListener("click", function() {
             row.addEventListener("click", function() {
                 // pages-project-edit
                 var projectId = row.querySelector('input[name="project_id"]').value;
-                console.log("projectid:",projectId)
+                
                 
                   fetch('/projects/' + projectId)
                     .then(response => {
@@ -384,7 +386,7 @@ addProjectBtn.addEventListener("click", function() {
                     })
                     .then(data => {
                       // Handle the response data here
-                      console.log("RESPONSE:",data);
+                     
                      
                     })
                     .catch(error => {
@@ -395,7 +397,6 @@ addProjectBtn.addEventListener("click", function() {
             });
         });
         const projectCost = document.getElementById('project_cost');
-        console.log('projectCost',projectCost);
         projectCost.addEventListener('input', function () {
         let input = projectCost.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except the decimal point
 
@@ -411,12 +412,35 @@ addProjectBtn.addEventListener("click", function() {
     });
     document.getElementById('phase_id_fk').addEventListener('change', function() {
             var textarea = document.getElementById('pitch_message');
+            hideElements = document.getElementById("otherPhaseFields");
+            leftElements = document.getElementById("leftElements");
+            effort_option = document.getElementById("effort_option");
+            benefit_option = document.getElementById("benefit_option");
+            impact_option = document.getElementById("impact_option");
+            complexity_option = document.getElementById("complexity_option");
+            tags_option = document.getElementById("tags_option");
+            
             if (this.value == '1') {
                 textarea.style.width = '300px';
-                
                 textarea.style.display = 'block';
+                //hide all other elements
+                hideElements.style.display = 'none';
+                leftElements.style.display = 'none';
+                effort_option.style.display = 'block';
+                benefit_option.style.display = 'none';
+                impact_option.style.display = 'none';
+                complexity_option.style.display = 'none';
+                tags_option.style.display = 'none';
+
             } else {
+                
                 textarea.style.display = 'none';
+                hideElements.style.display = 'block';
+                leftElements.style.display = 'block';
+                benefit_option.style.display = 'block';
+                impact_option.style.display = 'block';
+                complexity_option.style.display = 'block';
+                tags_option.style.display = 'block';
             }
     });
 });

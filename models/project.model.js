@@ -25,6 +25,9 @@ module.exports = (sequelize, Sequelize) => {
     project_what: {
       type: Sequelize.STRING
     },
+    health: {
+      type: Sequelize.STRING
+    },
     start_date: {
       type: Sequelize.DATE
     },

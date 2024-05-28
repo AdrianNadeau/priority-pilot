@@ -208,7 +208,7 @@ exports.findOne = (req, res) => {
             project_id_fk: project_id
           },
           order: [
-            ['change_date', 'ASC'] 
+            ['change_date', 'DESC'] 
           ]
         });
         const statuses = await Status.findAll({
@@ -216,14 +216,14 @@ exports.findOne = (req, res) => {
             project_id_fk: project_id
           },
           order: [
-            ['status_date', 'ASC'] 
+            ['status_date', 'DESC'] 
           ]
         });
         let lastStatusDate = null;
         let statusColor=null;
         if (statuses.length > 0) {
-            lastStatusDate = statuses[statuses.length - 1].status_date;
-            statusColor=statuses[statuses.length - 1].health
+            lastStatusDate = statuses[0].status_date;
+            statusColor=statuses[0].health;
         }
         res.render('Pages/pages-cockpit', {
             project: data,

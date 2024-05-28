@@ -2421,7 +2421,7 @@
 
     if (cap.haseventlistener) {  // W3C standard event model
 
-      // thanks to https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+      // thanks to https://developer.mozilla.org/en-US/docs/Web EventTarget/addEventListener
       try { var options = Object.defineProperty({}, "passive", { get: function () { passiveSupported = !0; } }); _win.addEventListener("test", null, options); } catch (err) { }
 
       this.stopPropagation = function (e) {

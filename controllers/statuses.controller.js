@@ -4,10 +4,10 @@ const Project = db.projects;
 const Op = db.Sequelize.Op;
 
 // Create and Save a new Status
-exports.create = (req, res) => {
-  console.log("PROJECT STATUS : ",req.body.status_accomplishments)
-  const currentDate = new Date();
-  console.log("currentDate",currentDate)
+exports.create = async (req, res) => {
+  try {
+    
+    console.log('create status')
     // Create a Status
     const status = {
       project_id_fk: req.body.project_id,
@@ -19,21 +19,37 @@ exports.create = (req, res) => {
       accomplishments: req.body.status_accomplishments,
       attachments: req.body.attachment,
     };
-    console.log("status:",status.accomplishments)
+    
     // Save Status in the database
-    Status.create(status)
-      .then(data => {
-        // console.log("data:",data)
-        //rendor cockpit page again and confirm status update text displays in the change log (add it to db table?)
-        res.redirect('/projects/cockpit/'+data.project_id_fk);
-      })
-      .catch(err => {
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while creating the Status."
-        });
+    const data = await Status.create(status);
+    // Optionally, log the created data
+  
+    const id = req.body.project_id;
+    console.log("Project ID:", id);
+
+    const project = await Project.findByPk(id, {
+      where: { project_id: id }
+    });
+
+    if (project) {
+      console.log("Update Health:",req.body.health);
+      await project.update({ health: req.body.health });
+      res.redirect('/projects/cockpit/' + id);
+    } else {
+      res.send({
+        message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`
       });
-  };
+    }
+  } catch (err) {
+    res.status(500).send({
+      message: "Error updating Project with id=" + req.body.project_id,
+      error: err.message
+    });
+  }
+};
+
+    
+   
 
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {

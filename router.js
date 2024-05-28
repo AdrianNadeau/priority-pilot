@@ -11,15 +11,64 @@ router.get('/', async function (req, res) {
     const company_id_fk = req.session.company.id;
     // Custom SQL query
     const query ='SELECT proj.company_id_fk, proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?';
-    
+
+    let pitchCount = 0, pitchTotalCost = 0;
+    let priorityCount = 0, priorityTotalCost = 0;
+    let discoveryCount = 0, discoveryTotalCost = 0;
+    let deliveryCount = 0, deliveryTotalCost = 0;
+    let operationsCount = 0, operationsTotalCost = 0;
+
     await db.sequelize.query(query, {
-    replacements: [company_id_fk],
+        replacements: [company_id_fk],
         type: db.sequelize.QueryTypes.SELECT
     }).then(data => {
-        
+        data.forEach(function(project) {
+            let projectCost = parseFloat(project.project_cost);
+            switch (project.phase_name.toLowerCase()) {
+                case "pitch":
+                    pitchTotalCost += projectCost;
+                    pitchCount++;
+                    break;
+                case "priority":
+                    priorityTotalCost += projectCost;
+                    priorityCount++;
+                    break;
+                case "discovery":
+                    discoveryTotalCost += projectCost;
+                    discoveryCount++;
+                    break;
+                case "delivery":
+                    deliveryTotalCost += projectCost;
+                    deliveryCount++;
+                    break;
+                case "operations":
+                    operationsTotalCost += projectCost;
+                    operationsCount++;
+                    break;
+            }
+        });
+
+        var formatter = new Intl.NumberFormat('en-US');
+
+        var pitchTotalSum = formatValue(formatter.format(pitchTotalCost));
+        var priorityTotalSum = formatValue(formatter.format(priorityTotalCost));
+        var discoveryTotalSum = formatValue(formatter.format(discoveryTotalCost));
+        var deliveryTotalSum = formatValue(formatter.format(deliveryTotalCost));
+        var operationsTotalSum = formatValue(formatter.format(operationsTotalCost));
+
         // Render the page when all data retrieval operations are complete
         res.render('Dashboard/dashboard1', {
             projects: data,
+            pitchCount: pitchCount,
+            pitchTotalCost: pitchTotalSum,
+            priorityCount: priorityCount,
+            priorityTotalCost: priorityTotalSum,
+            discoveryCount: discoveryCount,
+            discoveryTotalCost: discoveryTotalSum,
+            deliveryCount: deliveryCount,
+            deliveryTotalCost: deliveryTotalSum,
+            operationsCount: operationsCount,
+            operationsTotalCost: operationsTotalSum
         });
     }).catch(err => {
         res.status(500).send({
@@ -27,7 +76,18 @@ router.get('/', async function (req, res) {
         });
     });
 });
-
+function formatValue(value) {
+   
+    value = value.replace(/,/g, '');
+    value = parseFloat(value); // Convert to a number
+    if (value > 1000000) {
+        return (value / 1000000).toFixed(0) + 'M';
+    } else if (value > 1000) {
+        return (value / 1000).toFixed(0) + 'K';
+    } else {
+        return value.toString();
+    }
+}
 
 // Email
 router.get('/email-compose', function (req, res) {

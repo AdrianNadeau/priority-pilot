@@ -21,5 +21,5 @@ module.exports = app => {
     // Create a new 
     router.delete("/", change_logs_details.deleteAll);
   
-    app.use('/api/change_logs_details', router);
+    app.use('/change_logs_details', router);
   };

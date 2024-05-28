@@ -5,6 +5,7 @@ const Op = db.Sequelize.Op;
 // Create and Save a new Tag
 exports.create = (req, res) => {
     // Validate request
+    console.log("create tag")
     if (!req.body.tag_name) {
       res.status(400).send({
         message: "Tag Name can not be empty!"
