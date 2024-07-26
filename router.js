@@ -7,23 +7,44 @@ const Op = db.Sequelize.Op;
 
 // Dashboard
 router.get('/', async function (req, res) {
+    let company_id_fk;
+    try{
+        company_id_fk  = req.session.company.id;
+    }
     
-    const company_id_fk = req.session.company.id;
+    catch(error){
+        console.log("**************************************** ERRRRRORRRRRRRRRRRRRRRRRRRRRRRRRRR: ",error)
+        res.redirect('/login'); // Redirect to login page or any other page
+        // res.send("Session Expired or doesn't exist, redirect to expired page")
+    }
+    
     // Custom SQL query
-    const query ='SELECT proj.company_id_fk, proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?';
+    const query ='SELECT proj.company_id_fk, proj.id, proj.project_name, proj.start_date, proj.end_date,proj.health, proj.effort, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?';
 
     let pitchCount = 0, pitchTotalCost = 0;
     let priorityCount = 0, priorityTotalCost = 0;
     let discoveryCount = 0, discoveryTotalCost = 0;
     let deliveryCount = 0, deliveryTotalCost = 0;
     let operationsCount = 0, operationsTotalCost = 0;
+    let totalEstimatedCost = 0;
+    
+
+    let totalEffortPH = 0;
 
     await db.sequelize.query(query, {
         replacements: [company_id_fk],
         type: db.sequelize.QueryTypes.SELECT
     }).then(data => {
+        
         data.forEach(function(project) {
             let projectCost = parseFloat(project.project_cost);
+            if (!project.effort===undefined || project.effort!="NaN"){
+                totalEffortPH = parseFloat(project.project_cost);
+                totalEffortPH+=totalEffortPH;
+            }
+            
+            totalEstimatedCost+=projectCost;
+            
             switch (project.phase_name.toLowerCase()) {
                 case "pitch":
                     pitchTotalCost += projectCost;
@@ -49,13 +70,35 @@ router.get('/', async function (req, res) {
         });
 
         var formatter = new Intl.NumberFormat('en-US');
-
         var pitchTotalSum = formatValue(formatter.format(pitchTotalCost));
         var priorityTotalSum = formatValue(formatter.format(priorityTotalCost));
         var discoveryTotalSum = formatValue(formatter.format(discoveryTotalCost));
         var deliveryTotalSum = formatValue(formatter.format(deliveryTotalCost));
         var operationsTotalSum = formatValue(formatter.format(operationsTotalCost));
+        var totalCostSum = formatValue(formatter.format(totalEstimatedCost));
+        // var totalAvailSum = totalCostSum-operationsTotalSum;
+        // Perform subtraction directly on numbers
+        var totalAvailSum = totalEstimatedCost - operationsTotalCost;
+        //format what is left
+        var totalAvailSum = formatValue(formatter.format(totalAvailSum));
 
+
+
+        console.log("pitchCount:",pitchCount)
+        console.log("priorityCount:",priorityCount)
+        console.log("discoveryCount:",discoveryCount)
+        console.log("deliveryCount:",deliveryCount)
+        console.log("operationsCount:",operationsCount)
+
+        console.log("pitchTotalSum:",pitchTotalSum)
+        console.log("priorityTotalSum:",priorityTotalSum)
+        console.log("discoveryTotalSum:",discoveryTotalSum)
+        console.log("deliveryTotalSum:",deliveryTotalSum)
+        console.log("operationsTotalSum:",operationsTotalSum)
+
+        console.log("Total Effort:",totalEffortPH);
+
+        //calculate PH (completed is operations)
         // Render the page when all data retrieval operations are complete
         res.render('Dashboard/dashboard1', {
             projects: data,
@@ -68,16 +111,20 @@ router.get('/', async function (req, res) {
             deliveryCount: deliveryCount,
             deliveryTotalCost: deliveryTotalSum,
             operationsCount: operationsCount,
-            operationsTotalCost: operationsTotalSum
+            operationsTotalCost: operationsTotalSum,
+            totalCostSum:totalCostSum,
+            totalCostUsed:operationsTotalSum,
+            totalAvailableCost: totalAvailSum
         });
     }).catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error occurred while retrieving data."
-        });
+        // res.status(500).send({
+        //     message: err.message || "Some error occurred while retrieving data."
+        // });
     });
 });
 function formatValue(value) {
    
+    
     value = value.replace(/,/g, '');
     value = parseFloat(value); // Convert to a number
     if (value > 1000000) {

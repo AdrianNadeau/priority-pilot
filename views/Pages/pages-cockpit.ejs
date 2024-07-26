@@ -221,17 +221,17 @@
         <div class="col-md-6 text-center">
           <strong>$$</strong>
           <ul class="list-unstyled">
-              <li>Full: $1.5M</li>
-              <li>Used: $1.1M</li>
-              <li>Avail: $0.4M</li>
+              <li>Full: $<%=formattedCost %></li>
+              <li>Used: $<%=formattedCost %></li>
+              <li>Avail: $0</li>
           </ul>
         </div>
         <div class="col-md-6 text-center">
           <strong>Effort</strong>
         <ul class="list-unstyled">
-            <li>40K PH</li>
-            <li>35K PH</li>
-            <li>5K PH</li>
+            <li><%=project[0].effort %> PH</li>
+            <li><%=project[0].effort %> PH</li>
+            <li>0 PH</li>
         </ul>
         </div>
     </div>
