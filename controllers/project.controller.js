@@ -240,6 +240,104 @@ exports.findOne = (req, res) => {
         });
     }
 };
+exports.findOneForEdit = async (req, res) => {
+  try {
+    const project_id = req.params.id;
+    let company_id_fk;
+
+    // Ensure session exists and fetch company ID
+    if (!req.session || !req.session.company) {
+      res.redirect("/pages-500");
+    }
+    
+    company_id_fk = req.session.company.id;
+
+    // Query to fetch project details
+    const query = `
+     SELECT proj.company_id_fk, proj.id, proj.effort, proj.prime_id_fk, 
+             proj.project_headline, proj.project_name, proj.start_date, 
+             proj.end_date, proj.next_milestone_date, proj.project_why, 
+             proj.project_what, prime_person.first_name AS prime_first_name, 
+             prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, 
+             sponsor_person.last_name AS sponsor_last_name, proj.project_cost, 
+             phases.phase_name, proj.pitch_message
+      FROM projects proj 
+      LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk 
+      LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
+      LEFT JOIN phases ON phases.id = proj.phase_id_fk
+      WHERE proj.company_id_fk = ? AND proj.id = ?`;
+
+    const currentDate = new Date();
+
+    try {
+      // Execute the query
+      const data = await db.sequelize.query(query, {
+        replacements: [company_id_fk, project_id],
+        type: db.sequelize.QueryTypes.SELECT
+      });
+
+      if (!data || data.length === 0) {
+        return res.status(404).send({ message: "Project not found" });
+      }
+
+      // Format the project cost
+      const formatter = new Intl.NumberFormat();
+      const formattedCost = formatter.format(data[0].project_cost);
+
+      // Get change logs for the project
+      const change_logs = await ChangeLog.findAll({
+        where: { project_id_fk: project_id },
+        order: [['change_date', 'DESC']]
+      });
+
+      // Get statuses for the project
+      const statuses = await Status.findAll({
+        where: { project_id_fk: project_id },
+        order: [['status_date', 'DESC']]
+      });
+
+      let lastStatusDate = null;
+      let statusColor = null;
+
+      if (statuses.length > 0) {
+        lastStatusDate = statuses[0].status_date;
+        statusColor = statuses[0].health;
+      }
+
+      const [phasesData, prioritiesData, personsData] = await Promise.all([
+        Phase.findAll(),
+        Priority.findAll(),
+        Person.findAll(),
+        Project.findAll() // Assuming Project.findAll() returns a Promise
+    ]);
+      // Render the cockpit page with the retrieved data
+      
+      res.render('Pages/pages-edit-project', {
+        project: data[0], // Pass the first element of the data array
+        // current_date: currentDate,
+        // formattedCost: formattedCost,
+        phases: phasesData,
+        priorities: prioritiesData,
+        sponsors: personsData,
+        primes: personsData,
+
+      });
+      
+    } catch (err) {
+      console.error("Error retrieving data:", err);
+      res.status(500).send({
+        message: err.message || "Error occurred while retrieving data."
+      });
+    }
+
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({
+      message: "An unexpected error occurred."
+    });
+  }
+};
+
 
   exports.radar = async  (req, res) => {
    

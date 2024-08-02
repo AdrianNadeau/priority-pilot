@@ -375,23 +375,13 @@ addProjectBtn.addEventListener("click", function() {
             row.addEventListener("click", function() {
                 // pages-project-edit
                 var projectId = row.querySelector('input[name="project_id"]').value;
+                var id = row.cells[0].textContent; // Assuming the ID is in the first cell
+        
+                // Now you have the ID, you can use it as needed
                 
-                
-                  fetch('/projects/' + projectId)
-                    .then(response => {
-                      if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                      }
-                      return response.json(); // Parse the JSON response
-                    })
-                    .then(data => {
-                      // Handle the response data here
-                     
-                     
-                    })
-                    .catch(error => {
-                      console.error('There was a problem with the fetch operation:', error);
-                    });
+                // Show the modal when a row is clicked
+                window.location.replace('/projects/edit/'+id)
+
                   
                  
             });
@@ -444,7 +434,28 @@ addProjectBtn.addEventListener("click", function() {
             }
     });
 });
+ // Wait for the DOM to be ready
+ document.addEventListener("DOMContentLoaded", function() {
+        // Get all table rows
+        var rows = document.querySelectorAll(".table tbody tr");
 
+        // Loop through each row
+        rows.forEach(function(row) {
+            console.log("row:",row)
+            // Add a click event listener to each row
+            row.addEventListener("click", function() {
+                var id = row.cells[0].textContent; // Assuming the ID is in the first cell
+        
+                // Now you have the ID, you can use it as needed
+                
+                // Show the modal when a row is clicked
+                console.log("************* ID *****************",id)
+                window.location.replace('/projects/edit/'+id)
+
+                // $('#personForm').modal('show'); // Assuming you're using jQuery
+            });
+        });
+    });
     
 
     

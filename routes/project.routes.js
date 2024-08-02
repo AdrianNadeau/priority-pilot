@@ -9,7 +9,7 @@ module.exports = app => {
     router.put("/:id", projects.update);
     router.delete("/:id", projects.delete);
     router.get('/cockpit/:id', projects.cockpit);
-    // router.get('/:addoredite/:id', projects.cockpit);
+    router.get("/edit/:id", projects.findOneForEdit);
     router.get('/radar/view/', projects.radar);
     router.get('/flight/view/', projects.flight);
     router.get('/health/view/', projects.health);

@@ -84,21 +84,24 @@ router.get('/', async function (req, res) {
 
 
 
-        console.log("pitchCount:",pitchCount)
-        console.log("priorityCount:",priorityCount)
-        console.log("discoveryCount:",discoveryCount)
-        console.log("deliveryCount:",deliveryCount)
-        console.log("operationsCount:",operationsCount)
+        // console.log("pitchCount:",pitchCount)
+        // console.log("priorityCount:",priorityCount)
+        // console.log("discoveryCount:",discoveryCount)
+        // console.log("deliveryCount:",deliveryCount)
+        // console.log("operationsCount:",operationsCount)
 
-        console.log("pitchTotalSum:",pitchTotalSum)
-        console.log("priorityTotalSum:",priorityTotalSum)
-        console.log("discoveryTotalSum:",discoveryTotalSum)
-        console.log("deliveryTotalSum:",deliveryTotalSum)
-        console.log("operationsTotalSum:",operationsTotalSum)
+        // console.log("pitchTotalSum:",pitchTotalSum)
+        // console.log("priorityTotalSum:",priorityTotalSum)
+        // console.log("discoveryTotalSum:",discoveryTotalSum)
+        // console.log("deliveryTotalSum:",deliveryTotalSum)
+        // console.log("operationsTotalSum:",operationsTotalSum)
 
-        console.log("Total Effort:",totalEffortPH);
+        // console.log("Total Effort:",totalEffortPH);
 
         //calculate PH (completed is operations)
+
+
+        
         // Render the page when all data retrieval operations are complete
         res.render('Dashboard/dashboard1', {
             projects: data,

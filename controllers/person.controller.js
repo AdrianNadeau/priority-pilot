@@ -143,6 +143,7 @@ exports.findOne = (req, res) => {
   exports.findOneForEdit = (req, res) => {
     
     id = req.params.id;
+    console.log("edit person:",id)
     Person.findByPk(id)
       .then(data => {
         if (data) {
@@ -164,7 +165,30 @@ exports.findOne = (req, res) => {
         });
       });
   };
- 
+  exports.findAllByCompanyId = (req, res) => {
+    
+    id = req.params.id;
+    Person.find([id])
+      .then(data => {
+        if (data) {
+          // res.send(data);
+          // res.redirect('/persons/pages-edit-person/'+id);
+            // Render the page when all data retrieval operations are complete
+            res.render('Pages/pages-edit-person', {
+              personData: data,
+          });
+        } else {
+          res.status(404).send({
+            message: `Cannot find Person with id=${id}.`
+          });
+        }
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: "Error retrieving Person with id=" + id
+        });
+      });
+  };
 // Update a  by the id in the request
 exports.update = (req, res) => {
  

@@ -11,9 +11,8 @@
     </li>
     
     <li class="hide-phone list-inline-item app-search">
-        <h3 class="page-title">Projects</h3>
-        <button type="button" class="btn btn-primary waves-effect waves-light" id="btnAddProject">Add Project</button>
-        
+        <h3 class="page-title"> Projects </h3>
+    
     </li>
 </ul>
 
@@ -22,60 +21,169 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
-              <div class="card-body" style="border:0px !important;">
-                        <div class="table-responsive">
-                            <table class="table mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Prime</th>
-                                        <th>Sponsor</th>
-                                        <th>Start</th>
-                                        <th>End</th>
-                                        <th>Health</th>
-                                        <th>Phase</th>
-                                    </tr>
-                                </thead>
-                               
-                                <% projects.forEach(function(project) { %>
-                                  <tbody>
-                                      <tr style="cursor: pointer;">
-                                        <input type="hidden" name="project_id" value = "<%= project.id %>"/>
-                                        <td><%= project.id %></td>
-                                        <td><%= project.project_name %></td>
-
-                                        <% if(project.prime_last_name){ %>
-                                            <td><%= project.prime_last_name %>, <%= project.prime_first_name %> </td>
-                                        <% } else { %>
-                                            <td>N/A</td>
-                                        <% } %>
-
-                                        <% if(project.sponsor_last_name){ %>
-                                          <td><%= project.sponsor_last_name %>, <%= project.sponsor_first_name %> </td>
-                                        <% } else { %>
-                                          <td>N/A</td>
-                                        <% } %>
-                                       
-                                        
-                                        <td><%= project.start_date %></td>
-                                        <td><%= project.end_date %></td>
-                                        <td><%= project.health %></td>
-                                        <td><%= project.phase_name %></td>
-                                        
-                                      </tr>
-                                  </tbody>
-                              <% }); %>
-                              
-                             
-                            </table>
+              <form action="/projects" class="needs-validation" novalidate method="POST">
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- First column of form fields -->
+                        
+                        <div class="form-group needs-validation" novalidate>
+                            <label for="project_name">Name</label>
+                            <input type="text" class="form-control" id="project_name"  name="project_name" required value="<%=project.project_name%>">
+                            <div class="invalid-feedback">
+                                Please enter project name.
+                            </div>
+                        </div>
+                        <div class="form-group" >
+                            <label for="project_headline">Headline</label>
+                            <input type="text" class="form-control" id="project_headline"  name="project_headline" value="<%=project.project_headline%>" >
+                        </div>
+                        <div class="form-group" >
+                          <label for="project_description">Description</label>
+                          <textarea rows="4" class="form-control" id="project_description"  name="project_description" ><%=project.project_headline%></textarea>
+                      </div>
+                      <div id="leftElements">
+                        <div class="form-group" >
+                            <label for="project_headline">Why?</label>
+                            <textarea rows="4" class="form-control" id="project_why"  name="project_why" ><%=project.project_why%></textarea>
+                        </div>
+                        <div class="form-group" >
+                          <label for="project_headline">What?</label>
+                          <textarea rows="4" class="form-control" id="project_what"  name="project_what"  ><%=project.project_what%></textarea>
+                        
+                        </div>
+                        <div class="form-group">
+                          <label for="datepicker">Start Date (have to format somehow):</label>
+                          <input type="date" id="start_date" name="start_date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label for="datepicker">End Date:</label>
+                          <input type="date" id="end_date" name="end_date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label for="datepicker">Next Milestone Date:</label>
+                          <input type="date" id="next_milestone_date" name="next_milestone_date" class="form-control">
                         </div>
                       </div>
                     </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                       
+                      </div>
+                      <div class="form-group">
+                       
+                        <label for="phase">Phase:</label>
+                        <select name ="phase_id_fk" id = "phase_id_fk">
+                          <% phases.forEach(function(phase){ %>
+                            <% if (phase.phase_name == project.phase_name){ %>
+                              <option selected value="<%= phase.id %>"><%= phase.phase_name %></option>
+                            <% } else { %>
+                              <option value="<%= phase.id %>"><%= phase.phase_name %></option>
+                            <% } %>
+                          <% }) %>
+                          
+                        </select>
+                       
+                          
+                      </div>
+                      <div>
+                        <% if(project.phase_name=="Pitch"){%>
+                          <textarea name="pitch_message" rows=4 style="width: 400px;" id="pitch_message"><%=project.pitch_message%></textarea>
+                        <%}%>
+                      </div>
+                      <div id="otherPhaseFields">
+                        <div class="form-group"><%=project.priority_id_fk%>
+                          <label for="priority">Priority:</label>
+                          <select name = "priority_id_fk" id = "priority_id_fk">
+                          
+                            <% priorities.forEach(function(priority) { %>
+                              <% if (priority.id == project.priority_id_fk) { %>
+                                <option selected value="<%= priority.id %>"><%= priority.priority_name %></option>
+                              <% } else { %>
+                                <option value="<%= priority.id %>"><%= priority.priority_name %></option>
+                              <% } %>
+                            <% }) %>
+                            
+                          </select>
+                        </div>
+                     
+                      <div class="form-group">
+                        <label for="sponsor">Sponsor:</label>
+                        <select name = "sponsor_id_fk" id = "sponsor_id_fk">
+
+                          <% sponsors.forEach(function(sponsor){ %>
+                            <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %> </option>
+                          <% }) %>
+
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="prime">Prime:</label>
+                        <select name = "prime_id_fk" id = "prime_id_fk">
+                          
+                          <% primes.forEach(function(prime){ %>
+                            <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %> </option>
+                          <% }) %>
+                        </select>
+                      </div>
+                    </div>
+                      <div class="form-group" id="effort_option" >
+                        <label for="effort">Effort (PH)</label><br/>
+                        <input type="text" style="width:100px;" class="form-control" id="effort"  name="effort" >
+                    </div>
+                    <div class="form-group"  id="benefit_option" >
+                      <label for="benefit">Benefit (ROI or $)</label><br/>
+                      <input type="text" style="width:100px;" class="form-control" id="benefit"  name="benefit" >
+                  </div>
+                      <div class="form-group" id="impact_option">
+                        <label for="impact">Impact:</label>
+                        <select name = "impact" id = "impact">
+                          
+                          <% for (var i = 1; i <= 10; i++) { %>
+                            <option value="<%= i %>"><%= i %></option>
+                          <% } %>
+                        </select>
+                      </div>
+                      <div class="form-group"  id="complexity_option">
+                        <label for="complexity">Complexity:</label>
+                        <select  name = "complexity" id = "complexity">
+                          
+                          <% for (var i = 1; i <= 10; i++) { %>
+                            <option value="<%= i %>"><%= i %></option>
+                          <% } %>
+                        </select>
+                      </div>
+                      <div class="form-group"  id="cost_option">
+                        <label for="project_cost">Estimated Cost</label>
+                        <input type="text" class="form-control" id="project_cost"  name="project_cost" value="0">
+                       
+                    </div>
+                    
+                     
+                     <div class="form-group" id="tags_option" >
+                      <label for="project_tags">Tags (comma separated)</label>
+                      <input type="text" class="form-control" id="project_tags"  name="project_tags" >
+                     
+                  </div>
                 </div>
+          
+                  <div class="form-group" >
+                      <label class="form-label" for="logo"></label>
+                      <input type="file" class="form-control" id="logo" name="logo" />
+                  </div>
+                    </div>
+                </div>
+                <!-- Add more rows and columns if needed -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+                    <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                    <!-- if edit, add delete button -->
+                    <!-- <button class="btn btn-danger w-md waves-effect waves-light" onClick='openDeleteModal()' type="button">Delete</button> -->
+                    <!-- if edit, add delete button -->
+                </div>
+            </form>
             </div>
         </div>
-        
+       
     </div>
 </div>
 

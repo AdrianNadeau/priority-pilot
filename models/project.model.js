@@ -26,7 +26,8 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING
     },
     health: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      default:""
     },
     start_date: {
       type: Sequelize.DATE
