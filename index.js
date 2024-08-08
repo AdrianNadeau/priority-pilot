@@ -4,12 +4,13 @@ var session = require('express-session')
 var path = require('path');
 var http = require('http').Server(app);
 var bCrypt = require('bcryptjs');
-const bodyParser = require('body-parser');
-const uuid = require('uuid');
+const multer = require('multer');
 
 var router = require('./router.js');
 var Authrouter = require('./routes/AuthRouter.js');
 var DashboardRouter = require('./routes/DashboardRouter.js');
+
+app.use(express.urlencoded({ extended: true }));
 
 // Access public folder from root
 app.use('/public', express.static('public'));
@@ -17,11 +18,8 @@ app.get('/layouts/', function(req, res) {
   res.render('view');
 });
 
-// Parse JSON bodies for application/json content type
-app.use(bodyParser.json());
-
-// Parse URL-encoded bodies for application/x-www-form-urlencoded content type
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const sessionMiddleware = session({
 
@@ -31,6 +29,7 @@ const sessionMiddleware = session({
   rolling: true // Force regeneration of session ID for each request
 });
 app.use(sessionMiddleware);
+
 
 
 // Add Authentication Route file with app
@@ -56,7 +55,9 @@ db.sequelize.sync()
     console.log("Failed to sync db: " + err.message);
   });
 
-  
+// app.use('/logo/upload', express.static(path.join(__dirname, '/upload/logos')));
+// app.use('/avatar/upload', express.static(path.join(__dirname, '/upload/avatars')));
+
 require("./routes/company.routes")(app);
 require("./routes/person.routes")(app);
 require("./routes/change_log.routes")(app);
@@ -68,6 +69,7 @@ require("./routes/tag.routes")(app);
 require("./routes/status.routes")(app);
 require("./routes/phase.routes")(app);
 require("./routes/priority.routes")(app);
+require("./routes/files.routes.js")(app);
 
 http.listen(8080, function(){
   console.log('listening on *:8080');

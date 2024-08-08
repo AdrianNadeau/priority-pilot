@@ -70,11 +70,11 @@
                        
                       </div>
                       <div class="form-group">
-                       
+                        
                         <label for="phase">Phase:</label>
                         <select name ="phase_id_fk" id = "phase_id_fk">
                           <% phases.forEach(function(phase){ %>
-                            <% if (phase.phase_name == project.phase_name){ %>
+                            <% if (phase.id == project.phase_id_fk){ %>
                               <option selected value="<%= phase.id %>"><%= phase.phase_name %></option>
                             <% } else { %>
                               <option value="<%= phase.id %>"><%= phase.phase_name %></option>
@@ -91,7 +91,7 @@
                         <%}%>
                       </div>
                       <div id="otherPhaseFields">
-                        <div class="form-group"><%=project.priority_id_fk%>
+                        <div class="form-group">
                           <label for="priority">Priority:</label>
                           <select name = "priority_id_fk" id = "priority_id_fk">
                           
@@ -109,30 +109,40 @@
                       <div class="form-group">
                         <label for="sponsor">Sponsor:</label>
                         <select name = "sponsor_id_fk" id = "sponsor_id_fk">
-
+                          
                           <% sponsors.forEach(function(sponsor){ %>
-                            <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %> </option>
+                            <% if (sponsor.id == project.sponsor_id_fk) { %>
+                              <option selected value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
+                            <% } else { %>
+                              <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
+                            <% } %>
                           <% }) %>
+                          
 
                         </select>
                       </div>
                       <div class="form-group">
                         <label for="prime">Prime:</label>
                         <select name = "prime_id_fk" id = "prime_id_fk">
-                          
                           <% primes.forEach(function(prime){ %>
-                            <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %> </option>
+                            <% if (prime.id == project.prime_id_fk) { %>
+                              <option selected  value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %> </option>
+                              <
+                            <% } else { %>
+                              <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
+                            <% } %>
                           <% }) %>
+                          
                         </select>
                       </div>
                     </div>
                       <div class="form-group" id="effort_option" >
                         <label for="effort">Effort (PH)</label><br/>
-                        <input type="text" style="width:100px;" class="form-control" id="effort"  name="effort" >
+                        <input type="text" style="width:100px;" class="form-control" id="effort"  name="effort" value = "<%=project.effort%>">
                     </div>
                     <div class="form-group"  id="benefit_option" >
                       <label for="benefit">Benefit (ROI or $)</label><br/>
-                      <input type="text" style="width:100px;" class="form-control" id="benefit"  name="benefit" >
+                      <input type="text" style="width:100px;" class="form-control" id="benefit"  name="benefit"value = "<%=project.benefit%>" >
                   </div>
                       <div class="form-group" id="impact_option">
                         <label for="impact">Impact:</label>
@@ -191,132 +201,89 @@
 
 <%- contentFor('BottomJs') %>
 <script>
-  (function () {
-    'use strict'
-  
-    // Fetch all the forms we want to apply custom Bootstrap validation styles to
-    var forms = document.querySelectorAll('.needs-validation')
-    // Loop over them and prevent submission
-    Array.prototype.slice.call(forms)
-      .forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-          if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-          }
-  
-          form.classList.add('was-validated')
-        }, false)
-      })
-  })()
-  document.getElementById('progress').addEventListener('keydown', function(event) {
-    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
-    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
-        // Allow: Ctrl+A
-        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+C
-        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+V
-        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+X
-        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: home, end, left, right
-        (event.keyCode >= 35 && event.keyCode <= 39)) {
-             // let it happen, don't do anything
-             return;
-    }
-    // Ensure that it is a number and stop the keypress if not
-    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
-        alert("Only numbers are allowed")
-        event.preventDefault();
-    }
-});
-document.getElementById('project_cost').addEventListener('keydown', function(event) {
-    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
-    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
-        // Allow: Ctrl+A
-        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+C
-        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+V
-        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+X
-        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: home, end, left, right
-        (event.keyCode >= 35 && event.keyCode <= 39)) {
-             // let it happen, don't do anything
-             return;
-    }
-    // Ensure that it is a number and stop the keypress if not
-    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
-        alert("Only numbers are allowed")
-        event.preventDefault();
-    }
-})
-function clearModalFields() {
-        // Get all input elements within the modal
-        var inputs = document.querySelectorAll('#addProject input, #addProject textarea, #addProject select');
+  document.addEventListener("DOMContentLoaded", function() {
+    'use strict';
 
-        // Loop through each input element
-        inputs.forEach(function(input) {
-           // Reset the value of the input element
-           if (input.id === 'project_cost'|| input.id === 'progress') {
-                input.value = '0'; // Set project_cost to 0
-            } else {
-                input.value = ''; // Clear other fields
+    // Form validation using Bootstrap's custom styles
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+
+    // Numeric input validation for specific fields
+    const numericFields = ['project_cost', 'effort', 'benefit'];
+    numericFields.forEach(function(fieldId) {
+        document.getElementById(fieldId).addEventListener('keydown', function(event) {
+            if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
+                !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
+                !(event.ctrlKey || event.metaKey)) {
+                alert("Only numbers are allowed.")
+                event.preventDefault();
             }
         });
-    }
-     // Get the clear button element
-     var addProjectBtn = document.getElementById('btnAddProject');
-     
+    });
 
-// Add a click event listener to the clear button
-addProjectBtn.addEventListener("click", function() {
-    // Call the function to clear all modal fields
-    // clearModalFields();
-    alert("send to add edit")
-    window.location.replace("/projects/add/")
-    
-    return;
-    
-});
- // Wait for the DOM to be ready
- document.addEventListener("DOMContentLoaded", function() {
-        // Get all table rows
-        var rows = document.querySelectorAll(".table tbody tr");
-
-        // Loop through each row
-        rows.forEach(function(row) {
-          
-            // Add a click event listener to each row
-            row.addEventListener("click", function() {
-                // pages-project-edit
-                var projectId = row.querySelector('input[name="project_id"]').value;
-                console.log("projectid:",projectId)
-                // window.location.replace('/Pages/pages-projects-edit');
-                 // Send a GET request to the server with the project ID
-                  fetch('/projects/' + projectId)
-                    .then(response => {
-                      if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                      }
-                      return response.json(); // Parse the JSON response
-                    })
-                    .then(data => {
-                      // Handle the response data here
-                      console.log("RESPONSE:",data);
-                      // Redirect or perform any other action based on the response
-                      // For example, if you want to redirect to a new page:
-                      // window.location.href = '/projects/' + projectId;
-                    })
-                    .catch(error => {
-                      console.error('There was a problem with the fetch operation:', error);
-                    });
-                  
-                 
-            });
+    // Table row click navigation to edit page
+    document.querySelectorAll(".table tbody tr").forEach(function(row) {
+        row.addEventListener('click', function() {
+            var id = row.cells[0].textContent;
+            window.location.replace('/projects/edit/' + id);
         });
     });
-    
+
+    // Input formatting with commas for project cost and benefit
+    ['project_cost', 'benefit'].forEach(function(fieldId) {
+       
+        document.getElementById(fieldId).addEventListener('input', function () {
+          
+            let input = this.value.replace(/[^0-9.]/g, '');
+            if (input.includes('.')) {
+                const parts = input.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                input = parts.join('.');
+            } else {
+                input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+            this.value = input;
+        });
+    });
+
+    // Dynamic field display based on phase selection
+    document.getElementById('phase_id_fk').addEventListener('change', function() {
+        var textarea = document.getElementById('pitch_message');
+        var hideElements = document.getElementById("otherPhaseFields");
+        var leftElements = document.getElementById("leftElements");
+        var effort_option = document.getElementById("effort_option");
+        var benefit_option = document.getElementById("benefit_option");
+        var impact_option = document.getElementById("impact_option");
+        var complexity_option = document.getElementById("complexity_option");
+        var tags_option = document.getElementById("tags_option");
+
+        if (this.value == '1') {
+            textarea.style.display = 'block';
+            hideElements.style.display = 'none';
+            leftElements.style.display = 'none';
+            effort_option.style.display = 'block';
+            benefit_option.style.display = 'none';
+            impact_option.style.display = 'none';
+            complexity_option.style.display = 'none';
+            tags_option.style.display = 'none';
+        } else {
+            textarea.style.display = 'none';
+            hideElements.style.display = 'block';
+            leftElements.style.display = 'block';
+            benefit_option.style.display = 'block';
+            impact_option.style.display = 'block';
+            complexity_option.style.display = 'block';
+            tags_option.style.display = 'block';
+        }
+    });
+});
+
 </script>

@@ -72,6 +72,11 @@ module.exports = (sequelize, Sequelize) => {
     },
     deleted_date: {
       type: Sequelize.DATE
+      
+    },
+    deleted_yn: {
+      type: Sequelize.STRING,
+      default:"n"
     },
     change_date: {
       type: Sequelize.DATE

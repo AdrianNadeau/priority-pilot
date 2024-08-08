@@ -103,7 +103,7 @@
                                   <div class="row">
                                       <div class="col-md-6">
                                           <!-- First column of form fields -->
-                                          <div class="form-group needs-validation" novalidate>
+                                          <div class="form-group" novalidate>
                                               <label for="project_name">Name</label>
                                               <input type="text" class="form-control" id="project_name"  name="project_name" required>
                                               <div class="invalid-feedback">
@@ -154,7 +154,7 @@
                                               <option value="<%= phase.id %>"><%= phase.phase_name %></option>
                                             <% }) %>
                                           </select>
-                                          <textarea name="pitch_message" rows=4 id="pitch_message" placeholder="Enter your pitch message here"></textarea>
+                                          <textarea name="pitch_message" rows=4 id="pitch_message" style="width:400px;" placeholder="Enter your pitch message here"></textarea>
                                         </div>
                                         <div id="otherPhaseFields">
                                           <div class="form-group">
@@ -256,207 +256,96 @@
 
 <%- contentFor('BottomJs') %>
 <script>
-  (function () {
-    'use strict'
-  
-    // Fetch all the forms we want to apply custom Bootstrap validation styles to
-    var forms = document.querySelectorAll('.needs-validation')
-    // Loop over them and prevent submission
-    Array.prototype.slice.call(forms)
-      .forEach(function (form) {
+ document.addEventListener("DOMContentLoaded", function() {
+    'use strict';
+
+    // Form validation using Bootstrap's custom styles
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function (form) {
         form.addEventListener('submit', function (event) {
-          if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-          }
-  
-          form.classList.add('was-validated')
-        }, false)
-      })
-  })()
- document.getElementById('project_cost').addEventListener('keydown', function(event) {
-    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
-    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
-        // Allow: Ctrl+A
-        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+C
-        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+V
-        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+X
-        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: home, end, left, right
-        (event.keyCode >= 35 && event.keyCode <= 39)) {
-             // let it happen, don't do anything
-             return;
-    }
-    // Ensure that it is a number and stop the keypress if not
-    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
-        alert("Only numbers are allowed")
-        event.preventDefault();
-    }
-})
-document.getElementById('effort').addEventListener('keydown', function(event) {
-    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
-    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
-        // Allow: Ctrl+A
-        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+C
-        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+V
-        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+X
-        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: home, end, left, right
-        (event.keyCode >= 35 && event.keyCode <= 39)) {
-             // let it happen, don't do anything
-             return;
-    }
-    // Ensure that it is a number and stop the keypress if not
-    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
-        alert("Only numbers are allowed")
-        event.preventDefault();
-    }
-})
-document.getElementById('benefit').addEventListener('keydown', function(event) {
-    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
-    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
-        // Allow: Ctrl+A
-        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+C
-        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+V
-        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+X
-        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: home, end, left, right
-        (event.keyCode >= 35 && event.keyCode <= 39)) {
-             // let it happen, don't do anything
-             return;
-    }
-    // Ensure that it is a number and stop the keypress if not
-    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
-        alert("Only numbers are allowed")
-        event.preventDefault();
-    }
-})
-function clearModalFields() {
-        // Get all input elements within the modal
-        var inputs = document.querySelectorAll('#addProject input, #addProject textarea, #addProject select');
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
 
-        // Loop through each input element
-        inputs.forEach(function(input) {
-           // Reset the value of the input element
-           if (input.id === 'project_cost'|| input.id === 'progress') {
-                input.value = '0'; // Set project_cost to 0
-            } else {
-                input.value = ''; // Clear other fields
+    // Numeric input validation for specific fields
+    const numericFields = ['project_cost', 'effort', 'benefit'];
+    numericFields.forEach(function(fieldId) {
+        document.getElementById(fieldId).addEventListener('keydown', function(event) {
+            if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
+                !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
+                !(event.ctrlKey || event.metaKey)) {
+                alert("Only numbers are allowed.")
+                event.preventDefault();
             }
         });
-    }
-     // Get the clear button element
-     var addProjectBtn = document.getElementById('btnAddProject');
-
-// Add a click event listener to the clear button
-addProjectBtn.addEventListener("click", function() {
-    // Call the function to clear all modal fields
-    clearModalFields();
-    
-});
- // Wait for the DOM to be ready
- document.addEventListener("DOMContentLoaded", function() {
-        // Get all table rows
-        var rows = document.querySelectorAll(".table tbody tr");
-
-        // Loop through each row
-        rows.forEach(function(row) {
-          
-            // Add a click event listener to each row
-            row.addEventListener("click", function() {
-                // pages-project-edit
-                var projectId = row.querySelector('input[name="project_id"]').value;
-                var id = row.cells[0].textContent; // Assuming the ID is in the first cell
-        
-                // Now you have the ID, you can use it as needed
-                
-                // Show the modal when a row is clicked
-                window.location.replace('/projects/edit/'+id)
-
-                  
-                 
-            });
-        });
-        const projectCost = document.getElementById('project_cost');
-        projectCost.addEventListener('input', function () {
-        let input = projectCost.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except the decimal point
-
-        if (input.includes('.')) {
-            const parts = input.split('.');
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas to the integer part
-            input = parts.join('.');
-        } else {
-            input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas if no decimal part
-        }
-
-        projectCost.value = input;
     });
+
+    // Clear modal fields on "Add Project" button click
+    document.getElementById('btnAddProject').addEventListener('click', function() {
+        document.querySelectorAll('#addProject input, #addProject textarea, #addProject select').forEach(function(input) {
+            input.value = input.id === 'project_cost' ? '0' : '';
+        });
+    });
+
+    // Table row click navigation to edit page
+    document.querySelectorAll(".table tbody tr").forEach(function(row) {
+        row.addEventListener('click', function() {
+            var id = row.cells[0].textContent;
+            window.location.replace('/projects/edit/' + id);
+        });
+    });
+
+    // Input formatting with commas for project cost and benefit
+    ['project_cost', 'benefit'].forEach(function(fieldId) {
+       
+        document.getElementById(fieldId).addEventListener('input', function () {
+          console.log("fieldId:",fieldId)
+            let input = this.value.replace(/[^0-9.]/g, '');
+            if (input.includes('.')) {
+                const parts = input.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                input = parts.join('.');
+            } else {
+                input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+            this.value = input;
+        });
+    });
+
+    // Dynamic field display based on phase selection
     document.getElementById('phase_id_fk').addEventListener('change', function() {
-            var textarea = document.getElementById('pitch_message');
-            hideElements = document.getElementById("otherPhaseFields");
-            leftElements = document.getElementById("leftElements");
-            effort_option = document.getElementById("effort_option");
-            benefit_option = document.getElementById("benefit_option");
-            impact_option = document.getElementById("impact_option");
-            complexity_option = document.getElementById("complexity_option");
-            tags_option = document.getElementById("tags_option");
-            
-            if (this.value == '1') {
-                textarea.style.width = '300px';
-                textarea.style.display = 'block';
-                //hide all other elements
-                hideElements.style.display = 'none';
-                leftElements.style.display = 'none';
-                effort_option.style.display = 'block';
-                benefit_option.style.display = 'none';
-                impact_option.style.display = 'none';
-                complexity_option.style.display = 'none';
-                tags_option.style.display = 'none';
+        var textarea = document.getElementById('pitch_message');
+        var hideElements = document.getElementById("otherPhaseFields");
+        var leftElements = document.getElementById("leftElements");
+        var effort_option = document.getElementById("effort_option");
+        var benefit_option = document.getElementById("benefit_option");
+        var impact_option = document.getElementById("impact_option");
+        var complexity_option = document.getElementById("complexity_option");
+        var tags_option = document.getElementById("tags_option");
 
-            } else {
-                
-                textarea.style.display = 'none';
-                hideElements.style.display = 'block';
-                leftElements.style.display = 'block';
-                benefit_option.style.display = 'block';
-                impact_option.style.display = 'block';
-                complexity_option.style.display = 'block';
-                tags_option.style.display = 'block';
-            }
+        if (this.value == '1') {
+            textarea.style.display = 'block';
+            hideElements.style.display = 'none';
+            leftElements.style.display = 'none';
+            effort_option.style.display = 'block';
+            benefit_option.style.display = 'none';
+            impact_option.style.display = 'none';
+            complexity_option.style.display = 'none';
+            tags_option.style.display = 'none';
+        } else {
+            textarea.style.display = 'none';
+            hideElements.style.display = 'block';
+            leftElements.style.display = 'block';
+            benefit_option.style.display = 'block';
+            impact_option.style.display = 'block';
+            complexity_option.style.display = 'block';
+            tags_option.style.display = 'block';
+        }
     });
 });
- // Wait for the DOM to be ready
- document.addEventListener("DOMContentLoaded", function() {
-        // Get all table rows
-        var rows = document.querySelectorAll(".table tbody tr");
 
-        // Loop through each row
-        rows.forEach(function(row) {
-            console.log("row:",row)
-            // Add a click event listener to each row
-            row.addEventListener("click", function() {
-                var id = row.cells[0].textContent; // Assuming the ID is in the first cell
-        
-                // Now you have the ID, you can use it as needed
-                
-                // Show the modal when a row is clicked
-                console.log("************* ID *****************",id)
-                window.location.replace('/projects/edit/'+id)
-
-                // $('#personForm').modal('show'); // Assuming you're using jQuery
-            });
-        });
-    });
-    
-
-    
 </script>

@@ -4,14 +4,13 @@ require("dotenv").config()
 var Authrouter = express.Router();
 const companies = require("../controllers/company.controller");
 const persons = require("../controllers/person.controller");
-const Company = db.companies;
-const Person = db.persons;
-const Op = db.Sequelize.Op;
+// const Company = db.companies;
+// const Person = db.persons;
+// const Op = db.Sequelize.Op;
 
 //Authentications all TABs.
 Authrouter.get('/login', function(req, res)
 {
-      console.log("Login!")
       res.render('Pages/pages-login');
 });
 Authrouter.post('/login', function(req, res)

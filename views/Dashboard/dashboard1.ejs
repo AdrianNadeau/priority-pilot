@@ -69,39 +69,42 @@
               </div>
               <div>
                 <% projects.forEach(function(project) { %>
-                  <% if (project.phase_name == 'Discovery') { %>
-                    
-                    <% if (project.health.trim() === "Green") { %>
-                      <span>
-                        <button type="button" onclick="loadProject('<%= project.id %>')" 
-                            style="width: 100%; border-color: green; border-width: 2px; margin-bottom: 5px;" 
-                            class="btn btn-light text-left">
-                            <%= project.project_name %>
-                        </button>
-                      </span>&nbsp;&nbsp;&nbsp;
-                    <% } else if (project.health.trim() === "Yellow") { %>
-                      <span>
-                        <button type="button" onclick="loadProject('<%= project.id %>')" 
-                            style="width: 100%; border-color: yellow; border-width: 2px; margin-bottom: 5px;" 
-                            class="btn btn-light text-left">
-                            <%= project.project_name %>
-                        </button>
-                      </span>&nbsp;&nbsp;&nbsp;
-                    <% } else if (project.health.trim() === "Red") { %>
-                      <span>
-                        <button type="button" onclick="loadProject('<%= project.id %>')" 
-                            style="width: 100%; border-color: red; border-width: 2px; margin-bottom: 5px;" 
-                            class="btn btn-light text-left">
-                            <%= project.project_name %>
-                        </button>
-                      </span>&nbsp;&nbsp;&nbsp;
-                    <% } else { %>
-                      <span>
-                        <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 5px;"><%= project.project_name %></button>
-                      </span>&nbsp;&nbsp;&nbsp;
+                  <% if (project && project.phase_name === 'Discovery') { %>
+                    <% if (project.health && typeof project.health === 'string') { %>
+                      <% if (project.health.trim() === "Green") { %>
+                        <span>
+                          <button type="button" onclick="loadProject('<%= project.id %>')" 
+                              style="width: 100%; border-color: green; border-width: 2px; margin-bottom: 5px;" 
+                              class="btn btn-light text-left">
+                              <%= project.project_name %>
+                          </button>
+                        </span>&nbsp;&nbsp;&nbsp;
+                      <% } else if (project.health.trim() === "Yellow") { %>
+                        <span>
+                          <button type="button" onclick="loadProject('<%= project.id %>')" 
+                              style="width: 100%; border-color: yellow; border-width: 2px; margin-bottom: 5px;" 
+                              class="btn btn-light text-left">
+                              <%= project.project_name %>
+                          </button>
+                        </span>&nbsp;&nbsp;&nbsp;
+                      <% } else if (project.health.trim() === "Red") { %>
+                        <span>
+                          <button type="button" onclick="loadProject('<%= project.id %>')" 
+                              style="width: 100%; border-color: red; border-width: 2px; margin-bottom: 5px;" 
+                              class="btn btn-light text-left">
+                              <%= project.project_name %>
+                          </button>
+                        </span>&nbsp;&nbsp;&nbsp;
+                      <% } else { %>
+                        <span>
+                          <button type="button" onclick="loadProject('<%= project.id %>')" 
+                              class="btn btn-light" style="margin-bottom: 5px;"><%= project.project_name %></button>
+                        </span>&nbsp;&nbsp;&nbsp;
+                      <% } %>
                     <% } %>
                   <% } %>
                 <% }); %>
+                
                 
               </div>
               <div class="clearfix"></div>
@@ -114,9 +117,9 @@
               </div>
               <div>
                 <% projects.forEach(function(project) { %>
-                  <% if (project.phase_name == 'Delivery') { %>
+                  <% if (project.phase_name == 'Delivery' && project.phase_name !== null && project.phase_name !== undefined) { %>
                     
-                    <% if (project.health.trim() === "Green") { %>
+                    <% if (project.health && project.health.trim() === "Green") { %>
                       <span>
                         <button type="button" onclick="loadProject('<%= project.id %>')" 
                             style="width: 100%; border-color: green; border-width: 2px; margin-bottom: 5px;" 
@@ -124,7 +127,7 @@
                             <%= project.project_name %>
                         </button>
                       </span>&nbsp;&nbsp;&nbsp;
-                    <% } else if (project.health.trim() === "Yellow") { %>
+                    <% } else if (project.health && project.health.trim() === "Yellow") { %>
                       <span>
                         <button type="button" onclick="loadProject('<%= project.id %>')" 
                             style="width: 100%; border-color: yellow; border-width: 2px; margin-bottom: 5px;" 
@@ -132,7 +135,7 @@
                             <%= project.project_name %>
                         </button>
                       </span>&nbsp;&nbsp;&nbsp;
-                    <% } else if (project.health.trim() === "Red") { %>
+                    <% } else if (project.health && project.health.trim() === "Red") { %>
                       <span>
                         <button type="button" onclick="loadProject('<%= project.id %>')" 
                             style="width: 100%; border-color: red; border-width: 2px; margin-bottom: 5px;" 
@@ -145,6 +148,11 @@
                         <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 5px;"><%= project.project_name %></button>
                       </span>&nbsp;&nbsp;&nbsp;
                     <% } %>
+                    
+                  <% } else { %>
+                    <span>
+                      <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 5px;"><%= project.project_name %></button>
+                    </span>&nbsp;&nbsp;&nbsp;
                   <% } %>
                 <% }); %>
                 
