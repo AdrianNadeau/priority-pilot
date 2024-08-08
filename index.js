@@ -69,7 +69,7 @@ require("./routes/tag.routes")(app);
 require("./routes/status.routes")(app);
 require("./routes/phase.routes")(app);
 require("./routes/priority.routes")(app);
-require("./routes/files.routes.js")(app);
+// require("./routes/files.routes.js")(app);
 
 http.listen(8080, function(){
   console.log('listening on *:8080');
