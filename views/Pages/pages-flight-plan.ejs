@@ -1,8 +1,5 @@
 <%- contentFor('HeaderCss') %>
 
-
-
-
 <script src="frappe-gantt.min.js"></script>
 <link rel="stylesheet" href="frappe-gantt.css">
 
@@ -18,27 +15,68 @@
     </li>
 </ul>
 
-
 <%- contentFor('body') %>
 <div class="page-content-wrapper">
-
     <div class="container-fluid">
-
         <div class="row">
-            <div class="col-lg-6">
-                
-                <div class="card-body text-center">
-                   <img src="/public/assets/images/gantt.png" style="width:1000px"/>
-                  
+            <div class="col-lg-12">
+              <div class="card-body" style="border:0px !important;">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Project</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        <th>NMS</th>
+                                        <th>Prime</th>
+                                        <th>Sponsor</th>
+                                        <th>Issue(s)</th>
+                                        <th>Action(s)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        
+                                        
+                                           
+                                        </td>
+                                    </tr>
+                                    <% health_data.forEach(function(health) { %>
+                                        <% if (health.phase_name === 'Delivery') { %>
+                                            <td style="background-color:#D0D0D0;color:black;" class="text-center" colspan="8">Delivery</td>
+                                        <% } %>
+                                        <tr>
+                                            
+                                        </tr>
+                                        <tr>
+                                            <% let bgColor; %>
+                                            <% if (health.health && health.health.trim() === "Green") { %>
+                                              <% bgColor = 'green'; %>
+                                            <% } else if (health.health && health.health.trim() === "Yellow") { %>
+                                              <% bgColor = 'yellow'; %>
+                                            <% } else if (health.health && health.health.trim() === "Red") { %>
+                                              <% bgColor = 'red'; %>
+                                            <% } %>
+                        
+                                            <td style="background-color:<%=bgColor%>;color:white;"><%= health.project_name %></td>
+                                            <td><%= new Date(health.start_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
+                                            <td><%= new Date(health.end_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
+                                            <td><%= new Date(health.next_milestone_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
+                                            <td><%= health.prime_last_name %>, <%= health.prime_first_name %></td>
+                                            <td><%= health.sponsor_last_name %>, <%= health.sponsor_first_name %></td>
+                                            <td><%= health.issue %></td>
+                                            <td><%= health.actions %></td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                      </div>
+                    </div>
                 </div>
-                
-                
             </div>
         </div>
-</div>
-
 
 <%- contentFor('FooterJs') %>
-
-
 <%- contentFor('BottomJs') %>

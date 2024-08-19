@@ -11,7 +11,7 @@ module.exports = app => {
 
     // Retrieve a single Company with id
     router.get("/:id", companies.findOne);
-  
+    
     // Update a Company with id
     router.put("/:id", companies.update);
   

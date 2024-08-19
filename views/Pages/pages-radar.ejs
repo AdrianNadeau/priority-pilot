@@ -84,9 +84,9 @@
                 <div class="card-body text-align:center">
                     <strong>Priority</strong>
                     <br>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px">15</button>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px"><%= phase_2_count %></button>
                     <br/>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">1.2 M</button>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">$<%=phase_2_total_cost%></button>
                 </div>
             </div>
             <div class="col-lg-3">
@@ -94,9 +94,9 @@
                 <div class="card-body text-align:center">
                     <strong>In Flight</strong>
                     <br>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px">25</button>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px"><%= in_flight_count %></button>
                     <br/>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">2.0 M</button>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">$<%= in_flight_cost%></button>
                     
                     
 
@@ -106,9 +106,9 @@
                 <div class="card-body text-align:center">
                     <strong>Complete</strong>
                     <br>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px">10</button>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px"><%= phase_5_count%></button>
                     <br/>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">$75K</button>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">$<%= phase_5_total_cost%></button>
                     
                     
 
@@ -131,7 +131,7 @@
     const humpData = {
         labels: ['Project A', 'Project B', 'Project C', 'Project D', 'Project E'],
         datasets: [{
-            label: 'Static Hump',
+            label: 'Radar',
             data: [0.3, 0.6, 0.8, 0.6, 0.3],
             backgroundColor: 'rgba(173, 216, 230, 0.2)',
             borderColor: 'rgba(173, 216, 230, 1)',

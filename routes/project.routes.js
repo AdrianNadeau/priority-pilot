@@ -6,7 +6,7 @@ module.exports = app => {
     router.post("/", projects.create);
     router.get("/", projects.findAll);
     router.get("/:id", projects.findOne);
-    router.put("/:id", projects.update);
+    router.post("/:id", projects.update);
     router.delete("/:id", projects.delete);
     router.get('/cockpit/:id', projects.cockpit);
     router.get("/edit/:id", projects.findOneForEdit);

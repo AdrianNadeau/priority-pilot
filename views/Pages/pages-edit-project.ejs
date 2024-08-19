@@ -21,7 +21,9 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
-              <form action="/projects" class="needs-validation" novalidate method="POST">
+              <form action="/projects/<%= project.id %>" class="needs-validation" id="editProjectForm" novalidate method="POST">
+                <input type="hidden" id="project_id"  name="project_id" value="<%= project.id %>">
+                
                 <div class="row">
                     <div class="col-md-6">
                         <!-- First column of form fields -->
@@ -67,34 +69,31 @@
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
-                       
+                        <!-- Other form-group blocks -->
                       </div>
                       <div class="form-group">
-                        
                         <label for="phase">Phase:</label>
-                        <select name ="phase_id_fk" id = "phase_id_fk">
+                        <select name="phase_id_fk" id="phase_id_fk">
                           <% phases.forEach(function(phase){ %>
-                            <% if (phase.id == project.phase_id_fk){ %>
+                            <% if (phase.id == project.phase_id_fk) { %>
                               <option selected value="<%= phase.id %>"><%= phase.phase_name %></option>
                             <% } else { %>
                               <option value="<%= phase.id %>"><%= phase.phase_name %></option>
                             <% } %>
                           <% }) %>
-                          
                         </select>
-                       
-                          
                       </div>
+                    
                       <div>
-                        <% if(project.phase_name=="Pitch"){%>
-                          <textarea name="pitch_message" rows=4 style="width: 400px;" id="pitch_message"><%=project.pitch_message%></textarea>
-                        <%}%>
+                        <% if (project.phase_name == "Pitch") { %>
+                          <textarea name="pitch_message" rows="4" style="width: 400px;" id="pitch_message"><%= project.pitch_message %></textarea>
+                        <% } %>
                       </div>
+                    
                       <div id="otherPhaseFields">
                         <div class="form-group">
                           <label for="priority">Priority:</label>
-                          <select name = "priority_id_fk" id = "priority_id_fk">
-                          
+                          <select name="priority_id_fk" id="priority_id_fk">
                             <% priorities.forEach(function(priority) { %>
                               <% if (priority.id == project.priority_id_fk) { %>
                                 <option selected value="<%= priority.id %>"><%= priority.priority_name %></option>
@@ -102,85 +101,106 @@
                                 <option value="<%= priority.id %>"><%= priority.priority_name %></option>
                               <% } %>
                             <% }) %>
-                            
                           </select>
                         </div>
-                     
-                      <div class="form-group">
-                        <label for="sponsor">Sponsor:</label>
-                        <select name = "sponsor_id_fk" id = "sponsor_id_fk">
-                          
-                          <% sponsors.forEach(function(sponsor){ %>
-                            <% if (sponsor.id == project.sponsor_id_fk) { %>
-                              <option selected value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
-                            <% } else { %>
-                              <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
-                            <% } %>
-                          <% }) %>
-                          
-
-                        </select>
+                    
+                        <div class="form-group">
+                          <label for="sponsor">Sponsor:</label>
+                          <select name="sponsor_id_fk" id="sponsor_id_fk">
+                            <% sponsors.forEach(function(sponsor){ %>
+                              <% if (sponsor.id == project.sponsor_id_fk) { %>
+                                <option selected value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
+                              <% } else { %>
+                                <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
+                              <% } %>
+                            <% }) %>
+                          </select>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label for="prime">Prime:</label>
+                          <select name="prime_id_fk" id="prime_id_fk">
+                            <% primes.forEach(function(prime){ %>
+                              <% if (prime.id == project.prime_id_fk) { %>
+                                <option selected value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
+                              <% } else { %>
+                                <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
+                              <% } %>
+                            <% }) %>
+                          </select>
+                        </div>
                       </div>
-                      <div class="form-group">
-                        <label for="prime">Prime:</label>
-                        <select name = "prime_id_fk" id = "prime_id_fk">
-                          <% primes.forEach(function(prime){ %>
-                            <% if (prime.id == project.prime_id_fk) { %>
-                              <option selected  value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %> </option>
-                              <
-                            <% } else { %>
-                              <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
-                            <% } %>
-                          <% }) %>
-                          
-                        </select>
+                    
+                      <div class="form-group" id="effort_option">
+                        <label for="effort">Effort (PH):</label><br/>
+                        <input type="text" style="width:100px;" class="form-control" id="effort" name="effort" value="<%= project.effort %>">
                       </div>
-                    </div>
-                      <div class="form-group" id="effort_option" >
-                        <label for="effort">Effort (PH)</label><br/>
-                        <input type="text" style="width:100px;" class="form-control" id="effort"  name="effort" value = "<%=project.effort%>">
-                    </div>
-                    <div class="form-group"  id="benefit_option" >
-                      <label for="benefit">Benefit (ROI or $)</label><br/>
-                      <input type="text" style="width:100px;" class="form-control" id="benefit"  name="benefit"value = "<%=project.benefit%>" >
-                  </div>
+                    
+                      <div class="form-group" id="benefit_option">
+                        <label for="benefit">Benefit (ROI or $):</label><br/>
+                        <input type="text" style="width:100px;" class="form-control" id="benefit" name="benefit" value="<%= project.benefit %>">
+                      </div>
+                    
                       <div class="form-group" id="impact_option">
                         <label for="impact">Impact:</label>
-                        <select name = "impact" id = "impact">
-                          
-                          <% for (var i = 1; i <= 10; i++) { %>
-                            <option value="<%= i %>"><%= i %></option>
+                        <select name="impact" id="impact">
+                          <% if (project.impact != null && project.impact != undefined) { %>
+                            <% for (var i = 1; i <= 10; i++) { %>
+                              <% if (i == project.impact) { %>
+                                <option selected value="<%= i %>"><%= i %></option>
+                              <% } else { %>
+                                <option value="<%= i %>"><%= i %></option>
+                              <% } %>
+                            <% } %>
+                          <% } else { %>
+                            <% for (var i = 1; i <= 10; i++) { %>
+                              <option value="<%= i %>"><%= i %></option>
+                            <% } %>
                           <% } %>
+                          
+                            
                         </select>
                       </div>
-                      <div class="form-group"  id="complexity_option">
+                    
+                      <div class="form-group" id="complexity_option">
                         <label for="complexity">Complexity:</label>
-                        <select  name = "complexity" id = "complexity">
+                        <select name="complexity" id="complexity">
                           
-                          <% for (var i = 1; i <= 10; i++) { %>
-                            <option value="<%= i %>"><%= i %></option>
+
+                          <% if (project.complexity != null && project.complexity != undefined) { %>
+                            <% for (var i = 1; i <= 10; i++) { %>
+                              <% if (i == project.complexity) { %>
+                                <option selected value="<%= i %>"><%= i %></option>
+                              <% } else { %>
+                                <option value="<%= i %>"><%= i %></option>
+                              <% } %>
+                            <% } %>
+                          <% } else { %>
+                            <% for (var i = 1; i <= 10; i++) { %>
+                              <option value="<%= i %>"><%= i %></option>
+                            <% } %>
                           <% } %>
                         </select>
                       </div>
-                      <div class="form-group"  id="cost_option">
-                        <label for="project_cost">Estimated Cost</label>
-                        <input type="text" class="form-control" id="project_cost"  name="project_cost" value="0">
-                       
+                    
+                      <div class="form-group" id="cost_option">
+                        <label for="project_cost">Estimated Cost:</label>
+                        <input type="text" class="form-control" id="project_cost" name="project_cost" value="<%= project.project_cost %>">
+                      </div>
+                    
+                      <div class="form-group" id="tags_option">
+                        <label for="project_tags">Tags (comma separated):</label>
+                        <%= project.tags %>
+                        <input type="text" class="form-control" id="project_tags" value="<%= project.tags %>" name="project_tags">
+                      </div>
                     </div>
                     
-                     
-                     <div class="form-group" id="tags_option" >
-                      <label for="project_tags">Tags (comma separated)</label>
-                      <input type="text" class="form-control" id="project_tags"  name="project_tags" >
-                     
-                  </div>
-                </div>
           
-                  <div class="form-group" >
+                  <!-- <div class="form-group" >
                       <label class="form-label" for="logo"></label>
                       <input type="file" class="form-control" id="logo" name="logo" />
                   </div>
-                    </div>
+                    </div> -->
                 </div>
                 <!-- Add more rows and columns if needed -->
                 <div class="modal-footer">

@@ -8,10 +8,15 @@ exports.create = async (req, res) => {
   try {
     
     console.log('create status')
+    let prime_id = req.body.prime_id
+    console.log("prime_id:",prime_id)
+    if(!prime_id){
+      prime_id = null;
+    }
     // Create a Status
     const status = {
       project_id_fk: req.body.project_id,
-      prime_id_fk: req.body.prime_id,
+      prime_id_fk: prime_id,
       progress: req.body.progress,
       health: req.body.health,
       issue: req.body.issue,
@@ -23,7 +28,7 @@ exports.create = async (req, res) => {
     // Save Status in the database
     const data = await Status.create(status);
     // Optionally, log the created data
-  
+    //update progress for project record, anything else?
     const id = req.body.project_id;
     console.log("Project ID:", id);
 
