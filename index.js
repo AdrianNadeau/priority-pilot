@@ -52,7 +52,7 @@ db.sequelize.sync()
     console.log("DB Connected...");
   })
   .catch((err) => {
-    console.log("Failed to sync db: " + err.message);
+    console.log("Failed to sync db: " + err);
   });
 
 // app.use('/logo/upload', express.static(path.join(__dirname, '/upload/logos')));
