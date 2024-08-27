@@ -4,9 +4,9 @@
   "description": "My Lexa Nodejs Template",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env  NODE_ENV=development nodemon index.js",
-    "prod": "cross-env  NODE_ENV=production node index.js",
-    "test": "cross-env  NODE_ENV=test nodemon index.js"
+    "dev": "nodemon index.js",
+    "prod": "node index.js",
+    "test": "test nodemon index.js"
   },
   "author": "CODERTHEMES",
   "license": "ISC",
