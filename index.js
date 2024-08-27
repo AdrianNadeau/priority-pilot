@@ -10,6 +10,9 @@ var router = require('./router.js');
 var Authrouter = require('./routes/AuthRouter.js');
 var DashboardRouter = require('./routes/DashboardRouter.js');
 
+require('dotenv').config()
+console.log(process.env) // remove this after you've confirmed it is working
+
 app.use(express.urlencoded({ extended: true }));
 
 // Access public folder from root
