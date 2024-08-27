@@ -11,7 +11,6 @@ var Authrouter = require('./routes/AuthRouter.js');
 var DashboardRouter = require('./routes/DashboardRouter.js');
 
 require('dotenv').config()
-console.log(process.env)
 
 const RedisStore = require('connect-redis').default;
 const { createClient } = require('redis');
@@ -27,12 +26,25 @@ app.get('/layouts/', function(req, res) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const sessionMiddleware = session({
+// Initialize Redis client
+let redisClient = createClient();
+redisClient.connect().catch(console.error);
 
+// Initialize RedisStore
+let redisStore = new RedisStore({
+  client: redisClient,
+  prefix: "myapp:",
+});
+const sessionMiddleware = session({
+  store: redisStore,
   secret: process.env.SECRET,
-  resave: true,
-  saveUninitialized: true,
-  rolling: true // Force regeneration of session ID for each request
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true if using https
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 // 1 day
+  }
 });
 app.use(sessionMiddleware);
 
