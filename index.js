@@ -47,6 +47,7 @@ app.use(expressLayouts);
 app.use('/', router); 
 
 const db = require("./models");
+console.log("DB:",db)
 db.sequelize.sync()
   .then(() => {
     console.log("DB Connected...");
