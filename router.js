@@ -13,7 +13,7 @@ router.get('/', async function (req, res) {
     }
     
     catch(error){
-        console.log("**************************************** SESSION INVALID")
+        console.log("SESSION INVALID")
         res.redirect('/login'); // Redirect to login page or any other page
         // res.send("Session Expired or doesn't exist, redirect to expired page")
     }
