@@ -11,7 +11,9 @@ var Authrouter = require('./routes/AuthRouter.js');
 var DashboardRouter = require('./routes/DashboardRouter.js');
 
 require('dotenv').config()
-console.log(process.env) // remove this after you've confirmed it is working
+
+const RedisStore = require('connect-redis').default;
+const { createClient } = require('redis');
 
 app.use(express.urlencoded({ extended: true }));
 
