@@ -1,8 +1,8 @@
 const dbConfig = require("../config/db.config.js");
 require('dotenv').config()
 const Sequelize = require("sequelize");
-
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, "n7QAVbScSd2stT9G5SJtSswr3BYVcH0e", {
+// const sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname')
+const sequelize = new Sequelize('//priority_pilot:n7QAVbScSd2stT9G5SJtSswr3BYVcH0e@dpg-cr1lqcdumphs73afiv0g-a/priority_pilot_prod', {
   host: process.env.DB_HOST_NAME,
   dialect: "postgres",
 
