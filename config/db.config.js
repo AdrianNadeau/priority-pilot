@@ -1,13 +1,11 @@
 module.exports = {
-    HOST: "localhost",
-    USER: "priority_pilot",
-    PASSWORD: "priority_pilot",
-    DB: "priority_pilot",
+  development: {
+    username: "priority_pilot",
+    password: "n7QAVbScSd2stT9G5SJtSswr3BYVcH0e",
+    database: "priority_pilot_prod",
+    host: "192.168.1.100",
     dialect: "postgres",
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    }
-  };
+    port: 5432
+  },
+  // other environments like production, testing, etc.
+};
