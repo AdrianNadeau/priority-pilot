@@ -1,5 +1,6 @@
 {
-  "username": "priority_pilot",
+  "development": {
+   "username": "priority_pilot",
     "password": "n7QAVbScSd2stT9G5SJtSswr3BYVcH0et",
     "database": "priority_pilot_prod",
     "host": "dpg-cr1lqcdumphs73afiv0g-a",
@@ -10,6 +11,7 @@
       "min": 0,
       "acquire": 30000,
       "idle": 10000
+    }
   },
   "test": {
     "username": "root",
