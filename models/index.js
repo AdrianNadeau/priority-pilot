@@ -1,23 +1,23 @@
 const dbConfig = require("../config/db.config.js");
-require('dotenv').config()
+
 const Sequelize = require("sequelize");
-// const sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname')
-const sequelize = new Sequelize('postgres://priority_pilot:n7QAVbScSd2stT9G5SJtSswr3BYVcH0e@dpg-cr1lqcdumphs73afiv0g-a/priority_pilot_prod', {
-  host: process.env.DB_HOST_NAME,
-  dialect: "postgres",
+const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+  host: dbConfig.HOST,
+  dialect: dbConfig.dialect,
+  operatorsAliases: false,
 
   pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
+    max: dbConfig.pool.max,
+    min: dbConfig.pool.min,
+    acquire: dbConfig.pool.acquire,
+    idle: dbConfig.pool.idle
   }
 });
 
 const db = {};
 
 db.Sequelize = Sequelize;
-db.sequelize = sequelize;
+// db.sequelize = sequelize;
 
 db.companies = require("./company.model.js")(sequelize, Sequelize);
 db.persons = require("./person.model.js")(sequelize, Sequelize);
