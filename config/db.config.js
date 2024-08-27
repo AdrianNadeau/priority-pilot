@@ -1,8 +1,11 @@
+require('dotenv').config()
+
+
 module.exports = {
-    HOST: "dpg-cr1lqcdumphs73afiv0g-a",
-    USER: "priority_pilot",
-    PASSWORD: "n7QAVbScSd2stT9G5SJtSswr3BYVcH0e",
-    DB: "priority_pilot_prod",
+    HOST: process.env.DB_HOST_NAME,
+    USER: process.env.DB_USER,
+    PASSWORD: process.env.DB_PASSWORD,
+    DB: process.env.DB_NAME,
     dialect: "postgres",
     pool: {
       max: 5,
