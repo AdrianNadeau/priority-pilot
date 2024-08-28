@@ -172,18 +172,26 @@
         <%}%>
         <% if (lastStatusDate) { %>
           <strong>Last Status:</strong> <%= lastStatusDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-        <%}%>
+          <br/>
+          <%}%>
+
+        <% if(statuses[0].accomplishments){%>
+          
+          <%=statuses[0].accomplishments%><br/>
+          <%}%>
         <% if (statusColor) { %>
           <% 
              let healthStatus = statusColor ? statusColor.trim().toLowerCase() : ''; 
              if (healthStatus === 'green') { 
            %>
-               <span class="green-circle"></span>
+               <span style="width: 50px !important;height: 50px !important;" class="green-circle"></span>
            <% } else if (healthStatus === 'yellow') { %>
-                 <span class="yellow-circle"></span>
+                 <span style="width: 50px !important;height: 50px !important;" class="yellow-circle"></span>
              <% } else if (healthStatus === 'red') { %>
-                   <span class="red-circle"></span>
+                   <span style="width: 50px !important;height: 50px !important;" class="red-circle"></span>
              <% } %>
+            
+            
             
        <% } %>
           
@@ -208,6 +216,11 @@
                 <% if (status.progress) { %>
                   [<%=status.progress%>%]
               <% } %><br/>
+              <% if(statuses[0].accomplishments){%>
+          
+                <%=statuses[0].accomplishments%><br/>---------------------------<br/>
+
+                <%}%>
             
                 <% }); %>
         <% } %>
@@ -359,9 +372,7 @@
                             </select>
                           
                         </div>
-                        <div class="form-group needs-validation" novalidate>
-                          <strong>Attachment:</strong>
-                        <input type="file" class="form-control" id="attachment" name="attachment" />
+                        
                         
                       </div>
                        <!-- Add more rows and columns if needed -->

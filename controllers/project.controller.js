@@ -203,7 +203,48 @@ exports.findOne = (req, res) => {
 
     // Check password by encrypted value
     // project for cockpit
-    const query = 'SELECT proj.company_id_fk,proj.id, proj.effort, proj.prime_id_fk, proj.project_headline, proj.project_name, proj.start_date, proj.end_date, proj.next_milestone_date, proj.project_why, proj.project_what, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ? AND proj.id = ?';
+    const query = `
+    SELECT 
+      proj.company_id_fk, 
+      proj.id, 
+      proj.effort,
+      proj.benefit, 
+      proj.prime_id_fk, 
+      proj.project_headline, 
+      proj.project_name, 
+      proj.start_date, 
+      proj.end_date, 
+      proj.next_milestone_date, 
+      proj.project_why, 
+      proj.project_what,
+      proj.tags, 
+      prime_person.first_name AS prime_first_name, 
+      prime_person.last_name AS prime_last_name, 
+      sponsor_person.first_name AS sponsor_first_name, 
+      sponsor_person.last_name AS sponsor_last_name, 
+      proj.project_cost, 
+      phases.phase_name, 
+      proj.pitch_message, 
+      proj.phase_id_fk, 
+      proj.priority_id_fk, 
+      proj.sponsor_id_fk, 
+      proj.prime_id_fk,
+      statuses.accomplishments  -- Added this line
+    FROM 
+      projects proj 
+    LEFT JOIN 
+      persons prime_person ON prime_person.id = proj.prime_id_fk 
+    LEFT JOIN 
+      persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
+    LEFT JOIN 
+      phases ON phases.id = proj.phase_id_fk
+    LEFT JOIN 
+      statuses ON statuses.project_id_fk = proj.id
+    WHERE 
+      proj.company_id_fk = ? 
+      AND proj.id = ?;
+  `;
+  
     const currentDate = new Date();
     //format investment dollar amt
 
