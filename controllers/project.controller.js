@@ -586,6 +586,7 @@ exports.deleteAll = (req, res) => {
   }
   // Format cost values to K/M format
   const formatCost = (cost) => {
+    console.log("************************************* cost:",cost)
     if (cost >= 1e6) {
       return (cost / 1e6).toFixed(0) + 'M'; // Convert to millions
     } else if (cost >= 1e3) {
