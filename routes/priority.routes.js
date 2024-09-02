@@ -13,7 +13,7 @@ module.exports = app => {
     router.get("/:id", priorities.findOne);
   
     // Update a Priority with id
-    router.put("/:id", priorities.update);
+    router.post("/:id", priorities.update);
   
     // Delete a Priority with id
     router.delete("/:id", priorities.delete);

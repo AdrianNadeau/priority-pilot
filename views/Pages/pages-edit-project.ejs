@@ -18,9 +18,10 @@
 
 <%- contentFor('body') %>
 <div class="page-content-wrapper">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
+  <div class="container-fluid">
+      <div class="row">
+          <div class="col-lg-12">
+            <div class="card-body" style="border:0px !important;">
               <form action="/projects/<%= project.id %>" class="needs-validation" id="editProjectForm" novalidate method="POST">
                 <input type="hidden" id="project_id"  name="project_id" value="<%= project.id %>">
                 
@@ -41,7 +42,7 @@
                         </div>
                         <div class="form-group" >
                           <label for="project_description">Description</label>
-                          <textarea rows="4" class="form-control" id="project_description"  name="project_description" ><%=project.project_headline%></textarea>
+                          <textarea rows="4" class="form-control" id="project_description"  name="project_description" ><%=project.project_description%></textarea>
                       </div>
                       <div id="leftElements">
                         <div class="form-group" >
@@ -193,19 +194,17 @@
                         <%= project.tags %>
                         <input type="text" class="form-control" id="project_tags" value="<%= project.tags %>" name="project_tags">
                       </div>
+                     
                     </div>
                     
-          
-                  <!-- <div class="form-group" >
-                      <label class="form-label" for="logo"></label>
-                      <input type="file" class="form-control" id="logo" name="logo" />
-                  </div>
-                    </div> -->
+                    </div>
+                  
                 </div>
                 <!-- Add more rows and columns if needed -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
-                    <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                    <button type="button" class="btn btn-secondary waves-effect" onclick=cancelForm() data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#openConfirm" id="btnOpenConfirm">Submit</button>
+
                     <!-- if edit, add delete button -->
                     <!-- <button class="btn btn-danger w-md waves-effect waves-light" onClick='openDeleteModal()' type="button">Delete</button> -->
                     <!-- if edit, add delete button -->
@@ -216,6 +215,63 @@
        
     </div>
 </div>
+<div id="openConfirm" class="modal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content" style="width: 500px;">
+          <div class="modal-header">
+              <h5 class="modal-title mt-0" id="personTitle">Are you sure you want to confirm changes?</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          </div>
+
+          <div class="modal-body">
+              <div class="container mt-4">
+                  <h5>Change Log</h5> <!-- This is your heading -->
+
+                  <form action="/change_logs" class="needs-validation" novalidate method="POST">
+                      <input type="hidden" name="project_id" id="project_id" value="<%=project.id %>"/>
+
+                      <div class="row">
+                          <div class="col-md-12">
+                              <!-- Current Date Display -->
+                              <div class="form-group">
+                                  <p><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+                              </div>
+
+                              <!-- Change Reason -->
+                              <div class="form-group">
+                                  <label for="change_reason">Change Reason</label>
+                                  <select class="form-control" id="change_reason" name="change_reason" required>
+                                      <option value="">Select a reason</option>
+                                      <option value="reason1">Reason 1</option>
+                                      <option value="reason2">Reason 2</option>
+                                      <!-- Add more options as needed -->
+                                  </select>
+                                  <div class="invalid-feedback">
+                                      Please enter change reason.
+                                  </div>
+                              </div>
+
+                              <!-- Change Explanation -->
+                              <div class="form-group">
+                                  <label for="change_explanation">Change Details</label>
+                                  <textarea class="form-control" id="change_explanation" name="change_explanation" rows="3" required></textarea>
+                                  <div class="invalid-feedback">
+                                      Please provide change details.
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+          </div>
+
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
+              <button class="btn btn-primary w-md waves-effect waves-light" onclick="submitForm()" type="submit">Confirm</button>
+          </div>
+      </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <%- contentFor('FooterJs') %>
 
@@ -305,5 +361,11 @@
         }
     });
 });
-
+function submitForm() {
+    document.getElementById('editProjectForm').submit();
+}
+function cancelForm(){
+  
+  window.location.replace("/projects");
+}
 </script>

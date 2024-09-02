@@ -34,10 +34,8 @@
                               <div class="form-group needs-validation" novalidate>
                                 <label for="last_name">Email</label>
                                
-                                <input type="email" class="form-control" id="email"  name="email" value ="<%= personData.email %>" required>
-                                <div class="invalid-feedback">
-                                    Please enter valid email.
-                            </div>
+                                <input type="email" class="form-control" id="email"  name="email" disabled value ="<%= personData.email %>">
+                                
                               <div class="form-group needs-validation" novalidate>
                                   <label for="first_name">First Name</label>
                                   <input type="text" class="form-control" id="first_name"  name="first_name" value ="<%= personData.first_name %>" required>

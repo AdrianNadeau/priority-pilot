@@ -13,6 +13,7 @@ module.exports = (sequelize, Sequelize) => {
         change_date: {
           type: Sequelize.DATE
         },
+        //integer
         change_reason: {
           type: Sequelize.STRING
         },

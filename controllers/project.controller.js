@@ -7,7 +7,7 @@ const ChangeLog = db.change_logs;
 const Status=db.statuses;
 const sequelize= require('sequelize')
 const Op = db.Sequelize.Op;
-
+const currentDate = new Date();
 // Create and Save a new Project
 exports.create = (req, res) => {
   if(req.session.company.id==null){
@@ -229,7 +229,7 @@ exports.findOne = (req, res) => {
       proj.priority_id_fk, 
       proj.sponsor_id_fk, 
       proj.prime_id_fk,
-      statuses.accomplishments  -- Added this line
+      statuses.accomplishments
     FROM 
       projects proj 
     LEFT JOIN 
@@ -244,9 +244,7 @@ exports.findOne = (req, res) => {
       proj.company_id_fk = ? 
       AND proj.id = ?;
   `;
-  
-    const currentDate = new Date();
-    //format investment dollar amt
+
 
     try {
         const data = await db.sequelize.query(query, {
@@ -309,9 +307,9 @@ exports.findOneForEdit = async (req, res) => {
     // Query to fetch project details
     const query = `
      SELECT proj.company_id_fk, proj.id, proj.effort,proj.benefit, proj.prime_id_fk, 
-             proj.project_headline, proj.project_name, proj.start_date, 
+             proj.project_headline, proj.project_name, proj.project_description,proj.start_date, 
              proj.end_date, proj.next_milestone_date, proj.project_why, 
-             proj.project_what,proj.tags, prime_person.first_name AS prime_first_name, 
+             proj.project_what,proj.tags,proj.effort, prime_person.first_name AS prime_first_name, 
              prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, 
              sponsor_person.last_name AS sponsor_last_name, proj.project_cost, 
              phases.phase_name, proj.pitch_message, proj.phase_id_fk, proj.priority_id_fk, proj.sponsor_id_fk, proj.prime_id_fk
@@ -321,7 +319,7 @@ exports.findOneForEdit = async (req, res) => {
       LEFT JOIN phases ON phases.id = proj.phase_id_fk
       WHERE proj.company_id_fk = ? AND proj.id = ?`;
 
-    const currentDate = new Date();
+    
 
     try {
       // Execute the query
@@ -371,7 +369,7 @@ exports.findOneForEdit = async (req, res) => {
       });
       res.render('Pages/pages-edit-project', {
         project: data[0], // Pass the first element of the data array
-        // current_date: currentDate,
+        current_date: currentDate,
         // formattedCost: formattedCost,
         phases: phasesData,
         priorities: prioritiesData,

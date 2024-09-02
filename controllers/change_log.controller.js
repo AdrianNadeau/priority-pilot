@@ -4,7 +4,9 @@ const Op = db.Sequelize.Op;
 
 // Create and Save a new 
 exports.create = (req, res) => {
-    // Validate request
+    // create a snapshot of current values before and submit to change_log table
+
+
     const project_id = req.body.project_id;
     console.log("project_id:",project_id)
     let company_id_fk;
@@ -36,6 +38,7 @@ exports.create = (req, res) => {
     ChangeLog.create(change_log)
       .then(data => {
         // res.send(data);
+        // save version of current version in 
         res.redirect("/projects/cockpit/"+project_id)
       })
       .catch(err => {

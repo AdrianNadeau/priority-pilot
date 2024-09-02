@@ -11,54 +11,77 @@ const verifyToken = require('../routes/JWTRouter');
 // Create and Save a new 
 exports.create = async (req, res) => {
   const session = req.session;
-  const company_id_fk = session.company.id
-  
+  const company_id_fk = session.company.id;
+
   try {
-    
+    console.log(" req.body:", req.body)
     const { email, first_name, last_name, initials, password, role } = req.body;
+
     if (!email) {
       return res.status(400).json({ message: "Email cannot be empty!" });
-    } else {
-      
-      // Generate a salt
-      bcrypt.genSalt(10, (err, salt) => {
-        if (err) {
-          // handle error
-          console.error(err);
-          return;
-        }
-
-        // Hash the password using the generated salt
-        bcrypt.hash(password, salt, async (err, hash)  => {
-          if (err) {
-            // handle error
-            console.error(err);
-            return;
-          }
-
-          
-          // res.send(hash);
-          console.log("create person")
-          const person = await Person.create({ email, first_name, last_name, initials, password: hash, company_id_fk, role });
-          if(req.body.register_yn && req.body.register_yn == "y"){
-          
-            //registered send to control
-            res.redirect('/');
-          }
-          else {
-           
-            res.redirect('/persons');
-          }
-        
-        });
-      });
-       
     }
-    } catch (error) {
+    console.log("EMAIL:", email);
+    // Check if user email already exists
+    const person = await Person.findOne({
+      where: {
+        email: email
+      }
+    });
+
+    if (person) {
+      console.log("User with this email already exists");
+      return res.status(500).json({ message: "User with this email already exists" });
+    } else {
+      console.log("Email is available");
+        // Generate a salt
+        bcrypt.genSalt(10, (err, salt) => {
+          if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Error generating salt" });
+          }
+  
+          // Hash the password using the generated salt
+          bcrypt.hash(password, salt, async (err, hash) => {
+            if (err) {
+              console.error(err);
+              return res.status(500).json({ message: "Error hashing password" });
+            }
+  
+            try {
+              // Create the person
+              const newPerson = await Person.create({
+                email,
+                first_name,
+                last_name,
+                initials,
+                password: hash,
+                company_id_fk,
+                role,
+              });
+  
+              if (req.body.register_yn && req.body.register_yn === "y") {
+                // If registered, redirect to the control page
+                return res.redirect('/');
+              } else {
+                // Otherwise, redirect to persons page
+                return res.redirect('/persons');
+              }
+            } catch (error) {
+              console.error("Error creating person:", error);
+              return res.status(500).json({ message: "Internal Server Error" });
+            }
+          });
+        });
+      }
+    
+    console.log("PERSON:",person)
+    
+  } catch (error) {
     console.error("Error creating person:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Error creating person " });
   }
 };
+
 exports.findAll = (req, res) => {
   console.log("Get all users for company")
   let company_id_fk;
@@ -76,7 +99,7 @@ exports.findAll = (req, res) => {
    console.log("company_id_fk:",company_id_fk)
       Person.findAll({ where: { company_id_fk: company_id_fk } })
         .then(data => {
-          
+          console.log("data:",data);
           res.render('Pages/pages-persons', {
             persons: data
         });
