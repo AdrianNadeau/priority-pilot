@@ -43,14 +43,11 @@
     <div class="row">
       <div class="col-8">
         <div class="mini-stat clearfix bg-white">
-          <div class="mini-stat-info">
-            
-            <span class="counter" style="padding-bottom:20px;"><%=project[0].project_name%></span>
+          <div>
+            <strong>Name:</strong> <%=project[0].project_name %>
           </div>
-          
           <div>
             <strong>Headline:</strong> <%=project[0].project_headline %>
-            <!-- <strong>Headline:</strong> Able to take a call from anywhere in the world. -->
           </div>
           <div>
             <strong>Sponsor:</strong> 
@@ -123,24 +120,7 @@
           </div>
          
         </div>
-        <div style="padding-top:20px;">
-          <strong>Change Log:</strong>
-          <br/>
-            <% if (changeLogs) { %>
-              <% changeLogs.forEach(function(change) { %>
-                <%= change.change_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                
-                 - <%= change.change_headline %><br/>
-              <% }); %>
-          <% } %>
-          
-          <br/>
-          <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addChange" id="btnAddChange">Add Change Log</button>
-          
-          
-  
-         
-        </div>
+       
         <div class="clearfix"></div>
       </div>
       
@@ -316,78 +296,7 @@
     
   </div>
 </div> <!-- end row -->
-<div class="row">
-  <div class="col-md-6 m-t-30">
-      <!-- project modal content -->
-      <div id="addStatus" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title mt-0">Add Status</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                </div>
-                <div class="modal-body">
-                    <form action="/statuses" class="needs-validation" novalidate method="POST">
-                      <input type="hidden" name="project_id" id="project_id" value="<%=project[0].id %>"/>
-                      <input type="hidden" name="prime_id" id="prime_id_fk" value="<%=project[0].prime_id_fk %>"/>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <!-- First column of form fields -->
-                                <div class="form-group needs-validation" novalidate>
-                                  
-                                  <strong>Date: </strong><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
-                                  <strong>Prime:</strong><% if(project[0].prime_last_name) %>
-                                  <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
-                                  
-                                
-                              </div>
-                                
-                                <div class="form-group needs-validation" novalidate>
-                                  <strong>Accomplishments:</strong><br/>
-                                  <textarea class="form-control" id="status_accomplishments" name="status_accomplishments" rows="3"></textarea>
-                                
-                              </div>
-                              <div class="form-group needs-validation" novalidate>
-                                <strong>Issues:</strong><br/>
-                                <textarea class="form-control" id="issue" name="issue" rows="3"></textarea>
-                              
-                              </div>
-                              <div class="form-group needs-validation" novalidate>
-                                <strong>Actions:</strong><br/>
-                                <textarea class="form-control" id="action" name="actions" rows="3"></textarea>
-                              
-                            </div>
-                            <div class="form-group needs-validation" novalidate>
-                              <strong>Progress:</strong>
-                              <input type="text" class="form-control" id="progress"  name="progress" >
-                            
-                          </div>
-                          <div class="form-group needs-validation" novalidate>
-                            <strong>Health:</strong>
-                            <select name = "health" id = "health">
-                                <option value="Green">Green</option>
-                                <option value="Yellow">Yellow</option>
-                                <option value="Red">Red</option>
-                              
-                            </select>
-                          
-                        </div>
-                        
-                        
-                      </div>
-                       <!-- Add more rows and columns if needed -->
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
-                            <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
-                        </div>
-                    </form>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    
-  </div>
-</div> <!-- end row -->
+
 
 <%- contentFor('FooterJs') %>
 <script src="/public/assets/plugins/peity-chart/jquery.peity.min.js"></script>

@@ -50,6 +50,7 @@ if (config.use_env_variable) {
 db.companies = require("./company.model.js")(sequelize, Sequelize);
 db.persons = require("./person.model.js")(sequelize, Sequelize);
 db.change_logs = require("./change_log.model.js")(sequelize, Sequelize);
+db.change_logs_reason = require("./change_reason.model.js")(sequelize, Sequelize);
 db.projects = require("./project.model.js")(sequelize, Sequelize);
 db.priorities = require("./priority.model.js")(sequelize, Sequelize);
 db.tags = require("./tag.model.js")(sequelize, Sequelize);

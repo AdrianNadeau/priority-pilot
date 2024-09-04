@@ -31,42 +31,34 @@
                                         <th>NMS</th>
                                         <th>Prime</th>
                                         <th>Sponsor</th>
-                                        <th>Issue(s)</th>
-                                        <th>Action(s)</th>
+                                       
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        
-                                        
-                                           
-                                        </td>
-                                    </tr>
+                                  
                                     <% health_data.forEach(function(health) { %>
-                                        <% if (health.phase_name === 'Delivery') { %>
-                                            <td style="background-color:#D0D0D0;color:black;" class="text-center" colspan="8">Delivery</td>
+                                        <% let bgColor; %>
+                                        <% if (health.health && health.health.trim() === "Green") { %>
+                                          <% bgColor = 'green'; %>
+                                        <% } else if (health.health && health.health.trim() === "Yellow") { %>
+                                          <% bgColor = 'yellow'; %>
+                                        <% } else if (health.health && health.health.trim() === "Red") { %>
+                                          <% bgColor = 'red'; %>
                                         <% } %>
-                                        <tr>
-                                            
-                                        </tr>
-                                        <tr>
-                                            <% let bgColor; %>
-                                            <% if (health.health && health.health.trim() === "Green") { %>
-                                              <% bgColor = 'green'; %>
-                                            <% } else if (health.health && health.health.trim() === "Yellow") { %>
-                                              <% bgColor = 'yellow'; %>
-                                            <% } else if (health.health && health.health.trim() === "Red") { %>
-                                              <% bgColor = 'red'; %>
-                                            <% } %>
-                        
-                                            <td style="background-color:<%=bgColor%>;color:white;"><%= health.project_name %></td>
+                                        
+                                        <% if (health.phase_name === 'Discovery') { %>
+                                            <tr><td style="background-color:#D0D0D0;color:black;font-size:1.5em;" class="text-center" colspan="8">Discovery</td></tr>
+                                        <% } %>
+                                        <% if (health.phase_name === 'Delivery') { %>
+                                            <tr><td style="background-color:#D0D0D0;color:black;font-size:1.5em;" class="text-center" colspan="8">Delivery</td></tr>
+                                        <% } %>
+                                        <td style='background-color:<%=bgColor%>;color:white;'><%= health.project_name %></td>
                                             <td><%= new Date(health.start_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
                                             <td><%= new Date(health.end_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
                                             <td><%= new Date(health.next_milestone_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
                                             <td><%= health.prime_last_name %>, <%= health.prime_first_name %></td>
                                             <td><%= health.sponsor_last_name %>, <%= health.sponsor_first_name %></td>
-                                            <td><%= health.issue %></td>
-                                            <td><%= health.actions %></td>
+                                      
                                         </tr>
                                     <% }); %>
                                 </tbody>

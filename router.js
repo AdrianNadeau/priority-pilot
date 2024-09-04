@@ -37,7 +37,7 @@ router.get('/', async function (req, res) {
     }).then(data => {
         
         data.forEach(function(project) {
-            let projectCost = parseFloat(project.project_cost);
+            // let projectCost = parseFloat(project.project_cost);
             if (!project.effort===undefined || project.effort!="NaN"){
                 totalEffortPH = parseFloat(project.project_cost);
                 totalEffortPH+=totalEffortPH;

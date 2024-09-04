@@ -4,6 +4,7 @@ const Phase = db.phases;
 const Priority = db.priorities;
 const Person = db.persons;
 const ChangeLog = db.change_logs;
+const ChangeReason=db.change_reasons;
 const Status=db.statuses;
 const sequelize= require('sequelize')
 const Op = db.Sequelize.Op;
@@ -33,10 +34,7 @@ exports.create = (req, res) => {
     if(req.body.phase_id_fk==1){
       pitch_message=req.body.pitch_message;
     }
-    let formattedCost = req.body.project_cost.replace(/,/g, ''); // Remove all commas
-    // console.log("formattedCost:",formattedCost)
-    let numberValue = parseFloat(formattedCost);
-    // console.log("numberValue:",numberValue)
+    
     // Create a Project
     const project = {
       company_id_fk : company_id_fk,
@@ -54,7 +52,7 @@ exports.create = (req, res) => {
       sponsor_id_fk:req.body.sponsor_id_fk,
       prime_id_fk:req.body.prime_id_fk,
       phase_id_fk :req.body.phase_id_fk,
-      project_cost :numberValue,
+      project_cost :req.body.project_cost,
       effort:req.body.effort,
       benefit:req.body.benefit,
       complexity:req.body.complexity,
@@ -114,11 +112,13 @@ exports.findAll = async (req, res) => {
                 res.redirect("/pages-500")
             }
             else{
+              console.log("we have a session")
               company_id_fk = req.session.company.id
              }
           }catch(error){
             console.log("error:",error)
           }
+          console.log("COMPANY_ID",company_id_fk)
           // console.log("company_id_fk:",company_id_fk)
           // Retrieve data from all sources
           const [phasesData, prioritiesData, projectsData] = await Promise.all([
@@ -251,9 +251,9 @@ exports.findOne = (req, res) => {
             replacements: [company_id_fk, req.params.id],
             type: db.sequelize.QueryTypes.SELECT
         });
-        var formatter = new Intl.NumberFormat();
-        var formattedCost = formatter.format(data[0].project_cost);
-        //get change logs for project
+        
+       
+        
         const change_logs = await ChangeLog.findAll({
           where: {
             project_id_fk: project_id
@@ -276,10 +276,11 @@ exports.findOne = (req, res) => {
             lastStatusDate = statuses[0].status_date;
             statusColor=statuses[0].health;
         }
+        console.log("DATA:",data)
         res.render('Pages/pages-cockpit', {
             project: data,
             current_date: currentDate,
-            formattedCost: formattedCost,
+            formattedCost: data[0].project_cost,
             changeLogs:change_logs,
             statuses: statuses,
             lastStatusDate:lastStatusDate,
@@ -303,7 +304,7 @@ exports.findOneForEdit = async (req, res) => {
     }
     
     company_id_fk = req.session.company.id;
-
+    console.log("HERREEEE WEEE GOOOOOO")
     // Query to fetch project details
     const query = `
      SELECT proj.company_id_fk, proj.id, proj.effort,proj.benefit, proj.prime_id_fk, 
@@ -332,9 +333,7 @@ exports.findOneForEdit = async (req, res) => {
         return res.status(404).send({ message: "Project not found" });
       }
 
-      // Format the project cost
-      const formatter = new Intl.NumberFormat();
-      const formattedCost = formatter.format(data[0].project_cost);
+      
 
       // Get change logs for the project
       const change_logs = await ChangeLog.findAll({
@@ -355,12 +354,15 @@ exports.findOneForEdit = async (req, res) => {
         lastStatusDate = statuses[0].status_date;
         statusColor = statuses[0].health;
       }
-
+      console.log("get data.......................................")
       const [phasesData, prioritiesData] = await Promise.all([
         Phase.findAll(),
         Priority.findAll(),
-        Project.findAll() // Assuming Project.findAll() returns a Promise
+        Project.findAll(),
+        // ChangeReason.findAll()
+
     ]);
+    console.log("REASONS:",ChangeReason)
       // Render the cockpit page with the retrieved data
       const personsData = await Person.findAll({
         where: {
@@ -370,11 +372,12 @@ exports.findOneForEdit = async (req, res) => {
       res.render('Pages/pages-edit-project', {
         project: data[0], // Pass the first element of the data array
         current_date: currentDate,
-        // formattedCost: formattedCost,
+        formattedCost: data[0].project_cost,
         phases: phasesData,
         priorities: prioritiesData,
         sponsors: personsData,
         primes: personsData,
+        // change_reasons:ChangeReason
 
       });
       
@@ -406,21 +409,22 @@ exports.radar = async (req, res) => {
   } catch (error) {
     console.log("Error:", error);
   }
-
-  const query = `
+console.log("RUN THE QUERY!!!!!!!!")
+const query = `
   SELECT
     SUM(CASE WHEN phase_id_fk = 2 THEN 1 ELSE 0 END) AS phase_2_count,
     SUM(CASE WHEN phase_id_fk = 3 THEN 1 ELSE 0 END) AS phase_3_count,
     SUM(CASE WHEN phase_id_fk = 4 THEN 1 ELSE 0 END) AS phase_4_count,
     SUM(CASE WHEN phase_id_fk = 5 THEN 1 ELSE 0 END) AS phase_5_count,
-    SUM(CASE WHEN phase_id_fk = 2 THEN project_cost ELSE 0 END) AS phase_2_total_cost,
-    SUM(CASE WHEN phase_id_fk = 3 THEN project_cost ELSE 0 END) AS phase_3_total_cost,
-    SUM(CASE WHEN phase_id_fk = 4 THEN project_cost ELSE 0 END) AS phase_4_total_cost,
-    SUM(CASE WHEN phase_id_fk = 5 THEN project_cost ELSE 0 END) AS phase_5_total_cost
-  FROM 
+    SUM(CASE WHEN phase_id_fk = 2 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_2_total_cost,
+    SUM(CASE WHEN phase_id_fk = 3 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_3_total_cost,
+    SUM(CASE WHEN phase_id_fk = 4 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_4_total_cost,
+    SUM(CASE WHEN phase_id_fk = 5 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_5_total_cost
+FROM 
     projects
-  WHERE 
+WHERE 
     company_id_fk = ?
+
 `;
 
   try {
@@ -528,7 +532,7 @@ ORDER BY
           return res.status(404).send({ message: "Project Health not found" });
       }
       let startDateTest = insertValidDate(data);
-      
+      console.log("data:",data);
       // Pass the result to the EJS template
       res.render('Pages/pages-flight-plan', {
           start_date: startDateTest,
@@ -551,7 +555,14 @@ ORDER BY
 exports.update = (req, res) => {
     console.log("UPDATE PROJECT")
     const id = req.params.id;
-    console.log("ID:",id)
+    for (let key in req.body) {
+      if (req.body.hasOwnProperty(key) && key.endsWith('_cost')|| key.endsWith("effort") || key.endsWith("benefit")) { // Check if the key ends with '_cost'
+        let value = req.body[key].replace(/,/g, ''); // Remove all commas
+        // req.body[key] = formatCost(value); // Format and update the value in req.body
+        console.log("value:",value)
+      }
+    }
+    console.log("ID:",req.body)
     Project.update(req.body, {
       where: { id: id }
     })
@@ -623,15 +634,4 @@ exports.deleteAll = (req, res) => {
       return date; // Return the valid date
     }
   }
-  // Format cost values to K/M format
-  const formatCost = (cost) => {
-    console.log("************************************* cost:",cost)
-    if (cost >= 1e6) {
-      return (cost / 1e6).toFixed(0) + 'M'; // Convert to millions
-    } else if (cost >= 1e3) {
-      return (cost / 1e3).toFixed(0) + 'K'; // Convert to thousands
-    } else {
-      return cost.toString(); // No conversion
-    }
-  };
 
