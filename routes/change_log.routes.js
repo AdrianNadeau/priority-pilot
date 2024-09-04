@@ -11,6 +11,7 @@ module.exports = app => {
 
     // Retrieve all  /change_logs/project/308
     router.get("/project/:id", change_logs.findAllByProject);
+
   
 
     // Retrieve a single  with id

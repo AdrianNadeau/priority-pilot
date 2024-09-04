@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const Project = sequelize.define("projects", {
+  const ChangedProject = sequelize.define("changed_projects", {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -97,5 +97,5 @@ module.exports = (sequelize, Sequelize) => {
    
   });
 
-  return Project;
+  return ChangedProject;
 };

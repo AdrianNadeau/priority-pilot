@@ -166,7 +166,7 @@ exports.findOne = (req, res) => {
   exports.findOneForEdit = (req, res) => {
     
     id = req.params.id;
-    console.log("edit person:",id)
+   
     Person.findByPk(id)
       .then(data => {
         if (data) {
@@ -241,7 +241,7 @@ exports.update = (req, res) => {
 
 // Delete a  with the specified id in the request
 exports.delete = (req, res) => {
-  console.log("DELETE USER:"+req.params.id)
+  
     const id = req.params.id;
 
   

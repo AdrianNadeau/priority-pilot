@@ -19,6 +19,7 @@ router.get('/', async function (req, res) {
     }
     
     // Custom SQL query
+    console.log("RUN QUERY")
     const query ='SELECT proj.company_id_fk, proj.id, proj.project_name, proj.start_date, proj.end_date,proj.health, proj.effort, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?';
 
     let pitchCount = 0, pitchTotalCost = 0;
@@ -37,35 +38,42 @@ router.get('/', async function (req, res) {
     }).then(data => {
         
         data.forEach(function(project) {
-            // let projectCost = parseFloat(project.project_cost);
-            if (!project.effort===undefined || project.effort!="NaN"){
-                totalEffortPH = parseFloat(project.project_cost);
-                totalEffortPH+=totalEffortPH;
+            try{
+                
+                let projectCost = parseFloat(project.project_cost);
+                if (!project.effort===undefined || project.effort!="NaN"){
+                    console.log("effort..");
+                    totalEffortPH = parseFloat(project.project_cost);
+                    totalEffortPH+=totalEffortPH;
+                }
+                
+                totalEstimatedCost+=projectCost;
+                
+                switch (project.phase_name.toLowerCase()) {
+                    case "pitch":
+                        pitchTotalCost += projectCost;
+                        pitchCount++;
+                        break;
+                    case "priority":
+                        priorityTotalCost += projectCost;
+                        priorityCount++;
+                        break;
+                    case "discovery":
+                        discoveryTotalCost += projectCost;
+                        discoveryCount++;
+                        break;
+                    case "delivery":
+                        deliveryTotalCost += projectCost;
+                        deliveryCount++;
+                        break;
+                    case "operations":
+                        operationsTotalCost += projectCost;
+                        operationsCount++;
+                        break;
+                }
             }
-            
-            totalEstimatedCost+=projectCost;
-            
-            switch (project.phase_name.toLowerCase()) {
-                case "pitch":
-                    pitchTotalCost += projectCost;
-                    pitchCount++;
-                    break;
-                case "priority":
-                    priorityTotalCost += projectCost;
-                    priorityCount++;
-                    break;
-                case "discovery":
-                    discoveryTotalCost += projectCost;
-                    discoveryCount++;
-                    break;
-                case "delivery":
-                    deliveryTotalCost += projectCost;
-                    deliveryCount++;
-                    break;
-                case "operations":
-                    operationsTotalCost += projectCost;
-                    operationsCount++;
-                    break;
+            catch(error){
+                console.log("error:",error)
             }
         });
 
@@ -100,8 +108,7 @@ router.get('/', async function (req, res) {
 
         //calculate PH (completed is operations)
 
-
-        
+   
         // Render the page when all data retrieval operations are complete
         res.render('Dashboard/dashboard1', {
             projects: data,

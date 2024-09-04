@@ -227,7 +227,42 @@
               <div class="container mt-4">
                   <h5>Change Log</h5> <!-- This is your heading -->
 
- 
+                  <form action="/change_logs" class="needs-validation" novalidate method="POST">
+                      <input type="hidden" name="project_id" id="project_id" value="<%=project.id %>"/>
+
+                      <div class="row">
+                          <div class="col-md-12">
+                              <!-- Current Date Display -->
+                              <div class="form-group">
+                                  <p><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+                              </div>
+
+                              <!-- Change Reason -->
+                              <div class="form-group">
+                                  <label for="change_reason">Change Reason</label>
+                                  
+                                  <select class="form-control" id="change_reason" name="change_reason" required>
+                                    
+                                    <% change_reasons.forEach(function(change_reason){ %>
+                                      <option value= "<%= change_reason.id %>"><%= change_reason.change_reason %></option>
+                                    <% }) %>
+                                  </select>
+                                  <div class="invalid-feedback">
+                                      Please enter change reason.
+                                  </div>
+                              </div>
+
+                              <!-- Change Explanation -->
+                              <div class="form-group">
+                                  <label for="change_explanation">Change Details</label>
+                                  <textarea class="form-control" id="change_explanation" name="change_explanation" rows="3" required></textarea>
+                                  <div class="invalid-feedback">
+                                      Please provide change details.
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </form>
               </div>
           </div>
 
@@ -238,6 +273,7 @@
       </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
 
 <%- contentFor('FooterJs') %>
 

@@ -268,11 +268,12 @@ module.exports = {
                       <% borderColor = 'red'; %>
                     <% } %>
                     <span>
-                      <button type="button" onclick="loadProject('<%= project.id %>')" 
-                              style="width: 100%; border-color: <%= borderColor %>; border-width: 2px; margin-bottom: 5px;" 
-                              class="btn btn-light text-left">
-                        <%= project.project_name %>
-                      </button>
+                      <button type="button" 
+                          onclick="loadProject('<%= project.id %>')" 
+                          style="width: 100%; border-color: <%= borderColor %>; border-width: 2px; margin-bottom: 5px;" 
+                          class="btn btn-light text-left">
+                      <%= project.project_name %>
+                  </button>
                     </span>&nbsp;&nbsp;&nbsp;
                   <% } %>
                 <% }); %>
