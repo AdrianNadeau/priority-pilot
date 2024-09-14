@@ -5,24 +5,26 @@ const Priority = db.priorities;
 const Person = db.persons;
 const ChangeLog = db.changeLogs;
 const ChangeReason=db.change_reasons;
+const ChangeProject=db.changed_projects;
 const Status=db.statuses;
 const sequelize= require('sequelize')
 const Op = db.Sequelize.Op;
 const currentDate = new Date();
 // Create and Save a new Project
+
 exports.create = (req, res) => {
-  if(req.session.company.id==null){
-    res.redirect('/login');
-  }
-  const company_id_fk = req.session.company.id
- 
-   
-    if (!req.body.project_name) {
-      res.status(400).send({
-        message: "Project Name can not be empty!"
-      });
-      return;
+  try{
+    
+    if(!req.session){
+        res.redirect("/pages-500")
     }
+    else{
+      company_id_fk = req.session.company.id
+     }
+  }catch(error){
+    console.log("error:",error)
+  }
+
     //convert dates
     
     let startDateTest = insertValidDate(req.body.start_date);
@@ -56,6 +58,7 @@ exports.create = (req, res) => {
       project_cost :req.body.project_cost,
       effort:req.body.effort,
       benefit:req.body.benefit,
+      impact:req.body.impact,
       complexity:req.body.complexity,
       tags:req.body.project_tags,
       pitch_message:pitch_message
@@ -77,7 +80,7 @@ exports.create = (req, res) => {
             },
           }),
           Project.findAll() ,
-          ChangeReason.findAll()
+          // ChangeReason.findAll()
       ]);
       
       const query ='SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?';
@@ -93,7 +96,7 @@ exports.create = (req, res) => {
               priorities: prioritiesData,
               sponsors: personsData,
               primes: personsData,
-              change_reasons:ChangeReason
+              // change_reasons:ChangeReason
               
           });
       }).catch(err => {
@@ -314,7 +317,7 @@ exports.findOneForEdit = async (req, res) => {
      SELECT proj.company_id_fk, proj.id, proj.effort,proj.benefit, proj.prime_id_fk, 
              proj.project_headline, proj.project_name, proj.project_description,proj.start_date, 
              proj.end_date, proj.next_milestone_date, proj.project_why, 
-             proj.project_what,proj.tags,proj.effort, prime_person.first_name AS prime_first_name, 
+             proj.project_what,proj.tags,proj.effort, proj.impact, proj.complexity, prime_person.first_name AS prime_first_name, 
              prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, 
              sponsor_person.last_name AS sponsor_last_name, proj.project_cost, 
              phases.phase_name, proj.pitch_message, proj.phase_id_fk, proj.priority_id_fk, proj.sponsor_id_fk, proj.prime_id_fk
@@ -560,18 +563,20 @@ ORDER BY
   };
 // Update a Project by the id in the request
 exports.update = (req, res) => {
-   
-    const id = req.params.id;
-    console.log("UPDATE PROJECT:*************:",id)
-    // for (let key in req.body) {
-    //   if (req.body.hasOwnProperty(key) && key.endsWith('_cost')|| key.endsWith("effort") || key.endsWith("benefit")) { // Check if the key ends with '_cost'
-    //     // let value = req.body[key].replace(/,/g, ''); // Remove all commas
-    //     req.body[key] = formatCost(value); // Format and update the value in req.body
-    //     console.log("value:",value)  
-    //   }
-    // }
+  try{
     
-    const project_id = req.params.id;
+    if(!req.session){
+        res.redirect("/pages-500")
+    }
+    else{
+      company_id_fk = req.session.company.id
+     }
+  }catch(error){
+    console.log("error:",error)
+  }
+    const id = req.params.id;
+    console.log("UPDATE PROJECT",id)
+   
     let company_id_fk;
 
     // Ensure session exists and fetch company ID
@@ -584,10 +589,9 @@ exports.update = (req, res) => {
     let deletedDateTest = insertValidDate(req.body.deleted_date);
     let changeDateTest = insertValidDate(req.body.change_date);
     company_id_fk = req.session.company.id;
-    // Create a Project Object
+    // Create a Project
     const project = {
       company_id_fk : company_id_fk,
-      project_id_fk : id,
       project_name: req.body.project_name,
       project_headline :req.body.project_headline,
       project_description :req.body.project_description,
@@ -607,12 +611,10 @@ exports.update = (req, res) => {
       benefit:req.body.benefit,
       complexity:req.body.complexity,
       tags:req.body.project_tags,
-      change_reason_id_fk:req.body.change_reason,
-      change_reason_details:req.body.change_reason_details,
-      
+      // pitch_message:pitch_message
      
     };
-    console.log("PROJECT:", id);
+   
 
     Project.update(project, {
         where: { id: id }
@@ -620,6 +622,41 @@ exports.update = (req, res) => {
     .then(result => {
         const [numAffected] = result;
         if (numAffected == 1) {
+          const changeProject = {
+            company_id_fk : company_id_fk,
+            project_id_fk : id,
+            project_name: req.body.project_name,
+            project_headline :req.body.project_headline,
+            project_description :req.body.project_description,
+            project_why :req.body.project_why,
+            project_what :req.body.project_what,
+            start_date :startDateTest,
+            end_date :endDateTest,
+            next_milestone_date :nextMilestoneDateTest,
+            deleted_date:deletedDateTest,
+            change_date:changeDateTest,
+            priority_id_fk :req.body.priority_id_fk,
+            sponsor_id_fk:req.body.sponsor_id_fk,
+            prime_id_fk:req.body.prime_id_fk,
+            phase_id_fk :req.body.phase_id_fk,
+            project_cost :req.body.project_cost,
+            effort:req.body.effort,
+            benefit:req.body.benefit,
+            complexity:req.body.complexity,
+            tags:req.body.change_reason,
+            tags:req.body.change_explanation,
+          }
+        
+          ChangeProject.create(changeProject, {
+            where: { id: id }
+          })
+          .then(changeProject => {
+            console.log("************************ changeProject:",changeProject)
+            
+          })
+          .catch(err => {
+            console.error("Error creating changeProject:", err);
+          });
           res.redirect('/projects');
         } else {
             res.send({

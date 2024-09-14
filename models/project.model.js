@@ -6,10 +6,7 @@ module.exports = (sequelize, Sequelize) => {
       primaryKey: true,
       type: Sequelize.INTEGER
     },
-    project_id_fk: {
-      type: Sequelize.INTEGER,
-      required: true, unique: true
-    },
+    
     company_id_fk: {
       type: Sequelize.INTEGER,
       required: true, unique: true
@@ -57,13 +54,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER
     },
     project_cost: {
-      type: Sequelize.DECIMAL
+      type: Sequelize.STRING
     },
     effort: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     benefit: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     impact: {
       type: Sequelize.INTEGER
@@ -88,12 +85,7 @@ module.exports = (sequelize, Sequelize) => {
     pitch_message: {
       type: Sequelize.STRING
     },
-    change_reason_id_fk: {
-      type: Sequelize.INTEGER
-    },
-    change_reason_details: {
-      type: Sequelize.STRING
-    },
+    
    
   });
 

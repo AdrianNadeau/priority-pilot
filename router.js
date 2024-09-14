@@ -42,12 +42,13 @@ router.get('/', async function (req, res) {
                 
                 let projectCost = parseFloat(project.project_cost);
                 if (!project.effort===undefined || project.effort!="NaN"){
-                    console.log("effort..");
+                   
                     totalEffortPH = parseFloat(project.project_cost);
                     totalEffortPH+=totalEffortPH;
                 }
                 
                 totalEstimatedCost+=projectCost;
+                console.log("totalEstimatedCost:",totalEstimatedCost)
                 
                 switch (project.phase_name.toLowerCase()) {
                     case "pitch":
@@ -59,9 +60,14 @@ router.get('/', async function (req, res) {
                         priorityCount++;
                         break;
                     case "discovery":
-                        discoveryTotalCost += projectCost;
-                        discoveryCount++;
+                            if (typeof projectCost !== 'undefined' && !isNaN(projectCost)) {
+                                discoveryTotalCost += projectCost;
+                                console.log("discoveryTotalCost:", discoveryTotalCost);
+                                
+                            }
+                            discoveryCount++;
                         break;
+                        
                     case "delivery":
                         deliveryTotalCost += projectCost;
                         deliveryCount++;
@@ -94,14 +100,14 @@ router.get('/', async function (req, res) {
 
         // console.log("pitchCount:",pitchCount)
         // console.log("priorityCount:",priorityCount)
-        // console.log("discoveryCount:",discoveryCount)
-        // console.log("deliveryCount:",deliveryCount)
+        console.log("discoveryCount:",discoveryCount)
+        console.log("deliveryCount:",deliveryCount)
         // console.log("operationsCount:",operationsCount)
 
         // console.log("pitchTotalSum:",pitchTotalSum)
         // console.log("priorityTotalSum:",priorityTotalSum)
-        // console.log("discoveryTotalSum:",discoveryTotalSum)
-        // console.log("deliveryTotalSum:",deliveryTotalSum)
+        console.log("discoveryTotalSum:",discoveryTotalSum)
+        console.log("deliveryTotalSum:",deliveryTotalSum)
         // console.log("operationsTotalSum:",operationsTotalSum)
 
         // console.log("Total Effort:",totalEffortPH);

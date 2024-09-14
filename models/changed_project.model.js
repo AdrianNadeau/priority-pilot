@@ -57,13 +57,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER
     },
     project_cost: {
-      type: Sequelize.DECIMAL
+      type: Sequelize.STRING
     },
     effort: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     benefit: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     impact: {
       type: Sequelize.INTEGER
@@ -91,9 +91,11 @@ module.exports = (sequelize, Sequelize) => {
     change_reason_id_fk: {
       type: Sequelize.INTEGER
     },
-    change_reason_details: {
+    change_explanation: {
       type: Sequelize.STRING
     },
+    
+    
    
   });
 

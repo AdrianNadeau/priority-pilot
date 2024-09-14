@@ -1,5 +1,6 @@
 const db = require("../models");
 const Project = db.projects;
+const ChangeProject=db.change_projects;
 const Phase = db.phases;
 const Priority = db.priorities;
 const Person = db.persons;
@@ -11,6 +12,7 @@ const Op = db.Sequelize.Op;
 const currentDate = new Date();
 // Create and Save a new Project
 exports.create = (req, res) => {
+  
   if(req.session.company.id==null){
     res.redirect('/login');
   }
@@ -37,7 +39,7 @@ exports.create = (req, res) => {
     }
     
     // Create a Project
-    const project = {
+    const changed_project = {
       company_id_fk : company_id_fk,
       project_name: req.body.project_name,
       project_headline :req.body.project_headline,
@@ -62,7 +64,7 @@ exports.create = (req, res) => {
      
     };
     // Save Project in the database
-    Project.create(project)
+    ChangeProject.create(project)
       .then(async data => {
         //call get all function for project /projects
         const [phasesData, prioritiesData, personsData, projectsData] = await Promise.all([
@@ -192,110 +194,7 @@ exports.findOne = (req, res) => {
   }
    
   };
-  exports.cockpit = async (req, res) => {
-    const project_id = req.params.id;
-    let company_id_fk;
-    try {
-        if (!req.session) {
-            res.redirect("/pages-500");
-        } else {
-            company_id_fk = req.session.company.id;
-        }
-    } catch (error) {
-        console.log("error:", error);
-    }
 
-    // Check password by encrypted value
-    // project for cockpit
-    const query = `
-    SELECT 
-      proj.company_id_fk, 
-      proj.id, 
-      proj.effort,
-      proj.benefit, 
-      proj.prime_id_fk, 
-      proj.project_headline, 
-      proj.project_name, 
-      proj.start_date, 
-      proj.end_date, 
-      proj.next_milestone_date, 
-      proj.project_why, 
-      proj.project_what,
-      proj.tags, 
-      prime_person.first_name AS prime_first_name, 
-      prime_person.last_name AS prime_last_name, 
-      sponsor_person.first_name AS sponsor_first_name, 
-      sponsor_person.last_name AS sponsor_last_name, 
-      proj.project_cost, 
-      phases.phase_name, 
-      proj.pitch_message, 
-      proj.phase_id_fk, 
-      proj.priority_id_fk, 
-      proj.sponsor_id_fk, 
-      proj.prime_id_fk,
-      statuses.accomplishments
-    FROM 
-      projects proj 
-    LEFT JOIN 
-      persons prime_person ON prime_person.id = proj.prime_id_fk 
-    LEFT JOIN 
-      persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
-    LEFT JOIN 
-      phases ON phases.id = proj.phase_id_fk
-    LEFT JOIN 
-      statuses ON statuses.project_id_fk = proj.id
-    WHERE 
-      proj.company_id_fk = ? 
-      AND proj.id = ?;
-  `;
-
-
-    try {
-        const data = await db.sequelize.query(query, {
-            replacements: [company_id_fk, req.params.id],
-            type: db.sequelize.QueryTypes.SELECT
-        });
-        
-       
-        
-        const change_logs = await ChangeLog.findAll({
-          where: {
-            project_id_fk: project_id
-          },
-          order: [
-            ['change_date', 'DESC'] 
-          ]
-        });
-        const statuses = await Status.findAll({
-          where: {
-            project_id_fk: project_id
-          },
-          order: [
-            ['status_date', 'DESC'] 
-          ]
-        });
-        let lastStatusDate = null;
-        let statusColor=null;
-        if (statuses.length > 0) {
-            lastStatusDate = statuses[0].status_date;
-            statusColor=statuses[0].health;
-        }
-        console.log("DATA:",data)
-        res.render('Pages/pages-cockpit', {
-            project: data,
-            current_date: currentDate,
-            formattedCost: data[0].project_cost,
-            changeLogs:change_logs,
-            statuses: statuses,
-            lastStatusDate:lastStatusDate,
-            statusColor:statusColor
-        });
-    } catch (err) {
-        res.status(500).send({
-            message: err.message || "Some error occurred while retrieving data."
-        });
-    }
-};
 exports.findOneForEdit = async (req, res) => {
   
   try {
@@ -404,160 +303,6 @@ exports.findOneForEdit = async (req, res) => {
   }
 };
 
-
-exports.radar = async (req, res) => {
-  let company_id_fk;
-
-  try {
-    if (!req.session) {
-      return res.redirect("/pages-500");
-    } else {
-      company_id_fk = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-  }
-const query = `
-  SELECT
-    SUM(CASE WHEN phase_id_fk = 2 THEN 1 ELSE 0 END) AS phase_2_count,
-    SUM(CASE WHEN phase_id_fk = 3 THEN 1 ELSE 0 END) AS phase_3_count,
-    SUM(CASE WHEN phase_id_fk = 4 THEN 1 ELSE 0 END) AS phase_4_count,
-    SUM(CASE WHEN phase_id_fk = 5 THEN 1 ELSE 0 END) AS phase_5_count,
-    SUM(CASE WHEN phase_id_fk = 2 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_2_total_cost,
-    SUM(CASE WHEN phase_id_fk = 3 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_3_total_cost,
-    SUM(CASE WHEN phase_id_fk = 4 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_4_total_cost,
-    SUM(CASE WHEN phase_id_fk = 5 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_5_total_cost
-FROM 
-    projects
-WHERE 
-    company_id_fk = ?
-
-`;
-
-  try {
-    // Execute the query
-    const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk],
-      type: db.sequelize.QueryTypes.SELECT,
-    });
-
-    if (!data || data.length === 0) {
-      return res.status(404).send({ message: "Project Health not found" });
-    }
-
-    // Pass the result to the EJS template
-    const phase2Count = Number(data[0].phase_2_count);
-    const phase3Count = Number(data[0].phase_3_count);
-    const phase4Count = Number(data[0].phase_4_count);
-    // Extract and log raw data
-    const phase2TotalCost = Number(data[0].phase_2_total_cost) || 0;
-    const phase3TotalCost = Number(data[0].phase_3_total_cost) || 0;
-    const phase4TotalCost = Number(data[0].phase_4_total_cost) || 0;
-    let in_flight_count= phase3Count+ phase4Count;
-    console.log("flight count:",in_flight_count)
-    let in_flight_cost = formatCost(phase3TotalCost + phase4TotalCost);
-      res.render('Pages/pages-radar', {
-        phase_2_count: data[0].phase_2_count,
-        in_flight_count: in_flight_count,
-        phase_5_count: data[0].phase_5_count,
-        phase_2_total_cost: formatCost(data[0].phase_2_total_cost),
-        in_flight_cost:in_flight_cost,
-        phase_5_total_count:  phase4Count,
-        phase_5_total_cost: formatCost(data[0].phase_5_total_cost),
-      });
-    } catch (error) {
-      console.log("Query error:", error);
-      return res.status(500).send({ message: "Server error" });
-    }
-};
-
-exports.flight = async (req, res) => {
-  let company_id_fk;
-  try {
-      if (!req.session || !req.session.company) {
-          return res.redirect("/pages-500");
-      } else {
-          company_id_fk = req.session.company.id;
-      }
-  } catch (error) {
-      console.log("Error:", error);
-  }
-
-  const query = `
-      SELECT 
-    proj.start_date,
-    proj.end_date, 
-    proj.next_milestone_date,
-    proj.company_id_fk, 
-    proj.id, 
-    proj.impact,
-    proj.effort,
-    proj.benefit, 
-    proj.prime_id_fk, 
-    proj.health,
-    statuses.issue, 
-    statuses.actions, 
-    proj.project_name,
-    proj.tags,
-    prime_person.first_name AS prime_first_name, 
-    prime_person.last_name AS prime_last_name, 
-    sponsor_person.first_name AS sponsor_first_name, 
-    sponsor_person.last_name AS sponsor_last_name, 
-    proj.project_cost, 
-    phases.phase_name, 
-    proj.pitch_message, 
-    proj.phase_id_fk, 
-    proj.priority_id_fk, 
-    proj.sponsor_id_fk, 
-    proj.prime_id_fk
-FROM 
-    projects proj 
-LEFT JOIN 
-    persons prime_person ON prime_person.id = proj.prime_id_fk 
-LEFT JOIN 
-    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
-LEFT JOIN 
-    phases ON phases.id = proj.phase_id_fk
-LEFT JOIN 
-    statuses ON statuses.project_id_fk = proj.id
-WHERE 
-    proj.company_id_fk = ?
-ORDER BY 
-    proj.phase_id_fk;
-
-  `;
-
-  try {
-    
-      // Execute the query
-      const data = await db.sequelize.query(query, {
-          replacements: [company_id_fk],
-          type: db.sequelize.QueryTypes.SELECT,
-      });
-
-      if (!data || data.length === 0) {
-          return res.status(404).send({ message: "Project Health not found" });
-      }
-      let startDateTest = insertValidDate(data);
-      console.log("data:",data);
-      // Pass the result to the EJS template
-      res.render('Pages/pages-flight-plan', {
-          start_date: startDateTest,
-          health_data: data
-      });
-  } catch (error) {
-      console.log("Query error:", error);
-      return res.status(500).send({ message: "Server error" });
-  }
-};
-
-  
-  exports.health = async  (req, res) => {
-   
-    // 
-      res.render('Pages/pages-health');
-   
-  };
 // Update a Project by the id in the request
 exports.update = (req, res) => {
    

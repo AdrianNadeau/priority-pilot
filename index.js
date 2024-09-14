@@ -46,7 +46,6 @@ const storage = multer.diskStorage({
   }
 });
 
-
 //For set layouts of html view
 var expressLayouts = require('express-ejs-layouts');
 app.set('views', path.join(__dirname, 'views'));
