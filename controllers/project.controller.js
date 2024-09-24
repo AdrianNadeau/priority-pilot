@@ -459,6 +459,7 @@ WHERE
     let in_flight_count= phase3Count+ phase4Count;
     console.log("flight count:",in_flight_count)
     let in_flight_cost = formatCost(phase3TotalCost + phase4TotalCost);
+    console.log("in_flight_cost:",in_flight_cost)
       res.render('Pages/pages-radar', {
         phase_2_count: data[0].phase_2_count,
         in_flight_count: in_flight_count,
@@ -563,6 +564,7 @@ ORDER BY
   };
 // Update a Project by the id in the request
 exports.update = (req, res) => {
+  var company_id_fk= "";
   try{
     
     if(!req.session){
@@ -577,7 +579,7 @@ exports.update = (req, res) => {
     const id = req.params.id;
     console.log("UPDATE PROJECT",id)
    
-    let company_id_fk;
+    
 
     // Ensure session exists and fetch company ID
     if (!req.session || !req.session.company) {
@@ -620,8 +622,10 @@ exports.update = (req, res) => {
         where: { id: id }
     })
     .then(result => {
+      console.log("CREATE CHANGE PROJECT:",result)
         const [numAffected] = result;
         if (numAffected == 1) {
+          
           const changeProject = {
             company_id_fk : company_id_fk,
             project_id_fk : id,
@@ -646,7 +650,7 @@ exports.update = (req, res) => {
             tags:req.body.change_reason,
             tags:req.body.change_explanation,
           }
-        
+          console.log("changeProject:",changeProject)
           ChangeProject.create(changeProject, {
             where: { id: id }
           })

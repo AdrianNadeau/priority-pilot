@@ -41,10 +41,14 @@ router.get('/', async function (req, res) {
             try{
                 
                 let projectCost = parseFloat(project.project_cost);
+                console.log("projectCost:",projectCost)
                 if (!project.effort===undefined || project.effort!="NaN"){
-                   
-                    totalEffortPH = parseFloat(project.project_cost);
-                    totalEffortPH+=totalEffortPH;
+                    console.log("project.effort:",project.effort)
+                    
+                    totalPitchPH = parseFloat(project.effort);
+                    
+                    totalPH+=totalPH+totalPitchPH;
+                    console.log("totalPitchPH:",totalPitchPH)
                 }
                 
                 totalEstimatedCost+=projectCost;
@@ -85,14 +89,22 @@ router.get('/', async function (req, res) {
 
         var formatter = new Intl.NumberFormat('en-US');
         var pitchTotalSum = formatValue(formatter.format(pitchTotalCost));
+       
         var priorityTotalSum = formatValue(formatter.format(priorityTotalCost));
+        
         var discoveryTotalSum = formatValue(formatter.format(discoveryTotalCost));
+        
         var deliveryTotalSum = formatValue(formatter.format(deliveryTotalCost));
+        
         var operationsTotalSum = formatValue(formatter.format(operationsTotalCost));
+        
         var totalCostSum = formatValue(formatter.format(totalEstimatedCost));
-        // var totalAvailSum = totalCostSum-operationsTotalSum;
+        
+        var totalAvailSum = totalCostSum-operationsTotalSum;
+        
         // Perform subtraction directly on numbers
         var totalAvailSum = totalEstimatedCost - operationsTotalCost;
+        
         //format what is left
         var totalAvailSum = formatValue(formatter.format(totalAvailSum));
 
@@ -100,14 +112,14 @@ router.get('/', async function (req, res) {
 
         // console.log("pitchCount:",pitchCount)
         // console.log("priorityCount:",priorityCount)
-        console.log("discoveryCount:",discoveryCount)
-        console.log("deliveryCount:",deliveryCount)
+        // console.log("discoveryCount:",discoveryCount)
+        // console.log("deliveryCount:",deliveryCount)
         // console.log("operationsCount:",operationsCount)
 
         // console.log("pitchTotalSum:",pitchTotalSum)
         // console.log("priorityTotalSum:",priorityTotalSum)
-        console.log("discoveryTotalSum:",discoveryTotalSum)
-        console.log("deliveryTotalSum:",deliveryTotalSum)
+        // console.log("discoveryTotalSum:",discoveryTotalSum)
+        // console.log("deliveryTotalSum:",deliveryTotalSum)
         // console.log("operationsTotalSum:",operationsTotalSum)
 
         // console.log("Total Effort:",totalEffortPH);
@@ -130,7 +142,8 @@ router.get('/', async function (req, res) {
             operationsTotalCost: operationsTotalSum,
             totalCostSum:totalCostSum,
             totalCostUsed:operationsTotalSum,
-            totalAvailableCost: totalAvailSum
+            totalAvailableCost: totalAvailSum,
+            totalPitchPH: totalPitchPH
         });
     }).catch(err => {
         // res.status(500).send({
@@ -139,9 +152,7 @@ router.get('/', async function (req, res) {
     });
 });
 function formatValue(value) {
-   
-    
-    value = value.replace(/,/g, '');
+   value = value.replace(/,/g, '');
     value = parseFloat(value); // Convert to a number
     if (value > 1000000) {
         return (value / 1000000).toFixed(0) + 'M';

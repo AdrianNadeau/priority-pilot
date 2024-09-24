@@ -149,9 +149,9 @@ module.exports = {
           </div>
         </div>
         <div class="col-md-6">
-          <div class="mini-stat clearfix bg-white">
+          <div class="mini-stat clearfix bg-white" style="min-height: 150px !important;">
             <div class="mini-stat-info">
-              <span class="counter">Priority (<%=priorityCount%>, <%=priorityTotalCost%> PH)</span>
+              <span class="counter">Priority (<%=priorityCount%>, <%=totalPitchPH%> PH)</span>
             </div>
             <div>
               <% projects.forEach(function(project) { %>
@@ -176,7 +176,7 @@ module.exports = {
                   %>
                   <span>
                     <button type="button" onclick="loadProject('<%= project.id %>')" 
-                      style="width: 100%; border-color: <%= borderColor %>; border-width: 2px; margin-bottom: 5px;" 
+                      style="width: 100%; border-color: <%= borderColor %>; border-size: 2px; margin-bottom: 5px;" 
                       class="<%= buttonStyle %>">
                       <%= project.project_name %>
                     </button>
