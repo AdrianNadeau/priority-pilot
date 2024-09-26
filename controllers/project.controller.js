@@ -196,8 +196,9 @@ exports.findOne = (req, res) => {
    
 };
 exports.cockpit = async (req, res) => {
-  console.log("Cockpit");
+ 
   const project_id = req.params.id;
+  
   let company_id_fk;
   try {
     if (!req.session) {
@@ -210,8 +211,7 @@ exports.cockpit = async (req, res) => {
     return res.redirect("/pages-500");
   }
 
-  // Check password by encrypted value
-  // project for cockpit
+  //COCKPIT QUERY
   try {
     const query = `
         SELECT 
@@ -220,7 +220,10 @@ exports.cockpit = async (req, res) => {
             proj.project_name, 
             proj.project_headline,
             proj.start_date, 
-            proj.end_date,  
+            proj.end_date,
+            proj.effort,
+            proj.project_why,
+            proj.project_what,
             prime_person.first_name AS prime_first_name, 
             prime_person.last_name AS prime_last_name, 
             sponsor_person.first_name AS sponsor_first_name, 
@@ -231,10 +234,10 @@ exports.cockpit = async (req, res) => {
         LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk 
         LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
         LEFT JOIN phases ON phases.id = proj.phase_id_fk 
-        WHERE proj.company_id_fk = ?`;
+        WHERE proj.company_id_fk = ? AND proj.id = ?`;
 
     const data = await db.sequelize.query(query, {
-        replacements: [company_id_fk],
+        replacements: [company_id_fk, project_id],
         type: db.sequelize.QueryTypes.SELECT
     });
 
@@ -290,7 +293,28 @@ exports.findOneForEdit = async (req, res) => {
       if (!data || data.length === 0) {
         return res.status(404).send({ message: "Project not found" });
       }
+         // // Get change logs for the project
+      // const change_logs = await ChangeLog.findAll({
+      //   where: { project_id_fk: project_id },
+      //   order: [['change_date', 'DESC']]
+      // });
+
       
+
+      // Get reasons for change for the project
+      const change_reasons = await ChangeReason.findAll();
+      let lastStatusDate = null;
+      let statusColor = null;
+    
+      // Get statuses for the project
+      const statuses = await Status.findAll({
+        where: { project_id_fk: project_id },
+        order: [["status_date", "DESC"]]
+      });
+      if (statuses.length > 0) {
+        lastStatusDate = statuses[0].status_date;
+        statusColor = statuses[0].health;
+      }
 
       
       const [phasesData, prioritiesData] = await Promise.all([
@@ -316,7 +340,7 @@ exports.findOneForEdit = async (req, res) => {
         priorities: prioritiesData,
         sponsors: personsData,
         primes: personsData,
-        change_reasons:change_reasons
+        change_reasons
 
       });
       
