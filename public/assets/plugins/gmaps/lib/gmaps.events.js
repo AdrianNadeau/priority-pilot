@@ -6,11 +6,11 @@ GMaps.prototype.off = function(event_name) {
   GMaps.off(event_name, this);
 };
 
-GMaps.custom_events = ['marker_added', 'marker_removed', 'polyline_added', 'polyline_removed', 'polygon_added', 'polygon_removed', 'geolocated', 'geolocation_failed'];
+GMaps.custom_events = ["marker_added", "marker_removed", "polyline_added", "polyline_removed", "polygon_added", "polygon_removed", "geolocated", "geolocation_failed"];
 
 GMaps.on = function(event_name, object, handler) {
   if (GMaps.custom_events.indexOf(event_name) == -1) {
-    if(object instanceof GMaps) object = object.map; 
+    if(object instanceof GMaps) {object = object.map;} 
     return google.maps.event.addListener(object, event_name, handler);
   }
   else {
@@ -28,7 +28,7 @@ GMaps.on = function(event_name, object, handler) {
 
 GMaps.off = function(event_name, object) {
   if (GMaps.custom_events.indexOf(event_name) == -1) {
-    if(object instanceof GMaps) object = object.map; 
+    if(object instanceof GMaps) {object = object.map;} 
     google.maps.event.clearListeners(object, event_name);
   }
   else {
@@ -47,7 +47,7 @@ GMaps.fire = function(event_name, object, scope) {
       for(var i = 0; i < firing_events.length; i++) {
         (function(handler, scope, object) {
           handler.apply(scope, [object]);
-        })(firing_events[i]['handler'], scope, object);
+        })(firing_events[i]["handler"], scope, object);
       }
     }
   }

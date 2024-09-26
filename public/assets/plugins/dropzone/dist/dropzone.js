@@ -1,10 +1,10 @@
 "use strict";
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) {descriptor.writable = true;} Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) {defineProperties(Constructor.prototype, protoProps);} if (staticProps) {defineProperties(Constructor, staticProps);} return Constructor; }; }();
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) {Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;} }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -71,11 +71,11 @@ var Emitter = function () {
           var _ref;
 
           if (_isArray) {
-            if (_i >= _iterator.length) break;
+            if (_i >= _iterator.length) {break;}
             _ref = _iterator[_i++];
           } else {
             _i = _iterator.next();
-            if (_i.done) break;
+            if (_i.done) {break;}
             _ref = _i.value;
           }
 
@@ -258,7 +258,7 @@ var Dropzone = function (_Emitter) {
          * How the images should be scaled down in case both, `thumbnailWidth` and `thumbnailHeight` are provided.
          * Can be either `contain` or `crop`.
          */
-        thumbnailMethod: 'crop',
+        thumbnailMethod: "crop",
 
         /**
          * If set, images will be resized to these dimensions before being **uploaded**.
@@ -291,7 +291,7 @@ var Dropzone = function (_Emitter) {
          * How the images should be scaled down in case both, `resizeWidth` and `resizeHeight` are provided.
          * Can be either `contain` or `crop`.
          */
-        resizeMethod: 'contain',
+        resizeMethod: "contain",
 
         /**
          * The base that is used to calculate the filesize. You can change this to
@@ -557,11 +557,11 @@ var Dropzone = function (_Emitter) {
             var _ref2;
 
             if (_isArray2) {
-              if (_i2 >= _iterator2.length) break;
+              if (_i2 >= _iterator2.length) {break;}
               _ref2 = _iterator2[_i2++];
             } else {
               _i2 = _iterator2.next();
-              if (_i2.done) break;
+              if (_i2.done) {break;}
               _ref2 = _i2.value;
             }
 
@@ -631,7 +631,7 @@ var Dropzone = function (_Emitter) {
 
           if (info.srcWidth > width || info.srcHeight > height) {
             // Image is bigger and needs rescaling
-            if (resizeMethod === 'crop') {
+            if (resizeMethod === "crop") {
               if (srcRatio > trgRatio) {
                 info.srcHeight = file.height;
                 info.srcWidth = info.srcHeight * trgRatio;
@@ -639,7 +639,7 @@ var Dropzone = function (_Emitter) {
                 info.srcWidth = file.width;
                 info.srcHeight = info.srcWidth / trgRatio;
               }
-            } else if (resizeMethod === 'contain') {
+            } else if (resizeMethod === "contain") {
               // Method 'contain'
               if (srcRatio > trgRatio) {
                 height = width / srcRatio;
@@ -753,11 +753,11 @@ var Dropzone = function (_Emitter) {
               var _ref3;
 
               if (_isArray3) {
-                if (_i3 >= _iterator3.length) break;
+                if (_i3 >= _iterator3.length) {break;}
                 _ref3 = _iterator3[_i3++];
               } else {
                 _i3 = _iterator3.next();
-                if (_i3.done) break;
+                if (_i3.done) {break;}
                 _ref3 = _i3.value;
               }
 
@@ -767,11 +767,11 @@ var Dropzone = function (_Emitter) {
             }
             for (var _iterator4 = file.previewElement.querySelectorAll("[data-dz-size]"), _isArray4 = true, _i4 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
               if (_isArray4) {
-                if (_i4 >= _iterator4.length) break;
+                if (_i4 >= _iterator4.length) {break;}
                 node = _iterator4[_i4++];
               } else {
                 _i4 = _iterator4.next();
-                if (_i4.done) break;
+                if (_i4.done) {break;}
                 node = _i4.value;
               }
 
@@ -805,11 +805,11 @@ var Dropzone = function (_Emitter) {
               var _ref4;
 
               if (_isArray5) {
-                if (_i5 >= _iterator5.length) break;
+                if (_i5 >= _iterator5.length) {break;}
                 _ref4 = _iterator5[_i5++];
               } else {
                 _i5 = _iterator5.next();
-                if (_i5.done) break;
+                if (_i5.done) {break;}
                 _ref4 = _i5.value;
               }
 
@@ -839,11 +839,11 @@ var Dropzone = function (_Emitter) {
               var _ref5;
 
               if (_isArray6) {
-                if (_i6 >= _iterator6.length) break;
+                if (_i6 >= _iterator6.length) {break;}
                 _ref5 = _iterator6[_i6++];
               } else {
                 _i6 = _iterator6.next();
-                if (_i6.done) break;
+                if (_i6.done) {break;}
                 _ref5 = _i6.value;
               }
 
@@ -872,11 +872,11 @@ var Dropzone = function (_Emitter) {
               var _ref6;
 
               if (_isArray7) {
-                if (_i7 >= _iterator7.length) break;
+                if (_i7 >= _iterator7.length) {break;}
                 _ref6 = _iterator7[_i7++];
               } else {
                 _i7 = _iterator7.next();
-                if (_i7.done) break;
+                if (_i7.done) {break;}
                 _ref6 = _i7.value;
               }
 
@@ -912,17 +912,17 @@ var Dropzone = function (_Emitter) {
               var _ref7;
 
               if (_isArray8) {
-                if (_i8 >= _iterator8.length) break;
+                if (_i8 >= _iterator8.length) {break;}
                 _ref7 = _iterator8[_i8++];
               } else {
                 _i8 = _iterator8.next();
-                if (_i8.done) break;
+                if (_i8.done) {break;}
                 _ref7 = _i8.value;
               }
 
               var node = _ref7;
 
-              node.nodeName === 'PROGRESS' ? node.value = progress : node.style.width = progress + "%";
+              node.nodeName === "PROGRESS" ? node.value = progress : node.style.width = progress + "%";
             }
           }
         },
@@ -991,11 +991,11 @@ var Dropzone = function (_Emitter) {
         var _ref8;
 
         if (_isArray9) {
-          if (_i9 >= _iterator9.length) break;
+          if (_i9 >= _iterator9.length) {break;}
           _ref8 = _iterator9[_i9++];
         } else {
           _i9 = _iterator9.next();
-          if (_i9.done) break;
+          if (_i9.done) {break;}
           _ref8 = _i9.value;
         }
 
@@ -1016,7 +1016,7 @@ var Dropzone = function (_Emitter) {
     var _this = _possibleConstructorReturn(this, (Dropzone.__proto__ || Object.getPrototypeOf(Dropzone)).call(this));
 
     var fallback = void 0,
-        left = void 0;
+      left = void 0;
     _this.element = el;
     // For backwards compatibility since the version was in the prototype previously
     _this.version = Dropzone.version;
@@ -1071,7 +1071,7 @@ var Dropzone = function (_Emitter) {
     }
 
     if (_this.options.uploadMultiple && _this.options.chunking) {
-      throw new Error('You cannot set both: uploadMultiple and chunking.');
+      throw new Error("You cannot set both: uploadMultiple and chunking.");
     }
 
     // Backwards compatibility
@@ -1224,7 +1224,7 @@ var Dropzone = function (_Emitter) {
           _this3.hiddenFileInput.style.left = "0";
           _this3.hiddenFileInput.style.height = "0";
           _this3.hiddenFileInput.style.width = "0";
-          Dropzone.getElement(_this3.options.hiddenInputContainer, 'hiddenInputContainer').appendChild(_this3.hiddenFileInput);
+          Dropzone.getElement(_this3.options.hiddenInputContainer, "hiddenInputContainer").appendChild(_this3.hiddenFileInput);
           return _this3.hiddenFileInput.addEventListener("change", function () {
             var files = _this3.hiddenFileInput.files;
 
@@ -1233,11 +1233,11 @@ var Dropzone = function (_Emitter) {
                 var _ref9;
 
                 if (_isArray10) {
-                  if (_i10 >= _iterator10.length) break;
+                  if (_i10 >= _iterator10.length) {break;}
                   _ref9 = _iterator10[_i10++];
                 } else {
                   _i10 = _iterator10.next();
-                  if (_i10.done) break;
+                  if (_i10.done) {break;}
                   _ref9 = _i10.value;
                 }
 
@@ -1262,11 +1262,11 @@ var Dropzone = function (_Emitter) {
         var _ref10;
 
         if (_isArray11) {
-          if (_i11 >= _iterator11.length) break;
+          if (_i11 >= _iterator11.length) {break;}
           _ref10 = _iterator11[_i11++];
         } else {
           _i11 = _iterator11.next();
-          if (_i11.done) break;
+          if (_i11.done) {break;}
           _ref10 = _i11.value;
         }
 
@@ -1325,7 +1325,7 @@ var Dropzone = function (_Emitter) {
             try {
               efct = e.dataTransfer.effectAllowed;
             } catch (error) {}
-            e.dataTransfer.dropEffect = 'move' === efct || 'linkMove' === efct ? 'move' : 'copy';
+            e.dataTransfer.dropEffect = "move" === efct || "linkMove" === efct ? "move" : "copy";
 
             noPropagation(e);
             return _this3.emit("dragover", e);
@@ -1395,11 +1395,11 @@ var Dropzone = function (_Emitter) {
           var _ref11;
 
           if (_isArray12) {
-            if (_i12 >= _iterator12.length) break;
+            if (_i12 >= _iterator12.length) {break;}
             _ref11 = _iterator12[_i12++];
           } else {
             _i12 = _iterator12.next();
-            if (_i12.done) break;
+            if (_i12.done) {break;}
             _ref11 = _i12.value;
           }
 
@@ -1450,7 +1450,7 @@ var Dropzone = function (_Emitter) {
     key: "getFallbackForm",
     value: function getFallbackForm() {
       var existingFallback = void 0,
-          form = void 0;
+        form = void 0;
       if (existingFallback = this.getExistingFallback()) {
         return existingFallback;
       }
@@ -1459,7 +1459,7 @@ var Dropzone = function (_Emitter) {
       if (this.options.dictFallbackText) {
         fieldsString += "<p>" + this.options.dictFallbackText + "</p>";
       }
-      fieldsString += "<input type=\"file\" name=\"" + this._getParamName(0) + "\" " + (this.options.uploadMultiple ? 'multiple="multiple"' : undefined) + " /><input type=\"submit\" value=\"Upload!\"></div>";
+      fieldsString += "<input type=\"file\" name=\"" + this._getParamName(0) + "\" " + (this.options.uploadMultiple ? "multiple=\"multiple\"" : undefined) + " /><input type=\"submit\" value=\"Upload!\"></div>";
 
       var fields = Dropzone.createElement(fieldsString);
       if (this.element.tagName !== "FORM") {
@@ -1485,11 +1485,11 @@ var Dropzone = function (_Emitter) {
           var _ref12;
 
           if (_isArray13) {
-            if (_i13 >= _iterator13.length) break;
+            if (_i13 >= _iterator13.length) {break;}
             _ref12 = _iterator13[_i13++];
           } else {
             _i13 = _iterator13.next();
-            if (_i13.done) break;
+            if (_i13.done) {break;}
             _ref12 = _i13.value;
           }
 
@@ -1581,7 +1581,7 @@ var Dropzone = function (_Emitter) {
       var selectedUnit = "b";
 
       if (size > 0) {
-        var units = ['tb', 'gb', 'mb', 'kb', 'b'];
+        var units = ["tb", "gb", "mb", "kb", "b"];
 
         for (var i = 0; i < units.length; i++) {
           var unit = units[i];
@@ -1607,7 +1607,7 @@ var Dropzone = function (_Emitter) {
     value: function _updateMaxFilesReachedClass() {
       if (this.options.maxFiles != null && this.getAcceptedFiles().length >= this.options.maxFiles) {
         if (this.getAcceptedFiles().length === this.options.maxFiles) {
-          this.emit('maxfilesreached', this.files);
+          this.emit("maxfilesreached", this.files);
         }
         return this.element.classList.add("dz-max-files-reached");
       } else {
@@ -1667,11 +1667,11 @@ var Dropzone = function (_Emitter) {
         var _ref13;
 
         if (_isArray14) {
-          if (_i15 >= _iterator14.length) break;
+          if (_i15 >= _iterator14.length) {break;}
           _ref13 = _iterator14[_i15++];
         } else {
           _i15 = _iterator14.next();
-          if (_i15.done) break;
+          if (_i15.done) {break;}
           _ref13 = _i15.value;
         }
 
@@ -1695,11 +1695,11 @@ var Dropzone = function (_Emitter) {
           var _ref14;
 
           if (_isArray15) {
-            if (_i16 >= _iterator15.length) break;
+            if (_i16 >= _iterator15.length) {break;}
             _ref14 = _iterator15[_i16++];
           } else {
             _i16 = _iterator15.next();
-            if (_i16.done) break;
+            if (_i16.done) {break;}
             _ref14 = _i16.value;
           }
 
@@ -1739,7 +1739,7 @@ var Dropzone = function (_Emitter) {
       var dirReader = directory.createReader();
 
       var errorHandler = function errorHandler(error) {
-        return __guardMethod__(console, 'log', function (o) {
+        return __guardMethod__(console, "log", function (o) {
           return o.log(error);
         });
       };
@@ -1751,11 +1751,11 @@ var Dropzone = function (_Emitter) {
               var _ref15;
 
               if (_isArray16) {
-                if (_i17 >= _iterator16.length) break;
+                if (_i17 >= _iterator16.length) {break;}
                 _ref15 = _iterator16[_i17++];
               } else {
                 _i17 = _iterator16.next();
-                if (_i17.done) break;
+                if (_i17.done) {break;}
                 _ref15 = _i17.value;
               }
 
@@ -1763,7 +1763,7 @@ var Dropzone = function (_Emitter) {
 
               if (entry.isFile) {
                 entry.file(function (file) {
-                  if (_this6.options.ignoreHiddenFiles && file.name.substring(0, 1) === '.') {
+                  if (_this6.options.ignoreHiddenFiles && file.name.substring(0, 1) === ".") {
                     return;
                   }
                   file.fullPath = path + "/" + file.name;
@@ -1854,11 +1854,11 @@ var Dropzone = function (_Emitter) {
         var _ref16;
 
         if (_isArray17) {
-          if (_i18 >= _iterator17.length) break;
+          if (_i18 >= _iterator17.length) {break;}
           _ref16 = _iterator17[_i18++];
         } else {
           _i18 = _iterator17.next();
-          if (_i18.done) break;
+          if (_i18.done) {break;}
           _ref16 = _i18.value;
         }
 
@@ -1943,11 +1943,11 @@ var Dropzone = function (_Emitter) {
         var _ref17;
 
         if (_isArray18) {
-          if (_i19 >= _iterator18.length) break;
+          if (_i19 >= _iterator18.length) {break;}
           _ref17 = _iterator18[_i19++];
         } else {
           _i19 = _iterator18.next();
-          if (_i19.done) break;
+          if (_i19.done) {break;}
           _ref17 = _i19.value;
         }
 
@@ -1980,7 +1980,7 @@ var Dropzone = function (_Emitter) {
             resizeMimeType = file.type;
           }
           var resizedDataURL = canvas.toDataURL(resizeMimeType, _this11.options.resizeQuality);
-          if (resizeMimeType === 'image/jpeg' || resizeMimeType === 'image/jpg') {
+          if (resizeMimeType === "image/jpeg" || resizeMimeType === "image/jpg") {
             // Now add the original EXIF information
             resizedDataURL = ExifRestore.restore(file.dataURL, resizedDataURL);
           }
@@ -2029,10 +2029,10 @@ var Dropzone = function (_Emitter) {
         var loadExif = function loadExif(callback) {
           return callback(1);
         };
-        if (typeof EXIF !== 'undefined' && EXIF !== null && fixOrientation) {
+        if (typeof EXIF !== "undefined" && EXIF !== null && fixOrientation) {
           loadExif = function loadExif(callback) {
             return EXIF.getData(img, function () {
-              return callback(EXIF.getTag(this, 'Orientation'));
+              return callback(EXIF.getTag(this, "Orientation"));
             });
           };
         }
@@ -2055,42 +2055,42 @@ var Dropzone = function (_Emitter) {
           }
 
           switch (orientation) {
-            case 2:
-              // horizontal flip
-              ctx.translate(canvas.width, 0);
-              ctx.scale(-1, 1);
-              break;
-            case 3:
-              // 180° rotate left
-              ctx.translate(canvas.width, canvas.height);
-              ctx.rotate(Math.PI);
-              break;
-            case 4:
-              // vertical flip
-              ctx.translate(0, canvas.height);
-              ctx.scale(1, -1);
-              break;
-            case 5:
-              // vertical flip + 90 rotate right
-              ctx.rotate(0.5 * Math.PI);
-              ctx.scale(1, -1);
-              break;
-            case 6:
-              // 90° rotate right
-              ctx.rotate(0.5 * Math.PI);
-              ctx.translate(0, -canvas.width);
-              break;
-            case 7:
-              // horizontal flip + 90 rotate right
-              ctx.rotate(0.5 * Math.PI);
-              ctx.translate(canvas.height, -canvas.width);
-              ctx.scale(-1, 1);
-              break;
-            case 8:
-              // 90° rotate left
-              ctx.rotate(-0.5 * Math.PI);
-              ctx.translate(-canvas.height, 0);
-              break;
+          case 2:
+            // horizontal flip
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            break;
+          case 3:
+            // 180° rotate left
+            ctx.translate(canvas.width, canvas.height);
+            ctx.rotate(Math.PI);
+            break;
+          case 4:
+            // vertical flip
+            ctx.translate(0, canvas.height);
+            ctx.scale(1, -1);
+            break;
+          case 5:
+            // vertical flip + 90 rotate right
+            ctx.rotate(0.5 * Math.PI);
+            ctx.scale(1, -1);
+            break;
+          case 6:
+            // 90° rotate right
+            ctx.rotate(0.5 * Math.PI);
+            ctx.translate(0, -canvas.width);
+            break;
+          case 7:
+            // horizontal flip + 90 rotate right
+            ctx.rotate(0.5 * Math.PI);
+            ctx.translate(canvas.height, -canvas.width);
+            ctx.scale(-1, 1);
+            break;
+          case 8:
+            // 90° rotate left
+            ctx.rotate(-0.5 * Math.PI);
+            ctx.translate(-canvas.height, 0);
+            break;
           }
 
           // This is a bugfix for iOS' scaling bug.
@@ -2163,11 +2163,11 @@ var Dropzone = function (_Emitter) {
         var _ref18;
 
         if (_isArray19) {
-          if (_i20 >= _iterator19.length) break;
+          if (_i20 >= _iterator19.length) {break;}
           _ref18 = _iterator19[_i20++];
         } else {
           _i20 = _iterator19.next();
-          if (_i20.done) break;
+          if (_i20.done) {break;}
           _ref18 = _i20.value;
         }
 
@@ -2210,11 +2210,11 @@ var Dropzone = function (_Emitter) {
           var _ref19;
 
           if (_isArray20) {
-            if (_i21 >= _iterator20.length) break;
+            if (_i21 >= _iterator20.length) {break;}
             _ref19 = _iterator20[_i21++];
           } else {
             _i21 = _iterator20.next();
-            if (_i21.done) break;
+            if (_i21.done) {break;}
             _ref19 = _i21.value;
           }
 
@@ -2222,18 +2222,18 @@ var Dropzone = function (_Emitter) {
 
           groupedFile.status = Dropzone.CANCELED;
         }
-        if (typeof file.xhr !== 'undefined') {
+        if (typeof file.xhr !== "undefined") {
           file.xhr.abort();
         }
         for (var _iterator21 = groupedFiles, _isArray21 = true, _i22 = 0, _iterator21 = _isArray21 ? _iterator21 : _iterator21[Symbol.iterator]();;) {
           var _ref20;
 
           if (_isArray21) {
-            if (_i22 >= _iterator21.length) break;
+            if (_i22 >= _iterator21.length) {break;}
             _ref20 = _iterator21[_i22++];
           } else {
             _i22 = _iterator21.next();
-            if (_i22.done) break;
+            if (_i22.done) {break;}
             _ref20 = _i22.value;
           }
 
@@ -2259,7 +2259,7 @@ var Dropzone = function (_Emitter) {
   }, {
     key: "resolveOption",
     value: function resolveOption(option) {
-      if (typeof option === 'function') {
+      if (typeof option === "function") {
         for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
           args[_key3 - 1] = arguments[_key3];
         }
@@ -2299,7 +2299,7 @@ var Dropzone = function (_Emitter) {
             }
 
             // This means, that all chunks have already been started.
-            if (chunkIndex >= file.upload.totalChunkCount) return;
+            if (chunkIndex >= file.upload.totalChunkCount) {return;}
 
             startedChunkCount++;
 
@@ -2345,7 +2345,7 @@ var Dropzone = function (_Emitter) {
 
             if (allFinished) {
               _this14.options.chunksUploaded(file, function () {
-                _this14._finished(files, '', null);
+                _this14._finished(files, "", null);
               });
             }
           };
@@ -2399,11 +2399,11 @@ var Dropzone = function (_Emitter) {
         var _ref21;
 
         if (_isArray22) {
-          if (_i24 >= _iterator22.length) break;
+          if (_i24 >= _iterator22.length) {break;}
           _ref21 = _iterator22[_i24++];
         } else {
           _i24 = _iterator22.next();
-          if (_i24.done) break;
+          if (_i24.done) {break;}
           _ref21 = _i24.value;
         }
 
@@ -2462,7 +2462,7 @@ var Dropzone = function (_Emitter) {
       // Adding all @options parameters
       if (this.options.params) {
         var additionalParams = this.options.params;
-        if (typeof additionalParams === 'function') {
+        if (typeof additionalParams === "function") {
           additionalParams = additionalParams.call(this, files, xhr, files[0].upload.chunked ? this._getChunk(files[0], xhr) : null);
         }
 
@@ -2477,11 +2477,11 @@ var Dropzone = function (_Emitter) {
         var _ref22;
 
         if (_isArray23) {
-          if (_i25 >= _iterator23.length) break;
+          if (_i25 >= _iterator23.length) {break;}
           _ref22 = _iterator23[_i25++];
         } else {
           _i25 = _iterator23.next();
-          if (_i25.done) break;
+          if (_i25.done) {break;}
           _ref22 = _i25.value;
         }
 
@@ -2541,11 +2541,11 @@ var Dropzone = function (_Emitter) {
           var _ref23;
 
           if (_isArray24) {
-            if (_i26 >= _iterator24.length) break;
+            if (_i26 >= _iterator24.length) {break;}
             _ref23 = _iterator24[_i26++];
           } else {
             _i26 = _iterator24.next();
-            if (_i26.done) break;
+            if (_i26.done) {break;}
             _ref23 = _i26.value;
           }
 
@@ -2553,10 +2553,10 @@ var Dropzone = function (_Emitter) {
 
           var inputName = input.getAttribute("name");
           var inputType = input.getAttribute("type");
-          if (inputType) inputType = inputType.toLowerCase();
+          if (inputType) {inputType = inputType.toLowerCase();}
 
           // If the input doesn't have a name, we can't use it.
-          if (typeof inputName === 'undefined' || inputName === null) continue;
+          if (typeof inputName === "undefined" || inputName === null) {continue;}
 
           if (input.tagName === "SELECT" && input.hasAttribute("multiple")) {
             // Possibly multiple values
@@ -2564,11 +2564,11 @@ var Dropzone = function (_Emitter) {
               var _ref24;
 
               if (_isArray25) {
-                if (_i27 >= _iterator25.length) break;
+                if (_i27 >= _iterator25.length) {break;}
                 _ref24 = _iterator25[_i27++];
               } else {
                 _i27 = _iterator25.next();
-                if (_i27.done) break;
+                if (_i27.done) {break;}
                 _ref24 = _i27.value;
               }
 
@@ -2592,7 +2592,7 @@ var Dropzone = function (_Emitter) {
     key: "_updateFilesUploadProgress",
     value: function _updateFilesUploadProgress(files, xhr, e) {
       var progress = void 0;
-      if (typeof e !== 'undefined') {
+      if (typeof e !== "undefined") {
         progress = 100 * e.loaded / e.total;
 
         if (files[0].upload.chunked) {
@@ -2603,8 +2603,8 @@ var Dropzone = function (_Emitter) {
           chunk.total = e.total;
           chunk.bytesSent = e.loaded;
           var fileProgress = 0,
-              fileTotal = void 0,
-              fileBytesSent = void 0;
+            fileTotal = void 0,
+            fileBytesSent = void 0;
           file.upload.progress = 0;
           file.upload.total = 0;
           file.upload.bytesSent = 0;
@@ -2621,11 +2621,11 @@ var Dropzone = function (_Emitter) {
             var _ref25;
 
             if (_isArray26) {
-              if (_i28 >= _iterator26.length) break;
+              if (_i28 >= _iterator26.length) {break;}
               _ref25 = _iterator26[_i28++];
             } else {
               _i28 = _iterator26.next();
-              if (_i28.done) break;
+              if (_i28.done) {break;}
               _ref25 = _i28.value;
             }
 
@@ -2640,11 +2640,11 @@ var Dropzone = function (_Emitter) {
           var _ref26;
 
           if (_isArray27) {
-            if (_i29 >= _iterator27.length) break;
+            if (_i29 >= _iterator27.length) {break;}
             _ref26 = _iterator27[_i29++];
           } else {
             _i29 = _iterator27.next();
-            if (_i29.done) break;
+            if (_i29.done) {break;}
             _ref26 = _i29.value;
           }
 
@@ -2663,11 +2663,11 @@ var Dropzone = function (_Emitter) {
           var _ref27;
 
           if (_isArray28) {
-            if (_i30 >= _iterator28.length) break;
+            if (_i30 >= _iterator28.length) {break;}
             _ref27 = _iterator28[_i30++];
           } else {
             _i30 = _iterator28.next();
-            if (_i30.done) break;
+            if (_i30.done) {break;}
             _ref27 = _i30.value;
           }
 
@@ -2689,11 +2689,11 @@ var Dropzone = function (_Emitter) {
           var _ref28;
 
           if (_isArray29) {
-            if (_i31 >= _iterator29.length) break;
+            if (_i31 >= _iterator29.length) {break;}
             _ref28 = _iterator29[_i31++];
           } else {
             _i31 = _iterator29.next();
-            if (_i31.done) break;
+            if (_i31.done) {break;}
             _ref28 = _i31.value;
           }
 
@@ -2716,7 +2716,7 @@ var Dropzone = function (_Emitter) {
         return;
       }
 
-      if (xhr.responseType !== 'arraybuffer' && xhr.responseType !== 'blob') {
+      if (xhr.responseType !== "arraybuffer" && xhr.responseType !== "blob") {
         response = xhr.responseText;
 
         if (xhr.getResponseHeader("content-type") && ~xhr.getResponseHeader("content-type").indexOf("application/json")) {
@@ -2754,7 +2754,7 @@ var Dropzone = function (_Emitter) {
           this._uploadData(files, [chunk.dataBlock]);
           return;
         } else {
-          console.warn('Retried this chunk too often. Giving up.');
+          console.warn("Retried this chunk too often. Giving up.");
         }
       }
 
@@ -2762,11 +2762,11 @@ var Dropzone = function (_Emitter) {
         var _ref29;
 
         if (_isArray30) {
-          if (_i32 >= _iterator30.length) break;
+          if (_i32 >= _iterator30.length) {break;}
           _ref29 = _iterator30[_i32++];
         } else {
           _i32 = _iterator30.next();
-          if (_i32.done) break;
+          if (_i32.done) {break;}
           _ref29 = _i32.value;
         }
 
@@ -2791,11 +2791,11 @@ var Dropzone = function (_Emitter) {
         var _ref30;
 
         if (_isArray31) {
-          if (_i33 >= _iterator31.length) break;
+          if (_i33 >= _iterator31.length) {break;}
           _ref30 = _iterator31[_i33++];
         } else {
           _i33 = _iterator31.next();
-          if (_i33.done) break;
+          if (_i33.done) {break;}
           _ref30 = _i33.value;
         }
 
@@ -2825,11 +2825,11 @@ var Dropzone = function (_Emitter) {
         var _ref31;
 
         if (_isArray32) {
-          if (_i34 >= _iterator32.length) break;
+          if (_i34 >= _iterator32.length) {break;}
           _ref31 = _iterator32[_i34++];
         } else {
           _i34 = _iterator32.next();
-          if (_i34.done) break;
+          if (_i34.done) {break;}
           _ref31 = _i34.value;
         }
 
@@ -2851,9 +2851,9 @@ var Dropzone = function (_Emitter) {
   }], [{
     key: "uuidv4",
     value: function uuidv4() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
         var r = Math.random() * 16 | 0,
-            v = c === 'x' ? r : r & 0x3 | 0x8;
+          v = c === "x" ? r : r & 0x3 | 0x8;
         return v.toString(16);
       });
     }
@@ -2924,11 +2924,11 @@ Dropzone.discover = function () {
           var _ref32;
 
           if (_isArray33) {
-            if (_i35 >= _iterator33.length) break;
+            if (_i35 >= _iterator33.length) {break;}
             _ref32 = _iterator33[_i35++];
           } else {
             _i35 = _iterator33.next();
-            if (_i35.done) break;
+            if (_i35.done) {break;}
             _ref32 = _i35.value;
           }
 
@@ -2953,11 +2953,11 @@ Dropzone.discover = function () {
       var _ref33;
 
       if (_isArray34) {
-        if (_i36 >= _iterator34.length) break;
+        if (_i36 >= _iterator34.length) {break;}
         _ref33 = _iterator34[_i36++];
       } else {
         _i36 = _iterator34.next();
-        if (_i36.done) break;
+        if (_i36.done) {break;}
         _ref33 = _i36.value;
       }
 
@@ -2987,7 +2987,7 @@ Dropzone.discover = function () {
 //
 Dropzone.blacklistedBrowsers = [
 // The mac os and windows phone version of opera 12 seems to have a problem with the File drag'n'drop API.
-/opera.*(Macintosh|Windows Phone).*version\/12/i];
+  /opera.*(Macintosh|Windows Phone).*version\/12/i];
 
 // Checks if the browser is supported
 Dropzone.isBrowserSupported = function () {
@@ -3002,11 +3002,11 @@ Dropzone.isBrowserSupported = function () {
         var _ref34;
 
         if (_isArray35) {
-          if (_i37 >= _iterator35.length) break;
+          if (_i37 >= _iterator35.length) {break;}
           _ref34 = _iterator35[_i37++];
         } else {
           _i37 = _iterator35.next();
-          if (_i37.done) break;
+          if (_i37.done) {break;}
           _ref34 = _i37.value;
         }
 
@@ -3028,10 +3028,10 @@ Dropzone.isBrowserSupported = function () {
 Dropzone.dataURItoBlob = function (dataURI) {
   // convert base64 to raw binary data held in a string
   // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
-  var byteString = atob(dataURI.split(',')[1]);
+  var byteString = atob(dataURI.split(",")[1]);
 
   // separate out the mime component
-  var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+  var mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
 
   // write the bytes of the string to an ArrayBuffer
   var ab = new ArrayBuffer(byteString.length);
@@ -3095,17 +3095,17 @@ Dropzone.getElement = function (el, name) {
 
 Dropzone.getElements = function (els, name) {
   var el = void 0,
-      elements = void 0;
+    elements = void 0;
   if (els instanceof Array) {
     elements = [];
     try {
       for (var _iterator36 = els, _isArray36 = true, _i38 = 0, _iterator36 = _isArray36 ? _iterator36 : _iterator36[Symbol.iterator]();;) {
         if (_isArray36) {
-          if (_i38 >= _iterator36.length) break;
+          if (_i38 >= _iterator36.length) {break;}
           el = _iterator36[_i38++];
         } else {
           _i38 = _iterator36.next();
-          if (_i38.done) break;
+          if (_i38.done) {break;}
           el = _i38.value;
         }
 
@@ -3118,11 +3118,11 @@ Dropzone.getElements = function (els, name) {
     elements = [];
     for (var _iterator37 = document.querySelectorAll(els), _isArray37 = true, _i39 = 0, _iterator37 = _isArray37 ? _iterator37 : _iterator37[Symbol.iterator]();;) {
       if (_isArray37) {
-        if (_i39 >= _iterator37.length) break;
+        if (_i39 >= _iterator37.length) {break;}
         el = _iterator37[_i39++];
       } else {
         _i39 = _iterator37.next();
-        if (_i39.done) break;
+        if (_i39.done) {break;}
         el = _i39.value;
       }
 
@@ -3167,11 +3167,11 @@ Dropzone.isValidFile = function (file, acceptedFiles) {
     var _ref35;
 
     if (_isArray38) {
-      if (_i40 >= _iterator38.length) break;
+      if (_i40 >= _iterator38.length) {break;}
       _ref35 = _iterator38[_i40++];
     } else {
       _i40 = _iterator38.next();
-      if (_i40.done) break;
+      if (_i40.done) {break;}
       _ref35 = _i40.value;
     }
 
@@ -3198,7 +3198,7 @@ Dropzone.isValidFile = function (file, acceptedFiles) {
 };
 
 // Augment jQuery
-if (typeof jQuery !== 'undefined' && jQuery !== null) {
+if (typeof jQuery !== "undefined" && jQuery !== null) {
   jQuery.fn.dropzone = function (options) {
     return this.each(function () {
       return new Dropzone(this, options);
@@ -3206,7 +3206,7 @@ if (typeof jQuery !== 'undefined' && jQuery !== null) {
   };
 }
 
-if (typeof module !== 'undefined' && module !== null) {
+if (typeof module !== "undefined" && module !== null) {
   module.exports = Dropzone;
 } else {
   window.Dropzone = Dropzone;
@@ -3248,7 +3248,7 @@ var detectVerticalSquash = function detectVerticalSquash(img) {
   ctx.drawImage(img, 0, 0);
 
   var _ctx$getImageData = ctx.getImageData(1, 0, 1, ih),
-      data = _ctx$getImageData.data;
+    data = _ctx$getImageData.data;
 
   // search image edge pixel position in case it is squashed vertically.
 
@@ -3295,19 +3295,19 @@ var ExifRestore = function () {
   _createClass(ExifRestore, null, [{
     key: "initClass",
     value: function initClass() {
-      this.KEY_STR = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+      this.KEY_STR = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
     }
   }, {
     key: "encode64",
     value: function encode64(input) {
-      var output = '';
+      var output = "";
       var chr1 = undefined;
       var chr2 = undefined;
-      var chr3 = '';
+      var chr3 = "";
       var enc1 = undefined;
       var enc2 = undefined;
       var enc3 = undefined;
-      var enc4 = '';
+      var enc4 = "";
       var i = 0;
       while (true) {
         chr1 = input[i++];
@@ -3323,8 +3323,8 @@ var ExifRestore = function () {
           enc4 = 64;
         }
         output = output + this.KEY_STR.charAt(enc1) + this.KEY_STR.charAt(enc2) + this.KEY_STR.charAt(enc3) + this.KEY_STR.charAt(enc4);
-        chr1 = chr2 = chr3 = '';
-        enc1 = enc2 = enc3 = enc4 = '';
+        chr1 = chr2 = chr3 = "";
+        enc1 = enc2 = enc3 = enc4 = "";
         if (!(i < input.length)) {
           break;
         }
@@ -3334,10 +3334,10 @@ var ExifRestore = function () {
   }, {
     key: "restore",
     value: function restore(origFileBase64, resizedFileBase64) {
-      if (!origFileBase64.match('data:image/jpeg;base64,')) {
+      if (!origFileBase64.match("data:image/jpeg;base64,")) {
         return resizedFileBase64;
       }
-      var rawImage = this.decode64(origFileBase64.replace('data:image/jpeg;base64,', ''));
+      var rawImage = this.decode64(origFileBase64.replace("data:image/jpeg;base64,", ""));
       var segments = this.slice2Segments(rawImage);
       var image = this.exifManipulation(resizedFileBase64, segments);
       return "data:image/jpeg;base64," + this.encode64(image);
@@ -3367,7 +3367,7 @@ var ExifRestore = function () {
   }, {
     key: "insertExif",
     value: function insertExif(resizedFileBase64, exifArray) {
-      var imageData = resizedFileBase64.replace('data:image/jpeg;base64,', '');
+      var imageData = resizedFileBase64.replace("data:image/jpeg;base64,", "");
       var buf = this.decode64(imageData);
       var separatePoint = buf.indexOf(255, 3);
       var mae = buf.slice(0, separatePoint);
@@ -3405,22 +3405,22 @@ var ExifRestore = function () {
   }, {
     key: "decode64",
     value: function decode64(input) {
-      var output = '';
+      var output = "";
       var chr1 = undefined;
       var chr2 = undefined;
-      var chr3 = '';
+      var chr3 = "";
       var enc1 = undefined;
       var enc2 = undefined;
       var enc3 = undefined;
-      var enc4 = '';
+      var enc4 = "";
       var i = 0;
       var buf = [];
       // remove all characters that are not A-Z, a-z, 0-9, +, /, or =
       var base64test = /[^A-Za-z0-9\+\/\=]/g;
       if (base64test.exec(input)) {
-        console.warn('There were invalid base64 characters in the input text.\nValid base64 characters are A-Z, a-z, 0-9, \'+\', \'/\',and \'=\'\nExpect errors in decoding.');
+        console.warn("There were invalid base64 characters in the input text.\nValid base64 characters are A-Z, a-z, 0-9, '+', '/',and '='\nExpect errors in decoding.");
       }
-      input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
+      input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
       while (true) {
         enc1 = this.KEY_STR.indexOf(input.charAt(i++));
         enc2 = this.KEY_STR.indexOf(input.charAt(i++));
@@ -3436,8 +3436,8 @@ var ExifRestore = function () {
         if (enc4 !== 64) {
           buf.push(chr3);
         }
-        chr1 = chr2 = chr3 = '';
-        enc1 = enc2 = enc3 = enc4 = '';
+        chr1 = chr2 = chr3 = "";
+        enc1 = enc2 = enc3 = enc4 = "";
         if (!(i < input.length)) {
           break;
         }
@@ -3519,10 +3519,10 @@ Dropzone._autoDiscoverFunction = function () {
 contentLoaded(window, Dropzone._autoDiscoverFunction);
 
 function __guard__(value, transform) {
-  return typeof value !== 'undefined' && value !== null ? transform(value) : undefined;
+  return typeof value !== "undefined" && value !== null ? transform(value) : undefined;
 }
 function __guardMethod__(obj, methodName, transform) {
-  if (typeof obj !== 'undefined' && obj !== null && typeof obj[methodName] === 'function') {
+  if (typeof obj !== "undefined" && obj !== null && typeof obj[methodName] === "function") {
     return transform(obj, methodName);
   } else {
     return undefined;

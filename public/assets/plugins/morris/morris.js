@@ -10,8 +10,8 @@ Licensed under the BSD-2-Clause License.
     __slice = [].slice,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) {child[key] = parent[key];} } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) {return i;} } return -1; };
 
   Morris = window.Morris = {};
 
@@ -55,19 +55,19 @@ Licensed under the BSD-2-Clause License.
       ret = num < 0 ? "-" : "";
       absnum = Math.abs(num);
       intnum = Math.floor(absnum).toFixed(0);
-      ret += intnum.replace(/(?=(?:\d{3})+$)(?!^)/g, ',');
+      ret += intnum.replace(/(?=(?:\d{3})+$)(?!^)/g, ",");
       strabsnum = absnum.toString();
       if (strabsnum.length > intnum.length) {
         ret += strabsnum.slice(intnum.length);
       }
       return ret;
     } else {
-      return '-';
+      return "-";
     }
   };
 
   Morris.pad2 = function(number) {
-    return (number < 10 ? '0' : '') + number;
+    return (number < 10 ? "0" : "") + number;
   };
 
   Morris.Grid = (function(_super) {
@@ -76,7 +76,7 @@ Licensed under the BSD-2-Clause License.
     function Grid(options) {
       this.resizeHandler = __bind(this.resizeHandler, this);
       var _this = this;
-      if (typeof options.element === 'string') {
+      if (typeof options.element === "string") {
         this.el = $(document.getElementById(options.element));
       } else {
         this.el = $(options.element);
@@ -84,11 +84,11 @@ Licensed under the BSD-2-Clause License.
       if ((this.el == null) || this.el.length === 0) {
         throw new Error("Graph container element not found");
       }
-      if (this.el.css('position') === 'static') {
-        this.el.css('position', 'relative');
+      if (this.el.css("position") === "static") {
+        this.el.css("position", "relative");
       }
       this.options = $.extend({}, this.gridDefaults, this.defaults || {}, options);
-      if (typeof this.options.units === 'string') {
+      if (typeof this.options.units === "string") {
         this.options.postUnits = options.units;
       }
       this.raphael = new Raphael(this.el[0]);
@@ -100,7 +100,7 @@ Licensed under the BSD-2-Clause License.
         this.init();
       }
       this.setData(this.options.data);
-      this.el.bind('mousemove', function(evt) {
+      this.el.bind("mousemove", function(evt) {
         var left, offset, right, width, x;
         offset = _this.el.offset();
         x = evt.pageX - offset.left;
@@ -113,53 +113,53 @@ Licensed under the BSD-2-Clause License.
             width: width
           });
         } else {
-          return _this.fire('hovermove', x, evt.pageY - offset.top);
+          return _this.fire("hovermove", x, evt.pageY - offset.top);
         }
       });
-      this.el.bind('mouseleave', function(evt) {
+      this.el.bind("mouseleave", function(evt) {
         if (_this.selectFrom) {
           _this.selectionRect.hide();
           _this.selectFrom = null;
         }
-        return _this.fire('hoverout');
+        return _this.fire("hoverout");
       });
-      this.el.bind('touchstart touchmove touchend', function(evt) {
+      this.el.bind("touchstart touchmove touchend", function(evt) {
         var offset, touch;
         touch = evt.originalEvent.touches[0] || evt.originalEvent.changedTouches[0];
         offset = _this.el.offset();
-        return _this.fire('hovermove', touch.pageX - offset.left, touch.pageY - offset.top);
+        return _this.fire("hovermove", touch.pageX - offset.left, touch.pageY - offset.top);
       });
-      this.el.bind('click', function(evt) {
+      this.el.bind("click", function(evt) {
         var offset;
         offset = _this.el.offset();
-        return _this.fire('gridclick', evt.pageX - offset.left, evt.pageY - offset.top);
+        return _this.fire("gridclick", evt.pageX - offset.left, evt.pageY - offset.top);
       });
       if (this.options.rangeSelect) {
         this.selectionRect = this.raphael.rect(0, 0, 0, this.el.innerHeight()).attr({
           fill: this.options.rangeSelectColor,
           stroke: false
         }).toBack().hide();
-        this.el.bind('mousedown', function(evt) {
+        this.el.bind("mousedown", function(evt) {
           var offset;
           offset = _this.el.offset();
           return _this.startRange(evt.pageX - offset.left);
         });
-        this.el.bind('mouseup', function(evt) {
+        this.el.bind("mouseup", function(evt) {
           var offset;
           offset = _this.el.offset();
           _this.endRange(evt.pageX - offset.left);
-          return _this.fire('hovermove', evt.pageX - offset.left, evt.pageY - offset.top);
+          return _this.fire("hovermove", evt.pageX - offset.left, evt.pageY - offset.top);
         });
       }
       if (this.options.resize) {
-        $(window).bind('resize', function(evt) {
+        $(window).bind("resize", function(evt) {
           if (_this.timeoutId != null) {
             window.clearTimeout(_this.timeoutId);
           }
           return _this.timeoutId = window.setTimeout(_this.resizeHandler, 100);
         });
       }
-      this.el.css('-webkit-tap-highlight-color', 'rgba(0,0,0,0)');
+      this.el.css("-webkit-tap-highlight-color", "rgba(0,0,0,0)");
       if (this.postInit) {
         this.postInit();
       }
@@ -169,30 +169,30 @@ Licensed under the BSD-2-Clause License.
       dateFormat: null,
       axes: true,
       grid: true,
-      gridLineColor: '#aaa',
+      gridLineColor: "#aaa",
       gridStrokeWidth: 0.5,
-      gridTextColor: '#888',
+      gridTextColor: "#888",
       gridTextSize: 12,
-      gridTextFamily: 'sans-serif',
-      gridTextWeight: 'normal',
+      gridTextFamily: "sans-serif",
+      gridTextWeight: "normal",
       hideHover: false,
       yLabelFormat: null,
       xLabelAngle: 0,
       numLines: 5,
       padding: 25,
       parseTime: true,
-      postUnits: '',
-      preUnits: '',
-      ymax: 'auto',
-      ymin: 'auto 0',
+      postUnits: "",
+      preUnits: "",
+      ymax: "auto",
+      ymin: "auto 0",
       goals: [],
       goalStrokeWidth: 1.0,
-      goalLineColors: ['#666633', '#999966', '#cc6666', '#663333'],
+      goalLineColors: ["#666633", "#999966", "#cc6666", "#663333"],
       events: [],
       eventStrokeWidth: 1.0,
-      eventLineColors: ['#005a04', '#ccffbb', '#3a5f0b', '#005502'],
+      eventLineColors: ["#005a04", "#ccffbb", "#3a5f0b", "#005502"],
       rangeSelect: null,
-      rangeSelectColor: '#eef',
+      rangeSelectColor: "#eef",
       resize: false
     };
 
@@ -231,7 +231,7 @@ Licensed under the BSD-2-Clause License.
             ret.x = Morris.parseDate(ret.label);
             if (this.options.dateFormat) {
               ret.label = this.options.dateFormat(ret.x);
-            } else if (typeof ret.label === 'number') {
+            } else if (typeof ret.label === "number") {
               ret.label = new Date(ret.label).toString();
             }
           } else {
@@ -248,10 +248,10 @@ Licensed under the BSD-2-Clause License.
             for (idx = _j = 0, _len1 = _ref.length; _j < _len1; idx = ++_j) {
               ykey = _ref[idx];
               yval = row[ykey];
-              if (typeof yval === 'string') {
+              if (typeof yval === "string") {
                 yval = parseFloat(yval);
               }
-              if ((yval != null) && typeof yval !== 'number') {
+              if ((yval != null) && typeof yval !== "number") {
                 yval = null;
               }
               if (yval != null) {
@@ -308,15 +308,15 @@ Licensed under the BSD-2-Clause License.
         this.xmin -= 1;
         this.xmax += 1;
       }
-      this.ymin = this.yboundary('min', ymin);
-      this.ymax = this.yboundary('max', ymax);
+      this.ymin = this.yboundary("min", ymin);
+      this.ymax = this.yboundary("max", ymax);
       if (this.ymin === this.ymax) {
         if (ymin) {
           this.ymin -= 1;
         }
         this.ymax += 1;
       }
-      if (((_ref = this.options.axes) === true || _ref === 'both' || _ref === 'y') || this.options.grid === true) {
+      if (((_ref = this.options.axes) === true || _ref === "both" || _ref === "y") || this.options.grid === true) {
         if (this.options.ymax === this.gridDefaults.ymax && this.options.ymin === this.gridDefaults.ymin) {
           this.grid = this.autoGridLines(this.ymin, this.ymax, this.options.numLines);
           this.ymin = Math.min(this.ymin, this.grid[0]);
@@ -342,8 +342,8 @@ Licensed under the BSD-2-Clause License.
     Grid.prototype.yboundary = function(boundaryType, currentValue) {
       var boundaryOption, suggestedValue;
       boundaryOption = this.options["y" + boundaryType];
-      if (typeof boundaryOption === 'string') {
-        if (boundaryOption.slice(0, 4) === 'auto') {
+      if (typeof boundaryOption === "string") {
+        if (boundaryOption.slice(0, 4) === "auto") {
           if (boundaryOption.length > 5) {
             suggestedValue = parseInt(boundaryOption.slice(5), 10);
             if (currentValue == null) {
@@ -416,7 +416,7 @@ Licensed under the BSD-2-Clause License.
         this.right = this.elementWidth - this.options.padding;
         this.top = this.options.padding;
         this.bottom = this.elementHeight - this.options.padding;
-        if ((_ref = this.options.axes) === true || _ref === 'both' || _ref === 'y') {
+        if ((_ref = this.options.axes) === true || _ref === "both" || _ref === "y") {
           yLabelWidths = (function() {
             var _i, _len, _ref1, _results;
             _ref1 = this.grid;
@@ -429,7 +429,7 @@ Licensed under the BSD-2-Clause License.
           }).call(this);
           this.left += Math.max.apply(Math, yLabelWidths);
         }
-        if ((_ref1 = this.options.axes) === true || _ref1 === 'both' || _ref1 === 'x') {
+        if ((_ref1 = this.options.axes) === true || _ref1 === "both" || _ref1 === "x") {
           bottomOffsets = (function() {
             var _i, _ref2, _results;
             _results = [];
@@ -478,7 +478,7 @@ Licensed under the BSD-2-Clause License.
       if (angle == null) {
         angle = 0;
       }
-      tt = this.raphael.text(100, 100, text).attr('font-size', this.options.gridTextSize).attr('font-family', this.options.gridTextFamily).attr('font-weight', this.options.gridTextWeight).rotate(angle);
+      tt = this.raphael.text(100, 100, text).attr("font-size", this.options.gridTextSize).attr("font-family", this.options.gridTextFamily).attr("font-weight", this.options.gridTextWeight).rotate(angle);
       ret = tt.getBBox();
       tt.remove();
       return ret;
@@ -489,7 +489,7 @@ Licensed under the BSD-2-Clause License.
     };
 
     Grid.prototype.yLabelFormat = function(label) {
-      if (typeof this.options.yLabelFormat === 'function') {
+      if (typeof this.options.yLabelFormat === "function") {
         return this.options.yLabelFormat(label);
       } else {
         return "" + this.options.preUnits + (Morris.commas(label)) + this.options.postUnits;
@@ -498,7 +498,7 @@ Licensed under the BSD-2-Clause License.
 
     Grid.prototype.drawGrid = function() {
       var lineY, y, _i, _len, _ref, _ref1, _ref2, _results;
-      if (this.options.grid === false && ((_ref = this.options.axes) !== true && _ref !== 'both' && _ref !== 'y')) {
+      if (this.options.grid === false && ((_ref = this.options.axes) !== true && _ref !== "both" && _ref !== "y")) {
         return;
       }
       _ref1 = this.grid;
@@ -506,7 +506,7 @@ Licensed under the BSD-2-Clause License.
       for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
         lineY = _ref1[_i];
         y = this.transY(lineY);
-        if ((_ref2 = this.options.axes) === true || _ref2 === 'both' || _ref2 === 'y') {
+        if ((_ref2 = this.options.axes) === true || _ref2 === "both" || _ref2 === "y") {
           this.drawYAxisLabel(this.left - this.options.padding / 2, y, this.yAxisFormat(lineY));
         }
         if (this.options.grid) {
@@ -543,19 +543,19 @@ Licensed under the BSD-2-Clause License.
     };
 
     Grid.prototype.drawGoal = function(goal, color) {
-      return this.raphael.path("M" + this.left + "," + (this.transY(goal)) + "H" + this.right).attr('stroke', color).attr('stroke-width', this.options.goalStrokeWidth);
+      return this.raphael.path("M" + this.left + "," + (this.transY(goal)) + "H" + this.right).attr("stroke", color).attr("stroke-width", this.options.goalStrokeWidth);
     };
 
     Grid.prototype.drawEvent = function(event, color) {
-      return this.raphael.path("M" + (this.transX(event)) + "," + this.bottom + "V" + this.top).attr('stroke', color).attr('stroke-width', this.options.eventStrokeWidth);
+      return this.raphael.path("M" + (this.transX(event)) + "," + this.bottom + "V" + this.top).attr("stroke", color).attr("stroke-width", this.options.eventStrokeWidth);
     };
 
     Grid.prototype.drawYAxisLabel = function(xPos, yPos, text) {
-      return this.raphael.text(xPos, yPos, text).attr('font-size', this.options.gridTextSize).attr('font-family', this.options.gridTextFamily).attr('font-weight', this.options.gridTextWeight).attr('fill', this.options.gridTextColor).attr('text-anchor', 'end');
+      return this.raphael.text(xPos, yPos, text).attr("font-size", this.options.gridTextSize).attr("font-family", this.options.gridTextFamily).attr("font-weight", this.options.gridTextWeight).attr("fill", this.options.gridTextColor).attr("text-anchor", "end");
     };
 
     Grid.prototype.drawGridLine = function(path) {
-      return this.raphael.path(path).attr('stroke', this.options.gridLineColor).attr('stroke-width', this.options.gridStrokeWidth);
+      return this.raphael.path(path).attr("stroke", this.options.gridLineColor).attr("stroke-width", this.options.gridStrokeWidth);
     };
 
     Grid.prototype.startRange = function(x) {
@@ -592,7 +592,7 @@ Licensed under the BSD-2-Clause License.
 
   Morris.parseDate = function(date) {
     var isecs, m, msecs, n, o, offsetmins, p, q, r, ret, secs;
-    if (typeof date === 'number') {
+    if (typeof date === "number") {
       return date;
     }
     m = date.match(/^(\d+) Q(\d)$/);
@@ -618,9 +618,9 @@ Licensed under the BSD-2-Clause License.
         return new Date(parseInt(q[1], 10), parseInt(q[2], 10) - 1, parseInt(q[3], 10), parseInt(q[4], 10), parseInt(q[5], 10)).getTime();
       } else {
         offsetmins = 0;
-        if (q[6] !== 'Z') {
+        if (q[6] !== "Z") {
           offsetmins = parseInt(q[8], 10) * 60 + parseInt(q[9], 10);
-          if (q[7] === '+') {
+          if (q[7] === "+") {
             offsetmins = 0 - offsetmins;
           }
         }
@@ -634,9 +634,9 @@ Licensed under the BSD-2-Clause License.
         return new Date(parseInt(r[1], 10), parseInt(r[2], 10) - 1, parseInt(r[3], 10), parseInt(r[4], 10), parseInt(r[5], 10), isecs, msecs).getTime();
       } else {
         offsetmins = 0;
-        if (r[8] !== 'Z') {
+        if (r[8] !== "Z") {
           offsetmins = parseInt(r[10], 10) * 60 + parseInt(r[11], 10);
-          if (r[9] === '+') {
+          if (r[9] === "+") {
             offsetmins = 0 - offsetmins;
           }
         }
@@ -649,7 +649,7 @@ Licensed under the BSD-2-Clause License.
 
   Morris.Hover = (function() {
     Hover.defaults = {
-      "class": 'morris-hover morris-default-style'
+      "class": "morris-hover morris-default-style"
     };
 
     function Hover(options) {
@@ -727,25 +727,25 @@ Licensed under the BSD-2-Clause License.
     }
 
     Line.prototype.init = function() {
-      if (this.options.hideHover !== 'always') {
+      if (this.options.hideHover !== "always") {
         this.hover = new Morris.Hover({
           parent: this.el
         });
-        this.on('hovermove', this.onHoverMove);
-        this.on('hoverout', this.onHoverOut);
-        return this.on('gridclick', this.onGridClick);
+        this.on("hovermove", this.onHoverMove);
+        this.on("hoverout", this.onHoverOut);
+        return this.on("gridclick", this.onGridClick);
       }
     };
 
     Line.prototype.defaults = {
       lineWidth: 3,
       pointSize: 4,
-      lineColors: ['#0b62a4', '#7A92A3', '#4da74d', '#afd8f8', '#edc240', '#cb4b4b', '#9440ed'],
+      lineColors: ["#0b62a4", "#7A92A3", "#4da74d", "#afd8f8", "#edc240", "#cb4b4b", "#9440ed"],
       pointStrokeWidths: [1],
-      pointStrokeColors: ['#ffffff'],
+      pointStrokeColors: ["#ffffff"],
       pointFillColors: [],
       smooth: true,
-      xLabels: 'auto',
+      xLabels: "auto",
       xLabelFormat: null,
       xLabelMargin: 24,
       hideHover: false
@@ -811,7 +811,7 @@ Licensed under the BSD-2-Clause License.
     Line.prototype.onGridClick = function(x, y) {
       var index;
       index = this.hitTest(x);
-      return this.fire('click', index, this.data[index].src, x, y);
+      return this.fire("click", index, this.data[index].src, x, y);
     };
 
     Line.prototype.onHoverMove = function(x, y) {
@@ -844,9 +844,9 @@ Licensed under the BSD-2-Clause License.
       _ref = row.y;
       for (j = _i = 0, _len = _ref.length; _i < _len; j = ++_i) {
         y = _ref[j];
-        content += "<div class='morris-hover-point' style='color: " + (this.colorFor(row, j, 'label')) + "'>\n  " + this.options.labels[j] + ":\n  " + (this.yLabelFormat(y)) + "\n</div>";
+        content += "<div class='morris-hover-point' style='color: " + (this.colorFor(row, j, "label")) + "'>\n  " + this.options.labels[j] + ":\n  " + (this.yLabelFormat(y)) + "\n</div>";
       }
-      if (typeof this.options.hoverCallback === 'function') {
+      if (typeof this.options.hoverCallback === "function") {
         content = this.options.hoverCallback(index, this.options, content, row.src);
       }
       return [content, row._x, row._ymax];
@@ -886,7 +886,7 @@ Licensed under the BSD-2-Clause License.
 
     Line.prototype.draw = function() {
       var _ref;
-      if ((_ref = this.options.axes) === true || _ref === 'both' || _ref === 'x') {
+      if ((_ref = this.options.axes) === true || _ref === "both" || _ref === "x") {
         this.drawXAxis();
       }
       this.drawSeries();
@@ -924,7 +924,7 @@ Licensed under the BSD-2-Clause License.
         }
       };
       if (this.options.parseTime) {
-        if (this.data.length === 1 && this.options.xLabels === 'auto') {
+        if (this.data.length === 1 && this.options.xLabels === "auto") {
           labels = [[this.data[0].label, this.data[0].x]];
         } else {
           labels = Morris.labelSeries(this.xmin, this.xmax, this.width, this.options.xLabels, this.options.xLabelFormat);
@@ -972,7 +972,7 @@ Licensed under the BSD-2-Clause License.
         row = _ref[_i];
         circle = null;
         if (row._y[index] != null) {
-          circle = this.drawLinePoint(row._x, row._y[index], this.colorFor(row, index, 'point'), index);
+          circle = this.drawLinePoint(row._x, row._y[index], this.colorFor(row, index, "point"), index);
         }
         _results.push(this.seriesPoints[index].push(circle));
       }
@@ -983,7 +983,7 @@ Licensed under the BSD-2-Clause License.
       var path;
       path = this.paths[index];
       if (path !== null) {
-        return this.drawLinePath(path, this.colorFor(null, index, 'line'), index);
+        return this.drawLinePath(path, this.colorFor(null, index, "line"), index);
       }
     };
 
@@ -1074,9 +1074,9 @@ Licensed under the BSD-2-Clause License.
     };
 
     Line.prototype.colorFor = function(row, sidx, type) {
-      if (typeof this.options.lineColors === 'function') {
+      if (typeof this.options.lineColors === "function") {
         return this.options.lineColors.call(this, row, sidx, type);
-      } else if (type === 'point') {
+      } else if (type === "point") {
         return this.options.pointFillColors[sidx % this.options.pointFillColors.length] || this.options.lineColors[sidx % this.options.lineColors.length];
       } else {
         return this.options.lineColors[sidx % this.options.lineColors.length];
@@ -1084,15 +1084,15 @@ Licensed under the BSD-2-Clause License.
     };
 
     Line.prototype.drawXAxisLabel = function(xPos, yPos, text) {
-      return this.raphael.text(xPos, yPos, text).attr('font-size', this.options.gridTextSize).attr('font-family', this.options.gridTextFamily).attr('font-weight', this.options.gridTextWeight).attr('fill', this.options.gridTextColor);
+      return this.raphael.text(xPos, yPos, text).attr("font-size", this.options.gridTextSize).attr("font-family", this.options.gridTextFamily).attr("font-weight", this.options.gridTextWeight).attr("fill", this.options.gridTextColor);
     };
 
     Line.prototype.drawLinePath = function(path, lineColor, lineIndex) {
-      return this.raphael.path(path).attr('stroke', lineColor).attr('stroke-width', this.lineWidthForSeries(lineIndex));
+      return this.raphael.path(path).attr("stroke", lineColor).attr("stroke-width", this.lineWidthForSeries(lineIndex));
     };
 
     Line.prototype.drawLinePoint = function(xPos, yPos, pointColor, lineIndex) {
-      return this.raphael.circle(xPos, yPos, this.pointSizeForSeries(lineIndex)).attr('fill', pointColor).attr('stroke-width', this.pointStrokeWidthForSeries(lineIndex)).attr('stroke', this.pointStrokeColorForSeries(lineIndex));
+      return this.raphael.circle(xPos, yPos, this.pointSizeForSeries(lineIndex)).attr("fill", pointColor).attr("stroke-width", this.pointStrokeWidthForSeries(lineIndex)).attr("stroke", this.pointStrokeColorForSeries(lineIndex));
     };
 
     Line.prototype.pointStrokeWidthForSeries = function(index) {
@@ -1122,13 +1122,13 @@ Licensed under the BSD-2-Clause License.
     Line.prototype.pointGrowSeries = function(index) {
       return Raphael.animation({
         r: this.pointSizeForSeries(index) + 3
-      }, 25, 'linear');
+      }, 25, "linear");
     };
 
     Line.prototype.pointShrinkSeries = function(index) {
       return Raphael.animation({
         r: this.pointSizeForSeries(index)
-      }, 25, 'linear');
+      }, 25, "linear");
     };
 
     return Line;
@@ -1282,7 +1282,7 @@ Licensed under the BSD-2-Clause License.
     __extends(Area, _super);
 
     areaDefaults = {
-      fillOpacity: 'auto',
+      fillOpacity: "auto",
       behaveLikeLine: false
     };
 
@@ -1293,7 +1293,7 @@ Licensed under the BSD-2-Clause License.
       }
       areaOptions = $.extend({}, areaDefaults, options);
       this.cumulative = !areaOptions.behaveLikeLine;
-      if (areaOptions.fillOpacity === 'auto') {
+      if (areaOptions.fillOpacity === "auto") {
         areaOptions.fillOpacity = areaOptions.behaveLikeLine ? .8 : 1;
       }
       Area.__super__.constructor.call(this, areaOptions);
@@ -1364,12 +1364,12 @@ Licensed under the BSD-2-Clause License.
 
     Area.prototype.fillForSeries = function(i) {
       var color;
-      color = Raphael.rgb2hsl(this.colorFor(this.data[i], i, 'line'));
+      color = Raphael.rgb2hsl(this.colorFor(this.data[i], i, "line"));
       return Raphael.hsl(color.h, this.options.behaveLikeLine ? color.s * 0.9 : color.s * 0.75, Math.min(0.98, this.options.behaveLikeLine ? color.l * 1.2 : color.l * 1.25));
     };
 
     Area.prototype.drawFilledPath = function(path, fill) {
-      return this.raphael.path(path).attr('fill', fill).attr('fill-opacity', this.options.fillOpacity).attr('stroke', 'none');
+      return this.raphael.path(path).attr("fill", fill).attr("fill-opacity", this.options.fillOpacity).attr("stroke", "none");
     };
 
     return Area;
@@ -1393,20 +1393,20 @@ Licensed under the BSD-2-Clause License.
 
     Bar.prototype.init = function() {
       this.cumulative = this.options.stacked;
-      if (this.options.hideHover !== 'always') {
+      if (this.options.hideHover !== "always") {
         this.hover = new Morris.Hover({
           parent: this.el
         });
-        this.on('hovermove', this.onHoverMove);
-        this.on('hoverout', this.onHoverOut);
-        return this.on('gridclick', this.onGridClick);
+        this.on("hovermove", this.onHoverMove);
+        this.on("hoverout", this.onHoverOut);
+        return this.on("gridclick", this.onGridClick);
       }
     };
 
     Bar.prototype.defaults = {
       barSizeRatio: 0.75,
       barGap: 3,
-      barColors: ['#0b62a4', '#7a92a3', '#4da74d', '#afd8f8', '#edc240', '#cb4b4b', '#9440ed'],
+      barColors: ["#0b62a4", "#7a92a3", "#4da74d", "#afd8f8", "#edc240", "#cb4b4b", "#9440ed"],
       barOpacity: 1.0,
       barRadius: [0, 0, 0, 0],
       xLabelMargin: 50
@@ -1447,7 +1447,7 @@ Licensed under the BSD-2-Clause License.
 
     Bar.prototype.draw = function() {
       var _ref;
-      if ((_ref = this.options.axes) === true || _ref === 'both' || _ref === 'x') {
+      if ((_ref = this.options.axes) === true || _ref === "both" || _ref === "x") {
         this.drawXAxis();
       }
       return this.drawSeries();
@@ -1526,7 +1526,7 @@ Licensed under the BSD-2-Clause License.
                 if (this.options.stacked) {
                   top -= lastTop;
                 }
-                this.drawBar(left, top, barWidth, size, this.colorFor(row, sidx, 'bar'), this.options.barOpacity, this.options.barRadius);
+                this.drawBar(left, top, barWidth, size, this.colorFor(row, sidx, "bar"), this.options.barOpacity, this.options.barRadius);
                 _results1.push(lastTop += size);
               } else {
                 _results1.push(null);
@@ -1541,7 +1541,7 @@ Licensed under the BSD-2-Clause License.
 
     Bar.prototype.colorFor = function(row, sidx, type) {
       var r, s;
-      if (typeof this.options.barColors === 'function') {
+      if (typeof this.options.barColors === "function") {
         r = {
           x: row.x,
           y: row.y[sidx],
@@ -1569,7 +1569,7 @@ Licensed under the BSD-2-Clause License.
     Bar.prototype.onGridClick = function(x, y) {
       var index;
       index = this.hitTest(x);
-      return this.fire('click', index, this.data[index].src, x, y);
+      return this.fire("click", index, this.data[index].src, x, y);
     };
 
     Bar.prototype.onHoverMove = function(x, y) {
@@ -1591,9 +1591,9 @@ Licensed under the BSD-2-Clause License.
       _ref = row.y;
       for (j = _i = 0, _len = _ref.length; _i < _len; j = ++_i) {
         y = _ref[j];
-        content += "<div class='morris-hover-point' style='color: " + (this.colorFor(row, j, 'label')) + "'>\n  " + this.options.labels[j] + ":\n  " + (this.yLabelFormat(y)) + "\n</div>";
+        content += "<div class='morris-hover-point' style='color: " + (this.colorFor(row, j, "label")) + "'>\n  " + this.options.labels[j] + ":\n  " + (this.yLabelFormat(y)) + "\n</div>";
       }
-      if (typeof this.options.hoverCallback === 'function') {
+      if (typeof this.options.hoverCallback === "function") {
         content = this.options.hoverCallback(index, this.options, content, row.src);
       }
       x = this.left + (index + 0.5) * this.width / this.data.length;
@@ -1602,7 +1602,7 @@ Licensed under the BSD-2-Clause License.
 
     Bar.prototype.drawXAxisLabel = function(xPos, yPos, text) {
       var label;
-      return label = this.raphael.text(xPos, yPos, text).attr('font-size', this.options.gridTextSize).attr('font-family', this.options.gridTextFamily).attr('font-weight', this.options.gridTextWeight).attr('fill', this.options.gridTextColor);
+      return label = this.raphael.text(xPos, yPos, text).attr("font-size", this.options.gridTextSize).attr("font-family", this.options.gridTextFamily).attr("font-weight", this.options.gridTextWeight).attr("fill", this.options.gridTextColor);
     };
 
     Bar.prototype.drawBar = function(xPos, yPos, width, height, barColor, opacity, radiusArray) {
@@ -1613,7 +1613,7 @@ Licensed under the BSD-2-Clause License.
       } else {
         path = this.raphael.path(this.roundedRect(xPos, yPos, width, height, radiusArray));
       }
-      return path.attr('fill', barColor).attr('fill-opacity', opacity).attr('stroke', 'none');
+      return path.attr("fill", barColor).attr("fill-opacity", opacity).attr("stroke", "none");
     };
 
     Bar.prototype.roundedRect = function(x, y, w, h, r) {
@@ -1631,9 +1631,9 @@ Licensed under the BSD-2-Clause License.
     __extends(Donut, _super);
 
     Donut.prototype.defaults = {
-      colors: ['#0B62A4', '#3980B5', '#679DC6', '#95BBD7', '#B0CCE1', '#095791', '#095085', '#083E67', '#052C48', '#042135'],
-      backgroundColor: '#FFFFFF',
-      labelColor: '#000000',
+      colors: ["#0B62A4", "#3980B5", "#679DC6", "#95BBD7", "#B0CCE1", "#095791", "#095085", "#083E67", "#052C48", "#042135"],
+      backgroundColor: "#FFFFFF",
+      labelColor: "#000000",
       formatter: Morris.commas,
       resize: false
     };
@@ -1647,7 +1647,7 @@ Licensed under the BSD-2-Clause License.
         return new Morris.Donut(options);
       }
       this.options = $.extend({}, this.defaults, options);
-      if (typeof options.element === 'string') {
+      if (typeof options.element === "string") {
         this.el = $(document.getElementById(options.element));
       } else {
         this.el = $(options.element);
@@ -1660,7 +1660,7 @@ Licensed under the BSD-2-Clause License.
       }
       this.raphael = new Raphael(this.el[0]);
       if (this.options.resize) {
-        $(window).bind('resize', function(evt) {
+        $(window).bind("resize", function(evt) {
           if (_this.timeoutId != null) {
             window.clearTimeout(_this.timeoutId);
           }
@@ -1694,8 +1694,8 @@ Licensed under the BSD-2-Clause License.
         seg = new Morris.DonutSegment(cx, cy, w * 2, w, last, next, this.data[i].color || this.options.colors[idx % this.options.colors.length], this.options.backgroundColor, idx, this.raphael);
         seg.render();
         this.segments.push(seg);
-        seg.on('hover', this.select);
-        seg.on('click', this.click);
+        seg.on("hover", this.select);
+        seg.on("click", this.click);
         last = next;
         idx += 1;
       }
@@ -1733,7 +1733,7 @@ Licensed under the BSD-2-Clause License.
     };
 
     Donut.prototype.click = function(idx) {
-      return this.fire('click', idx, this.data[idx]);
+      return this.fire("click", idx, this.data[idx]);
     };
 
     Donut.prototype.select = function(idx) {
@@ -1757,7 +1757,7 @@ Licensed under the BSD-2-Clause License.
       maxHeightBottom = inner / 3;
       this.text1.attr({
         text: label1,
-        transform: ''
+        transform: ""
       });
       text1bbox = this.text1.getBBox();
       text1scale = Math.min(maxWidth / text1bbox.width, maxHeightTop / text1bbox.height);
@@ -1766,7 +1766,7 @@ Licensed under the BSD-2-Clause License.
       });
       this.text2.attr({
         text: label2,
-        transform: ''
+        transform: ""
       });
       text2bbox = this.text2.getBBox();
       text2scale = Math.min(maxWidth / text2bbox.width, maxHeightBottom / text2bbox.height);
@@ -1777,9 +1777,9 @@ Licensed under the BSD-2-Clause License.
 
     Donut.prototype.drawEmptyDonutLabel = function(xPos, yPos, color, fontSize, fontWeight) {
       var text;
-      text = this.raphael.text(xPos, yPos, '').attr('font-size', fontSize).attr('fill', color);
+      text = this.raphael.text(xPos, yPos, "").attr("font-size", fontSize).attr("fill", color);
       if (fontWeight != null) {
-        text.attr('font-weight', fontWeight);
+        text.attr("font-weight", fontWeight);
       }
       return text;
     };
@@ -1839,16 +1839,16 @@ Licensed under the BSD-2-Clause License.
       var _this = this;
       this.arc = this.drawDonutArc(this.hilight, this.color);
       return this.seg = this.drawDonutSegment(this.path, this.color, this.backgroundColor, function() {
-        return _this.fire('hover', _this.index);
+        return _this.fire("hover", _this.index);
       }, function() {
-        return _this.fire('click', _this.index);
+        return _this.fire("click", _this.index);
       });
     };
 
     DonutSegment.prototype.drawDonutArc = function(path, color) {
       return this.raphael.path(path).attr({
         stroke: color,
-        'stroke-width': 2,
+        "stroke-width": 2,
         opacity: 0
       });
     };
@@ -1857,7 +1857,7 @@ Licensed under the BSD-2-Clause License.
       return this.raphael.path(path).attr({
         fill: fillColor,
         stroke: strokeColor,
-        'stroke-width': 3
+        "stroke-width": 3
       }).hover(hoverFunction).click(clickFunction);
     };
 
@@ -1865,10 +1865,10 @@ Licensed under the BSD-2-Clause License.
       if (!this.selected) {
         this.seg.animate({
           path: this.selectedPath
-        }, 150, '<>');
+        }, 150, "<>");
         this.arc.animate({
           opacity: 1
-        }, 150, '<>');
+        }, 150, "<>");
         return this.selected = true;
       }
     };
@@ -1877,10 +1877,10 @@ Licensed under the BSD-2-Clause License.
       if (this.selected) {
         this.seg.animate({
           path: this.path
-        }, 150, '<>');
+        }, 150, "<>");
         this.arc.animate({
           opacity: 0
-        }, 150, '<>');
+        }, 150, "<>");
         return this.selected = false;
       }
     };

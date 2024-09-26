@@ -1,12 +1,12 @@
 (function ($, undefined) {
-  'use strict';
+  "use strict";
 
   var OFFSET = 5;
 
   function Rating(element, options) {
     this.$input = $(element);
-    this.$rating = $('<span></span>').css({
-      cursor: 'default'
+    this.$rating = $("<span></span>").css({
+      cursor: "default"
     }).insertBefore(this.$input);
     // Merge data and parameter options.
     // Those provided as parameter prevail over the data ones.
@@ -41,39 +41,39 @@
   Rating.prototype = {
     _init: function () {
       var rating = this,
-          $input = this.$input,
-          $rating = this.$rating;
+        $input = this.$input,
+        $rating = this.$rating;
 
       var ifEnabled = function (f) {
         return function (e) {
           // According to the W3C attribute readonly is not allowed on input
           // elements with type hidden.
           // Keep readonly prop for legacy but its use should be deprecated.
-          if (!$input.prop('disabled') && !$input.prop('readonly') &&
-              $input.data('readonly') === undefined) {
+          if (!$input.prop("disabled") && !$input.prop("readonly") &&
+              $input.data("readonly") === undefined) {
             f.call(this, e);
           }
-        }
+        };
       };
 
       // Build the rating control.
       for (var i = 1; i <= this._rateToIndex(this.options.stop); i++) {
         // Create the rating symbol container.
-        var $symbol = $('<div class="rating-symbol"></div>').css({
-            display: 'inline-block',
-            position: 'relative'
+        var $symbol = $("<div class=\"rating-symbol\"></div>").css({
+          display: "inline-block",
+          position: "relative"
         });
         // Add background symbol to the symbol container.
-        $('<div class="rating-symbol-background ' + this.options.empty + '"></div>')
+        $("<div class=\"rating-symbol-background " + this.options.empty + "\"></div>")
           .appendTo($symbol);
         // Add foreground symbol to the symbol container.
         // The filled icon is wrapped with a div to allow fractional selection.
-        $('<div class="rating-symbol-foreground"></div>')
-          .append('<span class="' + this.options.filled + '"></span>')
+        $("<div class=\"rating-symbol-foreground\"></div>")
+          .append("<span class=\"" + this.options.filled + "\"></span>")
           .css({
-            display: 'inline-block',
-            position: 'absolute',
-            overflow: 'hidden',
+            display: "inline-block",
+            position: "absolute",
+            overflow: "hidden",
             left: 0,
             // Overspecify right and left to 0 and let the container direction
             // decide which one is going to take precedence according to the
@@ -97,7 +97,7 @@
 
       // Keep rating control and its associated input in sync.
       $input
-        .on('change', function () {
+        .on("change", function () {
           rating._updateRate($(this).val());
         });
 
@@ -108,7 +108,7 @@
         // right-to-left then the symbol starts at the right. So we have to add
         // the symbol width to the left offset to get the CSS rigth position.
         var x = Math.abs((e.pageX || e.originalEvent.touches[0].pageX) -
-          (($symbol.css('direction') === 'rtl' && $symbol.width()) +
+          (($symbol.css("direction") === "rtl" && $symbol.width()) +
           $symbol.offset().left));
 
         // NOTE: When the mouse pointer is close to the left side of the symbol
@@ -122,27 +122,27 @@
       // Keep the current highlighted index (fractional or not).
       var index;
       $rating
-        .on('mousedown touchstart', '.rating-symbol', ifEnabled(function (e) {
+        .on("mousedown touchstart", ".rating-symbol", ifEnabled(function (e) {
           // Set input 'trigger' the change event.
           $input.val(rating._indexToRate(fractionalIndex(e))).change();
         }))
-        .on('mousemove touchmove', '.rating-symbol', ifEnabled(function (e) {
+        .on("mousemove touchmove", ".rating-symbol", ifEnabled(function (e) {
           var current = rating._roundToFraction(fractionalIndex(e));
           if (current !== index) {
             // Trigger pseudo rate leave event if the mouse pointer is not
             // leaving from another symbol (mouseleave).
-            if (index !== undefined) $(this).trigger('rating.rateleave');
+            if (index !== undefined) {$(this).trigger("rating.rateleave");}
             // Update index and trigger rate enter event.
             index = current;
-            $(this).trigger('rating.rateenter', [rating._indexToRate(index)]);
+            $(this).trigger("rating.rateenter", [rating._indexToRate(index)]);
           }
           // Fill the symbols as fractions chunks.
           rating._fillUntil(current);
         }))
-        .on('mouseleave touchend', '.rating-symbol', ifEnabled(function () {
+        .on("mouseleave touchend", ".rating-symbol", ifEnabled(function () {
           // When a symbol is left, reset index and trigger rate leave event.
           index = undefined;
-          $(this).trigger('rating.rateleave');
+          $(this).trigger("rating.rateleave");
           // Restore on hover out.
           rating._fillUntil(rating._rateToIndex(parseFloat($input.val())));
         }));
@@ -154,20 +154,20 @@
       // Get the index of the last whole symbol.
       var i = Math.floor(index);
       // Hide completely hidden symbols background.
-      $rating.find('.rating-symbol-background')
-        .css('visibility', 'visible')
-        .slice(0, i).css('visibility', 'hidden');
-      var $rates = $rating.find('.rating-symbol-foreground');
+      $rating.find(".rating-symbol-background")
+        .css("visibility", "visible")
+        .slice(0, i).css("visibility", "hidden");
+      var $rates = $rating.find(".rating-symbol-foreground");
       // Reset foreground
       $rates.width(0);
       // Fill all the foreground symbols up to the selected one.
-      $rates.slice(0, i).width('auto')
-        .find('span').attr('class', this.options.filled);
+      $rates.slice(0, i).width("auto")
+        .find("span").attr("class", this.options.filled);
       // Amend selected symbol.
       $rates.eq(index % 1 ? i : i - 1)
-        .find('span').attr('class', this.options.filledSelected);
+        .find("span").attr("class", this.options.filledSelected);
       // Partially fill the fractional one.
-      $rates.eq(i).width(index % 1 * 100 + '%');
+      $rates.eq(i).width(index % 1 * 100 + "%");
     },
     // Calculate the rate of an index according the the start and step.
     _indexToRate: function (index) {
@@ -198,9 +198,9 @@
       if (this._contains(value)) {
         this._fillUntil(this._rateToIndex(value));
         this.$input.val(value);
-      } else if (rate === '') {
+      } else if (rate === "") {
         this._fillUntil(0);
-        this.$input.val('');
+        this.$input.val("");
       }
     },
     rate: function (value) {
@@ -213,15 +213,15 @@
 
   $.fn.rating = function (options) {
     var args = Array.prototype.slice.call(arguments, 1),
-        result;
+      result;
     this.each(function () {
       var $input = $(this);
-      var rating = $input.data('rating');
+      var rating = $input.data("rating");
       if (!rating) {
-        $input.data('rating', (rating = new Rating(this, options)));
+        $input.data("rating", (rating = new Rating(this, options)));
       }
       // Underscore are used for private methods.
-      if (typeof options === 'string' && options[0] !== '_') {
+      if (typeof options === "string" && options[0] !== "_") {
         result = rating[options].apply(rating, args);
       }
     });
@@ -230,9 +230,9 @@
 
   // Plugin defaults.
   $.fn.rating.defaults = {
-    filled: 'glyphicon glyphicon-star',
+    filled: "glyphicon glyphicon-star",
     filledSelected: undefined,
-    empty: 'glyphicon glyphicon-star-empty',
+    empty: "glyphicon glyphicon-star-empty",
     start: 0,
     stop: OFFSET,
     step: 1,
@@ -242,6 +242,6 @@
   };
 
   $(function () {
-    $('input.rating').rating();
+    $("input.rating").rating();
   });
 }(jQuery));

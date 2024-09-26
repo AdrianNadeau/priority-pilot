@@ -28,7 +28,7 @@ const getListFiles = (req, res) => {
       });
     }
 
-    let fileInfos = [];
+    const fileInfos = [];
 
     files.forEach((file) => {
       fileInfos.push({

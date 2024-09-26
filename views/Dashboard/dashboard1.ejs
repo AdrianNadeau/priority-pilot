@@ -151,7 +151,7 @@ module.exports = {
         <div class="col-md-6">
           <div class="mini-stat clearfix bg-white" style="min-height: 150px !important;">
             <div class="mini-stat-info">
-              <span class="counter">Priority (<%=priorityCount%>, <%=totalPitchPH%> PH)</span>
+              <span class="counter">Priority (<%=priorityCount%>, $<%=priorityTotalCost%>, <%=priorityTotalPH%> PD)</span>
             </div>
             <div>
               <% projects.forEach(function(project) { %>
@@ -194,7 +194,7 @@ module.exports = {
             <div class="mini-stat clearfix bg-white">
               <!-- <span class="mini-stat-icon bg-purple mr-0 float-right"><i class="mdi mdi-basket"></i></span> -->
               <div class="mini-stat-info">
-                <span class="counter">Discovery (<%=discoveryCount%> , $<%=discoveryTotalCost%>)</span>
+                <span class="counter">Discovery (<%=discoveryCount%> , $<%=discoveryTotalCost%> <%=discoveryTotalPH%> PD)</span>
               </div>
               <div>
                 <% projects.forEach(function(project) { %>
@@ -327,7 +327,7 @@ module.exports = {
                   <li>Used: <%=totalCostUsed%></li>
                   <li>Avail: <%=totalAvailableCost%></li>
               </ul>
-              <span style="margin-left: 300px;">
+              <span>
                   <strong>Effort</strong>
                   <ul class="list-unstyled">
                       <li>40K PH</li>

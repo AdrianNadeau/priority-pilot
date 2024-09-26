@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/file.controller.js");
 
-let routes = (app) => {
+const routes = (app) => {
   router.post("/register", controller.create);
   router.get("/files", controller.getListFiles);
   router.get("/files/:name", controller.download);

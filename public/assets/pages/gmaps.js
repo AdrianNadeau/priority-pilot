@@ -8,49 +8,49 @@ var map;
 $(document).ready(function(){
   // Markers
   map = new GMaps({
-    div: '#gmaps-markers',
+    div: "#gmaps-markers",
     lat: -12.043333,
     lng: -77.028333
   });
   map.addMarker({
     lat: -12.043333,
     lng: -77.03,
-    title: 'Lima',
+    title: "Lima",
     details: {
       database_id: 42,
-      author: 'HPNeo'
+      author: "HPNeo"
     },
     click: function(e){
       if(console.log)
-        console.log(e);
-      alert('You clicked in this marker');
+      {console.log(e);}
+      alert("You clicked in this marker");
     }
   });
 
   // Overlays
   map = new GMaps({
-    div: '#gmaps-overlay',
+    div: "#gmaps-overlay",
     lat: -12.043333,
     lng: -77.028333
   });
   map.drawOverlay({
     lat: map.getCenter().lat(),
     lng: map.getCenter().lng(),
-    content: '<div class="gmaps-overlay">Our Office!<div class="gmaps-overlay_arrow above"></div></div>',
-    verticalAlign: 'top',
-    horizontalAlign: 'center'
+    content: "<div class=\"gmaps-overlay\">Our Office!<div class=\"gmaps-overlay_arrow above\"></div></div>",
+    verticalAlign: "top",
+    horizontalAlign: "center"
   });
 
   //panorama
   map = GMaps.createPanorama({
-    el: '#panorama',
+    el: "#panorama",
     lat : 42.3455,
     lng : -71.0983
   });
 
   //Map type
   map = new GMaps({
-    div: '#gmaps-types',
+    div: "#gmaps-types",
     lat: -12.043333,
     lng: -77.028333,
     mapTypeControlOptions: {

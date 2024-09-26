@@ -17,11 +17,11 @@ exports.create = async (req, res) => {
       const session = req.session;
       session.company = company;
       try{
-        console.log("create session.company:",session.company.id)
-        res.redirect('/confirm');
+        console.log("create session.company:",session.company.id);
+        res.redirect("/confirm");
       }
       catch(err){
-        console.log("err:",err)
+        console.log("err:",err);
       }
       
       
@@ -78,103 +78,103 @@ exports.create = async (req, res) => {
 
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
-  console.log("FIND ALL COMPANIES")
-   Company.findAll({})
-      .then(data => {
-        res.send(data);
-      })
-      .catch(err => {
-        res.status(500).send({
-          message:
+  console.log("FIND ALL COMPANIES");
+  Company.findAll({})
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
             err.message || "Some error occurred while retrieving companies."
-        });
       });
-  };
+    });
+};
 
 // Find a single Company with an id
 exports.findOne = (req, res) => {
-    const id = req.params.id;
-    Company.findByPk(id)
-      .then(data => {
-        if (data) {
-          res.send(data);
-        } else {
-          res.status(404).send({
-            message: `Cannot find Company with id=${id}.`
-          });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Error retrieving Company with id=" + id
+  const id = req.params.id;
+  Company.findByPk(id)
+    .then(data => {
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({
+          message: `Cannot find Company with id=${id}.`
         });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error retrieving Company with id=" + id
       });
-  };
+    });
+};
 
 // Update a Company by the id in the request
 exports.update = (req, res) => {
-    const id = req.params.id;
+  const id = req.params.id;
   
-    Company.update(req.body, {
-      where: { id: id }
-    })
-      .then(num => {
-        if (num == 1) {
-          res.send({
-            message: "Company was updated successfully."
-          });
-        } else {
-          res.send({
-            message: `Cannot update Company with id=${id}. Maybe Company was not found or req.body is empty or violates foreign key contstraint!`
-          });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Error updating Company with id=" + id
+  Company.update(req.body, {
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Company was updated successfully."
         });
+      } else {
+        res.send({
+          message: `Cannot update Company with id=${id}. Maybe Company was not found or req.body is empty or violates foreign key contstraint!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error updating Company with id=" + id
       });
-  };
+    });
+};
 
 // Delete a Company with the specified id in the request
 exports.delete = (req, res) => {
-    const id = req.params.id;
+  const id = req.params.id;
   
-    Company.destroy({
-      where: { id: id }
-    })
-      .then(num => {
-        if (num == 1) {
-          res.send({
-            message: "Company was deleted successfully!"
-          });
-        } else {
-          res.send({
-            message: `Cannot delete Company with id=${id}. Maybe Company was not found!`
-          });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Could not delete Company with id=" + id
+  Company.destroy({
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Company was deleted successfully!"
         });
+      } else {
+        res.send({
+          message: `Cannot delete Company with id=${id}. Maybe Company was not found!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Could not delete Company with id=" + id
       });
-  };
+    });
+};
 
 // Delete all  from the database.
 exports.deleteAll = (req, res) => {
   Company.destroy({
-      where: {},
-      truncate: false
+    where: {},
+    truncate: false
+  })
+    .then(nums => {
+      res.send({ message: `${nums} Companies were deleted successfully!` });
     })
-      .then(nums => {
-        res.send({ message: `${nums} Companies were deleted successfully!` });
-      })
-      .catch(err => {
-        res.status(500).send({
-          message:
+    .catch(err => {
+      res.status(500).send({
+        message:
             err.message || "Some error occurred while removing all companies."
-        });
       });
-  };
+    });
+};
 

@@ -2,21 +2,21 @@ var travelMode, unitSystem;
 
 GMaps.prototype.getRoutes = function(options) {
   switch (options.travelMode) {
-    case 'bicycling':
-      travelMode = google.maps.TravelMode.BICYCLING;
-      break;
-    case 'transit':
-      travelMode = google.maps.TravelMode.TRANSIT;
-      break;
-    case 'driving':
-      travelMode = google.maps.TravelMode.DRIVING;
-      break;
-    default:
-      travelMode = google.maps.TravelMode.WALKING;
-      break;
+  case "bicycling":
+    travelMode = google.maps.TravelMode.BICYCLING;
+    break;
+  case "transit":
+    travelMode = google.maps.TravelMode.TRANSIT;
+    break;
+  case "driving":
+    travelMode = google.maps.TravelMode.DRIVING;
+    break;
+  default:
+    travelMode = google.maps.TravelMode.WALKING;
+    break;
   }
 
-  if (options.unitSystem === 'imperial') {
+  if (options.unitSystem === "imperial") {
     unitSystem = google.maps.UnitSystem.IMPERIAL;
   }
   else {
@@ -24,12 +24,12 @@ GMaps.prototype.getRoutes = function(options) {
   }
 
   var base_options = {
-        avoidHighways: false,
-        avoidTolls: false,
-        optimizeWaypoints: false,
-        waypoints: []
-      },
-      request_options =  extend_object(base_options, options);
+      avoidHighways: false,
+      avoidTolls: false,
+      optimizeWaypoints: false,
+      waypoints: []
+    },
+    request_options =  extend_object(base_options, options);
 
   request_options.origin = /string/.test(typeof options.origin) ? options.origin : new google.maps.LatLng(options.origin[0], options.origin[1]);
   request_options.destination = /string/.test(typeof options.destination) ? options.destination : new google.maps.LatLng(options.destination[0], options.destination[1]);
@@ -40,7 +40,7 @@ GMaps.prototype.getRoutes = function(options) {
   delete request_options.error;
 
   var self = this,
-      service = new google.maps.DirectionsService();
+    service = new google.maps.DirectionsService();
 
   service.route(request_options, function(result, status) {
     if (status === google.maps.DirectionsStatus.OK) {
@@ -102,7 +102,7 @@ GMaps.prototype.getElevations = function(options) {
     };
 
     service.getElevationAlongPath(pathRequest, function(result, status) {
-     if (callback && typeof(callback) === "function") {
+      if (callback && typeof(callback) === "function") {
         callback(result, status);
       }
     });
@@ -173,7 +173,7 @@ GMaps.prototype.travelRoute = function(options) {
 
         //end callback
         if (e.length > 0 && options.end) {
-           options.end(e[e.length - 1]);
+          options.end(e[e.length - 1]);
         }
       }
     });
@@ -231,7 +231,7 @@ GMaps.prototype.drawSteppedRoute = function(options) {
 
         //end callback
         if (e.length > 0 && options.end) {
-           options.end(e[e.length - 1]);
+          options.end(e[e.length - 1]);
         }
       }
     });

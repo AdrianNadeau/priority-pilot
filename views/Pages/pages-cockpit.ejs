@@ -44,45 +44,45 @@
       <div class="col-8">
         <div class="mini-stat clearfix bg-white">
           <div>
-            <strong>Name:</strong> <%=project[0].project_name %>
+            <strong>Name:</strong> <%=project.project_name%>
           </div>
           <div>
-            <strong>Headline:</strong> <%=project[0].project_headline %>
+            <strong>Headline:</strong> <%=project.project_headline %>
           </div>
           <div>
             <strong>Sponsor:</strong> 
-            <% if(project[0].sponsor_last_name){ %>
-                <%=project[0].sponsor_last_name %>, <%=project[0].sponsor_last_name %>
+            <% if(project.sponsor_last_name){ %>
+                <%=project.sponsor_last_name %>, <%=project.sponsor_last_name %>
             <%}%>
            
             </div>
           <div>
             <strong>Prime:</strong> 
-            <% if(project[0].prime_last_name){ %>
-                <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
+            <% if(project.prime_last_name){ %>
+                <%=project.prime_last_name %>, <%=project.prime_first_name %>
             <%}%>
             
           </div>
           <div>
             <strong>Start:</strong> 
-            <% if(project[0].start_date){ %>
-              <%= project[0].start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+            <% if(project.start_date){ %>
+              <%= project.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
             <%}%>
         </div>
           
          
         <div>
           <strong>End:</strong> 
-          <% if(project[0].end_date){ %>
-            <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+          <% if(project.end_date){ %>
+            <%= project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
           <%}%>
       </div>
         
         <div>
           <div>
           <strong>Next Milestone Date:</strong> 
-          <% if(project[0].next_milestone_date){ %>
-            <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+          <% if(project.next_milestone_date){ %>
+            <%= project.next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
           <%}%>
         
         
@@ -96,21 +96,21 @@
           </div>
           <div>
             <strong>Effort:</strong>
-            <%=project[0].effort %> PH
+            <%=project.effort %> PH
                
           
           </div>
           <div style="padding-top:20px;">
             
             <strong>Why:</strong>
-            <textarea class="form-control" id="project_why" rows="3" disabled><%=project[0].project_why %>
+            <textarea class="form-control" id="project_why" rows="3" disabled><%=project.project_why %>
             </textarea>
           
           </div>
           <div style="padding-top:20px;">
             
             <strong>What:</strong>
-            <textarea class="form-control" id="project_what" rows="3" disabled><%=project[0].project_what %> 
+            <textarea class="form-control" id="project_what" rows="3" disabled><%=project.project_what %> 
             </textarea>
            
           </div>
@@ -129,8 +129,8 @@
       
     <div class="col-4">
       
-      <input type="hidden" id="status_project_id" name="status_project_id" value="<%=project[0].id %>"/>
-      <input type="hidden" id="prime_id_fk" name="prime_id_fk" value="<%=project[0].prime_id_fk %>"/>
+      
+      <input type="hidden" id="prime_id_fk" name="prime_id_fk" value="<%=project.prime_id_fk %>"/>
 
       
       <div class="mini-stat clearfix bg-white" style="min-height: 680px;">
@@ -144,158 +144,13 @@
         <br/>
         
         
-        <% if (project[0].start_date) { %>
-          <strong>Start:</strong> <%= project[0].start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
-        <%}%>
-        <% if (project[0].end_date) { %>
-          <strong>End:</strong> <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
-        <%}%>
-        <% if (lastStatusDate) { %>
-          <strong>Last Status:</strong> <%= lastStatusDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-          <br/>
-          <%}%>
-
-        <% if(statuses.accomplishments){%>
-          
-          <%=statuses.accomplishments%><br/>
-          <%}%>
-        <% if (statusColor) { %>
-          <% 
-             let healthStatus = statusColor ? statusColor.trim().toLowerCase() : ''; 
-             if (healthStatus === 'green') { 
-           %>
-               <span style="width: 50px !important;height: 50px !important;" class="green-circle"></span>
-           <% } else if (healthStatus === 'yellow') { %>
-                 <span style="width: 50px !important;height: 50px !important;" class="yellow-circle"></span>
-             <% } else if (healthStatus === 'red') { %>
-                   <span style="width: 50px !important;height: 50px !important;" class="red-circle"></span>
-             <% } %>
-            
-            
-            
-       <% } %>
-          
-        
-      <div style="padding-top:20px;padding-bottom:20px;">
-        <strong>Status Updates:</strong>
-          <br/>
-          <% if (statuses) { %>
-            <% statuses.forEach(function(status) { %>
-                <% 
-                let healthStatus = status && status.health ? status.health.trim().toLowerCase() : ''; 
-                if (healthStatus === 'green') { 
-                %>
-                    <span class="green-circle"></span>
-                <% } else if (healthStatus === 'yellow') { %>
-                    <span class="yellow-circle"></span>
-                <% } else if (healthStatus === 'red') { %>
-                    <span class="red-circle"></span>
-                <% } %>
-                <!--  -->
-                
-                <% if (status.progress) { %>
-                  [<%=status.progress%>%]
-              <% } %><br/>
-              <% if(statuses[0].accomplishments){%>
-          
-                <%=statuses[0].accomplishments%><br/>---------------------------<br/>
-
-                <%}%>
-            
-                <% }); %>
-        <% } %>
-        
-
-       
-      </div>
-      <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
-       <br/><br/> 
-       <div class="row">
-        <div class="col-md-6 text-center">
-          <strong>$$</strong>
-          <ul class="list-unstyled">
-              <li>Full: $<%=formattedCost %></li>
-              <li>Used: $<%=formattedCost %></li>
-              <li>Avail: $0</li>
-          </ul>
-        </div>
-        <div class="col-md-6 text-center">
-          <strong>Effort</strong>
-        <ul class="list-unstyled">
-            <li><%=project[0].effort %> PH</li>
-            <li><%=project[0].effort %> PH</li>
-            <li>0 PH</li>
-        </ul>
-        </div>
-    </div>
-        
-  </div>
-  
+       <!-- Right here for dates -->
+     
     
      
 
 </div>
-<div class="row">
-  <div class="col-md-6 m-t-30">
-      <!-- project modal content -->
-      <div id="addChange" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title mt-0">Add Change Log</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                </div>
-                <div class="modal-body">
-                    <form action="/change_logs" class="needs-validation" novalidate method="POST">
-                      <input type="hidden" name="project_id" id="project_id" value="<%=project[0].id %>"/>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <!-- First column of form fields -->
-                                <div class="form-group needs-validation" novalidate>
-                                  <%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                                
-                              </div>
-                              
-                                <div class="form-group needs-validation" novalidate>
-                                  <label for="change_headline">Headline</label>
-                                  <input type="text" class="form-control" id="change_headline"  name="change_headline"  required>
-                                
-                              </div>
-                                <div class="form-group needs-validation" novalidate>
-                                    <label for="change_reason">Change Reason</label>
-                                    <textarea class="form-control" id="change_reason" name="change_reason" rows="3" required></textarea>
-                                  
-                                    <div class="invalid-feedback">
-                                        Please enter change reason.
-                                    </div>
-                                </div>
-                                
-                              <div class="form-group needs-validation" novalidate>
-                                <label for="change_explanation">Change Details</label>
-                                <textarea class="form-control" id="change_explanation" name="change_explanation" rows="3"></textarea>
-                              
-                                
-                            </div>
-                              
-                            </div>
 
-                          </div>
-                        <!-- Add more rows and columns if needed -->
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
-                            <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
-                            <!-- if edit, add delete button -->
-                            <!-- <button class="btn btn-danger w-md waves-effect waves-light" onClick='openDeleteModal()' type="button">Delete</button> -->
-                            <!-- if edit, add delete button -->
-                        </div>
-                    </form>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    
-  </div>
-</div> <!-- end row -->
 
 
 <%- contentFor('FooterJs') %>
@@ -311,190 +166,7 @@
 
  <%- contentFor('BottomJs') %>
 
- <script>
-  // Get the context of the canvas element
-  var ctx = document.getElementById('statusChart').getContext('2d');
-  
-  //******************************* Define the start date for the line graph ******************************
-  var startDate = new Date('<%=project[0].start_date%>');
-  var year = startDate.getFullYear();
-  var month = startDate.getMonth() + 1; // Months are zero-based, so we add 1
-  var day = startDate.getDate();
 
-  // Format month and day with leading zeros if necessary
-  month = month < 10 ? '0' + month : month;
-  day = day < 10 ? '0' + day : day;
-  // Formatted date in the format "yyyy-mm-dd"
-  var formattedStartDate = year + '-' + month + '-' + day;
-  console.log("formattedStartDate:",formattedStartDate)
- 
-  //******************************* Define the end date for the line graph ******************************
-  var endDate = new Date('<%=project[0].end_date%>');
-  var year = endDate.getFullYear();
-  var month = endDate.getMonth() + 1; // Months are zero-based, so we add 1
-  var day = endDate.getDate();
-  // Format month and day with leading zeros if necessary
-  month = month < 10 ? '0' + month : month;
-  day = day < 10 ? '0' + day : day;
-  // Formatted date in the format "yyyy-mm-dd"
-  var formattedEndDate = year + '-' + month + '-' + day;
-  console.log("formattedEndDate:",formattedEndDate)
-
-//******************************* Get middle date for hump on line graph ******************************
-var startDate = new Date(formattedStartDate);
-var endDate = new Date(formattedEndDate);
-// Calculate the difference in milliseconds
-var difference = endDate - startDate;
-// Calculate the middle date in milliseconds
-var middleTime = startDate.getTime() + difference / 2;
-// Create a new Date object for the middle time
-var middleDate = new Date(middleTime);
-// Format the middle date as "yyyy-mm-dd"
-var formattedMiddleDate = middleDate.toISOString().split('T')[0];
-console.log("health:<%=statusColor%>");
-
-//******************************* Get last status date and color to put on graph ******************************
-var statusDate = new Date('<%=lastStatusDate%>');
-  var year = statusDate.getFullYear();
-  var month = statusDate.getMonth() + 1; // Months are zero-based, so we add 1
-  var day = statusDate.getDate();
-
-  // Format month and day with leading zeros if necessary
-  month = month < 10 ? '0' + month : month;
-  day = day < 10 ? '0' + day : day;
-  // Formatted date in the format "yyyy-mm-dd"
-  var formattedStatusDate = year + '-' + month + '-' + day;
-  console.log("formattedStartDate:",formattedStatusDate)
-  var dataPoints = [
-    { x: new Date(formattedStartDate).getTime(), y: 0 },
-    { x: new Date(formattedMiddleDate).getTime(), y: 0.5 },
-    { x: new Date(formattedEndDate).getTime(), y: 0 }
-  ];
-
-  // Define the data and configuration for the chart
-  var statusChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-          datasets: [{
-            label: 'Status ',
-            data: dataPoints,
-            borderColor: 'gray',
-            borderWidth: 2,
-            fill: false,
-            pointRadius: 0, // Hide points
-            tension: 0.2 // Adjust tension for smoother curve
-          }]
-      },
-      options: {
-          scales: {
-              x: {
-                  type: 'time',
-                  time: {
-                      unit: 'month',
-                      tooltipFormat: 'MMM yyyy',
-                      displayFormats: {
-                          month: 'MMM yyyy'
-                      }
-                  },
-                  title: {
-                      display: false,
-                      text: 'Date'
-                  }
-              },
-              y: {
-                  min: 0,
-                  max: 1,
-                  ticks: {
-                      callback: function(value) {
-                          return value === 0.5 ? '' : '';
-                      },
-                      stepSize: 0.5
-                  },
-                  title: {
-                      display: false,
-                      text: 'Status'
-                  }
-              }
-          },
-          plugins: {
-              title: {
-                  display: false,
-                  text: 'Project Health'
-              },
-              tooltip: {
-                  callbacks: {
-                      label: function(context) {
-                          var label = context.dataset.label || '';
-                          if (label) {
-                              label += ': ';
-                          }
-                          if (context.raw.y === 0) {
-                              label += '';
-                          } else if (context.raw.y === 1) {
-                              label += '';
-                          } else {
-                              label += '';
-                          }
-                          return label;
-                      }
-                  }
-              },
-              annotation: {
-                  annotations: {
-                      text1: {
-                          type: 'label',
-                          content: ['Uncertainty'],
-                          xValue: new Date('2024-05-19').getTime(),
-                          yValue: 1.05,
-                          xAdjust: -50,
-                          yAdjust: 0,
-                          color: 'green',
-                          backgroundColor: 'green',
-                          font: {
-                              size: 12
-                          }
-                      },
-                      text2: {
-                          type: 'label',
-                          content: ['Certainty'],
-                          xValue: new Date(formattedEndDate).getTime(),
-                          yValue: 1.05,
-                          xAdjust: 50,
-                          yAdjust: 0,
-                          color: 'black',
-                          backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                          font: {
-                              size: 12
-                          }
-                      }
-                  }
-              }
-          }
-      }
-  });
-  document.getElementById('progress').addEventListener('keydown', function(event) {
-    // Allow: backspace, delete, tab, escape, enter, and decimal point (if not present)
-    if ([46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) ||
-        // Allow: Ctrl+A
-        (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+C
-        (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+V
-        (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: Ctrl+X
-        (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) || 
-        // Allow: home, end, left, right
-        (event.keyCode >= 35 && event.keyCode <= 39)) {
-             // let it happen, don't do anything
-             return;
-    }
-    // Ensure that it is a number and stop the keypress if not
-    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105)) {
-        alert("Only numbers are allowed")
-        event.preventDefault();
-    }
-})
-</script>
 
 
  

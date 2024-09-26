@@ -1,12 +1,12 @@
 GMaps.prototype.createControl = function(options) {
-  var control = document.createElement('div');
+  var control = document.createElement("div");
 
-  control.style.cursor = 'pointer';
+  control.style.cursor = "pointer";
   
   if (options.disableDefaultStyles !== true) {
-    control.style.fontFamily = 'Roboto, Arial, sans-serif';
-    control.style.fontSize = '11px';
-    control.style.boxShadow = 'rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px';
+    control.style.fontFamily = "Roboto, Arial, sans-serif";
+    control.style.fontSize = "11px";
+    control.style.boxShadow = "rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px";
   }
 
   for (var option in options.style) {
@@ -26,7 +26,7 @@ GMaps.prototype.createControl = function(options) {
   }
 
   if (options.content) {
-    if (typeof options.content === 'string') {
+    if (typeof options.content === "string") {
       control.innerHTML = options.content;
     }
     else if (options.content instanceof HTMLElement) {
@@ -62,7 +62,7 @@ GMaps.prototype.addControl = function(options) {
 
 GMaps.prototype.removeControl = function(control) {
   var position = null,
-      i;
+    i;
 
   for (i = 0; i < this.controls.length; i++) {
     if (this.controls[i] == control) {

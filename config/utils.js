@@ -1,3 +1,3 @@
 Phase.findAll(),
 Priority.findAll(),
-Project.findAll()
+Project.findAll();

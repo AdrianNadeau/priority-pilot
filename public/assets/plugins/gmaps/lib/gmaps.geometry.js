@@ -1,6 +1,6 @@
 GMaps.prototype.drawPolyline = function(options) {
   var path = [],
-      points = options.path;
+    points = options.path;
 
   if (points.length) {
     if (points[0][0] === undefined) {
@@ -43,7 +43,7 @@ GMaps.prototype.drawPolyline = function(options) {
 
   var polyline = new google.maps.Polyline(polyline_options);
 
-  var polyline_events = ['click', 'dblclick', 'mousedown', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'rightclick'];
+  var polyline_events = ["click", "dblclick", "mousedown", "mousemove", "mouseout", "mouseover", "mouseup", "rightclick"];
 
   for (var ev = 0; ev < polyline_events.length; ev++) {
     (function(object, name) {
@@ -57,7 +57,7 @@ GMaps.prototype.drawPolyline = function(options) {
 
   this.polylines.push(polyline);
 
-  GMaps.fire('polyline_added', polyline, this);
+  GMaps.fire("polyline_added", polyline, this);
 
   return polyline;
 };
@@ -68,7 +68,7 @@ GMaps.prototype.removePolyline = function(polyline) {
       this.polylines[i].setMap(null);
       this.polylines.splice(i, 1);
 
-      GMaps.fire('polyline_removed', polyline, this);
+      GMaps.fire("polyline_removed", polyline, this);
 
       break;
     }
@@ -93,7 +93,7 @@ GMaps.prototype.drawCircle = function(options) {
   delete options.lng;
 
   var polygon = new google.maps.Circle(options),
-      polygon_events = ['click', 'dblclick', 'mousedown', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'rightclick'];
+    polygon_events = ["click", "dblclick", "mousedown", "mousemove", "mouseout", "mouseover", "mouseup", "rightclick"];
 
   for (var ev = 0; ev < polygon_events.length; ev++) {
     (function(object, name) {
@@ -123,7 +123,7 @@ GMaps.prototype.drawRectangle = function(options) {
   options.bounds = latLngBounds;
 
   var polygon = new google.maps.Rectangle(options),
-      polygon_events = ['click', 'dblclick', 'mousedown', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'rightclick'];
+    polygon_events = ["click", "dblclick", "mousedown", "mousemove", "mouseout", "mouseover", "mouseup", "rightclick"];
 
   for (var ev = 0; ev < polygon_events.length; ev++) {
     (function(object, name) {
@@ -164,7 +164,7 @@ GMaps.prototype.drawPolygon = function(options) {
   }
 
   var polygon = new google.maps.Polygon(options),
-      polygon_events = ['click', 'dblclick', 'mousedown', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'rightclick'];
+    polygon_events = ["click", "dblclick", "mousedown", "mousemove", "mouseout", "mouseover", "mouseup", "rightclick"];
 
   for (var ev = 0; ev < polygon_events.length; ev++) {
     (function(object, name) {
@@ -178,7 +178,7 @@ GMaps.prototype.drawPolygon = function(options) {
 
   this.polygons.push(polygon);
 
-  GMaps.fire('polygon_added', polygon, this);
+  GMaps.fire("polygon_added", polygon, this);
 
   return polygon;
 };
@@ -189,7 +189,7 @@ GMaps.prototype.removePolygon = function(polygon) {
       this.polygons[i].setMap(null);
       this.polygons.splice(i, 1);
 
-      GMaps.fire('polygon_removed', polygon, this);
+      GMaps.fire("polygon_removed", polygon, this);
 
       break;
     }
