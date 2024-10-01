@@ -129,6 +129,7 @@ exports.login = async  (req, res) => {
   console.log("company:", person.company_id_fk);
 
   const company = await Company.findOne({ id: person.company_id_fk });
+  console.log("company:", company);
   if (company) {
     req.session.company = company;
     req.session.person = person;
@@ -136,6 +137,8 @@ exports.login = async  (req, res) => {
     //   expiresIn: '1h',
     // });
     // console.log("TOKEN::::::: ",token)
+    // res.cookie('token', token, { httpOnly: true });
+    console.log("Send to Dashbord")
     res.redirect("/");
   } else {
     res.redirect("/login"); // Redirect to login page if company not found

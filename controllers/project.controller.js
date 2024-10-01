@@ -96,7 +96,6 @@ exports.create = (req, res) => {
           priorities: prioritiesData,
           sponsors: personsData,
           primes: personsData,
-          // change_reasons:ChangeReason
               
         });
       }).catch(err => {
@@ -240,11 +239,51 @@ exports.cockpit = async (req, res) => {
         replacements: [company_id_fk, project_id],
         type: db.sequelize.QueryTypes.SELECT
     });
-
-    res.render("Pages/pages-cockpit", {
-        project: data[0],
-        formattedCost: data[0].project_cost
+    // console.log("get logs")
+    // try{
+    //   const change_logs = await ChangeLog.findAll({
+    //     where: {
+    //       project_id_fk: project_id
+    //     },
+    //     order: [
+    //       ['change_date', 'DESC'] 
+    //     ]
+    //   });
+    // }catch(error){console.log("Error:",error);}
+    
+    const statuses = await Status.findAll({
+      where: {
+        project_id_fk: project_id
+      },
+      order: [
+        ['status_date', 'DESC'] 
+      ]
     });
+    let lastStatusDate = null;
+    let statusColor=null;
+    if(statuses){
+      
+      if (statuses.length > 0) {
+          lastStatusDate = statuses[0].status_date;
+          statusColor=statuses[0].health;
+      }
+      else{
+        console.log("no status")
+          lastStatusDate = "N/A";
+          statusColor="green"
+      }
+    }
+    console.log("statusColor",statusColor);
+    res.render('Pages/pages-cockpit', {
+        project: data,
+        current_date: currentDate,
+        formattedCost: data[0].project_cost,
+        
+        statuses: statuses,
+        lastStatusDate:lastStatusDate,
+        statusColor:statusColor
+    });
+    
     
   } catch (error) {
       console.log("Database Query Error: ", error);
@@ -302,7 +341,7 @@ exports.findOneForEdit = async (req, res) => {
       
 
       // Get reasons for change for the project
-      const change_reasons = await ChangeReason.findAll();
+      const change_reasons = await ChangeReason.findAll({'company_id_fk': company_id_fk});
       let lastStatusDate = null;
       let statusColor = null;
     
@@ -378,13 +417,13 @@ exports.radar = async (req, res) => {
     SUM(CASE WHEN phase_id_fk = 3 THEN 1 ELSE 0 END) AS phase_3_count,
     SUM(CASE WHEN phase_id_fk = 4 THEN 1 ELSE 0 END) AS phase_4_count,
     SUM(CASE WHEN phase_id_fk = 5 THEN 1 ELSE 0 END) AS phase_5_count,
-    SUM(CASE WHEN phase_id_fk = 2 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_2_total_cost,
-    SUM(CASE WHEN phase_id_fk = 3 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_3_total_cost,
-    SUM(CASE WHEN phase_id_fk = 4 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_4_total_cost,
-    SUM(CASE WHEN phase_id_fk = 5 THEN CAST(project_cost AS NUMERIC) ELSE 0 END) AS phase_5_total_cost
-FROM 
+    SUM(CASE WHEN phase_id_fk = 2 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_2_total_cost,
+    SUM(CASE WHEN phase_id_fk = 3 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_3_total_cost,
+    SUM(CASE WHEN phase_id_fk = 4 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_4_total_cost,
+    SUM(CASE WHEN phase_id_fk = 5 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_5_total_cost
+  FROM
     projects
-WHERE 
+  WHERE
     company_id_fk = ?
 
 `;
@@ -401,25 +440,33 @@ WHERE
     }
 
     // Pass the result to the EJS template
+    const phase1Count = Number(data[0].phase_1_count);
+    console.log("phase1Count:",phase1Count);
     const phase2Count = Number(data[0].phase_2_count);
+    console.log("phase2Count:",phase2Count);
     const phase3Count = Number(data[0].phase_3_count);
+    console.log("phase3Count:",phase3Count);
     const phase4Count = Number(data[0].phase_4_count);
+    console.log("phase4Count:",phase3Count);
     // Extract and log raw data
     const phase2TotalCost = Number(data[0].phase_2_total_cost) || 0;
+    console.log("phase2TotalCost:",phase2TotalCost);
     const phase3TotalCost = Number(data[0].phase_3_total_cost) || 0;
+    console.log("phase3TotalCost:",phase3TotalCost);
     const phase4TotalCost = Number(data[0].phase_4_total_cost) || 0;
+    console.log("phase4TotalCost:",phase4TotalCost);
     const in_flight_count= phase3Count+ phase4Count;
     console.log("flight count:",in_flight_count);
-    const in_flight_cost = formatCost(phase3TotalCost + phase4TotalCost);
-    console.log("in_flight_cost:",in_flight_cost);
+    const in_flight_cost = formatValue(phase3TotalCost + phase4TotalCost);
+    console.log("********************************in_flight_cost:",in_flight_cost);
     res.render("Pages/pages-radar", {
       phase_2_count: data[0].phase_2_count,
       in_flight_count: in_flight_count,
       phase_5_count: data[0].phase_5_count,
-      phase_2_total_cost: formatCost(data[0].phase_2_total_cost),
+      phase_2_total_cost: formatValue(data[0].phase_2_total_cost),
       in_flight_cost:in_flight_cost,
       phase_5_total_count:  phase4Count,
-      phase_5_total_cost: formatCost(data[0].phase_5_total_cost),
+      phase_5_total_cost: formatValue(data[0].phase_5_total_cost),
     });
   } catch (error) {
     console.log("Query error:", error);
@@ -543,6 +590,8 @@ exports.update = (req, res) => {
   const deletedDateTest = insertValidDate(req.body.deleted_date);
   const changeDateTest = insertValidDate(req.body.change_date);
   company_id_fk = req.session.company.id;
+  const change_reason=req.body.change_reason;
+  console.log("change_reason:",change_reason);
   // Create a Project
   const project = {
     company_id_fk : company_id_fk,
@@ -600,14 +649,15 @@ exports.update = (req, res) => {
           benefit:req.body.benefit,
           complexity:req.body.complexity,
           tags:req.body.change_reason,
-          tags:req.body.change_explanation,
+          change_reason_id_fk:change_reason,
+          change_explanation:req.body.change_explanation
         };
         console.log("changeProject:",changeProject);
         ChangeProject.create(changeProject, {
           where: { id: id }
         })
           .then(changeProject => {
-            console.log("************************ changeProject:",changeProject);
+            console.log("************************ create change_log record:",changeProject);
             
           })
           .catch(err => {
@@ -678,4 +728,3 @@ function insertValidDate(dateString) {
     return date; // Return the valid date
   }
 }
-

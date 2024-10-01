@@ -151,7 +151,7 @@ module.exports = {
         <div class="col-md-6">
           <div class="mini-stat clearfix bg-white" style="min-height: 150px !important;">
             <div class="mini-stat-info">
-              <span class="counter">Priority (<%=priorityCount%>, $<%=priorityTotalCost%>, <%=priorityTotalPH%> PD)</span>
+              <span class="counter">Priority (<%=priorityCount%>, $<%=priorityTotalCost%>, <%=priorityTotalPH%> PH)</span>
             </div>
             <div>
               <% projects.forEach(function(project) { %>
@@ -194,7 +194,7 @@ module.exports = {
             <div class="mini-stat clearfix bg-white">
               <!-- <span class="mini-stat-icon bg-purple mr-0 float-right"><i class="mdi mdi-basket"></i></span> -->
               <div class="mini-stat-info">
-                <span class="counter">Discovery (<%=discoveryCount%> , $<%=discoveryTotalCost%> <%=discoveryTotalPH%> PD)</span>
+                <span class="counter">Discovery (<%=discoveryCount%> , $<%=discoveryTotalCost%> <%=deliveryTotalPH%> PH)</span>
               </div>
               <div>
                 <% projects.forEach(function(project) { %>
@@ -224,7 +224,7 @@ module.exports = {
           <div class="col-md-6">
             <div class="mini-stat clearfix bg-white">
               <div class="mini-stat-info">
-                <span class="counter">Delivery (<%=deliveryCount%> , $<%=deliveryTotalCost%>)</span>
+                <span class="counter">Delivery (<%=deliveryCount%> , $<%=deliveryTotalCost%> , <%=deliveryTotalPH%> PH)</span>
               </div>
               <div>
                 <% projects.forEach(function(project) { %>
@@ -325,7 +325,7 @@ module.exports = {
               <ul class="list-unstyled">
                   <li>Full: <%=totalCostSum%></li>
                   <li>Used: <%=totalCostUsed%></li>
-                  <li>Avail: <%=totalAvailableCost%></li>
+                  <li>Avail: <%=totalCostLeft%></li>
               </ul>
               <span>
                   <strong>Effort</strong>

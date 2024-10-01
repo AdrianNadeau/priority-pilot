@@ -43,46 +43,48 @@
     <div class="row">
       <div class="col-8">
         <div class="mini-stat clearfix bg-white">
-          <div>
-            <strong>Name:</strong> <%=project.project_name%>
+          <div class="mini-stat-info">
+            
+            <span class="counter" style="padding-bottom:20px;"><%=project[0].project_name%></span>
           </div>
+          
           <div>
-            <strong>Headline:</strong> <%=project.project_headline %>
+            <strong>Headline:</strong> <%=project[0].project_headline %>
           </div>
           <div>
             <strong>Sponsor:</strong> 
-            <% if(project.sponsor_last_name){ %>
-                <%=project.sponsor_last_name %>, <%=project.sponsor_last_name %>
+            <% if(project[0].sponsor_last_name){ %>
+                <%=project[0].sponsor_last_name %>, <%=project[0].sponsor_last_name %>
             <%}%>
            
             </div>
           <div>
             <strong>Prime:</strong> 
-            <% if(project.prime_last_name){ %>
-                <%=project.prime_last_name %>, <%=project.prime_first_name %>
+            <% if(project[0].prime_last_name){ %>
+                <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
             <%}%>
             
           </div>
           <div>
             <strong>Start:</strong> 
-            <% if(project.start_date){ %>
-              <%= project.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+            <% if(project[0].start_date){ %>
+              <%= project[0].start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
             <%}%>
         </div>
           
          
         <div>
           <strong>End:</strong> 
-          <% if(project.end_date){ %>
-            <%= project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+          <% if(project[0].end_date){ %>
+            <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
           <%}%>
       </div>
         
         <div>
           <div>
           <strong>Next Milestone Date:</strong> 
-          <% if(project.next_milestone_date){ %>
-            <%= project.next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+          <% if(project[0].next_milestone_date){ %>
+            <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
           <%}%>
         
         
@@ -96,31 +98,28 @@
           </div>
           <div>
             <strong>Effort:</strong>
-            <%=project.effort %> PH
+            <%=project[0].effort %> PH
                
           
           </div>
           <div style="padding-top:20px;">
             
             <strong>Why:</strong>
-            <textarea class="form-control" id="project_why" rows="3" disabled><%=project.project_why %>
+            <textarea class="form-control" id="project_why" rows="3" disabled><%=project[0].project_why %>
             </textarea>
           
           </div>
           <div style="padding-top:20px;">
             
             <strong>What:</strong>
-            <textarea class="form-control" id="project_what" rows="3" disabled><%=project.project_what %> 
+            <textarea class="form-control" id="project_what" rows="3" disabled><%=project[0].project_what %> 
             </textarea>
            
           </div>
-          <div>
-           <!-- tags -->
-            
-          </div>
+         
          
         </div>
-       
+        
         <div class="clearfix"></div>
       </div>
       
@@ -129,11 +128,86 @@
       
     <div class="col-4">
       
-      
-      <input type="hidden" id="prime_id_fk" name="prime_id_fk" value="<%=project.prime_id_fk %>"/>
+      <input type="hidden" id="status_project_id" name="status_project_id" value="<%=project[0].id %>"/>
+      <input type="hidden" id="prime_id_fk" name="prime_id_fk" value="<%=project[0].prime_id_fk %>"/>
 
       
       <div class="mini-stat clearfix bg-white" style="min-height: 680px;">
+        
+         
+      
+        <div class="mini-stat-info">
+        
+        </div>
+        <br/>
+       <!-- dates -->
+
+        <% if(statuses.accomplishments){%>
+          
+          <%=statuses.accomplishments%><br/>
+          <%}%>
+        <% if (statusColor) { %>
+          <% 
+             let healthStatus = statusColor ? statusColor.trim().toLowerCase() : ''; 
+             if (healthStatus === 'green') { 
+           %>
+               <span style="width: 50px !important;height: 50px !important;" class="green-circle"></span>
+           <% } else if (healthStatus === 'yellow') { %>
+                 <span style="width: 50px !important;height: 50px !important;" class="yellow-circle"></span>
+             <% } else if (healthStatus === 'red') { %>
+                   <span style="width: 50px !important;height: 50px !important;" class="red-circle"></span>
+             <% } %>
+            
+            
+            
+       <% } %>
+          
+        
+      <div style="padding-top:20px;padding-bottom:20px;">
+        <strong>Status Updates:</strong>
+          <br/>
+          <% if (statuses) { %>
+            <% statuses.forEach(function(status) { %>
+                <% 
+                let healthStatus = status && status.health ? status.health.trim().toLowerCase() : ''; 
+                if (healthStatus === 'green') { 
+                %>
+                    <span class="green-circle"></span>
+                <% } else if (healthStatus === 'yellow') { %>
+                    <span class="yellow-circle"></span>
+                <% } else if (healthStatus === 'red') { %>
+                    <span class="red-circle"></span>
+                <% } %>
+                <!--  -->
+                
+                <% if (status.progress) { %>
+                  [<%=status.progress%>%]
+              <% } %><br/>
+              <% if(statuses[0].accomplishments){%>
+          
+                <%=statuses[0].accomplishments%><br/>---------------------------<br/>
+
+                <%}%>
+            
+                <% }); %>
+        <% } %>
+        
+
+       
+      </div>
+      <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
+     
+    </div>
+        
+  </div>
+  
+    
+        
+
+          
+        
+      
+     
         
          
       
@@ -150,7 +224,78 @@
      
 
 </div>
-
+<div class="row"></div>
+  <div class="col-md-6 m-t-30">
+      <!-- project modal content -->
+      <div id="addStatus" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title mt-0">Add Status</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <form action="/statuses" class="needs-validation" novalidate method="POST">
+                      <input type="hidden" name="project_id" id="project_id" value="<%=project[0].id %>"/>
+                      <input type="hidden" name="prime_id" id="prime_id_fk" value="<%=project[0].prime_id_fk %>"/>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <!-- First column of form fields -->
+                                <div class="form-group needs-validation" novalidate>
+                                  
+                                  <strong>Date: </strong><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
+                                  <strong>Prime:</strong><% if(project[0].prime_last_name) %>
+                                  <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
+                                  
+                                
+                              </div>
+                                
+                                <div class="form-group needs-validation" novalidate>
+                                  <strong>Accomplishments:</strong><br/>
+                                  <textarea class="form-control" id="status_accomplishments" name="status_accomplishments" rows="3"></textarea>
+                                
+                              </div>
+                              <div class="form-group needs-validation" novalidate>
+                                <strong>Issues:</strong><br/>
+                                <textarea class="form-control" id="issue" name="issue" rows="3"></textarea>
+                              
+                              </div>
+                              <div class="form-group needs-validation" novalidate>
+                                <strong>Actions:</strong><br/>
+                                <textarea class="form-control" id="action" name="actions" rows="3"></textarea>
+                              
+                            </div>
+                            <div class="form-group needs-validation" novalidate>
+                              <strong>Progress:</strong>
+                              <input type="text" class="form-control" id="progress"  name="progress" >
+                            
+                          </div>
+                          <div class="form-group needs-validation" novalidate>
+                            <strong>Health:</strong>
+                            <select name = "health" id = "health">
+                                <option value="Green">Green</option>
+                                <option value="Yellow">Yellow</option>
+                                <option value="Red">Red</option>
+                              
+                            </select>
+                          
+                        </div>
+                        
+                        
+                      </div>
+                       <!-- Add more rows and columns if needed -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+                            <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    
+  </div>
+    
 
 
 <%- contentFor('FooterJs') %>
