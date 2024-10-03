@@ -129,7 +129,7 @@ exports.login = async  (req, res) => {
   console.log("company:", person.company_id_fk);
 
   const company = await Company.findOne({ id: person.company_id_fk });
-  console.log("company:", company);
+  
   if (company) {
     req.session.company = company;
     req.session.person = person;

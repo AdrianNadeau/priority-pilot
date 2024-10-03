@@ -130,7 +130,7 @@ module.exports = {
           <div class="mini-stat clearfix bg-white">
             <!-- <span class="mini-stat-icon bg-purple mr-0 float-right"><i class="mdi mdi-basket"></i></span> -->
             <div class="mini-stat-info">
-              <span class="counter">Funnel (<%=pitchCount%> , $<%=pitchTotalCost%>)</span>
+              <span class="counter">Funnel (<%=totalPitchCount%> , $<%=pitchTotalCost%> <%=totalPitchPH%> PH)</span>
             </div>
             <div>
               <% projects.forEach(function(project) { %>
@@ -194,7 +194,7 @@ module.exports = {
             <div class="mini-stat clearfix bg-white">
               <!-- <span class="mini-stat-icon bg-purple mr-0 float-right"><i class="mdi mdi-basket"></i></span> -->
               <div class="mini-stat-info">
-                <span class="counter">Discovery (<%=discoveryCount%> , $<%=discoveryTotalCost%> <%=deliveryTotalPH%> PH)</span>
+                <span class="counter">Discovery (<%=totalDiscoveryCount%> , $<%=totalDiscoveryCost%> <%=deliveryTotalPH%> PH)</span>
               </div>
               <div>
                 <% projects.forEach(function(project) { %>
@@ -224,7 +224,7 @@ module.exports = {
           <div class="col-md-6">
             <div class="mini-stat clearfix bg-white">
               <div class="mini-stat-info">
-                <span class="counter">Delivery (<%=deliveryCount%> , $<%=deliveryTotalCost%> , <%=deliveryTotalPH%> PH)</span>
+                <span class="counter">Delivery (<%=totalDeliveryCount%> , $<%=deliveryTotalCost%> , <%=deliveryTotalPH%> PH)</span>
               </div>
               <div>
                 <% projects.forEach(function(project) { %>
@@ -254,7 +254,7 @@ module.exports = {
           <div class="col-12">
             <div class="mini-stat clearfix bg-white">
               <div class="mini-stat-info">
-                <span class="counter">Operations (<%=operationsCount%> , $<%=operationsTotalCost%>)</span>
+                <span class="counter">Operations (<%=totalOperactionsCount%> , $<%=totalOperationsCost%>)</span>
               </div>
               <div>
                 <% projects.forEach(function(project) { %>
@@ -323,16 +323,16 @@ module.exports = {
           <div class="col-md-12 text-center">
               <strong>$$</strong>
               <ul class="list-unstyled">
-                  <li>Full: <%=totalCostSum%></li>
-                  <li>Used: <%=totalCostUsed%></li>
-                  <li>Avail: <%=totalCostLeft%></li>
+                  <li>Full: <%=totalCost%></li>
+                  <li>Used: <%=totalCost%></li>
+                  <li>Avail:<%=totalCost%></li>
               </ul>
               <span>
                   <strong>Effort</strong>
                   <ul class="list-unstyled">
-                      <li>40K PH</li>
-                      <li>35K PH</li>
-                      <li>5K PH</li>
+                      <li><%=totalPH%> PH</li>
+                      <li><%=totalUsedPH%> PH</li>
+                      <li><%=totalLeftPH%> PH</li>
                   </ul>
               </span>
           </div>
