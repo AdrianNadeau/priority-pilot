@@ -130,7 +130,7 @@ module.exports = {
           <div class="mini-stat clearfix bg-white">
             <!-- <span class="mini-stat-icon bg-purple mr-0 float-right"><i class="mdi mdi-basket"></i></span> -->
             <div class="mini-stat-info">
-              <span class="counter">Funnel (<%=totalPitchCount%> , $<%=pitchTotalCost%> <%=totalPitchPH%> PH)</span>
+              <span class="counter">Funnel (<%=totalPitchCount%> , $<%=pitchTotalCost%>)</span>
             </div>
             <div>
               <% projects.forEach(function(project) { %>
@@ -194,7 +194,7 @@ module.exports = {
             <div class="mini-stat clearfix bg-white">
               <!-- <span class="mini-stat-icon bg-purple mr-0 float-right"><i class="mdi mdi-basket"></i></span> -->
               <div class="mini-stat-info">
-                <span class="counter">Discovery (<%=totalDiscoveryCount%> , $<%=totalDiscoveryCost%> <%=deliveryTotalPH%> PH)</span>
+                <span class="counter">Discovery (<%=totalDiscoveryCount%> , $<%=totalDiscoveryCost%> <%=discoveryTotalPH%> PH)</span>
               </div>
               <div>
                 <% projects.forEach(function(project) { %>
@@ -254,7 +254,7 @@ module.exports = {
           <div class="col-12">
             <div class="mini-stat clearfix bg-white">
               <div class="mini-stat-info">
-                <span class="counter">Operations (<%=totalOperactionsCount%> , $<%=totalOperationsCost%>)</span>
+                <span class="counter">Operations (<%=totalOperactionsCount%> , $<%=totalOperationsCost%> <%=operationsTotalPH%> PH)</span>
               </div>
               <div>
                 <% projects.forEach(function(project) { %>
@@ -324,16 +324,12 @@ module.exports = {
               <strong>$$</strong>
               <ul class="list-unstyled">
                   <li>Full: <%=totalCost%></li>
-                  <li>Used: <%=totalCost%></li>
-                  <li>Avail:<%=totalCost%></li>
+                  <li>Used: <%=usedCost%></li>
+                  <li>Avail:<%=availableCost%></li>
               </ul>
               <span>
                   <strong>Effort</strong>
-                  <ul class="list-unstyled">
-                      <li><%=totalPH%> PH</li>
-                      <li><%=totalUsedPH%> PH</li>
-                      <li><%=totalLeftPH%> PH</li>
-                  </ul>
+                  
               </span>
           </div>
       </div>

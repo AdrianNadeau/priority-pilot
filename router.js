@@ -28,67 +28,28 @@ router.get('/', async function (req, res) {
       LEFT JOIN phases ON phases.id = proj.phase_id_fk
       WHERE proj.company_id_fk = ? ORDER BY proj.phase_id_fk;`;
 
-  // Initialize counters and totals for each phase
-  let phaseData = {
-      pitch: { count: 0, totalCost: 0, totalPH: 0 },
-      priority: { count: 0, totalCost: 0, totalPH: 0 },
-      discovery: { count: 0, totalCost: 0, totalPH: 0 },
-      delivery: { count: 0, totalCost: 0, totalPH: 0 },
-      operations: { count: 0, totalCost: 0, totalPH: 0 },
-  };
-
-
   //calcuate tax varialbes
   let totalPitchCount = 0, totalPitchCost = 0, totalPitchPH = 0;
   let totalPriorityCount = 0, totalPriorityCost = 0, totalPriorityPH = 0;
   let totalDiscoveryCount = 0, totalDiscoveryCost = 0, totalDiscoveryPH = 0; 
   let totalDeliveryCount = 0, totalDeliveryCost = 0, totalDeliveryPH = 0; 
   let totalOperactionsCount = 0, totalOperationsCost = 0, totalOperationsPH = 0;
-  let totalCost = 0, totalPH, totalUsedPH, totalLeftPH  = 0;    
+  let totalCost = 0, usedCost = 0, availableCost = 0, totalPH = 0, totalUsedPH = 0, totalPHAvail = 0
  
-  let totalCostLeft = 0;
+  
 
   try {
       const data = await db.sequelize.query(query, {
           replacements: [company_id_fk],
           type: db.sequelize.QueryTypes.SELECT
       });
-    //   data.forEach(function (project) {
-    //     try {
-    //         // Convert project cost and effort
-    //         console.log("project.project_cost:", project.project_cost);
-    //         let projectCost = parseFloat(project.project_cost.toString().replace(/,/g, '')) || 0;
-    //         console.log("projectCost:", projectCost);
-    //         let projectEffortPH = parseInt(project.effort) || 0;
-    //         totalCost += projectCost;
-
-    //         // Categorize based on phase name
-    //         switch (project.phase_name.toLowerCase()) {
-    //             case "pitch":
-    //                 totalPitchCount++;
-    //                 totalPitchCost += projectCost;
-    //                 totalCost += projectCost;
-    //                 totalPitchPH += projectEffortPH;
-    //                 totalPH += projectEffortPH;
-    //                 break;
-    //             // Add other cases here...
-    //         }
-    //     } catch (error) {
-    //         console.log("Error processing project:", error);
-    //     }
-    // });
-    // console.log("totalPitchCount:", totalPitchCount);
-    // console.log("totalPriorityCost:", totalPriorityCost);
-    // console.log("totalDiscoveryCost:", totalDiscoveryCost);
-    // console.log("totalCost:", totalCost);
-    // console.log("totalOperationsCost:", totalOperationsCost);
-
+ 
     // Calculate totalCostLeft (Total cost - Operations cost)
-    totalLeftPH = totalCost - totalOperationsCost;
+    // totalCost = totalCost - totalOperationsCost;
 
     // Format numbers for display
     function formatCost(value) {
-        console.log("Formatting value:", value); // Add logging
+        console.log("VAlUE:", value);
         if (value >= 1000000) {
             return (value / 1000000).toFixed(1) + 'M';
         } else if (value >= 1000) {
@@ -101,11 +62,10 @@ router.get('/', async function (req, res) {
     data.forEach(function (project) {
         try {
             // Convert project cost and effort
-            console.log("project.project_cost:", project.project_cost);
+            
             let projectCost = parseFloat(project.project_cost.toString().replace(/,/g, '')) || 0;
-            console.log("projectCost:", projectCost);
             let projectEffortPH = parseInt(project.effort) || 0;
-            totalCost += projectCost;
+           totalCost += projectCost;
     
             // Categorize based on phase name
             switch (project.phase_name.toLowerCase()) {
@@ -126,7 +86,6 @@ router.get('/', async function (req, res) {
                     totalDiscoveryCost += projectCost;
                     totalDiscoveryPH += projectEffortPH;
                     totalPH += projectEffortPH;
-                    totalUsedPH += projectEffortPH;
                     break;
                 case "delivery":
                     totalDeliveryCount++;
@@ -148,13 +107,25 @@ router.get('/', async function (req, res) {
         } catch (error) {
             console.log("Error processing project:", error);
         }
+        
     });
-    console.log("totalPitchCount:", totalPitchCount);
-    console.log("totalPriorityCost:", totalPriorityCost);
-    console.log("totalDiscoveryCost:", totalDiscoveryCost);
     
+    totalCost=totalPitchCost + totalPriorityCost + totalDiscoveryCost + totalDeliveryCost + totalOperationsCost;
+    console.log("totalCost:", totalCost);
+    usedCost=totalOperationsCost;
+    console.log("usedCost:", usedCost);
+    
+    
+    availableCost=totalCost -  usedCost;
+    console.log("availableCost:", availableCost);
     // Calculate totalCostLeft (Total cost - Operations cost)
-    totalLeftPH = totalCost - totalOperationsCost;
+    
+    usedCost=formatCost(usedCost),
+    
+    availableCost = totalCost - usedCost;
+    
+    availableCost = formatCost(availableCost);
+    totalCost=formatCost(totalCost + totalPriorityCost + totalDiscoveryCost + totalDeliveryCost + totalOperationsCost);
     
     // Render the page with the data
     res.render('Dashboard/dashboard1', {
@@ -169,25 +140,26 @@ router.get('/', async function (req, res) {
         totalDeliveryCount: formatValue(totalDeliveryCount),
         deliveryTotalCost: formatCost(totalDeliveryCost),
         totalOperactionsCount: formatValue(totalOperactionsCount),
-        totalCost: formatCost(totalCost),
-        totalCostLeft: formatCost(totalLeftPH),
-        totalCostUsed: formatCost(totalOperationsCost),
+        totalCost,
+       
         priorityTotalPH: formatValue(totalPriorityPH),
         deliveryTotalPH: formatValue(totalDeliveryPH),
         discoveryTotalPH: formatValue(totalDiscoveryPH),
         operationsTotalPH: formatValue(totalOperationsPH),
-        totalPH: formatValue(totalPH),
+        totalPH,
         totalUsedPH: formatValue(totalUsedPH),
-        totalLeftPH,
         totalDeliveryCount,
         totalDiscoveryCount,
-        totalOperationsCost
+        totalOperationsCost,
+        usedCost,
+        availableCost: formatCost(availableCost),
+        
     });
     
     // Helper function to format cost values
     
 function formatCost(value) {
-    console.log("FORMAT COST:", value); // Add logging
+    // console.log("FORMAT COST:", value); // Add logging
     if (value >= 1000000000) {
         return (value / 1000000000).toFixed(1) + 'B';
     } else if (value >= 1000000) {
@@ -196,7 +168,7 @@ function formatCost(value) {
         console.log("add a K")
         return (value / 1000).toFixed(1) + 'K';
     } else {
-        return value.toFixed(1);
+        return 0;
     }
 }
     
