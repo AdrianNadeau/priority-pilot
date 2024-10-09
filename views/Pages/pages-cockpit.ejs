@@ -54,10 +54,9 @@
           <div>
             <strong>Sponsor:</strong> 
             <% if(project[0].sponsor_last_name){ %>
-                <%=project[0].sponsor_last_name %>, <%=project[0].sponsor_last_name %>
+                <%=project[0].sponsor_last_name %>, <%=project[0].sponsor_first_name %>
             <%}%>
            
-            </div>
           <div>
             <strong>Prime:</strong> 
             <% if(project[0].prime_last_name){ %>
@@ -105,14 +104,14 @@
           <div style="padding-top:20px;">
             
             <strong>Why:</strong>
-            <textarea class="form-control" id="project_why" rows="3" disabled><%=project[0].project_why %>
+            <textarea class="form-control" id="project_why" rows="8" disabled><%=project[0].project_why %>
             </textarea>
           
           </div>
           <div style="padding-top:20px;">
             
             <strong>What:</strong>
-            <textarea class="form-control" id="project_what" rows="3" disabled><%=project[0].project_what %> 
+            <textarea class="form-control" id="project_what" rows="8" disabled><%=project[0].project_what %> 
             </textarea>
            
           </div>

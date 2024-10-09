@@ -130,7 +130,7 @@ module.exports = {
           <div class="mini-stat clearfix bg-white">
             <!-- <span class="mini-stat-icon bg-purple mr-0 float-right"><i class="mdi mdi-basket"></i></span> -->
             <div class="mini-stat-info">
-              <span class="counter">Funnel (<%=totalPitchCount%> , $<%=pitchTotalCost%>)</span>
+              <span class="counter">Funnel (<%=totalPitchCount%> , $<%=pitchTotalCost%> <%=totalPitchPH%> PH)</span>
             </div>
             <div>
               <% projects.forEach(function(project) { %>
@@ -155,35 +155,24 @@ module.exports = {
             </div>
             <div>
               <% projects.forEach(function(project) { %>
-                <% if (project.phase_name && project.phase_name.trim() === 'Priority') { %>
-                  <%
-                    var buttonStyle = 'btn btn-light text-left';
-                    var borderColor = '';
-                    
-                    switch (project.health && project.health.trim()) {
-                      case 'Green':
-                        borderColor = 'green';
-                        break;
-                      case 'Yellow':
-                        borderColor = 'yellow';
-                        break;
-                      case 'Red':
-                        borderColor = 'red';
-                        break;
-                      default:
-                        buttonStyle = 'btn btn-light';
-                    }
-                  %>
+                
+                <% if (project.phase_name === 'Priority') { %>
+                  <% let borderColor = 'black'; %>
+                  <% if (project.health && project.health.trim() === "green") { %>
+                    <% borderColor = 'green'; %>
+                  <% } else if (project.health && project.health.trim() === "yellow") { %>
+                    <% borderColor = 'yellow'; %>
+                  <% } else if (project.health && project.health.trim() === "red") { %>
+                    <% borderColor = 'red'; %>
+                  <% } %>
                   <span>
                     <button type="button" onclick="loadProject('<%= project.id %>')" 
-                      style="width: 100%; border-color: <%= borderColor %>; border-size: 2px; margin-bottom: 5px;" 
-                      class="<%= buttonStyle %>">
+                      style="width: 100%; border-color: <%= borderColor %>; border-width: 1px !important;" 
+                      class="mission-phase-button">
                       <%= project.project_name %>
-                    </button>
                   </span>&nbsp;&nbsp;&nbsp;
                 <% } %>
               <% }); %>
-              
                
 
             </div>
@@ -191,70 +180,83 @@ module.exports = {
           </div>
         </div>
         <div class="col-md-6">
-            <div class="mini-stat clearfix bg-white">
-              <!-- <span class="mini-stat-icon bg-purple mr-0 float-right"><i class="mdi mdi-basket"></i></span> -->
-              <div class="mini-stat-info">
-                <span class="counter">Discovery (<%=totalDiscoveryCount%> , $<%=totalDiscoveryCost%> <%=discoveryTotalPH%> PH)</span>
-              </div>
-              <div>
-                <% projects.forEach(function(project) { %>
-                  <% if (project.phase_name === 'Discovery') { %>
-                    <% let borderColor = 'black'; %>
-                    <% if (project.health && project.health.trim() === "Green") { %>
-                      <% borderColor = 'green'; %>
-                    <% } else if (project.health && project.health.trim() === "Yellow") { %>
-                      <% borderColor = 'yellow'; %>
-                    <% } else if (project.health && project.health.trim() === "Red") { %>
-                      <% borderColor = 'red'; %>
-                    <% } %>
-                    <span>
-                      <button type="button" onclick="loadProject('<%= project.id %>')" 
-                              style="width: 100%; border-color: <%= borderColor %>; border-width: 2px; margin-bottom: 5px;" 
-                              class="btn btn-light text-left">
-                        <%= project.project_name %>
-                      </button>
-                    </span>&nbsp;&nbsp;&nbsp;
-                  <% } %>
-                <% }); %>
-                
-              </div>
-              <div class="clearfix"></div>
+          <div class="mini-stat clearfix bg-white">
+            <div class="mini-stat-info">
+              <span class="counter">Discovery (<%=totalDeliveryCount%> , $<%=deliveryTotalCost%> <%=discoveryTotalPH%> PH)</span>
             </div>
-          </div>
-          <div class="col-md-6">
-            <div class="mini-stat clearfix bg-white">
-              <div class="mini-stat-info">
-                <span class="counter">Delivery (<%=totalDeliveryCount%> , $<%=deliveryTotalCost%> , <%=deliveryTotalPH%> PH)</span>
-              </div>
-              <div>
-                <% projects.forEach(function(project) { %>
-                  <% if (project.phase_name === 'Delivery') { %>
-                    <% let borderColor = 'black'; %>
-                    <% if (project.health && project.health.trim() === "Green") { %>
-                      <% borderColor = 'green'; %>
-                    <% } else if (project.health && project.health.trim() === "Yellow") { %>
-                      <% borderColor = 'yellow'; %>
-                    <% } else if (project.health && project.health.trim() === "Red") { %>
-                      <% borderColor = 'red'; %>
-                    <% } %>
-                    <span>
-                      <button type="button" onclick="loadProject('<%= project.id %>')" 
-                              style="width: 100%; border-color: <%= borderColor %>; border-width: 2px; margin-bottom: 5px;" 
-                              class="btn btn-light text-left">
-                        <%= project.project_name %>
-                      </button>
-                    </span>&nbsp;&nbsp;&nbsp;
-                  <% } %>
-                <% }); %>
+            <div>
+              <% projects.forEach(function(project) { %>
                 
-              </div>
-              <div class="clearfix"></div>
+                <% if (project.phase_name === 'Discovery') { %>
+                  <% let borderColor = 'black'; %>
+                  <% if (project.health && project.health.trim() === "Green") { %>
+                    <% borderColor = 'green'; %>
+                  <% } else if (project.health && project.health.trim() === "Yellow") { %>
+                    <% borderColor = 'yellow'; %>
+                  <% } else if (project.health && project.health.trim() === "Red") { %>
+                    <% borderColor = 'red'; %>
+                  <% } %>
+                  <span>
+                    <button type="button" onclick="loadProject('<%= project.id %>')" 
+                      style="width: 100%; border-color: <%= borderColor %>; border-width: 2px !important;" class="mission-phase-button">
+                      <%= project.project_name %>
+                  </span>&nbsp;&nbsp;&nbsp;
+                <% } %>
+              <% }); %>
             </div>
+            <div class="clearfix"></div>
           </div>
+        </div>
+        
+        <!-- Move Delivery to a new column on the right -->
+        <div class="col-md-6">
+          <div class="mini-stat clearfix bg-white">
+            <div class="mini-stat-info">
+              <span class="counter">Delivery (<%=totalDeliveryCount%>, $<%=deliveryTotalCost%>, <%=deliveryTotalPH%> PH)</span>
+            </div>
+            <div>
+              <% projects.forEach(function(project) { %>
+                <% if (project.phase_name && project.phase_name.trim() === 'Delivery') { %>
+                  <%
+                    let healthStatus = project.health && project.health.trim().toLowerCase();
+                    console.log("healthStatus: ", healthStatus);
+                    switch (healthStatus) {
+                      case 'green':
+                        borderColor = 'green';
+                        console.log("borderColor: ", borderColor);
+                        break;
+                      case 'yellow':
+                        borderColor = 'yellow';
+                        console.log("borderColor: ", borderColor);
+                        break;
+                      case 'Red':
+                        borderColor = 'red';
+                        console.log("RED borderColor: ", borderColor);
+                        break;
+                     
+                    }
+                   
+                    
+                  %>
+                  <span>
+                    <button type="button" onclick="loadProject('<%= project.id %>')" 
+                      style="width: 100%; border-color: <%= borderColor %>; border-width: 2px !important;" 
+                      class="mission-phase-button">
+                      <%= project.project_name %>
+                    </button>
+                  </span>&nbsp;&nbsp;&nbsp;
+                <% } %>
+              <% }); %>
+            </div>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+        
+          
           <div class="col-12">
             <div class="mini-stat clearfix bg-white">
               <div class="mini-stat-info">
-                <span class="counter">Operations (<%=totalOperactionsCount%> , $<%=totalOperationsCost%> <%=operationsTotalPH%> PH)</span>
+                <span class="counter">Operations (<%=totalOperactionsCount%> , $<%=totalOperationsCost%>)</span>
               </div>
               <div>
                 <% projects.forEach(function(project) { %>
@@ -324,12 +326,16 @@ module.exports = {
               <strong>$$</strong>
               <ul class="list-unstyled">
                   <li>Full: <%=totalCost%></li>
-                  <li>Used: <%=usedCost%></li>
-                  <li>Avail:<%=availableCost%></li>
+                  <li>Used: <%=totalCost%></li>
+                  <li>Avail:<%=totalCost%></li>
               </ul>
               <span>
                   <strong>Effort</strong>
-                  
+                  <ul class="list-unstyled">
+                      <li><%=totalPH%> PH</li>
+                      <li><%=totalUsedPH%> PH</li>
+                      <li><%=availableCost%> PH</li>
+                  </ul>
               </span>
           </div>
       </div>

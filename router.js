@@ -28,77 +28,67 @@ router.get('/', async function (req, res) {
       LEFT JOIN phases ON phases.id = proj.phase_id_fk
       WHERE proj.company_id_fk = ? ORDER BY proj.phase_id_fk;`;
 
-  //calcuate tax varialbes
+  //calcuate tax varialbestotalPH
   let totalPitchCount = 0, totalPitchCost = 0, totalPitchPH = 0;
   let totalPriorityCount = 0, totalPriorityCost = 0, totalPriorityPH = 0;
   let totalDiscoveryCount = 0, totalDiscoveryCost = 0, totalDiscoveryPH = 0; 
   let totalDeliveryCount = 0, totalDeliveryCost = 0, totalDeliveryPH = 0; 
   let totalOperactionsCount = 0, totalOperationsCost = 0, totalOperationsPH = 0;
-  let totalCost = 0, usedCost = 0, availableCost = 0, totalPH = 0, totalUsedPH = 0, totalPHAvail = 0
+  let totalCost = 0, usedCost = 0, availableCost = 0, totalPH = 0, totalUsedPH = 0, totalAvail = 0
  
-  
+
 
   try {
       const data = await db.sequelize.query(query, {
           replacements: [company_id_fk],
           type: db.sequelize.QueryTypes.SELECT
       });
- 
+  let borderColor = "#000000";
     // Calculate totalCostLeft (Total cost - Operations cost)
-    // totalCost = totalCost - totalOperationsCost;
-
-    // Format numbers for display
-    function formatCost(value) {
-        console.log("VAlUE:", value);
-        if (value >= 1000000) {
-            return (value / 1000000).toFixed(1) + 'M';
-        } else if (value >= 1000) {
-            return (value / 1000).toFixed(1) + 'K';
-        } else {
-            return value.toFixed(1);
-        }
-    }
-
     data.forEach(function (project) {
         try {
             // Convert project cost and effort
             
             let projectCost = parseFloat(project.project_cost.toString().replace(/,/g, '')) || 0;
             let projectEffortPH = parseInt(project.effort) || 0;
-           totalCost += projectCost;
-    
+            totalCost += projectCost;
+            totalPH+=projectEffortPH;
+
             // Categorize based on phase name
             switch (project.phase_name.toLowerCase()) {
                 case "pitch":
                     totalPitchCount++;
                     totalPitchCost += projectCost;
                     totalPitchPH += projectEffortPH;
-                    totalPH += projectEffortPH;
+                    totalPH += totalPitchPH;
+                    
                     break;
                 case "priority":
                     totalPriorityCount++;
                     totalPriorityCost += projectCost;
                     totalPriorityPH += projectEffortPH;
-                    totalPH += projectEffortPH;
+                    totalPH += totalPriorityPH;
                     break;
                 case "discovery":
+                    
                     totalDiscoveryCount++;
                     totalDiscoveryCost += projectCost;
                     totalDiscoveryPH += projectEffortPH;
-                    totalPH += projectEffortPH;
+                    totalPH += totalDiscoveryPH;
+                    
                     break;
                 case "delivery":
                     totalDeliveryCount++;
                     totalDeliveryCost += projectCost;
                     totalDeliveryPH += projectEffortPH;
-                    totalPH += projectEffortPH;
+                    totalPH += totalDeliveryPH;
                     totalUsedPH += projectEffortPH;
                     break;
                 case "operations":
                     totalOperactionsCount++;
                     totalOperationsCost += projectCost;
                     totalOperationsPH += projectEffortPH;
-                    totalPH += projectEffortPH;
+                    totalPH += totalOperationsPH;
                     totalUsedPH += projectEffortPH;
                     break;
                 default:
@@ -110,22 +100,18 @@ router.get('/', async function (req, res) {
         
     });
     
-    totalCost=totalPitchCost + totalPriorityCost + totalDiscoveryCost + totalDeliveryCost + totalOperationsCost;
-    console.log("totalCost:", totalCost);
-    usedCost=totalOperationsCost;
-    console.log("usedCost:", usedCost);
+    totalCost=totalPriorityCost + totalDiscoveryCost + totalDeliveryCost + totalOperationsCost;
+    usedCost=totalCost-totalOperationsCost;
+    availableCost=totalCost-usedCost;
+    totalPH=totalPriorityPH + totalDiscoveryPH + totalDeliveryPH + totalOperationsPH;
+    totalUsedPH = totalPH - totalOperationsPH;
+    totalAvail = totalPH-totalUsedPH;
+    totalPH=formatValue(totalPH)
     
-    
-    availableCost=totalCost -  usedCost;
-    console.log("availableCost:", availableCost);
     // Calculate totalCostLeft (Total cost - Operations cost)
-    
     usedCost=formatCost(usedCost),
     
-    availableCost = totalCost - usedCost;
-    
-    availableCost = formatCost(availableCost);
-    totalCost=formatCost(totalCost + totalPriorityCost + totalDiscoveryCost + totalDeliveryCost + totalOperationsCost);
+    totalCost=formatCost(totalCost);
     
     // Render the page with the data
     res.render('Dashboard/dashboard1', {
@@ -141,39 +127,28 @@ router.get('/', async function (req, res) {
         deliveryTotalCost: formatCost(totalDeliveryCost),
         totalOperactionsCount: formatValue(totalOperactionsCount),
         totalCost,
-       
         priorityTotalPH: formatValue(totalPriorityPH),
         deliveryTotalPH: formatValue(totalDeliveryPH),
         discoveryTotalPH: formatValue(totalDiscoveryPH),
         operationsTotalPH: formatValue(totalOperationsPH),
-        totalPH,
+        totalPH: formatValue(totalPH),
         totalUsedPH: formatValue(totalUsedPH),
+        totalAvail: formatValue(totalAvail),
         totalDeliveryCount,
         totalDiscoveryCount,
         totalOperationsCost,
         usedCost,
         availableCost: formatCost(availableCost),
+        totalPitchPH: formatValue(totalPitchPH),
+        borderColor: borderColor
+       
         
     });
-    
-    // Helper function to format cost values
-    
-function formatCost(value) {
-    // console.log("FORMAT COST:", value); // Add logging
-    if (value >= 1000000000) {
-        return (value / 1000000000).toFixed(1) + 'B';
-    } else if (value >= 1000000) {
-        return (value / 1000000).toFixed(1) + 'M';
-    } else if (value >= 1000) {
-        console.log("add a K")
-        return (value / 1000).toFixed(1) + 'K';
-    } else {
-        return 0;
-    }
-}
-    
+
+
     // Helper function to format values with commas
     function formatValue(value) {
+        
         if (value === undefined || value === null) {
             return '0';
         }
@@ -184,6 +159,20 @@ function formatCost(value) {
       res.status(500).send("Internal Server Error");
   }
 });
+    
+    
+const formatCost = (cost) => {
+    if (cost >= 1000000000) {
+        return `${(cost / 1000000000).toFixed(1)}B`;
+    }
+    if (cost >= 1000000) {
+        return `${(cost / 1000000).toFixed(1)}M`;
+    }
+    if (cost >= 1000) {
+        return `${(cost / 1000).toFixed(1)}K`;
+    }
+    return 0;
+};
 // Helper function to format cost values
 
 module.exports = router;
