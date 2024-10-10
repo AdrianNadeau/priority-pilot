@@ -26,31 +26,17 @@
     <div class="container-fluid">
 
         <div class="row">
-            <div class="text-left col-lg-6">
-                <div>
-                            
-                    <strong>$$</strong><br/>
-                        Full: $1.5M<br/>
-                        Used: $1.1M<br/>
-                        Avail: $0.4M
-                    </div>
-                   
-                   
-                       
-                    <strong>EFFORT</strong><br/>
-                        40K PH<br/>
-                        35K PH<br/>
-                        5K PH
-                    </div>
-                <!-- <div class="card-body text-center">
+            <div class="col-lg-12">
+<!--                 
+                <div class="card-body text-center">
                     <canvas id="humpChart" width="500" height="100"></canvas>
                 </div>
-                 -->
                 
+                 -->
             </div>
         </div>
         <div class="row">
-            <!-- <div class="col-lg-6">
+            <!-- <div class="col-lg-3">
                 
                 <div class="card-body">
                     ACT:		12.5 Weeks<br/>
@@ -69,48 +55,73 @@
 
                 </div>
             </div>-->
-           
+            <div class="col-lg-3">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="text-align: center; flex: 1; padding-right: 10px;">
+                            <strong>$$</strong><br/>
+                            Full: $1.5M<br/>
+                            Used: $1.1M<br/>
+                            Avail: $0.4M
+                        </div>
+                        <div style="text-align: center; flex: 1;">
+                            <strong>EFFORT</strong><br/>
+                            40K PH<br/>
+                            35K PH<br/>
+                            5K PH
+                        </div>
+                    </div>
+                </div>
+            </div>
             
         </div>
-        <div class="row">
-            <div class="col-lg-3 text-align:center">
-                
-                <div class="card-body text-align:center">
+                <div class="row">
+            <div class="col-lg-2 text-center">
+                <div class="card-body p-2">
+                    <strong>Funnel</strong>
+                    <br>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea; margin-bottom: 5px; width: 120px; height: 50px;"><%= pitchCount %></button>
+                    <br/>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea; margin-bottom: 5px; width: 120px; height: 50px;">$<%= pitchCost %></button>
+                </div>
+            </div>
+            <div class="col-lg-2 text-center">
+                <div class="card-body p-2">
                     <strong>Priority</strong>
                     <br>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px"><%= phase_2_count %></button>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea; margin-bottom: 5px; width: 120px; height: 50px;"><%= priorityCount %></button>
                     <br/>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">$<%=phase_2_total_cost%></button>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea; margin-bottom: 5px; width: 120px; height: 50px;">$<%= priorityCost %></button>
                 </div>
             </div>
-            <div class="col-lg-3">
-                
-                <div class="card-body text-align:center">
-                    <strong>In Flight</strong>
+            <div class="col-lg-2 text-center">
+                <div class="card-body p-2">
+                    <strong>Discovery</strong>
                     <br>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px"><%= in_flight_count %></button>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea; margin-bottom: 5px; width: 120px; height: 50px;"><%= discoveryCount %></button>
                     <br/>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">$<%= in_flight_cost%></button>
-                    
-                    
-
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea; margin-bottom: 5px; width: 120px; height: 50px;">$<%= discoveryCost %></button>
                 </div>
             </div>
-            <div class="col-lg-3">
-                <div class="card-body text-align:center">
+            <div class="col-lg-2 text-center">
+                <div class="card-body p-2">
+                    <strong>Delivery</strong>
+                    <br>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea; margin-bottom: 5px; width: 120px; height: 50px;"><%= deliveryCount %></button>
+                    <br/>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea; margin-bottom: 5px; width: 120px; height: 50px;">$<%= deliveryCost %></button>
+                </div>
+            </div>
+            <div class="col-lg-2 text-center">
+                <div class="card-body p-2">
                     <strong>Complete</strong>
                     <br>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px; width:100px"><%= phase_5_count%></button>
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea; margin-bottom: 5px; width: 120px; height: 50px;"><%= operationsCount %></button>
                     <br/>
-                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea;margin-bottom: 5px;width:100px">$<%= phase_5_total_cost%></button>
-                    
-                    
-
+                    <button type="button" class="btn btn-light" style="background-color:#e2e6ea;border-color:#e2e6ea; margin-bottom: 5px; width: 120px; height: 50px;">$<%= operationsCost %></button>
                 </div>
             </div>
-            
         </div>
-    </div>
 </div>
 
 

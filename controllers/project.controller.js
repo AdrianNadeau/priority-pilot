@@ -441,33 +441,42 @@ exports.radar = async (req, res) => {
     }
 
     // Pass the result to the EJS template
-    const phase1Count = Number(data[0].phase_1_count);
-    console.log("phase1Count:",phase1Count);
-    const phase2Count = Number(data[0].phase_2_count);
-    console.log("phase2Count:",phase2Count);
-    const phase3Count = Number(data[0].phase_3_count);
-    console.log("phase3Count:",phase3Count);
-    const phase4Count = Number(data[0].phase_4_count);
-    console.log("phase4Count:",phase3Count);
-    // Extract and log raw data
-    const phase2TotalCost = Number(data[0].phase_2_total_cost) || 0;
-    console.log("phase2TotalCost:",phase2TotalCost);
-    const phase3TotalCost = Number(data[0].phase_3_total_cost) || 0;
-    console.log("phase3TotalCost:",phase3TotalCost);
-    const phase4TotalCost = Number(data[0].phase_4_total_cost) || 0;
-    console.log("phase4TotalCost:",phase4TotalCost);
-    const in_flight_count= phase3Count+ phase4Count;
-    console.log("flight count:",Number(in_flight_count) || 0);
-    const in_flight_cost = phase3TotalCost + phase4TotalCost;
-    console.log("********************************in_flight_cost:",in_flight_cost);
+    const pitchCount = Number(data[0].phase_1_count);
+    const priorityCount = Number(data[0].phase_2_count);
+    const discoveryCount = Number(data[0].phase_3_count);
+    const deliveryCount = Number(data[0].phase_3_count);
+    const operationsCount = Number(data[0].phase_4_count);
+    const pitchTotalCost = Number(data[0].phase_1_total_cost) || 0;
+    const priorityTotalCost = Number(data[0].phase_2_total_cost) || 0;
+    const discoveryCost = Number(data[0].phase_3_total_cost) || 0;
+    const deliveryTotalCost = Number(data[0].phase_4_total_cost) || 0;
+    const operationsTotalCost = Number(data[0].phase_5_total_cost) || 0;
+    const totalCost = pitchTotalCost + priorityTotalCost + discoveryCost + deliveryTotalCost + operationsTotalCost;
+    const usedCost = totalCost - operationsTotalCost;
+    const avalCost = totalCost - usedCost;
+    const in_flight_count = priorityTotalCost + discoveryCount + deliveryCount;
+    const in_flight_cost = priorityTotalCost + discoveryCost + deliveryTotalCost;
+    // console.log("flight count:",Number(in_flight_count) || 0);
+    
     res.render("Pages/pages-radar", {
-      phase_2_count: data[0].phase_2_count,
+      pitchCount,
+      priorityCount,
+      discoveryCount,
+      operationsCount:in_flight_count,
+      pitchCost: pitchTotalCost,
+      priorityCost: priorityTotalCost,
       in_flight_count: in_flight_count,
-      phase_5_count: data[0].phase_5_count,
-      phase_2_total_cost: data[0].phase_2_total_cost,
+      operationsCost: data[0].phase_5_count,
+      // phase_2_total_cost: data[0].phase_2_total_cost,
       in_flight_cost:in_flight_cost,
-      phase_5_total_count:  phase4Count,
-      phase_5_total_cost: data[0].phase_5_total_cost,
+      operationsCount,
+      operationsTotalCost,
+      totalCost,
+      usedCost,
+      avalCost,
+      deliveryCount,
+      deliveryCost: deliveryTotalCost,
+      discoveryCost:deliveryTotalCost
     });
   } catch (error) {
     console.log("Query error:", error);
