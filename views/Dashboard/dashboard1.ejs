@@ -134,12 +134,13 @@ module.exports = {
             </div>
             <div>
               <% projects.forEach(function(project) { %>
-                <% if(project.phase_name == 'Pitch') { %>
+                <% if(project.phase_name.trim() == 'Pitch') { %>
                   
-                  <span><button type="button" class="btn btn-light" onclick="loadProject('<%= project.id %>')" style="margin-bottom: 5px; border-color:black;"><%= project.project_name %></button></span>&nbsp;&nbsp;&nbsp;
+                  <span><button type="button" class="btn btn-light" onclick="loadProject('<%= project.id %>')" style="margin-bottom: 5px;"><%= project.project_name %></button></span>&nbsp;&nbsp;&nbsp;
                  
                 <% } %>
               <% }); %>
+             
               &nbsp;&nbsp;&nbsp;
 
             </div>
@@ -188,11 +189,11 @@ module.exports = {
                 
                 <% if (project.phase_name === 'Discovery') { %>
                   <% let borderColor = 'black'; %>
-                  <% if (project.health && project.health.trim() === "Green") { %>
+                  <% if (project.health && project.health.trim().toLowerCase === "green") { %>
                     <% borderColor = 'green'; %>
-                  <% } else if (project.health && project.health.trim() === "Yellow") { %>
+                  <% } else if (project.health && project.health.trim().toLowerCase === "yellow") { %>
                     <% borderColor = 'yellow'; %>
-                  <% } else if (project.health && project.health.trim() === "Red") { %>
+                  <% } else if (project.health && project.health.trim().toLowerCase === "red") { %>
                     <% borderColor = 'red'; %>
                   <% } %>
                   <span>
@@ -219,7 +220,7 @@ module.exports = {
                   <%
                     let healthStatus = project.health && project.health.trim().toLowerCase();
                     console.log("healthStatus: ", healthStatus);
-                    switch (healthStatus) {
+                    switch (healthStatus.toLowerCase) {
                       case 'green':
                         borderColor = 'green';
                         console.log("borderColor: ", borderColor);
@@ -234,7 +235,7 @@ module.exports = {
                         break;
                      
                     }
-                    console.log("borderColor: ", borderColor);
+                   
                     
                   %>
                   <span>
@@ -269,11 +270,10 @@ module.exports = {
                       <% borderColor = 'red'; %>
                     <% } %>
                     <span>
-                      <button type="button" 
-                          onclick="loadProject('<%= project.id %>')" 
-                          style="width: 100%; border-color: <%= borderColor %>; border-width: 2px; margin-bottom: 5px;" 
-                          class="btn btn-light text-left">
-                      <%= project.project_name %>
+                      
+                      <button type="button" class="btn btn-light" onclick="loadProject('<%= project.id %>')" style="margin-bottom: 5px;"><%= project.project_name %></button></span>&nbsp;&nbsp;&nbsp;
+                      
+                      
                   </button>
                     </span>&nbsp;&nbsp;&nbsp;
                   <% } %>
@@ -288,7 +288,7 @@ module.exports = {
         <div class="col-md-2">
   <div class="mini-stat clearfix bg-white text-center">
     <div>
-      <!-- <div>
+      <div>
         <button
           type="button"
           style="width: 75%; margin-bottom: 5px; border-width:2px;border-color:black;"
@@ -314,7 +314,7 @@ module.exports = {
           onClick=loadHealth()>
           Health
         </button>
-      </div> -->
+      </div>
       <div class="col-6">
       
       </div>
@@ -325,15 +325,15 @@ module.exports = {
               <strong>$$</strong>
               <ul class="list-unstyled">
                   <li>Full: <%=totalCost%></li>
-                  <li>Used: <%=totalCost%></li>
-                  <li>Avail:<%=totalCost%></li>
+                  <li>Used: <%=usedCost%></li>
+                  <li>Avail:<%=availableCost%></li>
               </ul>
               <span>
                   <strong>Effort</strong>
                   <ul class="list-unstyled">
-                      <li><%=totalPH%> PH</li>
-                      <li><%=totalUsedPH%> PH</li>
-                      <li><%=availableCost%> PH</li>
+                      <li>Full: <%=totalPH%> PH</li>
+                      <li>Used: <%=totalUsedPH%> PH</li>
+                      <li>Avail: <%=totalAvailPH%> PH</li>
                   </ul>
               </span>
           </div>

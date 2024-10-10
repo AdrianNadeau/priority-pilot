@@ -34,7 +34,7 @@ router.get('/', async function (req, res) {
   let totalDiscoveryCount = 0, totalDiscoveryCost = 0, totalDiscoveryPH = 0; 
   let totalDeliveryCount = 0, totalDeliveryCost = 0, totalDeliveryPH = 0; 
   let totalOperactionsCount = 0, totalOperationsCost = 0, totalOperationsPH = 0;
-  let totalCost = 0, usedCost = 0, availableCost = 0, totalPH = 0, totalUsedPH = 0, totalAvail = 0
+  let totalCost = 0, usedCost = 0, availableCost = 0, totalPH = 0, totalUsedPH = 0, totalAvailPH = 0
  
 
 
@@ -100,14 +100,20 @@ router.get('/', async function (req, res) {
         
     });
     
-    totalCost=totalPriorityCost + totalDiscoveryCost + totalDeliveryCost + totalOperationsCost;
+    totalCost=totalPitchCost +totalPriorityCost + totalDiscoveryCost + totalDeliveryCost + totalOperationsCost;
+    console.log(totalCost)
     usedCost=totalCost-totalOperationsCost;
+    console.log(usedCost)
     availableCost=totalCost-usedCost;
-    totalPH=totalPriorityPH + totalDiscoveryPH + totalDeliveryPH + totalOperationsPH;
-    totalUsedPH = totalPH - totalOperationsPH;
-    totalAvail = totalPH-totalUsedPH;
-    totalPH=formatValue(totalPH)
+    console.log(availableCost)
+    totalPH=totalPitchPH + totalPriorityPH + totalDiscoveryPH + totalDeliveryPH + totalOperationsPH;
     
+    totalUsedPH = totalPH - totalOperationsPH;
+   
+    totalAvailPH = totalPH-totalUsedPH;
+    
+    
+   
     // Calculate totalCostLeft (Total cost - Operations cost)
     usedCost=formatCost(usedCost),
     
@@ -131,9 +137,9 @@ router.get('/', async function (req, res) {
         deliveryTotalPH: formatValue(totalDeliveryPH),
         discoveryTotalPH: formatValue(totalDiscoveryPH),
         operationsTotalPH: formatValue(totalOperationsPH),
-        totalPH: formatValue(totalPH),
-        totalUsedPH: formatValue(totalUsedPH),
-        totalAvail: formatValue(totalAvail),
+        totalPH: totalPH,
+        totalUsedPH: totalUsedPH,
+        totalAvailPH: totalAvailPH,
         totalDeliveryCount,
         totalDiscoveryCount,
         totalOperationsCost,

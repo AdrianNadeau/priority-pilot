@@ -195,7 +195,7 @@ exports.findOne = (req, res) => {
    
 };
 exports.cockpit = async (req, res) => {
- 
+ console.log("cockpit:",req.params.id);
   const project_id = req.params.id;
   
   let company_id_fk;
@@ -228,6 +228,7 @@ exports.cockpit = async (req, res) => {
             sponsor_person.first_name AS sponsor_first_name, 
             sponsor_person.last_name AS sponsor_last_name, 
             proj.project_cost, 
+            proj.tags,
             phases.phase_name
         FROM projects proj 
         LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk 
@@ -262,7 +263,7 @@ exports.cockpit = async (req, res) => {
     let lastStatusDate = null;
     let statusColor=null;
     if(statuses){
-      
+
       if (statuses.length > 0) {
           lastStatusDate = statuses[0].status_date;
           statusColor=statuses[0].health;
@@ -273,7 +274,7 @@ exports.cockpit = async (req, res) => {
           statusColor="green"
       }
     }
-    console.log("statusColor",statusColor);
+    console.log("project",data);
     res.render('Pages/pages-cockpit', {
         project: data,
         current_date: currentDate,
@@ -328,7 +329,7 @@ exports.findOneForEdit = async (req, res) => {
         replacements: [company_id_fk, project_id],
         type: db.sequelize.QueryTypes.SELECT
       });
-      console.log("data:",data);
+      
       if (!data || data.length === 0) {
         return res.status(404).send({ message: "Project not found" });
       }
@@ -456,17 +457,17 @@ exports.radar = async (req, res) => {
     const phase4TotalCost = Number(data[0].phase_4_total_cost) || 0;
     console.log("phase4TotalCost:",phase4TotalCost);
     const in_flight_count= phase3Count+ phase4Count;
-    console.log("flight count:",in_flight_count);
-    const in_flight_cost = formatValue(phase3TotalCost + phase4TotalCost);
+    console.log("flight count:",Number(in_flight_count) || 0);
+    const in_flight_cost = phase3TotalCost + phase4TotalCost;
     console.log("********************************in_flight_cost:",in_flight_cost);
     res.render("Pages/pages-radar", {
       phase_2_count: data[0].phase_2_count,
       in_flight_count: in_flight_count,
       phase_5_count: data[0].phase_5_count,
-      phase_2_total_cost: formatValue(data[0].phase_2_total_cost),
+      phase_2_total_cost: data[0].phase_2_total_cost,
       in_flight_cost:in_flight_cost,
       phase_5_total_count:  phase4Count,
-      phase_5_total_cost: formatValue(data[0].phase_5_total_cost),
+      phase_5_total_cost: data[0].phase_5_total_cost,
     });
   } catch (error) {
     console.log("Query error:", error);
@@ -542,7 +543,6 @@ ORDER BY
       return res.status(404).send({ message: "Project Health not found" });
     }
     const startDateTest = insertValidDate(data);
-    console.log("data:",data);
     // Pass the result to the EJS template
     res.render("Pages/pages-flight-plan", {
       start_date: startDateTest,
@@ -576,9 +576,6 @@ exports.update = (req, res) => {
     console.log("error:",error);
   }
   const id = req.params.id;
-  console.log("UPDATE PROJECT",id);
-   
-    
 
   // Ensure session exists and fetch company ID
   if (!req.session || !req.session.company) {
@@ -591,7 +588,6 @@ exports.update = (req, res) => {
   const changeDateTest = insertValidDate(req.body.change_date);
   company_id_fk = req.session.company.id;
   const change_reason=req.body.change_reason;
-  console.log("change_reason:",change_reason);
   // Create a Project
   const project = {
     company_id_fk : company_id_fk,
