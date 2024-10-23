@@ -204,6 +204,7 @@ exports.cockpit = async (req, res) => {
       return res.redirect("/pages-500");
     } else {
       company_id_fk = req.session.company.id;
+      console.log("********************************* COCKPIT COMPANY ID **************************************",company_id_fk);
     }
   } catch (error) {
     console.log("error:", error);
@@ -240,17 +241,18 @@ exports.cockpit = async (req, res) => {
         replacements: [company_id_fk, project_id],
         type: db.sequelize.QueryTypes.SELECT
     });
-    // console.log("get logs")
-    // try{
-    //   const change_logs = await ChangeLog.findAll({
-    //     where: {
-    //       project_id_fk: project_id
-    //     },
-    //     order: [
-    //       ['change_date', 'DESC'] 
-    //     ]
-    //   });
-    // }catch(error){console.log("Error:",error);}
+    console.log("get logs")
+    try{
+      const changed_project = await db.changed_projects.findAll({
+        where: {
+          project_id_fk: project_id,
+          company_id_fk: company_id_fk
+        },
+        order: [
+          ['change_date', 'DESC'] 
+        ]
+      });
+    }catch(error){console.log("Error:",error);}
     
     const statuses = await Status.findAll({
       where: {

@@ -43,7 +43,7 @@ router.get('/', async function (req, res) {
           replacements: [company_id_fk],
           type: db.sequelize.QueryTypes.SELECT
       });
-  let borderColor = "#000000";
+    let borderColor = "#000000";
     // Calculate totalCostLeft (Total cost - Operations cost)
     data.forEach(function (project) {
         try {
@@ -101,23 +101,29 @@ router.get('/', async function (req, res) {
     });
     
     totalCost=totalPitchCost +totalPriorityCost + totalDiscoveryCost + totalDeliveryCost + totalOperationsCost;
-    console.log(totalCost)
+    console.log("totalCost",totalCost)
     usedCost=totalCost-totalOperationsCost;
-    console.log(usedCost)
+    console.log("usedCost",usedCost)
     availableCost=totalCost-usedCost;
-    console.log(availableCost)
+    console.log("availableCost",availableCost);
     totalPH=totalPitchPH + totalPriorityPH + totalDiscoveryPH + totalDeliveryPH + totalOperationsPH;
-    
     totalUsedPH = totalPH - totalOperationsPH;
-   
     totalAvailPH = totalPH-totalUsedPH;
     
     
    
     // Calculate totalCostLeft (Total cost - Operations cost)
-    usedCost=formatCost(usedCost),
-    
     totalCost=formatCost(totalCost);
+    console.log("formatted totalCost:",totalCost)
+    usedCost=formatCost(usedCost),
+    console.log("formatted usedCost:",usedCost)
+    
+    
+    availableCost=formatCost(availableCost),
+    console.log("avail:",availableCost),
+    // usedCost=formatCost(totalOperationsCost),
+    totalOperationsCost=formatCost(totalOperationsCost),
+
     
     // Render the page with the data
     res.render('Dashboard/dashboard1', {
@@ -144,9 +150,9 @@ router.get('/', async function (req, res) {
         totalDiscoveryCount,
         totalOperationsCost,
         usedCost,
-        availableCost: formatCost(availableCost),
+        availableCost: availableCost,
         totalPitchPH: formatValue(totalPitchPH),
-        borderColor: borderColor
+        
        
         
     });

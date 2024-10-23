@@ -12,7 +12,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     company_id_fk: {
       type: Sequelize.INTEGER,
-      required: true, unique: true
+      
     },
     project_name: {
       type: Sequelize.STRING
@@ -93,8 +93,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     change_explanation: {
       type: Sequelize.STRING
-    },
-    
+    }
     
    
   });

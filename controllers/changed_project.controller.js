@@ -41,6 +41,7 @@ exports.create = (req, res) => {
   // Create a Project
   const changed_project = {
     company_id_fk : company_id_fk,
+    project_id_fk : project_id_fk,
     project_name: req.body.project_name,
     project_headline :req.body.project_headline,
     project_description :req.body.project_description,
@@ -59,12 +60,12 @@ exports.create = (req, res) => {
     effort:req.body.effort,
     benefit:req.body.benefit,
     complexity:req.body.complexity,
-    tags:req.body.project_tags,
-    pitch_message:pitch_message
-     
+    tags:req.body.tags,
+    change_reason_id_fk:req.body.change_reason,
+    change_explanation:req.body.change_explanation
   };
     // Save Project in the database
-  ChangeProject.create(project)
+  ChangeProject.create(changed_project)
     .then(async data => {
       //call get all function for project /projects
       const [phasesData, prioritiesData, personsData, projectsData] = await Promise.all([

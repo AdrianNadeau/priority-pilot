@@ -14,7 +14,7 @@ exports.create = async (req, res) => {
   const company_id_fk = session.company.id;
 
   try {
-    console.log(" req.body:", req.body);
+   
     const { email, first_name, last_name, initials, password, role } = req.body;
 
     if (!email) {
@@ -126,7 +126,7 @@ exports.login = async  (req, res) => {
     return res.status(404).json({ message: "User not found." });
   }
 
-  console.log("company:", person.company_id_fk);
+  console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++ COMPANY LOGIN ID :", person.company_id_fk+"+++++++++++++++++++++++++++++++++++++++++++++++++++");
 
   const company = await Company.findOne({ id: person.company_id_fk });
   
