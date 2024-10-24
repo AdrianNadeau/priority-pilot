@@ -113,7 +113,7 @@ exports.findAll = (req, res) => {
 };
   
 // Find a single  with an id
-exports.login = async  (req, res) => {
+exports.login = async (req, res) => {
   const { email, password } = req.body;
   console.log("email:", email);
 
@@ -126,47 +126,24 @@ exports.login = async  (req, res) => {
     return res.status(404).json({ message: "User not found." });
   }
 
-  console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++ COMPANY LOGIN ID :", person.company_id_fk+"+++++++++++++++++++++++++++++++++++++++++++++++++++");
+  console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++ COMPANY LOGIN ID :", person.company_id_fk + "+++++++++++++++++++++++++++++++++++++++++++++++++++");
 
   const company = await Company.findOne({ where: { id: person.company_id_fk } });
 
-    if (company) {
-      console.log("------------------------------------------------COMPANY EXISTS-----------------------------------------------")
+  if (company) {
+    console.log("------------------------------------------------COMPANY EXISTS-----------------------------------------------");
+
     // Check if session values are present and destroy the session if they are
-    if (req.session.company || req.session.person) {
-      console.log("------------------------------------------------DESTROY THE SESSION-----------------------------------------------")
-      req.session.destroy(err => {
-        if (err) {
-          console.error('Error destroying session:', err);
-          return res.status(500).send('Internal Server Error');
-        }
-  
-        // Create a new session for the user
-        console.log("--------------------------------------------CREATE NEW SESSION-----------------------------------------------")
-        req.session.regenerate(err => {
-          if (err) {
-            console.error('Error regenerating session:', err);
-            return res.status(500).send('Internal Server Error');
-          }
-  
-          // Set new session values
-          req.session.company = company;
-          req.session.person = person;
-          console.log("Send to Dashboard");
-          res.redirect("/");
-        });
-      });
-    } else {
-      // Set new session values if no session exists
-      req.session.company = company;
-      req.session.person = person;
-      console.log("Send to Dashboard");
-      res.redirect("/");
-    }
+    console.log("------------------------------------------------SET NEW SESSION VALUES-----------------------------------------------");
+    req.session.company = company;
+    req.session.person = person;
+    console.log("Send to Dashboard");
+    res.redirect("/");
+   
+   
   } else {
     res.redirect("/login"); // Redirect to login page if company not found
   }
-
 };
 
 // Find a single  with an id

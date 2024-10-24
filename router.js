@@ -44,7 +44,7 @@ router.get('/', async function (req, res) {
           replacements: [company_id_fk],
           type: db.sequelize.QueryTypes.SELECT
       });
-    let borderColor = "#000000";
+    
     // Calculate totalCostLeft (Total cost - Operations cost)
     data.forEach(function (project) {
         try {
