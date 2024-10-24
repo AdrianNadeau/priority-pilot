@@ -101,6 +101,7 @@ Authrouter.get("/logout", function(req, res) {
       console.error("Error destroying session:", err);
       res.status(500).send("Error logging out");
     } else {
+      
       // Clear cookie on the client-side
       res.clearCookie("connect.sid", { path: "/" });
       res.redirect("/login"); // Redirect to login page or any other page

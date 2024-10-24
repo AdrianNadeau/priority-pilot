@@ -4498,7 +4498,7 @@ Invoice
   background-color: green; /* Color of the circle */
   border-radius: 50%;      /* Makes the div a circle */
 }
-.mission-phase-button{
-  min-height:50px; width: 100%; border-color: black ; border-width: 2px; margin-bottom: 5px; border-radius: 10px;
+/* .mission-phase-button{
+  min-height:50px; width: 100%; border-width: 2px; margin-bottom: 5px; border-radius: 10px;
   
-}
+} */

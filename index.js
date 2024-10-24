@@ -20,16 +20,17 @@ app.get("/layouts/", function(req, res) {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const sessionMiddleware = session({
-
-  secret: process.env.SECRET,
-  resave: true,
-  saveUninitialized: true,
-  rolling: true // Force regeneration of session ID for each request
-});
-app.use(sessionMiddleware);
-
+// Session configuration
+app.use(session({
+  secret: process.env.SECRET, // Replace with a real secret from environment variables
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // Should be true in production
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
 
 // Add Authentication Route file with app

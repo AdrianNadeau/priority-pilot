@@ -115,12 +115,12 @@ exports.findAll = (req, res) => {
 // Find a single  with an id
 exports.login = async  (req, res) => {
   const { email, password } = req.body;
-  console.log("email:",email);
+  console.log("email:", email);
 
   // Check password by encrypted value
   // Find user by email in your database
-  const person = await Person.findOne({ email });
-  
+  const person = await Person.findOne({ where: { email } });
+  console.log("PERSON", person);
   if (!person) {
     // User not found
     return res.status(404).json({ message: "User not found." });
@@ -128,18 +128,41 @@ exports.login = async  (req, res) => {
 
   console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++ COMPANY LOGIN ID :", person.company_id_fk+"+++++++++++++++++++++++++++++++++++++++++++++++++++");
 
-  const company = await Company.findOne({ id: person.company_id_fk });
+  const company = await Company.findOne({ where: { id: person.company_id_fk } });
+
+    if (company) {
+      console.log("------------------------------------------------COMPANY EXISTS-----------------------------------------------")
+    // Check if session values are present and destroy the session if they are
+    if (req.session.company || req.session.person) {
+      console.log("------------------------------------------------DESTROY THE SESSION-----------------------------------------------")
+      req.session.destroy(err => {
+        if (err) {
+          console.error('Error destroying session:', err);
+          return res.status(500).send('Internal Server Error');
+        }
   
-  if (company) {
-    req.session.company = company;
-    req.session.person = person;
-    // const token = jwt.sign({ personID: person.id }, 'JWT_TOKEN_PRIORITY_PILOT', {
-    //   expiresIn: '1h',
-    // });
-    // console.log("TOKEN::::::: ",token)
-    // res.cookie('token', token, { httpOnly: true });
-    console.log("Send to Dashbord")
-    res.redirect("/");
+        // Create a new session for the user
+        console.log("--------------------------------------------CREATE NEW SESSION-----------------------------------------------")
+        req.session.regenerate(err => {
+          if (err) {
+            console.error('Error regenerating session:', err);
+            return res.status(500).send('Internal Server Error');
+          }
+  
+          // Set new session values
+          req.session.company = company;
+          req.session.person = person;
+          console.log("Send to Dashboard");
+          res.redirect("/");
+        });
+      });
+    } else {
+      // Set new session values if no session exists
+      req.session.company = company;
+      req.session.person = person;
+      console.log("Send to Dashboard");
+      res.redirect("/");
+    }
   } else {
     res.redirect("/login"); // Redirect to login page if company not found
   }

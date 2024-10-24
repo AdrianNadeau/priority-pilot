@@ -13,6 +13,7 @@ router.get('/', async function (req, res) {
       company_id_fk = req.session.company.id;
   } catch (error) {
       console.log("SESSION INVALID");
+     
       return res.redirect('/login');
   }
 
@@ -84,7 +85,7 @@ router.get('/', async function (req, res) {
                     totalPH += totalDeliveryPH;
                     totalUsedPH += projectEffortPH;
                     break;
-                case "operations":
+                case "done":
                     totalOperactionsCount++;
                     totalOperationsCost += projectCost;
                     totalOperationsPH += projectEffortPH;
