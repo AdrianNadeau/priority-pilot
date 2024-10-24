@@ -13,10 +13,15 @@ router.get('/', async function (req, res) {
       company_id_fk = req.session.company.id;
   } catch (error) {
       console.log("SESSION INVALID");
-     
-      return res.redirect('/login');
+    return res.redirect('/login');
   }
-
+  try {
+    // Fetch some data based on the company_id_fk
+    const projects = await Project.findAll({ where: { company_id_fk } });
+  } catch (error) {
+    console.error('Database Query Error: ', error);
+    res.status(500).send('Internal Server Error');
+  }
   // Custom SQL query
   const query = `
       SELECT proj.company_id_fk, proj.id, proj.project_name, proj.start_date, proj.end_date,
@@ -44,7 +49,7 @@ router.get('/', async function (req, res) {
           replacements: [company_id_fk],
           type: db.sequelize.QueryTypes.SELECT
       });
-    let borderColor = "#000000";
+    
     // Calculate totalCostLeft (Total cost - Operations cost)
     data.forEach(function (project) {
         try {
