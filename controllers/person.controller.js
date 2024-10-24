@@ -120,7 +120,7 @@ exports.login = async  (req, res) => {
   // Check password by encrypted value
   // Find user by email in your database
   const person = await Person.findOne({ where: { email } });
-  // console.log("PERSON", person);
+  console.log("PERSON", person);
   if (!person) {
     // User not found
     return res.status(404).json({ message: "User not found." });
