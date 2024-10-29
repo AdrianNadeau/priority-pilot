@@ -5,10 +5,12 @@ var path = require("path");
 var http = require("http").Server(app);
 var bCrypt = require("bcryptjs");
 const multer = require("multer");
-
+require('dotenv').config()
 var router = require("./router.js");
 var Authrouter = require("./routes/AuthRouter.js");
 var DashboardRouter = require("./routes/DashboardRouter.js");
+var EmailRouter = require("./routes/email.routes.js");
+
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -35,6 +37,7 @@ app.use(sessionMiddleware);
 // Add Authentication Route file with app
 app.use("/", Authrouter); 
 app.use("/control", DashboardRouter);
+app.use("/emails", EmailRouter);
 
 // Set up storage engine
 const storage = multer.diskStorage({
@@ -72,10 +75,10 @@ require("./routes/phase.routes")(app);
 require("./routes/priority.routes")(app);
 require("./routes/tag.routes")(app);
 require("./routes/status.routes")(app);
-require("./routes/phase.routes")(app);
+// require("./routes/email.routes.js")(app);
 require("./routes/priority.routes")(app);
 require("./routes/change_reason.routes.js")(app);
-
+const port = process.env.PORT || 8080;
 http.listen(8080, function(){
-  console.log("listening on *:8080");
+  console.log("listening on *:" + port);
 });

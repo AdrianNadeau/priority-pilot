@@ -4,9 +4,11 @@ const Person = db.persons;
 const Company = db.companies;
 const Op = db.Sequelize.Op;
 // const bcrypt = require('bcrypt');
-var bcrypt = require("bcryptjs");
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../routes/JWTRouter");
+
 
 // Create and Save a new 
 exports.create = async (req, res) => {
@@ -14,8 +16,10 @@ exports.create = async (req, res) => {
   const company_id_fk = session.company.id;
 
   try {
-   
+    // Hash the password
     const { email, first_name, last_name, initials, password, role } = req.body;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    
 
     if (!email) {
       return res.status(400).json({ message: "Email cannot be empty!" });
@@ -32,7 +36,7 @@ exports.create = async (req, res) => {
       console.log("User with this email already exists");
       return res.status(500).json({ message: "User with this email already exists" });
     } else {
-      console.log("Email is available");
+     
       // Generate a salt
       bcrypt.genSalt(10, (err, salt) => {
         if (err) {
@@ -49,14 +53,16 @@ exports.create = async (req, res) => {
   
           try {
             // Create the person
+            
             const newPerson = await Person.create({
               email,
               first_name,
               last_name,
               initials,
-              password: hash,
+              password: hashedPassword,
               company_id_fk,
               role,
+              isAdmin:true,
             });
   
             if (req.body.register_yn && req.body.register_yn === "y") {
@@ -112,40 +118,70 @@ exports.findAll = (req, res) => {
     });
 };
   
-// Find a single  with an id
+// login user
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
-  console.log("email:", email);
+  try {
+    const { email, password } = req.body;
 
-  // Check password by encrypted value
-  // Find user by email in your database
-  const person = await Person.findOne({ where: { email } });
-  console.log("PERSON", person);
-  if (!person) {
-    // User not found
-    return res.status(404).json({ message: "User not found." });
-  }
+    // Find user by email
+    const person = await Person.findOne({ where: { email } });
+    if (!person) {
+      return res.status(404).json({ message: "User not found." });
+    }
 
-  console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++ COMPANY LOGIN ID :", person.company_id_fk + "+++++++++++++++++++++++++++++++++++++++++++++++++++");
+    // Compare the provided password with the hashed password in the database
+    const isMatch = await bcrypt.compare(password.trim(), person.password.trim());
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid password." });
+    }
 
-  const company = await Company.findOne({ where: { id: person.company_id_fk } });
+    console.log(`Company login ID: ${person.company_id_fk}`);
 
-  if (company) {
-    console.log("------------------------------------------------COMPANY EXISTS-----------------------------------------------");
+    // Find the associated company
+    const company = await Company.findOne({ where: { id: person.company_id_fk } });
+    if (!company) {
+      return res.redirect("/login");
+    }
 
-    // Check if session values are present and destroy the session if they are
-    console.log("------------------------------------------------SET NEW SESSION VALUES-----------------------------------------------");
-    req.session.company = company;
-    req.session.person = person;
-    console.log("Send to Dashboard");
-    res.redirect("/");
-   
-   
-  } else {
-    res.redirect("/login"); // Redirect to login page if company not found
+    // Check if session values are present
+    if (req.session.company || req.session.person) {
+      console.log("Destroying existing session...");
+
+      req.session.destroy(async err => {
+        if (err) {
+          console.error('Error destroying session:', err);
+          return res.status(500).send('Internal Server Error');
+        }
+
+        // Create a new session
+        req.session.regenerate(async err => {
+          if (err) {
+            console.error('Error regenerating session:', err);
+            return res.status(500).send('Internal Server Error');
+          }
+
+          // Set new session values
+          req.session.company = company;
+          req.session.person = person;
+          console.log("Redirecting to Dashboard...");
+          res.redirect("/");
+        });
+      });
+    } else {
+      // No existing session; set new session values directly
+      req.session.company = company;
+      req.session.person = person;
+      console.log("Redirecting to Dashboard with new session...");
+      res.redirect("/");
+    }
+
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).send({
+      message: err.message || "Some error occurred while logging in."
+    });
   }
 };
-
 // Find a single  with an id
 exports.findOne = (req, res) => {
   id = req.params.id;
@@ -173,9 +209,7 @@ exports.findOneForEdit = (req, res) => {
   Person.findByPk(id)
     .then(data => {
       if (data) {
-        // res.send(data);
-        // res.redirect('/persons/pages-edit-person/'+id);
-        // Render the page when all data retrieval operations are complete
+        
         res.render("Pages/pages-edit-person", {
           personData: data,
         });

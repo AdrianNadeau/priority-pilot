@@ -85,8 +85,12 @@
             <strong> Tags :</strong> <%= project[0].tags %>
             <br/>
             <strong>Change Log:</strong>
+          </br>
+            <% changedProjects.forEach(function(changedProject) { %>
+              <!-- Insert code to display each changed project here -->
+              <%= changedProject.project_name %> (<%= changedProject.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>)<br/>
+            <% }) %>
             
-           
           
             
           

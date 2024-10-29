@@ -3,7 +3,7 @@ const Project = db.projects;
 const Phase = db.phases;
 const Priority = db.priorities;
 const Person = db.persons;
-const ChangeLog = db.changeLogs;
+// const ChangeLog = db.changeLogs;
 const ChangeReason=db.change_reasons;
 const ChangeProject=db.changed_projects;
 const Status=db.statuses;
@@ -204,7 +204,7 @@ exports.cockpit = async (req, res) => {
       return res.redirect("/pages-500");
     } else {
       company_id_fk = req.session.company.id;
-      console.log("********************************* COCKPIT COMPANY ID **************************************",company_id_fk);
+      
     }
   } catch (error) {
     console.log("error:", error);
@@ -241,18 +241,8 @@ exports.cockpit = async (req, res) => {
         replacements: [company_id_fk, project_id],
         type: db.sequelize.QueryTypes.SELECT
     });
-    console.log("get logs")
-    try{
-      const changed_project = await db.changed_projects.findAll({
-        where: {
-          project_id_fk: project_id,
-          company_id_fk: company_id_fk
-        },
-        order: [
-          ['change_date', 'DESC'] 
-        ]
-      });
-    }catch(error){console.log("Error:",error);}
+   
+   
     
     const statuses = await Status.findAll({
       where: {
@@ -276,15 +266,35 @@ exports.cockpit = async (req, res) => {
           statusColor="green"
       }
     }
-    console.log("project",data);
+
+    //get changed_projects by project_id and company_id_fk
+    console
+    let changedProjects = await ChangeProject.findAll({
+      where: {
+        project_id_fk: project_id,
+        company_id_fk: company_id_fk
+      },
+      order: [
+        ['createdAt', 'DESC']
+      ]
+    });
+    
+    // Check if the array is empty
+    if (!changedProjects || changedProjects.length === 0) {
+      // Handle the case where there are no changed projects
+      console.log("No changed projects found.");
+      // You can set a default value or handle it as needed
+      changedProjects = "0";
+    }
+    
     res.render('Pages/pages-cockpit', {
         project: data,
         current_date: currentDate,
         formattedCost: data[0].project_cost,
-        
         statuses: statuses,
         lastStatusDate:lastStatusDate,
-        statusColor:statusColor
+        statusColor:statusColor,
+        changedProjects
     });
     
     
@@ -441,7 +451,7 @@ exports.radar = async (req, res) => {
     if (!data || data.length === 0) {
       return res.status(404).send({ message: "Project Health not found" });
     }
-
+    let usedCost=0;
     // Pass the result to the EJS template
     const pitchCount = Number(data[0].phase_1_count);
     const priorityCount = Number(data[0].phase_2_count);
@@ -454,10 +464,16 @@ exports.radar = async (req, res) => {
     const deliveryTotalCost = Number(data[0].phase_4_total_cost) || 0;
     const operationsTotalCost = Number(data[0].phase_5_total_cost) || 0;
     const totalCost = pitchTotalCost + priorityTotalCost + discoveryCost + deliveryTotalCost + operationsTotalCost;
-    const usedCost = totalCost - operationsTotalCost;
-    const avalCost = totalCost - usedCost;
-    const in_flight_count = priorityTotalCost + discoveryCount + deliveryCount;
-    const in_flight_cost = priorityTotalCost + discoveryCost + deliveryTotalCost;
+    if (typeof operationsTotalCost === 'undefined' || operationsTotalCost === null || isNaN(operationsTotalCost)) {
+     usedCost = "0";
+    }
+    else{
+      usedCost = totalCost - operationsTotalCost;
+    }
+      console.log("usedCost:",usedCost);
+      const avalCost = totalCost - usedCost;
+      const in_flight_count = priorityTotalCost + discoveryCount + deliveryCount;
+      const in_flight_cost = priorityTotalCost + discoveryCost + deliveryTotalCost;
     // console.log("flight count:",Number(in_flight_count) || 0);
     
     res.render("Pages/pages-radar", {
