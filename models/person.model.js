@@ -26,8 +26,8 @@ module.exports = (sequelize, Sequelize) => {
     initials: {
       type: Sequelize.STRING
     },
-    role: {
-      type: Sequelize.STRING
+    isAdmin: {
+      type: Sequelize.BOOLEAN
     },
         
     createdAt: {

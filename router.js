@@ -7,6 +7,7 @@ const Op = db.Sequelize.Op;
 
 // Dashboard
 router.get('/', async function (req, res) {
+    console.log("--------------------------------- Dashboard page requested ---------------------------------");
   let company_id_fk;
 
   try {

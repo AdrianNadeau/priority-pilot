@@ -26,7 +26,7 @@ exports.create = (req, res) => {
   }
 
   //convert dates
-    
+  console.log("SSSSSSSSSSSSSSSSSSSSSSSTARRRRRRRRRRRRRTTTTTTTTTTTTTTTT:",req.body.start_date);
   const startDateTest = insertValidDate(req.body.start_date);
   const endDateTest = insertValidDate(req.body.end_date);
   const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
@@ -296,7 +296,7 @@ exports.cockpit = async (req, res) => {
   }
 }
 exports.findOneForEdit = async (req, res) => {
-  
+  console.log("findOneForEdit:",req.params.start_date);
   try {
     const project_id = req.params.id;
     let company_id_fk;
@@ -309,6 +309,7 @@ exports.findOneForEdit = async (req, res) => {
     company_id_fk = req.session.company.id;
     
     // Query to fetch project details
+    console.log("run query")
     const query = `
      SELECT proj.company_id_fk, proj.id, proj.effort,proj.benefit, proj.prime_id_fk, 
              proj.project_headline, proj.project_name, proj.project_description,proj.start_date, 
@@ -592,11 +593,7 @@ exports.update = (req, res) => {
   if (!req.session || !req.session.company) {
     res.redirect("/pages-500");
   }
-  const startDateTest = insertValidDate(req.body.start_date);
-  const endDateTest = insertValidDate(req.body.end_date);
-  const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
-  const deletedDateTest = insertValidDate(req.body.deleted_date);
-  const changeDateTest = insertValidDate(req.body.change_date);
+  //convert dates
   company_id_fk = req.session.company.id;
   const change_reason=req.body.change_reason;
   // Create a Project
@@ -604,14 +601,14 @@ exports.update = (req, res) => {
     company_id_fk : company_id_fk,
     project_name: req.body.project_name,
     project_headline :req.body.project_headline,
-    project_description :req.body.project_description,
+    // project_description :req.body.project_description,
     project_why :req.body.project_why,
     project_what :req.body.project_what,
-    start_date :startDateTest,
-    end_date :endDateTest,
-    next_milestone_date :nextMilestoneDateTest,
-    deleted_date:deletedDateTest,
-    change_date:changeDateTest,
+    start_date :req.body.start_date,
+    end_date :req.body.end_date,
+    next_milestone_date :req.body.next_milestone_date,
+    deleted_date:req.body.deleted_date,
+    change_date:req.body.change_date,
     priority_id_fk :req.body.priority_id_fk,
     sponsor_id_fk:req.body.sponsor_id_fk,
     prime_id_fk:req.body.prime_id_fk,
@@ -630,7 +627,7 @@ exports.update = (req, res) => {
     where: { id: id }
   })
     .then(result => {
-      console.log("CREATE CHANGE PROJECT:",result);
+     
       const [numAffected] = result;
       if (numAffected == 1) {
           
