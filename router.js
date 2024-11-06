@@ -7,7 +7,7 @@ const Op = db.Sequelize.Op;
 
 // Dashboard
 router.get('/', async function (req, res) {
-    console.log("--------------------------------- Dashboard page requested ---------------------------------");
+    
   let company_id_fk;
 
   try {
@@ -108,11 +108,11 @@ router.get('/', async function (req, res) {
     });
     
     totalCost=totalPitchCost +totalPriorityCost + totalDiscoveryCost + totalDeliveryCost + totalOperationsCost;
-    console.log("totalCost",totalCost)
+    // console.log("totalCost",totalCost)
     usedCost=totalCost-totalOperationsCost;
-    console.log("usedCost",usedCost)
+    // console.log("usedCost",usedCost)
     availableCost=totalCost-usedCost;
-    console.log("availableCost",availableCost);
+    // console.log("availableCost",availableCost);
     totalPH=totalPitchPH + totalPriorityPH + totalDiscoveryPH + totalDeliveryPH + totalOperationsPH;
     totalUsedPH = totalPH - totalOperationsPH;
     totalAvailPH = totalPH-totalUsedPH;

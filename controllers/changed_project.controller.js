@@ -112,7 +112,7 @@ exports.create = (req, res) => {
 exports.findAll = async (req, res) => {
   
   try {
-    console.log("Get all projects for company");
+   
     let company_id_fk;
     try{
       if(!req.session){

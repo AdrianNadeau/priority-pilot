@@ -26,12 +26,12 @@ exports.create = (req, res) => {
   }
 
   //convert dates
-  console.log("SSSSSSSSSSSSSSSSSSSSSSSTARRRRRRRRRRRRRTTTTTTTTTTTTTTTT:",req.body.start_date);
+  
   const startDateTest = insertValidDate(req.body.start_date);
   const endDateTest = insertValidDate(req.body.end_date);
   const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
-  const deletedDateTest = insertValidDate(req.body.deleted_date);
-  const changeDateTest = insertValidDate(req.body.change_date);
+  // const deletedDateTest = insertValidDate(null);
+  // const changeDateTest = insertValidDate(req.body.change_date);
 
   let pitch_message="";
   if(req.body.phase_id_fk==1){
@@ -49,8 +49,8 @@ exports.create = (req, res) => {
     start_date :startDateTest,
     end_date :endDateTest,
     next_milestone_date :nextMilestoneDateTest,
-    deleted_date:deletedDateTest,
-    change_date:changeDateTest,
+    // deleted_date:deletedDateTest,
+    // change_date:changeDateTest,
     priority_id_fk :req.body.priority_id_fk,
     sponsor_id_fk:req.body.sponsor_id_fk,
     prime_id_fk:req.body.prime_id_fk,
@@ -111,7 +111,6 @@ exports.create = (req, res) => {
 exports.findAll = async (req, res) => {
   
   try {
-    console.log("Get all projects for company");
     let company_id_fk;
     try{
       if(!req.session){
@@ -296,9 +295,10 @@ exports.cockpit = async (req, res) => {
   }
 }
 exports.findOneForEdit = async (req, res) => {
-  console.log("findOneForEdit:",req.params.start_date);
+  
   try {
     const project_id = req.params.id;
+    
     let company_id_fk;
 
     // Ensure session exists and fetch company ID
@@ -309,7 +309,6 @@ exports.findOneForEdit = async (req, res) => {
     company_id_fk = req.session.company.id;
     
     // Query to fetch project details
-    console.log("run query")
     const query = `
      SELECT proj.company_id_fk, proj.id, proj.effort,proj.benefit, proj.prime_id_fk, 
              proj.project_headline, proj.project_name, proj.project_description,proj.start_date, 
@@ -346,6 +345,9 @@ exports.findOneForEdit = async (req, res) => {
 
       // Get reasons for change for the project
       const change_reasons = await ChangeReason.findAll({'company_id_fk': company_id_fk});
+      let lastStartDate = null;
+      let lastEndDate = null;
+      let milestoneDate = null;
       let lastStatusDate = null;
       let statusColor = null;
     
@@ -554,7 +556,7 @@ ORDER BY
     if (!data || data.length === 0) {
       return res.status(404).send({ message: "Project Health not found" });
     }
-    const startDateTest = insertValidDate(data);
+    const startDateTest = insertValidDate(data.start_date);
     // Pass the result to the EJS template
     res.render("Pages/pages-flight-plan", {
       start_date: startDateTest,
@@ -724,11 +726,11 @@ exports.deleteAll = (req, res) => {
     });
 };
 function insertValidDate(dateString) {
-  var date = new Date(dateString);
-  // Check if the date is valid
-  if (isNaN(date.getTime())) {
-    return null; // Return null for invalid dates
-  } else {
-    return date; // Return the valid date
-  }
+  console.log("DATESTRING:",dateString);
+  const date = new Date(dateString);
+  // Format the date to "YYYY-MM-DD"
+  const formattedDate = date.toISOString().split('T')[0];
+
+console.log(formattedDate); // Output: "2024-12-31"
+return formattedDate;
 }
