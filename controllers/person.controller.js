@@ -1,18 +1,18 @@
 const session = require("express-session");
 const db = require("../models");
-var bcrypt = require('bcryptjs');
-const saltRounds = 10;
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../routes/JWTRouter");
-
 
 const { persons: Person, companies: Company } = db;
 
 // Helper function to authenticate user credentials
-const authenticateUser = async (username, password) => {
+const authenticateUser = async (email, password) => {
   try {
     // Find user by email
-    const person = await Person.findOne({ where: { email: username } });
+    console.log("email:", email);
+    console.log("password:", password);
+    const person = await Person.findOne({ where: { email:email } });
     if (!person) {
       return null;
     }
@@ -30,13 +30,15 @@ const authenticateUser = async (username, password) => {
     return null;
   }
 };
+
 // Register and create a new user
 exports.create = async (req, res) => {
   try {
     const { email, first_name, last_name, initials, password } = req.body;
     const company_id_fk = req.session.company?.id;
     const company = await Company.findOne({ where: { id: company_id_fk } });
-    if(company){
+
+    if (company) {
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required." });
       }
@@ -56,13 +58,10 @@ exports.create = async (req, res) => {
         company_id_fk
       });
 
-      // res.status(201).json(newPerson);
-      //check for admin
-      // Set new session values
-        req.session.company = company;
-        req.session.person = newPerson;
-        console.log("Redirecting to Dashboard...");
-        res.redirect("/");
+      req.session.company = company;
+      req.session.person = newPerson;
+      console.log("Redirecting to Dashboard...");
+      res.redirect("/");
     }
   } catch (error) {
     console.error("Error creating person:", error);
@@ -85,12 +84,9 @@ exports.findAll = async (req, res) => {
 };
 
 // Login user
-// Login user
 exports.login = async (req, res) => {
-  console.log("email", req.body);
   try {
     const { email, password } = req.body;
-    console.log("Email:", email);
 
     // Authenticate the user
     const person = await authenticateUser(email, password);
@@ -98,32 +94,24 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid username or password." });
     }
 
-    console.log(`Company login ID: ${person.company_id_fk}`);
-
-    // Find the associated company
     const company = await Company.findOne({ where: { id: person.company_id_fk } });
     if (!company) {
       return res.redirect("/login");
     }
 
-    // Check if session values are present
     if (req.session.company || req.session.person) {
-      console.log("Destroying existing session...");
-
       req.session.destroy(async err => {
         if (err) {
-          console.error('Error destroying session:', err);
-          return res.status(500).send('Internal Server Error');
+          console.error("Error destroying session:", err);
+          return res.status(500).send("Internal Server Error");
         }
 
-        // Create a new session
-        req.session.regenerate(async err => {
+        req.session.regenerate(err => {
           if (err) {
-            console.error('Error regenerating session:', err);
-            return res.status(500).send('Internal Server Error');
+            console.error("Error regenerating session:", err);
+            return res.status(500).send("Internal Server Error");
           }
 
-          // Set new session values
           req.session.company = company;
           req.session.person = person;
           console.log("Redirecting to Dashboard...");
@@ -131,7 +119,6 @@ exports.login = async (req, res) => {
         });
       });
     } else {
-      // No existing session; set new session values directly
       req.session.company = company;
       req.session.person = person;
       console.log("Redirecting to Dashboard with new session...");
@@ -145,24 +132,20 @@ exports.login = async (req, res) => {
     });
   }
 };
-// Find a single  with an id
+
+// Find a single person by id
 exports.findOne = (req, res) => {
-  id = req.params.id;
+  const id = req.params.id;
   Person.findByPk(id)
     .then(data => {
       if (data) {
-        // res.send(data);
-        res.redirect("/persons/edit/"+id);
+        res.redirect(`/persons/edit/${id}`);
       } else {
-        res.status(404).send({
-          message: `Cannot find Person with id=${id}.`
-        });
+        res.status(404).send({ message: `Cannot find Person with id=${id}.` });
       }
     })
     .catch(err => {
-      res.status(500).send({
-        message: "Error retrieving Person with id=" + id
-      });
+      res.status(500).send({ message: "Error retrieving Person with id=" + id });
     });
 };
 

@@ -76,8 +76,8 @@ module.exports = (sequelize, Sequelize) => {
       
     },
     deleted_yn: {
-      type: Sequelize.STRING,
-      default:"n"
+      type: Sequelize.BOOLEAN,
+      default:false
     },
     change_date: {
       type: Sequelize.DATE
