@@ -41,7 +41,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     
     phase_id_fk: {
-      type: Sequelize.STRING
+      type: Sequelize.INTEGER
     },
     priority_id_fk: {
       type: Sequelize.INTEGER
