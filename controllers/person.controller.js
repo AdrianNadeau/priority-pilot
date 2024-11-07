@@ -54,7 +54,7 @@ exports.create = async (req, res) => {
         .json({ message: "User with this email already exists." });
 
     // Determine admin status
-    const isAdminStatus = isAdmin === "on" || register_yn === "y";
+    const isAdminStatus = isAdmin === "true" || register_yn === "y";
     console.log("isAdminStatus:", isAdminStatus);
 
     // Hash the password
@@ -122,11 +122,9 @@ exports.login = async (req, res) => {
     });
   } catch (err) {
     console.error("Login error:", err);
-    res
-      .status(500)
-      .send({
-        message: err.message || "Some error occurred while logging in.",
-      });
+    res.status(500).send({
+      message: err.message || "Some error occurred while logging in.",
+    });
   }
 };
 
@@ -169,7 +167,7 @@ exports.findOneForEdit = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { person_id, isAdmin, ...personDetails } = req.body;
-    personDetails.isAdmin = isAdmin === "on";
+    personDetails.isAdmin = isAdmin === "true";
 
     const [updated] = await Person.update(personDetails, {
       where: { id: person_id },
