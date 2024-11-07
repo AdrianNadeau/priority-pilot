@@ -53,14 +53,18 @@ exports.create = async (req, res) => {
         .status(409)
         .json({ message: "User with this email already exists." });
 
-    // Determine admin status
-    const isAdminStatus = isAdmin === "on" || register_yn === "y";
-    console.log("isAdminStatus:", isAdminStatus);
-
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create the new person
+    let isAdminStatus = false;
+    if (register_yn === "y") {
+      //add register admin
+      isAdminStatus = true;
+    } else {
+      //check from add person from admin
+      console.log("in portal");
+      isAdminStatus = false;
+    }
+    // Create admin the new person
     const newPerson = await Person.create({
       email,
       first_name,
@@ -122,11 +126,9 @@ exports.login = async (req, res) => {
     });
   } catch (err) {
     console.error("Login error:", err);
-    res
-      .status(500)
-      .send({
-        message: err.message || "Some error occurred while logging in.",
-      });
+    res.status(500).send({
+      message: err.message || "Some error occurred while logging in.",
+    });
   }
 };
 

@@ -98,6 +98,7 @@ exports.create = (req, res) => {
           priorities: prioritiesData,
           sponsors: personsData,
           primes: personsData,
+          session: req.session,
         });
       })
       .catch((err) => {
@@ -329,11 +330,11 @@ exports.findOneForEdit = async (req, res) => {
       const change_reasons = await ChangeReason.findAll({
         company_id_fk: company_id_fk,
       });
-      let lastStartDate = null;
-      let lastEndDate = null;
-      let milestoneDate = null;
-      let lastStatusDate = null;
-      let statusColor = null;
+      // let lastStartDate = null;
+      // let lastEndDate = null;
+      // let milestoneDate = null;
+      // let lastStatusDate = null;
+      // let statusColor = null;
 
       // Get statuses for the project
       const statuses = await Status.findAll({
@@ -604,7 +605,6 @@ exports.update = (req, res) => {
     where: { id: id },
   })
     .then((result) => {
-      console.log("result:", result);
       const [numAffected] = result;
       if (numAffected == 1) {
         const changeProject = {
@@ -615,9 +615,9 @@ exports.update = (req, res) => {
           project_description: req.body.project_description,
           project_why: req.body.project_why,
           project_what: req.body.project_what,
-          start_date: startDateTest,
-          end_date: endDateTest,
-          next_milestone_date: nextMilestoneDateTest,
+          start_date: req.body.start_date,
+          end_date: req.body.end_date,
+          next_milestone_date: req.body.next_milestone_date,
           deleted_date: deletedDateTest,
           change_date: changeDateTest,
           priority_id_fk: req.body.priority_id_fk,

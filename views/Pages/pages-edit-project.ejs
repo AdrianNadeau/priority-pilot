@@ -55,21 +55,21 @@
                         
                         </div>
                         <div class="form-group">
-                          <label for="start_date">Start Date (YYYY-MM-DD): <%= project.start_date.toLocaleDateString('en-US', { year: 'numeric' , month: 'short', day: 'numeric'  }) %></label>
+                          <label for="start_date">Start Date (YYYY-MM-DD): </label>
                           <% if(project.start_date){ %>
                             
-                            <input type="text" id="end_date" name="end_date" class="form-control" value="">
+                            <input type="text" id="end_date" name="end_date" class="form-control" value="<%= new Date(project.start_date).toISOString().split('T')[0] %>">
                           <%}%>
                           
                         </div>
                         <div class="form-group">
                           <label for="end_date">End Date (YYYY-MM-DD):</label>
-                          <input type="text" id="end_date" name="end_date" class="form-control" value="<%=project.end_date%>">
+                          <input type="text" id="end_date" name="end_date" class="form-control" value="<%= new Date(project.end_date).toISOString().split('T')[0] %>">
                           
                         </div>
                         <div class="form-group">
                           <label for="datepicker">Next Milestone Date (YYYY-MM-DD):</label>
-                          <input type="text" id="end_date" name="end_date" class="form-control" value="<%=project.end_date%>">
+                          <input type="text" id="end_date" name="end_date" class="form-control" value="<%= new Date(project.next_milestone_date).toISOString().split('T')[0] %>">
                          
                         </div>
                       </div>
