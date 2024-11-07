@@ -18,7 +18,10 @@ const authenticateUser = async (email, password) => {
     }
 
     // Compare the provided password with the hashed password in the database
-    const isMatch = await bcrypt.compare(password, person.password);
+    const isMatch = await bcrypt.compare(password.trim(), person.password.trim());
+    console.log("Password:", password);
+    console.log("Hashed Password:", person.password);
+    console.log("Password Match:", isMatch);
     if (!isMatch) {
       return null;
     }
