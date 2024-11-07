@@ -125,6 +125,11 @@
 
 <%- contentFor('BottomJs') %>
 <script>
+    const isAdminCheckbox = document.getElementById("isAdmin");
+
+    isAdminCheckbox.addEventListener("change", (event) => {
+        isAdminCheckbox.value = event.target.checked
+    });
   (function () {
     'use strict'
   

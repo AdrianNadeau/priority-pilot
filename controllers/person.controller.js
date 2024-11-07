@@ -53,6 +53,10 @@ exports.create = async (req, res) => {
         .status(409)
         .json({ message: "User with this email already exists." });
 
+    // Determine admin status
+    const isAdminStatus = isAdmin === "true" || register_yn === "y";
+    console.log("isAdminStatus:", isAdminStatus);
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
     let isAdminStatus = false;
@@ -171,7 +175,7 @@ exports.findOneForEdit = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { person_id, isAdmin, ...personDetails } = req.body;
-    personDetails.isAdmin = isAdmin === "on";
+    personDetails.isAdmin = isAdmin === "true";
 
     const [updated] = await Person.update(personDetails, {
       where: { id: person_id },
