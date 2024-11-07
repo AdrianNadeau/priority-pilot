@@ -53,10 +53,13 @@
                                 <label for="initials">Initials</label>
                                 <input type="text" class="form-control" id="initials"  value="<%= personData.initials %>" name="initials">
                             </div>
-                            <div class="form-group needs-validation" novalidate>
-                                <label for="role">Role</label>
-                                <input type="text" class="form-control" id="role"   value="<%= personData.role %>" name="role" >
-                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="isAdmin" name="isAdmin"<%= personData.isAdmin ? 'checked' : '' %>>
+                                <label class="form-check-label" for="isAdmin">
+                                  Admin
+                                </label>
+                              </div>
+                          
                            
                             
                          

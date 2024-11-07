@@ -90,7 +90,6 @@ exports.findOne = (req, res) => {
 };
 
 exports.findAllByProject = (req, res) => {
-  console.log("FIND PROJECT CHANGES");
   try{
     
     if(!req.session){

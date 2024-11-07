@@ -34,7 +34,6 @@ exports.create = (req, res) => {
 
 // Retrieve all ChangeReasons from the database.
 exports.findAll = (req, res) => {
-  console.log("FIND ALL REASONS");
   ChangeReason.findAll({})
     .then(data => {
       res.send(data);
