@@ -1,5 +1,4 @@
 (function () {
-
   var defs = {}; // id -> {dependencies, definition, instance (possibly undefined)}
 
   // Used when there is no 'main' module.
@@ -9,8 +8,9 @@
     var fragments = id.split(".");
     var target = Function("return this;")();
     for (var i = 0; i < fragments.length - 1; ++i) {
-      if (target[fragments[i]] === undefined)
-      {target[fragments[i]] = {};}
+      if (target[fragments[i]] === undefined) {
+        target[fragments[i]] = {};
+      }
       target = target[fragments[i]];
     }
     target[fragments[fragments.length - 1]] = module;
@@ -22,42 +22,47 @@
     var definition = actual.defn;
     var len = dependencies.length;
     var instances = new Array(len);
-    for (var i = 0; i < len; ++i)
-    {instances[i] = dem(dependencies[i]);}
+    for (var i = 0; i < len; ++i) {
+      instances[i] = dem(dependencies[i]);
+    }
     var defResult = definition.apply(null, instances);
-    if (defResult === undefined)
-    {throw "module [" + id + "] returned undefined";}
+    if (defResult === undefined) {
+      throw "module [" + id + "] returned undefined";
+    }
     actual.instance = defResult;
   };
 
   var def = function (id, dependencies, definition) {
-    if (typeof id !== "string")
-    {throw "module id must be a string";}
-    else if (dependencies === undefined)
-    {throw "no dependencies for " + id;}
-    else if (definition === undefined)
-    {throw "no definition function for " + id;}
+    if (typeof id !== "string") {
+      throw "module id must be a string";
+    } else if (dependencies === undefined) {
+      throw "no dependencies for " + id;
+    } else if (definition === undefined) {
+      throw "no definition function for " + id;
+    }
     defs[id] = {
       deps: dependencies,
       defn: definition,
-      instance: undefined
+      instance: undefined,
     };
   };
 
   var dem = function (id) {
     var actual = defs[id];
-    if (actual === undefined)
-    {throw "module [" + id + "] was undefined";}
-    else if (actual.instance === undefined)
-    {instantiate(id);}
+    if (actual === undefined) {
+      throw "module [" + id + "] was undefined";
+    } else if (actual.instance === undefined) {
+      instantiate(id);
+    }
     return actual.instance;
   };
 
   var req = function (ids, callback) {
     var len = ids.length;
     var instances = new Array(len);
-    for (var i = 0; i < len; ++i)
-    {instances.push(dem(ids[i]));}
+    for (var i = 0; i < len; ++i) {
+      instances.push(dem(ids[i]));
+    }
     callback.apply(null, callback);
   };
 
@@ -68,9 +73,9 @@
       api: {
         define: def,
         require: req,
-        demand: dem
-      }
-    }
+        demand: dem,
+      },
+    },
   };
 
   var define = def;
@@ -78,7 +83,9 @@
   var demand = dem;
   // this helps with minificiation when using a lot of global references
   var defineGlobal = function (id, ref) {
-    define(id, [], function () { return ref; });
+    define(id, [], function () {
+      return ref;
+    });
   };
   /*jsc
 ["tinymce/inlite/Theme","global!tinymce.ThemeManager","global!tinymce.util.Delay","tinymce/inlite/ui/Panel","tinymce/inlite/ui/Buttons","tinymce/inlite/core/SkinLoader","tinymce/inlite/core/SelectionMatcher","tinymce/inlite/core/ElementMatcher","tinymce/inlite/core/Matcher","tinymce/inlite/alien/Arr","tinymce/inlite/core/PredicateId","global!tinymce.util.Tools","global!tinymce.ui.Factory","global!tinymce.DOM","tinymce/inlite/ui/Toolbar","tinymce/inlite/ui/Forms","tinymce/inlite/core/Measure","tinymce/inlite/core/Layout","tinymce/inlite/file/Conversions","tinymce/inlite/file/Picker","tinymce/inlite/core/Actions","global!tinymce.EditorManager","global!tinymce.util.Promise","tinymce/inlite/alien/Uuid","tinymce/inlite/alien/Unlink","tinymce/inlite/core/UrlType","global!tinymce.geom.Rect","tinymce/inlite/core/Convert","tinymce/inlite/alien/Bookmark","global!tinymce.dom.TreeWalker","global!tinymce.dom.RangeUtils"]
@@ -89,22 +96,23 @@ jsc*/
   defineGlobal("global!tinymce.ui.Factory", tinymce.ui.Factory);
   defineGlobal("global!tinymce.DOM", tinymce.DOM);
   /**
- * Toolbar.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Toolbar.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/ui/Toolbar", [
     "global!tinymce.util.Tools",
-    "global!tinymce.ui.Factory"
+    "global!tinymce.ui.Factory",
   ], function (Tools, Factory) {
     var setActiveItem = function (item, name) {
-      return function(state, args) {
-        var nodeName, i = args.parents.length;
+      return function (state, args) {
+        var nodeName,
+          i = args.parents.length;
 
         while (i--) {
           nodeName = args.parents[i].nodeName;
@@ -121,11 +129,11 @@ jsc*/
       var result = function (selector, handler) {
         return {
           selector: selector,
-          handler: handler
+          handler: handler,
         };
       };
 
-      var activeHandler = function(state) {
+      var activeHandler = function (state) {
         item.active(state);
       };
 
@@ -162,25 +170,26 @@ jsc*/
     };
 
     var create = function (editor, name, items) {
-      var toolbarItems = [], buttonGroup;
+      var toolbarItems = [],
+        buttonGroup;
 
       if (!items) {
         return;
       }
 
-      Tools.each(items.split(/[ ,]/), function(item) {
+      Tools.each(items.split(/[ ,]/), function (item) {
         var itemName;
 
         if (item == "|") {
           buttonGroup = null;
         } else {
           if (Factory.has(item)) {
-            item = {type: item};
+            item = { type: item };
             toolbarItems.push(item);
             buttonGroup = null;
           } else {
             if (!buttonGroup) {
-              buttonGroup = {type: "buttongroup", items: []};
+              buttonGroup = { type: "buttongroup", items: [] };
               toolbarItems.push(buttonGroup);
             }
 
@@ -195,7 +204,10 @@ jsc*/
               item.type = item.type || "button";
 
               item = Factory.create(item);
-              item.on("postRender", bindSelectorChanged(editor, itemName, item));
+              item.on(
+                "postRender",
+                bindSelectorChanged(editor, itemName, item),
+              );
               buttonGroup.items.push(item);
             }
           }
@@ -206,74 +218,72 @@ jsc*/
         type: "toolbar",
         layout: "flow",
         name: name,
-        items: toolbarItems
+        items: toolbarItems,
       });
     };
 
     return {
-      create: create
+      create: create,
     };
   });
 
   defineGlobal("global!tinymce.util.Promise", tinymce.util.Promise);
   /**
- * Uuid.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Uuid.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   /**
- * Generates unique ids this is the same as in core but since
- * it's not exposed as a global we can't access it.
- */
-  define("tinymce/inlite/alien/Uuid", [
-  ], function() {
+   * Generates unique ids this is the same as in core but since
+   * it's not exposed as a global we can't access it.
+   */
+  define("tinymce/inlite/alien/Uuid", [], function () {
     var count = 0;
 
     var seed = function () {
       var rnd = function () {
-        return Math.round(Math.random() * 0xFFFFFFFF).toString(36);
+        return Math.round(Math.random() * 0xffffffff).toString(36);
       };
 
       return "s" + Date.now().toString(36) + rnd() + rnd() + rnd();
     };
 
     var uuid = function (prefix) {
-      return prefix + (count++) + seed();
+      return prefix + count++ + seed();
     };
 
     return {
-      uuid: uuid
+      uuid: uuid,
     };
   });
 
   /**
- * Bookmark.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Bookmark.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
-  define("tinymce/inlite/alien/Bookmark", [
-  ], function () {
+  define("tinymce/inlite/alien/Bookmark", [], function () {
     /**
-	 * Returns a range bookmark. This will convert indexed bookmarks into temporary span elements with
-	 * index 0 so that they can be restored properly after the DOM has been modified. Text bookmarks will not have spans
-	 * added to them since they can be restored after a dom operation.
-	 *
-	 * So this: <p><b>|</b><b>|</b></p>
-	 * becomes: <p><b><span data-mce-type="bookmark">|</span></b><b data-mce-type="bookmark">|</span></b></p>
-	 *
-	 * @param  {DOMRange} rng DOM Range to get bookmark on.
-	 * @return {Object} Bookmark object.
-	 */
+     * Returns a range bookmark. This will convert indexed bookmarks into temporary span elements with
+     * index 0 so that they can be restored properly after the DOM has been modified. Text bookmarks will not have spans
+     * added to them since they can be restored after a dom operation.
+     *
+     * So this: <p><b>|</b><b>|</b></p>
+     * becomes: <p><b><span data-mce-type="bookmark">|</span></b><b data-mce-type="bookmark">|</span></b></p>
+     *
+     * @param  {DOMRange} rng DOM Range to get bookmark on.
+     * @return {Object} Bookmark object.
+     */
     var create = function (dom, rng) {
       var bookmark = {};
 
@@ -284,7 +294,7 @@ jsc*/
         offset = rng[start ? "startOffset" : "endOffset"];
 
         if (container.nodeType == 1) {
-          offsetNode = dom.create("span", {"data-mce-type": "bookmark"});
+          offsetNode = dom.create("span", { "data-mce-type": "bookmark" });
 
           if (container.hasChildNodes()) {
             offset = Math.min(offset, container.childNodes.length - 1);
@@ -316,16 +326,17 @@ jsc*/
     };
 
     /**
-	 * Moves the selection to the current bookmark and removes any selection container wrappers.
-	 *
-	 * @param {Object} bookmark Bookmark object to move selection to.
-	 */
+     * Moves the selection to the current bookmark and removes any selection container wrappers.
+     *
+     * @param {Object} bookmark Bookmark object to move selection to.
+     */
     var resolve = function (dom, bookmark) {
       function restoreEndPoint(start) {
         var container, offset, node;
 
         function nodeIndex(container) {
-          var node = container.parentNode.firstChild, idx = 0;
+          var node = container.parentNode.firstChild,
+            idx = 0;
 
           while (node) {
             if (node == container) {
@@ -333,7 +344,10 @@ jsc*/
             }
 
             // Skip data-mce-type=bookmark nodes
-            if (node.nodeType != 1 || node.getAttribute("data-mce-type") != "bookmark") {
+            if (
+              node.nodeType != 1 ||
+              node.getAttribute("data-mce-type") != "bookmark"
+            ) {
               idx++;
             }
 
@@ -376,38 +390,38 @@ jsc*/
 
     return {
       create: create,
-      resolve: resolve
+      resolve: resolve,
     };
   });
-
-
 
   defineGlobal("global!tinymce.dom.TreeWalker", tinymce.dom.TreeWalker);
   defineGlobal("global!tinymce.dom.RangeUtils", tinymce.dom.RangeUtils);
   /**
- * Unlink.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Unlink.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   /**
- * Unlink implementation that doesn't leave partial links for example it would produce:
- *  a[b<a href="x">c]d</a>e -> a[bc]de
- * instead of:
- *  a[b<a href="x">c]d</a>e -> a[bc]<a href="x">d</a>e
- */
+   * Unlink implementation that doesn't leave partial links for example it would produce:
+   *  a[b<a href="x">c]d</a>e -> a[bc]de
+   * instead of:
+   *  a[b<a href="x">c]d</a>e -> a[bc]<a href="x">d</a>e
+   */
   define("tinymce/inlite/alien/Unlink", [
     "tinymce/inlite/alien/Bookmark",
     "global!tinymce.util.Tools",
     "global!tinymce.dom.TreeWalker",
-    "global!tinymce.dom.RangeUtils"
+    "global!tinymce.dom.RangeUtils",
   ], function (Bookmark, Tools, TreeWalker, RangeUtils) {
     var getSelectedElements = function (rootElm, startNode, endNode) {
-      var walker, node, elms = [];
+      var walker,
+        node,
+        elms = [];
 
       walker = new TreeWalker(startNode, rootElm);
       for (node = startNode; node; node = walker.next()) {
@@ -452,10 +466,16 @@ jsc*/
       selection = editor.selection;
       dom = editor.dom;
       rng = selection.getRng();
-      startElm = getParentAnchorOrSelf(dom, RangeUtils.getNode(rng.startContainer, rng.startOffset));
+      startElm = getParentAnchorOrSelf(
+        dom,
+        RangeUtils.getNode(rng.startContainer, rng.startOffset),
+      );
       endElm = RangeUtils.getNode(rng.endContainer, rng.endOffset);
       rootElm = editor.getBody();
-      anchorElms = Tools.grep(getSelectedElements(rootElm, startElm, endElm), isLink);
+      anchorElms = Tools.grep(
+        getSelectedElements(rootElm, startElm, endElm),
+        isLink,
+      );
 
       return anchorElms;
     };
@@ -465,28 +485,28 @@ jsc*/
     };
 
     return {
-      unlinkSelection: unlinkSelection
+      unlinkSelection: unlinkSelection,
     };
   });
 
   /**
- * Actions.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Actions.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/core/Actions", [
     "tinymce/inlite/alien/Uuid",
-    "tinymce/inlite/alien/Unlink"
+    "tinymce/inlite/alien/Unlink",
   ], function (Uuid, Unlink) {
     var createTableHtml = function (cols, rows) {
       var x, y, html;
 
-      html = "<table data-mce-id=\"mce\" style=\"width: 100%\">";
+      html = '<table data-mce-id="mce" style="width: 100%">';
       html += "<tbody>";
 
       for (y = 0; y < rows; y++) {
@@ -534,7 +554,9 @@ jsc*/
       blobInfo = blobCache.create(Uuid.uuid("mceu"), blob, base64);
       blobCache.add(blobInfo);
 
-      editor.insertContent(editor.dom.createHTML("img", {src: blobInfo.blobUri()}));
+      editor.insertContent(
+        editor.dom.createHTML("img", { src: blobInfo.blobUri() }),
+      );
     };
 
     var collapseSelectionToEnd = function (editor) {
@@ -554,7 +576,7 @@ jsc*/
     };
 
     var insertLink = function (editor, url) {
-      editor.execCommand("mceInsertLink", false, {href: url});
+      editor.execCommand("mceInsertLink", false, { href: url });
       collapseSelectionToEnd(editor);
     };
 
@@ -564,7 +586,9 @@ jsc*/
     };
 
     var createLink = function (editor, url) {
-      url.trim().length === 0 ? unlink(editor) : updateOrInsertLink(editor, url);
+      url.trim().length === 0
+        ? unlink(editor)
+        : updateOrInsertLink(editor, url);
     };
 
     return {
@@ -572,24 +596,25 @@ jsc*/
       formatBlock: formatBlock,
       insertBlob: insertBlob,
       createLink: createLink,
-      unlink: unlink
+      unlink: unlink,
     };
   });
 
   /**
- * UrlType.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * UrlType.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
-  define("tinymce/inlite/core/UrlType", [
-  ], function () {
+  define("tinymce/inlite/core/UrlType", [], function () {
     var isDomainLike = function (href) {
-      return /^www\.|\.(com|org|edu|gov|uk|net|ca|de|jp|fr|au|us|ru|ch|it|nl|se|no|es|mil)$/i.test(href.trim());
+      return /^www\.|\.(com|org|edu|gov|uk|net|ca|de|jp|fr|au|us|ru|ch|it|nl|se|no|es|mil)$/i.test(
+        href.trim(),
+      );
     };
 
     var isAbsolute = function (href) {
@@ -598,45 +623,49 @@ jsc*/
 
     return {
       isDomainLike: isDomainLike,
-      isAbsolute: isAbsolute
+      isAbsolute: isAbsolute,
     };
   });
 
-
-
   /**
- * Forms.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Forms.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/ui/Forms", [
     "global!tinymce.util.Tools",
     "global!tinymce.ui.Factory",
     "global!tinymce.util.Promise",
     "tinymce/inlite/core/Actions",
-    "tinymce/inlite/core/UrlType"
+    "tinymce/inlite/core/UrlType",
   ], function (Tools, Factory, Promise, Actions, UrlType) {
     var focusFirstTextBox = function (form) {
-      form.find("textbox").eq(0).each(function (ctrl) {
-        ctrl.focus();
-      });
+      form
+        .find("textbox")
+        .eq(0)
+        .each(function (ctrl) {
+          ctrl.focus();
+        });
     };
 
     var createForm = function (name, spec) {
       var form = Factory.create(
-        Tools.extend({
-          type: "form",
-          layout: "flex",
-          direction: "row",
-          padding: 5,
-          name: name,
-          spacing: 3
-        }, spec)
+        Tools.extend(
+          {
+            type: "form",
+            layout: "flex",
+            direction: "row",
+            padding: 5,
+            name: name,
+            spacing: 3,
+          },
+          spec,
+        ),
       );
 
       form.on("show", function () {
@@ -657,13 +686,15 @@ jsc*/
           function (result) {
             var output = result === true ? "http://" + href : href;
             resolve(output);
-          }
+          },
         );
       });
     };
 
     var convertLinkToAbsolute = function (editor, href) {
-      return !UrlType.isAbsolute(href) && UrlType.isDomainLike(href) ? askAboutPrefix(editor, href) : Promise.resolve(href);
+      return !UrlType.isAbsolute(href) && UrlType.isDomainLike(href)
+        ? askAboutPrefix(editor, href)
+        : Promise.resolve(href);
     };
 
     var createQuickLinkForm = function (editor, hide) {
@@ -675,12 +706,29 @@ jsc*/
 
       return createForm("quicklink", {
         items: [
-          {type: "button", name: "unlink", icon: "unlink", onclick: unlink, tooltip: "Remove link"},
-          {type: "textbox", name: "linkurl", placeholder: "Paste or type a link"},
-          {type: "button", icon: "checkmark", subtype: "primary", tooltip: "Ok", onclick: "submit"}
+          {
+            type: "button",
+            name: "unlink",
+            icon: "unlink",
+            onclick: unlink,
+            tooltip: "Remove link",
+          },
+          {
+            type: "textbox",
+            name: "linkurl",
+            placeholder: "Paste or type a link",
+          },
+          {
+            type: "button",
+            icon: "checkmark",
+            subtype: "primary",
+            tooltip: "Ok",
+            onclick: "submit",
+          },
         ],
         onshow: function () {
-          var elm, linkurl = "";
+          var elm,
+            linkurl = "";
 
           elm = editor.dom.getParent(editor.selection.getStart(), "a[href]");
           if (elm) {
@@ -688,7 +736,7 @@ jsc*/
           }
 
           this.fromJSON({
-            linkurl: linkurl
+            linkurl: linkurl,
           });
 
           toggleVisibility(this.find("#unlink"), elm);
@@ -698,34 +746,33 @@ jsc*/
             Actions.createLink(editor, url);
             hide();
           });
-        }
+        },
       });
     };
 
     return {
-      createQuickLinkForm: createQuickLinkForm
+      createQuickLinkForm: createQuickLinkForm,
     };
   });
 
   defineGlobal("global!tinymce.geom.Rect", tinymce.geom.Rect);
   /**
- * Convert.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Convert.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
-  define("tinymce/inlite/core/Convert", [
-  ], function () {
+  define("tinymce/inlite/core/Convert", [], function () {
     var fromClientRect = function (clientRect) {
       return {
         x: clientRect.left,
         y: clientRect.top,
         w: clientRect.width,
-        h: clientRect.height
+        h: clientRect.height,
       };
     };
 
@@ -736,30 +783,30 @@ jsc*/
         width: geomRect.w,
         height: geomRect.h,
         right: geomRect.x + geomRect.w,
-        bottom: geomRect.y + geomRect.h
+        bottom: geomRect.y + geomRect.h,
       };
     };
 
     return {
       fromClientRect: fromClientRect,
-      toClientRect: toClientRect
+      toClientRect: toClientRect,
     };
   });
 
   /**
- * Measure.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Measure.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/core/Measure", [
     "global!tinymce.DOM",
     "global!tinymce.geom.Rect",
-    "tinymce/inlite/core/Convert"
+    "tinymce/inlite/core/Convert",
   ], function (DOM, Rect, Convert) {
     var toAbsolute = function (rect) {
       var vp = DOM.getViewPort();
@@ -768,7 +815,7 @@ jsc*/
         x: rect.x + vp.x,
         y: rect.y + vp.y,
         w: rect.w,
-        h: rect.h
+        h: rect.h,
       };
     };
 
@@ -779,7 +826,7 @@ jsc*/
         x: clientRect.left,
         y: clientRect.top,
         w: Math.max(elm.clientWidth, elm.offsetWidth),
-        h: Math.max(elm.clientHeight, elm.offsetHeight)
+        h: Math.max(elm.clientHeight, elm.offsetHeight),
       });
     };
 
@@ -792,7 +839,9 @@ jsc*/
     };
 
     var getContentAreaRect = function (editor) {
-      return measureElement(editor.getContentAreaContainer() || editor.getBody());
+      return measureElement(
+        editor.getContentAreaContainer() || editor.getBody(),
+      );
     };
 
     var getSelectionRect = function (editor) {
@@ -804,39 +853,50 @@ jsc*/
       getElementRect: getElementRect,
       getPageAreaRect: getPageAreaRect,
       getContentAreaRect: getContentAreaRect,
-      getSelectionRect: getSelectionRect
+      getSelectionRect: getSelectionRect,
     };
   });
 
   /**
- * Layout.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Layout.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/core/Layout", [
     "global!tinymce.geom.Rect",
-    "tinymce/inlite/core/Convert"
+    "tinymce/inlite/core/Convert",
   ], function (Rect, Convert) {
     var result = function (rect, position) {
       return {
         rect: rect,
-        position: position
+        position: position,
       };
     };
 
     var moveTo = function (rect, toRect) {
-      return {x: toRect.x, y: toRect.y, w: rect.w, h: rect.h};
+      return { x: toRect.x, y: toRect.y, w: rect.w, h: rect.h };
     };
 
-    var calcByPositions = function (testPositions1, testPositions2, targetRect, contentAreaRect, panelRect) {
+    var calcByPositions = function (
+      testPositions1,
+      testPositions2,
+      targetRect,
+      contentAreaRect,
+      panelRect,
+    ) {
       var relPos, relRect, outputPanelRect;
 
-      relPos = Rect.findBestRelativePosition(panelRect, targetRect, contentAreaRect, testPositions1);
+      relPos = Rect.findBestRelativePosition(
+        panelRect,
+        targetRect,
+        contentAreaRect,
+        testPositions1,
+      );
       targetRect = Rect.clamp(targetRect, contentAreaRect);
 
       if (relPos) {
@@ -847,7 +907,12 @@ jsc*/
 
       targetRect = Rect.intersect(contentAreaRect, targetRect);
       if (targetRect) {
-        relPos = Rect.findBestRelativePosition(panelRect, targetRect, contentAreaRect, testPositions2);
+        relPos = Rect.findBestRelativePosition(
+          panelRect,
+          targetRect,
+          contentAreaRect,
+          testPositions2,
+        );
         if (relPos) {
           relRect = Rect.relativePosition(panelRect, targetRect, relPos);
           outputPanelRect = moveTo(panelRect, relRect);
@@ -867,7 +932,7 @@ jsc*/
         ["bc-tc", "bl-tl", "br-tr"],
         targetRect,
         contentAreaRect,
-        panelRect
+        panelRect,
       );
     };
 
@@ -877,18 +942,23 @@ jsc*/
         ["bc-tc", "bl-tl", "br-tr"],
         targetRect,
         contentAreaRect,
-        panelRect
+        panelRect,
       );
     };
 
-    var userConstrain = function (handler, targetRect, contentAreaRect, panelRect) {
+    var userConstrain = function (
+      handler,
+      targetRect,
+      contentAreaRect,
+      panelRect,
+    ) {
       var userConstrainedPanelRect;
 
       if (typeof handler === "function") {
         userConstrainedPanelRect = handler({
           elementRect: Convert.toClientRect(targetRect),
           contentAreaRect: Convert.toClientRect(contentAreaRect),
-          panelRect: Convert.toClientRect(panelRect)
+          panelRect: Convert.toClientRect(panelRect),
         });
 
         return Convert.fromClientRect(userConstrainedPanelRect);
@@ -900,19 +970,19 @@ jsc*/
     return {
       calcInsert: calcInsert,
       calc: calc,
-      userConstrain: userConstrain
+      userConstrain: userConstrain,
     };
   });
 
   /**
- * Panel.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Panel.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/ui/Panel", [
     "global!tinymce.util.Tools",
@@ -921,10 +991,11 @@ jsc*/
     "tinymce/inlite/ui/Toolbar",
     "tinymce/inlite/ui/Forms",
     "tinymce/inlite/core/Measure",
-    "tinymce/inlite/core/Layout"
+    "tinymce/inlite/core/Layout",
   ], function (Tools, Factory, DOM, Toolbar, Forms, Measure, Layout) {
     return function () {
-      var DEFAULT_TEXT_SELECTION_ITEMS = "bold italic | quicklink h2 h3 blockquote";
+      var DEFAULT_TEXT_SELECTION_ITEMS =
+        "bold italic | quicklink h2 h3 blockquote";
       var DEFAULT_INSERT_TOOLBAR_ITEMS = "quickimage quicktable";
       var panel, currentRect;
 
@@ -945,13 +1016,18 @@ jsc*/
       };
 
       var create = function (editor, toolbars) {
-        var items, settings = editor.settings;
+        var items,
+          settings = editor.settings;
 
         items = createToolbars(editor, toolbars);
         items = items.concat([
-          Toolbar.create(editor, "text", getTextSelectionToolbarItems(settings)),
+          Toolbar.create(
+            editor,
+            "text",
+            getTextSelectionToolbarItems(settings),
+          ),
           Toolbar.create(editor, "insert", getInsertToolbarItems(settings)),
-          Forms.createQuickLinkForm(editor, hide)
+          Forms.createQuickLinkForm(editor, hide),
         ]);
 
         return Factory.create({
@@ -967,9 +1043,9 @@ jsc*/
           fixed: true,
           border: 1,
           items: items,
-          oncancel: function() {
+          oncancel: function () {
             editor.focus();
-          }
+          },
         });
       };
 
@@ -986,13 +1062,16 @@ jsc*/
       var togglePositionClass = function (panel, relPos) {
         relPos = relPos ? relPos.substr(0, 2) : "";
 
-        Tools.each({
-          t: "down",
-          b: "up",
-          c: "center"
-        }, function(cls, pos) {
-          panel.classes.toggle("arrow-" + cls, pos === relPos.substr(0, 1));
-        });
+        Tools.each(
+          {
+            t: "down",
+            b: "up",
+            c: "center",
+          },
+          function (cls, pos) {
+            panel.classes.toggle("arrow-" + cls, pos === relPos.substr(0, 1));
+          },
+        );
 
         if (relPos === "cr") {
           panel.classes.toggle("arrow-left", true);
@@ -1001,12 +1080,15 @@ jsc*/
           panel.classes.toggle("arrow-left", true);
           panel.classes.toggle("arrow-right", true);
         } else {
-          Tools.each({
-            l: "left",
-            r: "right"
-          }, function(cls, pos) {
-            panel.classes.toggle("arrow-" + cls, pos === relPos.substr(1, 1));
-          });
+          Tools.each(
+            {
+              l: "left",
+              r: "right",
+            },
+            function (cls, pos) {
+              panel.classes.toggle("arrow-" + cls, pos === relPos.substr(1, 1));
+            },
+          );
         }
       };
 
@@ -1039,7 +1121,15 @@ jsc*/
         if (result) {
           panelRect = result.rect;
           currentRect = targetRect;
-          movePanelTo(panel, Layout.userConstrain(userConstainHandler, targetRect, contentAreaRect, panelRect));
+          movePanelTo(
+            panel,
+            Layout.userConstrain(
+              userConstainHandler,
+              targetRect,
+              contentAreaRect,
+              panelRect,
+            ),
+          );
 
           togglePositionClass(panel, result.position);
         } else {
@@ -1070,7 +1160,15 @@ jsc*/
 
           if (result) {
             panelRect = result.rect;
-            movePanelTo(panel, Layout.userConstrain(userConstainHandler, currentRect, contentAreaRect, panelRect));
+            movePanelTo(
+              panel,
+              Layout.userConstrain(
+                userConstainHandler,
+                currentRect,
+                contentAreaRect,
+                panelRect,
+              ),
+            );
 
             togglePositionClass(panel, result.position);
           }
@@ -1080,7 +1178,10 @@ jsc*/
       var show = function (editor, id, targetRect, toolbars) {
         if (!panel) {
           panel = create(editor, toolbars);
-          panel.renderTo(document.body).reflow().moveTo(targetRect.x, targetRect.y);
+          panel
+            .renderTo(document.body)
+            .reflow()
+            .moveTo(targetRect.x, targetRect.y);
           editor.nodeChanged();
         }
 
@@ -1095,9 +1196,12 @@ jsc*/
 
       var focus = function () {
         if (panel) {
-          panel.find("toolbar:visible").eq(0).each(function (item) {
-            item.focus(true);
-          });
+          panel
+            .find("toolbar:visible")
+            .eq(0)
+            .each(function (item) {
+              item.focus(true);
+            });
         }
       };
 
@@ -1118,29 +1222,29 @@ jsc*/
         inForm: inForm,
         hide: hide,
         focus: focus,
-        remove: remove
+        remove: remove,
       };
     };
   });
 
   /**
- * Conversions.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Conversions.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/file/Conversions", [
-    "global!tinymce.util.Promise"
+    "global!tinymce.util.Promise",
   ], function (Promise) {
     var blobToBase64 = function (blob) {
-      return new Promise(function(resolve) {
+      return new Promise(function (resolve) {
         var reader = new FileReader();
 
-        reader.onloadend = function() {
+        reader.onloadend = function () {
           resolve(reader.result.split(",")[1]);
         };
 
@@ -1149,24 +1253,22 @@ jsc*/
     };
 
     return {
-      blobToBase64: blobToBase64
+      blobToBase64: blobToBase64,
     };
   });
 
-
-
   /**
- * Picker.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Picker.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/file/Picker", [
-    "global!tinymce.util.Promise"
+    "global!tinymce.util.Promise",
   ], function (Promise) {
     var pickFile = function () {
       return new Promise(function (resolve) {
@@ -1180,7 +1282,7 @@ jsc*/
         fileInput.style.opacity = 0.001;
         document.body.appendChild(fileInput);
 
-        fileInput.onchange = function(e) {
+        fileInput.onchange = function (e) {
           resolve(Array.prototype.slice.call(e.target.files));
         };
 
@@ -1190,27 +1292,25 @@ jsc*/
     };
 
     return {
-      pickFile: pickFile
+      pickFile: pickFile,
     };
   });
 
-
-
   /**
- * Buttons.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Buttons.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/ui/Buttons", [
     "tinymce/inlite/ui/Panel",
     "tinymce/inlite/file/Conversions",
     "tinymce/inlite/file/Picker",
-    "tinymce/inlite/core/Actions"
+    "tinymce/inlite/core/Actions",
   ], function (Panel, Conversions, Picker, Actions) {
     var addHeaderButtons = function (editor) {
       var formatBlock = function (name) {
@@ -1231,7 +1331,7 @@ jsc*/
             // TODO: Remove this hack that produces bold H1-H6 when we have proper icons
             var span = this.getEl().firstChild.firstChild;
             span.style.fontWeight = "bold";
-          }
+          },
         });
       }
     };
@@ -1243,7 +1343,7 @@ jsc*/
         stateSelector: "a[href]",
         onclick: function () {
           panel.showForm(editor, "quicklink");
-        }
+        },
       });
 
       editor.addButton("quickimage", {
@@ -1257,7 +1357,7 @@ jsc*/
               Actions.insertBlob(editor, base64, blob);
             });
           });
-        }
+        },
       });
 
       editor.addButton("quicktable", {
@@ -1266,31 +1366,31 @@ jsc*/
         onclick: function () {
           panel.hide();
           Actions.insertTable(editor, 2, 2);
-        }
+        },
       });
 
       addHeaderButtons(editor);
     };
 
     return {
-      addToEditor: addToEditor
+      addToEditor: addToEditor,
     };
   });
 
   defineGlobal("global!tinymce.EditorManager", tinymce.EditorManager);
   /**
- * SkinLoader.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * SkinLoader.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/core/SkinLoader", [
     "global!tinymce.EditorManager",
-    "global!tinymce.DOM"
+    "global!tinymce.DOM",
   ], function (EditorManager, DOM) {
     var fireSkinLoaded = function (editor, callback) {
       var done = function () {
@@ -1318,29 +1418,26 @@ jsc*/
     };
 
     return {
-      load: load
+      load: load,
     };
   });
 
-
-
   /**
- * Matcher.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Matcher.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
-  define("tinymce/inlite/core/Matcher", [
-  ], function () {
+  define("tinymce/inlite/core/Matcher", [], function () {
     // result :: String, Rect -> Matcher.result
     var result = function (id, rect) {
       return {
         id: id,
-        rect: rect
+        rect: rect,
       };
     };
 
@@ -1360,23 +1457,23 @@ jsc*/
 
     return {
       match: match,
-      result: result
+      result: result,
     };
   });
 
   /**
- * SelectionMatcher.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * SelectionMatcher.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/core/SelectionMatcher", [
     "tinymce/inlite/core/Matcher",
-    "tinymce/inlite/core/Measure"
+    "tinymce/inlite/core/Measure",
   ], function (Matcher, Measure) {
     // textSelection :: String -> (Editor -> Matcher.result | Null)
     var textSelection = function (id) {
@@ -1392,7 +1489,8 @@ jsc*/
     // emptyTextBlock :: [Elements], String -> (Editor -> Matcher.result | Null)
     var emptyTextBlock = function (elements, id) {
       return function (editor) {
-        var i, textBlockElementsMap = editor.schema.getTextBlockElements();
+        var i,
+          textBlockElementsMap = editor.schema.getTextBlockElements();
 
         for (i = 0; i < elements.length; i++) {
           if (elements[i].nodeName === "TABLE") {
@@ -1416,30 +1514,33 @@ jsc*/
 
     return {
       textSelection: textSelection,
-      emptyTextBlock: emptyTextBlock
+      emptyTextBlock: emptyTextBlock,
     };
   });
 
   /**
- * ElementMatcher.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * ElementMatcher.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/core/ElementMatcher", [
     "tinymce/inlite/core/Matcher",
-    "tinymce/inlite/core/Measure"
+    "tinymce/inlite/core/Measure",
   ], function (Matcher, Measure) {
     // element :: Element, [PredicateId] -> (Editor -> Matcher.result | Null)
     var element = function (element, predicateIds) {
       return function (editor) {
         for (var i = 0; i < predicateIds.length; i++) {
           if (predicateIds[i].predicate(element)) {
-            return Matcher.result(predicateIds[i].id, Measure.getElementRect(editor, element));
+            return Matcher.result(
+              predicateIds[i].id,
+              Measure.getElementRect(editor, element),
+            );
           }
         }
 
@@ -1453,7 +1554,10 @@ jsc*/
         for (var i = 0; i < elements.length; i++) {
           for (var x = 0; x < predicateIds.length; x++) {
             if (predicateIds[x].predicate(elements[i])) {
-              return Matcher.result(predicateIds[x].id, Measure.getElementRect(editor, elements[i]));
+              return Matcher.result(
+                predicateIds[x].id,
+                Measure.getElementRect(editor, elements[i]),
+              );
             }
           }
         }
@@ -1464,50 +1568,51 @@ jsc*/
 
     return {
       element: element,
-      parent: parent
+      parent: parent,
     };
   });
 
   /**
- * Arr.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Arr.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
-  define("tinymce/inlite/alien/Arr", [
-  ], function () {
+  define("tinymce/inlite/alien/Arr", [], function () {
     var flatten = function (arr) {
       return arr.reduce(function (results, item) {
-        return Array.isArray(item) ? results.concat(flatten(item)) : results.concat(item);
+        return Array.isArray(item)
+          ? results.concat(flatten(item))
+          : results.concat(item);
       }, []);
     };
 
     return {
-      flatten: flatten
+      flatten: flatten,
     };
   });
 
   /**
- * PredicateId.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * PredicateId.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/core/PredicateId", [
-    "global!tinymce.util.Tools"
+    "global!tinymce.util.Tools",
   ], function (Tools) {
     var create = function (id, predicate) {
       return {
         id: id,
-        predicate: predicate
+        predicate: predicate,
       };
     };
 
@@ -1520,19 +1625,19 @@ jsc*/
 
     return {
       create: create,
-      fromContextToolbars: fromContextToolbars
+      fromContextToolbars: fromContextToolbars,
     };
   });
 
   /**
- * Theme.js
- *
- * Released under LGPL License.
- * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
- *
- * License: http://www.tinymce.com/license
- * Contributing: http://www.tinymce.com/contributing
- */
+   * Theme.js
+   *
+   * Released under LGPL License.
+   * Copyright (c) 1999-2016 Ephox Corp. All rights reserved
+   *
+   * License: http://www.tinymce.com/license
+   * Contributing: http://www.tinymce.com/contributing
+   */
 
   define("tinymce/inlite/Theme", [
     "global!tinymce.ThemeManager",
@@ -1544,8 +1649,19 @@ jsc*/
     "tinymce/inlite/core/ElementMatcher",
     "tinymce/inlite/core/Matcher",
     "tinymce/inlite/alien/Arr",
-    "tinymce/inlite/core/PredicateId"
-  ], function(ThemeManager, Delay, Panel, Buttons, SkinLoader, SelectionMatcher, ElementMatcher, Matcher, Arr, PredicateId) {
+    "tinymce/inlite/core/PredicateId",
+  ], function (
+    ThemeManager,
+    Delay,
+    Panel,
+    Buttons,
+    SkinLoader,
+    SelectionMatcher,
+    ElementMatcher,
+    Matcher,
+    Arr,
+    PredicateId,
+  ) {
     var getSelectionElements = function (editor) {
       var node = editor.selection.getNode();
       var elms = editor.dom.getParents(node);
@@ -1560,7 +1676,7 @@ jsc*/
       return {
         predicate: selectorPredicate,
         id: id,
-        items: items
+        items: items,
       };
     };
 
@@ -1569,7 +1685,12 @@ jsc*/
 
       return Arr.flatten([
         contextToolbars ? contextToolbars : [],
-        createToolbar(editor, "img", "image", "alignleft aligncenter alignright")
+        createToolbar(
+          editor,
+          "img",
+          "image",
+          "alignleft aligncenter alignright",
+        ),
       ]);
     };
 
@@ -1583,7 +1704,7 @@ jsc*/
         ElementMatcher.element(elements[0], contextToolbarsPredicateIds),
         SelectionMatcher.textSelection("text"),
         SelectionMatcher.emptyTextBlock(elements, "insert"),
-        ElementMatcher.parent(elements, contextToolbarsPredicateIds)
+        ElementMatcher.parent(elements, contextToolbarsPredicateIds),
       ]);
 
       return result && result.rect ? result : null;
@@ -1618,7 +1739,10 @@ jsc*/
 
     var bindContextualToolbarsEvents = function (editor, panel) {
       var throttledTogglePanel = Delay.throttle(togglePanel(editor, panel), 0);
-      var throttledTogglePanelWhenNotInForm = Delay.throttle(ignoreWhenFormIsVisible(panel, togglePanel(editor, panel)), 0);
+      var throttledTogglePanelWhenNotInForm = Delay.throttle(
+        ignoreWhenFormIsVisible(panel, togglePanel(editor, panel)),
+        0,
+      );
 
       editor.on("blur hide ObjectResizeStart", panel.hide);
       editor.on("click", throttledTogglePanel);
@@ -1633,9 +1757,9 @@ jsc*/
       editor.shortcuts.remove("meta+k");
       editor.shortcuts.add("meta+k", "", function () {
         var toolbars = getToolbars(editor);
-        var result = result = Matcher.match(editor, [
-          SelectionMatcher.textSelection("quicklink")
-        ]);
+        var result = (result = Matcher.match(editor, [
+          SelectionMatcher.textSelection("quicklink"),
+        ]));
 
         if (result) {
           panel.show(editor, result.id, result.rect, toolbars);
@@ -1664,15 +1788,17 @@ jsc*/
       Buttons.addToEditor(editor, panel);
 
       var renderUI = function () {
-        return editor.inline ? renderInlineUI(editor, panel) : fail("inlite theme only supports inline mode.");
+        return editor.inline
+          ? renderInlineUI(editor, panel)
+          : fail("inlite theme only supports inline mode.");
       };
 
       return {
-        renderUI: renderUI
+        renderUI: renderUI,
       };
     });
 
-    return function() {};
+    return function () {};
   });
 
   dem("tinymce/inlite/Theme")();

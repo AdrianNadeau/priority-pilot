@@ -13,9 +13,9 @@ $(function () {
       $(this).tooltip({
         container: "body",
         placement: "bottom",
-        title: "Rate " + rate
+        title: "Rate " + rate,
       });
-    }
+    },
   });
   $(".rating-tooltip-manual").rating({
     extendSymbol: function () {
@@ -26,19 +26,20 @@ $(function () {
         trigger: "manual",
         title: function () {
           return title;
-        }
+        },
       });
-      $(this).on("rating.rateenter", function (e, rate) {
-        title = rate;
-        $(this).tooltip("show");
-      })
+      $(this)
+        .on("rating.rateenter", function (e, rate) {
+          title = rate;
+          $(this).tooltip("show");
+        })
         .on("rating.rateleave", function () {
           $(this).tooltip("hide");
         });
-    }
+    },
   });
   $(".rating").each(function () {
-    $("<span class=\"badge badge-primary\"></span>")
+    $('<span class="badge badge-primary"></span>')
       .text($(this).val() || "")
       .insertAfter(this);
   });

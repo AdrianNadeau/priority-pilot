@@ -10,7 +10,7 @@
 
 define("tinymce/inlite/core/SkinLoader", [
   "global!tinymce.EditorManager",
-  "global!tinymce.DOM"
+  "global!tinymce.DOM",
 ], function (EditorManager, DOM) {
   var fireSkinLoaded = function (editor, callback) {
     var done = function () {
@@ -38,8 +38,6 @@ define("tinymce/inlite/core/SkinLoader", [
   };
 
   return {
-    load: load
+    load: load,
   };
 });
-
-

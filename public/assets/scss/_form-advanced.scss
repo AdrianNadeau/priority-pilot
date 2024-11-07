@@ -7,18 +7,26 @@
   padding: 8px;
 }
 
-.datepicker table tr td.active, .datepicker table tr td.active:hover, .datepicker table tr td.active.disabled,
-.datepicker table tr td.active.disabled:hover,.datepicker table tr td.today, .datepicker table tr td.today.disabled,
-.datepicker table tr td.today.disabled:hover, .datepicker table tr td.today:hover,.datepicker table tr td.selected,
-.datepicker table tr td.selected.disabled, .datepicker table tr td.selected.disabled:hover,
-.datepicker table tr td.selected:hover  {
+.datepicker table tr td.active,
+.datepicker table tr td.active:hover,
+.datepicker table tr td.active.disabled,
+.datepicker table tr td.active.disabled:hover,
+.datepicker table tr td.today,
+.datepicker table tr td.today.disabled,
+.datepicker table tr td.today.disabled:hover,
+.datepicker table tr td.today:hover,
+.datepicker table tr td.selected,
+.datepicker table tr td.selected.disabled,
+.datepicker table tr td.selected.disabled:hover,
+.datepicker table tr td.selected:hover {
   background-color: $primary !important;
   background-image: none;
   box-shadow: none;
   color: $white;
 }
 
-.table-condensed>thead>tr>th, .table-condensed>tbody>tr>td {
+.table-condensed > thead > tr > th,
+.table-condensed > tbody > tr > td {
   padding: 5px;
 }
 
@@ -52,8 +60,8 @@
   }
 }
 
-.colorpicker-element{
-  .btn-light{
+.colorpicker-element {
+  .btn-light {
     background: darken($light, 3%);
   }
 }
@@ -80,7 +88,7 @@
   width: 100% !important;
 
   .select2-selection--single {
-    border: 1px solid #E3E3E3;
+    border: 1px solid #e3e3e3;
     height: 38px;
 
     .select2-selection__rendered {
@@ -93,7 +101,7 @@
       width: 34px;
       right: 3px;
 
-      b{
+      b {
         border-color: #999 transparent transparent transparent;
         border-width: 6px 6px 0 6px;
       }
@@ -103,10 +111,8 @@
 
 .select2-container--open {
   .select2-selection--single {
-
     .select2-selection__arrow {
-
-      b{
+      b {
         border-color: transparent transparent #999 transparent;
         border-width: 0 6px 6px 6px !important;
       }
@@ -114,7 +120,8 @@
   }
 }
 
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
+.select2-container--default
+  .select2-results__option--highlighted[aria-selected] {
   background-color: $primary;
 }
 .select2-results__option {
@@ -124,10 +131,10 @@
 .select2-dropdown {
   border: 1px solid #e3e3e3;
   padding-top: 5px;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, .15);
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.15);
 }
 .select2-search {
-  input{
+  input {
     border: 1px solid #e3e3e3;
   }
 }
@@ -150,7 +157,6 @@
     padding: 0 7px;
   }
 }
-
 
 /* CSS Switch */
 input[switch] {
@@ -193,7 +199,7 @@ input[switch] + label:before {
   transition: all 0.1s ease-in-out;
 }
 input[switch] + label:after {
-  content: '';
+  content: "";
   position: absolute;
   left: 3px;
   background-color: $light5;
@@ -222,8 +228,9 @@ input[switch]:checked + label:after {
 input[switch="bool"] + label {
   background-color: $danger;
 }
-input[switch="bool"] + label:before,input[switch="bool"]:checked + label:before,
-input[switch="default"]:checked + label:before{
+input[switch="bool"] + label:before,
+input[switch="bool"]:checked + label:before,
+input[switch="default"]:checked + label:before {
   color: $white;
 }
 
@@ -287,7 +294,6 @@ input[switch="blue-grey"]:checked + label {
   background-color: $blue-grey;
 }
 
-
 /* Bootstrap filestyle */
 .icon-span-filestyle {
   padding-right: 5px;
@@ -302,6 +308,3 @@ input[switch="blue-grey"]:checked + label {
     background-color: $dark;
   }
 }
-
-
-

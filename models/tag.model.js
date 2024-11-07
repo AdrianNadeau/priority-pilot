@@ -4,15 +4,14 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     tag_name: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     company_id_fk: {
       type: Sequelize.DataTypes.INTEGER,
-         
-    }
+    },
   });
 
   return Tag;

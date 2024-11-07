@@ -8,18 +8,24 @@
 @font-face {
   font-family: "Ionicons";
   src: url("../fonts/ionicons.eot?v=1.5.0");
-  src: url("../fonts/ionicons.eot?v=1.5.0#iefix") format("embedded-opentype"), url("../fonts/ionicons.ttf?v=1.5.0") format("truetype"), url("../fonts/ionicons.woff?v=1.5.0") format("woff"), url("../fonts/ionicons.svg?v=1.5.0#Ionicons") format("svg");
+  src:
+    url("../fonts/ionicons.eot?v=1.5.0#iefix") format("embedded-opentype"),
+    url("../fonts/ionicons.ttf?v=1.5.0") format("truetype"),
+    url("../fonts/ionicons.woff?v=1.5.0") format("woff"),
+    url("../fonts/ionicons.svg?v=1.5.0#Ionicons") format("svg");
   font-weight: normal;
   font-style: normal;
 }
 
-.ion, .ion-loading-a,
+.ion,
+.ion-loading-a,
 .ion-loading-b,
 .ion-loading-c,
 .ion-loading-d,
 .ion-looping,
 .ion-refreshing,
-.ion-ios7-reloading, .ionicons,
+.ion-ios7-reloading,
+.ionicons,
 .ion-alert,
 .ion-alert-circled,
 .ion-android-add,
@@ -634,7 +640,8 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.ion-spin, .ion-loading-a,
+.ion-spin,
+.ion-loading-a,
 .ion-loading-b,
 .ion-loading-c,
 .ion-loading-d,
@@ -657,11 +664,11 @@
 @keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);
-            transform: rotate(0deg);
+    transform: rotate(0deg);
   }
   100% {
     -webkit-transform: rotate(359deg);
-            transform: rotate(359deg);
+    transform: rotate(359deg);
   }
 }
 
@@ -2174,7 +2181,8 @@
   content: "";
 }
 
-.ion-ios7-reload:before, .ion-ios7-reloading:before {
+.ion-ios7-reload:before,
+.ion-ios7-reloading:before {
   content: "";
 }
 
@@ -2426,19 +2434,23 @@
   content: "";
 }
 
-.ion-load-a:before, .ion-loading-a:before {
+.ion-load-a:before,
+.ion-loading-a:before {
   content: "";
 }
 
-.ion-load-b:before, .ion-loading-b:before {
+.ion-load-b:before,
+.ion-loading-b:before {
   content: "";
 }
 
-.ion-load-c:before, .ion-loading-c:before {
+.ion-load-c:before,
+.ion-loading-c:before {
   content: "";
 }
 
-.ion-load-d:before, .ion-loading-d:before {
+.ion-load-d:before,
+.ion-loading-d:before {
   content: "";
 }
 
@@ -2458,7 +2470,8 @@
   content: "";
 }
 
-.ion-loop:before, .ion-looping:before {
+.ion-loop:before,
+.ion-looping:before {
   content: "";
 }
 
@@ -2670,7 +2683,8 @@
   content: "";
 }
 
-.ion-refresh:before, .ion-refreshing:before {
+.ion-refresh:before,
+.ion-refreshing:before {
   content: "";
 }
 

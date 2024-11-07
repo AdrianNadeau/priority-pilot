@@ -2,10 +2,10 @@
    Gallery
 ============= */
 
-.overlay-container{
+.overlay-container {
   position: relative;
 }
-.project-item img.gallery-thumb-img{
+.project-item img.gallery-thumb-img {
   display: block;
   width: 100%;
   height: auto;
@@ -24,10 +24,22 @@
   width: 100%;
   opacity: 0;
   border-radius: 5px;
-  background: -moz-linear-gradient(top, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top, rgba(0,0,0,0.3) 0%,rgba(0,0,0,0.8) 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%,rgba(0,0,0,0.8) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  transition: .5s ease;
+  background: -moz-linear-gradient(
+    top,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.8) 100%
+  ); /* FF3.6-15 */
+  background: -webkit-linear-gradient(
+    top,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.8) 100%
+  ); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.8) 100%
+  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  transition: 0.5s ease;
 
   h4 {
     font-size: 18px;
@@ -42,7 +54,7 @@
     text-overflow: ellipsis;
   }
 
-  p{
+  p {
     font-size: 15px;
     font-weight: 600;
     white-space: nowrap;
@@ -64,5 +76,5 @@
   opacity: 1;
   height: 100%;
   width: 100%;
-  transition: .5s ease;
+  transition: 0.5s ease;
 }

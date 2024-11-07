@@ -1,8 +1,8 @@
-GMaps.prototype.createControl = function(options) {
+GMaps.prototype.createControl = function (options) {
   var control = document.createElement("div");
 
   control.style.cursor = "pointer";
-  
+
   if (options.disableDefaultStyles !== true) {
     control.style.fontFamily = "Roboto, Arial, sans-serif";
     control.style.fontSize = "11px";
@@ -16,7 +16,7 @@ GMaps.prototype.createControl = function(options) {
   if (options.id) {
     control.id = options.id;
   }
-  
+
   if (options.title) {
     control.title = options.title;
   }
@@ -28,19 +28,19 @@ GMaps.prototype.createControl = function(options) {
   if (options.content) {
     if (typeof options.content === "string") {
       control.innerHTML = options.content;
-    }
-    else if (options.content instanceof HTMLElement) {
+    } else if (options.content instanceof HTMLElement) {
       control.appendChild(options.content);
     }
   }
 
   if (options.position) {
-    control.position = google.maps.ControlPosition[options.position.toUpperCase()];
+    control.position =
+      google.maps.ControlPosition[options.position.toUpperCase()];
   }
 
   for (var ev in options.events) {
-    (function(object, name) {
-      google.maps.event.addDomListener(object, name, function(){
+    (function (object, name) {
+      google.maps.event.addDomListener(object, name, function () {
         options.events[name].apply(this, [this]);
       });
     })(control, ev);
@@ -51,16 +51,16 @@ GMaps.prototype.createControl = function(options) {
   return control;
 };
 
-GMaps.prototype.addControl = function(options) {
+GMaps.prototype.addControl = function (options) {
   var control = this.createControl(options);
-  
+
   this.controls.push(control);
   this.map.controls[control.position].push(control);
 
   return control;
 };
 
-GMaps.prototype.removeControl = function(control) {
+GMaps.prototype.removeControl = function (control) {
   var position = null,
     i;
 

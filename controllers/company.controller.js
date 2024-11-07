@@ -5,34 +5,38 @@ const Op = db.Sequelize.Op;
 
 exports.create = async (req, res) => {
   try {
-    
-    const { company_name, company_headline, company_description, company_logo} = req.body;
+    const {
+      company_name,
+      company_headline,
+      company_description,
+      company_logo,
+    } = req.body;
     if (!company_name) {
       return res.status(400).json({ message: "Company Name cannot be empty!" });
     }
 
-    const company = await Company.create({ company_name, company_headline, company_description, company_logo  });
-    
-    if(company){
+    const company = await Company.create({
+      company_name,
+      company_headline,
+      company_description,
+      company_logo,
+    });
+
+    if (company) {
       const session = req.session;
       session.company = company;
-      try{
-        console.log("create session.company:",session.company.id);
+      try {
+        console.log("create session.company:", session.company.id);
         res.redirect("/confirm");
+      } catch (err) {
+        console.log("err:", err);
       }
-      catch(err){
-        console.log("err:",err);
-      }
-      
-      
     }
-   
   } catch (error) {
     console.error("Error creating company:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 // exports.create = (req, res) => {
 //   console.log("in controller")
@@ -44,7 +48,7 @@ exports.create = async (req, res) => {
 //   console.log("create backend");
 //   // Access the data from the request body
 //   const { company_name, company_description, company_headline, company_logo } = req.body;
-  
+
 //   // Create a Company object
 //   const company = {
 //     company_name: company_name,
@@ -52,15 +56,15 @@ exports.create = async (req, res) => {
 //     company_headline: company_headline,
 //     company_logo: company_logo
 //   };
-  
-//   Company.create(company) 
+
+//   Company.create(company)
 //     .then(data => {
 //       if (!data || !data.id) {
 //         res.send("Company data or ID is missing after creation");
-        
+
 //       }
 //       else{
-       
+
 //       }
 //     })
 //     .catch(err => {
@@ -68,24 +72,22 @@ exports.create = async (req, res) => {
 //       console.log(err)
 //       res.status(500).send({
 //         message: err.message || "Some error occurred while creating the Company."
-      
+
 //       });
 //     });
 
-  
 // };
-
 
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
   Company.findAll({})
-    .then(data => {
+    .then((data) => {
       res.send(data);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-            err.message || "Some error occurred while retrieving companies."
+          err.message || "Some error occurred while retrieving companies.",
       });
     });
 };
@@ -94,18 +96,18 @@ exports.findAll = (req, res) => {
 exports.findOne = (req, res) => {
   const id = req.params.id;
   Company.findByPk(id)
-    .then(data => {
+    .then((data) => {
       if (data) {
         res.send(data);
       } else {
         res.status(404).send({
-          message: `Cannot find Company with id=${id}.`
+          message: `Cannot find Company with id=${id}.`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Error retrieving Company with id=" + id
+        message: "Error retrieving Company with id=" + id,
       });
     });
 };
@@ -113,24 +115,24 @@ exports.findOne = (req, res) => {
 // Update a Company by the id in the request
 exports.update = (req, res) => {
   const id = req.params.id;
-  
+
   Company.update(req.body, {
-    where: { id: id }
+    where: { id: id },
   })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({
-          message: "Company was updated successfully."
+          message: "Company was updated successfully.",
         });
       } else {
         res.send({
-          message: `Cannot update Company with id=${id}. Maybe Company was not found or req.body is empty or violates foreign key contstraint!`
+          message: `Cannot update Company with id=${id}. Maybe Company was not found or req.body is empty or violates foreign key contstraint!`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Error updating Company with id=" + id
+        message: "Error updating Company with id=" + id,
       });
     });
 };
@@ -138,24 +140,24 @@ exports.update = (req, res) => {
 // Delete a Company with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
-  
+
   Company.destroy({
-    where: { id: id }
+    where: { id: id },
   })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({
-          message: "Company was deleted successfully!"
+          message: "Company was deleted successfully!",
         });
       } else {
         res.send({
-          message: `Cannot delete Company with id=${id}. Maybe Company was not found!`
+          message: `Cannot delete Company with id=${id}. Maybe Company was not found!`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Could not delete Company with id=" + id
+        message: "Could not delete Company with id=" + id,
       });
     });
 };
@@ -164,16 +166,15 @@ exports.delete = (req, res) => {
 exports.deleteAll = (req, res) => {
   Company.destroy({
     where: {},
-    truncate: false
+    truncate: false,
   })
-    .then(nums => {
+    .then((nums) => {
       res.send({ message: `${nums} Companies were deleted successfully!` });
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-            err.message || "Some error occurred while removing all companies."
+          err.message || "Some error occurred while removing all companies.",
       });
     });
 };
-

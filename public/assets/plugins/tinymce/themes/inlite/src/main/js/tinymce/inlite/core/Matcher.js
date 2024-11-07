@@ -8,13 +8,12 @@
  * Contributing: http://www.tinymce.com/contributing
  */
 
-define("tinymce/inlite/core/Matcher", [
-], function () {
+define("tinymce/inlite/core/Matcher", [], function () {
   // result :: String, Rect -> Matcher.result
   var result = function (id, rect) {
     return {
       id: id,
-      rect: rect
+      rect: rect,
     };
   };
 
@@ -34,6 +33,6 @@ define("tinymce/inlite/core/Matcher", [
 
   return {
     match: match,
-    result: result
+    result: result,
   };
 });

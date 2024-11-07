@@ -13,24 +13,30 @@ define("tinymce/inlite/ui/Forms", [
   "global!tinymce.ui.Factory",
   "global!tinymce.util.Promise",
   "tinymce/inlite/core/Actions",
-  "tinymce/inlite/core/UrlType"
+  "tinymce/inlite/core/UrlType",
 ], function (Tools, Factory, Promise, Actions, UrlType) {
   var focusFirstTextBox = function (form) {
-    form.find("textbox").eq(0).each(function (ctrl) {
-      ctrl.focus();
-    });
+    form
+      .find("textbox")
+      .eq(0)
+      .each(function (ctrl) {
+        ctrl.focus();
+      });
   };
 
   var createForm = function (name, spec) {
     var form = Factory.create(
-      Tools.extend({
-        type: "form",
-        layout: "flex",
-        direction: "row",
-        padding: 5,
-        name: name,
-        spacing: 3
-      }, spec)
+      Tools.extend(
+        {
+          type: "form",
+          layout: "flex",
+          direction: "row",
+          padding: 5,
+          name: name,
+          spacing: 3,
+        },
+        spec,
+      ),
     );
 
     form.on("show", function () {
@@ -51,13 +57,15 @@ define("tinymce/inlite/ui/Forms", [
         function (result) {
           var output = result === true ? "http://" + href : href;
           resolve(output);
-        }
+        },
       );
     });
   };
 
   var convertLinkToAbsolute = function (editor, href) {
-    return !UrlType.isAbsolute(href) && UrlType.isDomainLike(href) ? askAboutPrefix(editor, href) : Promise.resolve(href);
+    return !UrlType.isAbsolute(href) && UrlType.isDomainLike(href)
+      ? askAboutPrefix(editor, href)
+      : Promise.resolve(href);
   };
 
   var createQuickLinkForm = function (editor, hide) {
@@ -69,12 +77,29 @@ define("tinymce/inlite/ui/Forms", [
 
     return createForm("quicklink", {
       items: [
-        {type: "button", name: "unlink", icon: "unlink", onclick: unlink, tooltip: "Remove link"},
-        {type: "textbox", name: "linkurl", placeholder: "Paste or type a link"},
-        {type: "button", icon: "checkmark", subtype: "primary", tooltip: "Ok", onclick: "submit"}
+        {
+          type: "button",
+          name: "unlink",
+          icon: "unlink",
+          onclick: unlink,
+          tooltip: "Remove link",
+        },
+        {
+          type: "textbox",
+          name: "linkurl",
+          placeholder: "Paste or type a link",
+        },
+        {
+          type: "button",
+          icon: "checkmark",
+          subtype: "primary",
+          tooltip: "Ok",
+          onclick: "submit",
+        },
       ],
       onshow: function () {
-        var elm, linkurl = "";
+        var elm,
+          linkurl = "";
 
         elm = editor.dom.getParent(editor.selection.getStart(), "a[href]");
         if (elm) {
@@ -82,7 +107,7 @@ define("tinymce/inlite/ui/Forms", [
         }
 
         this.fromJSON({
-          linkurl: linkurl
+          linkurl: linkurl,
         });
 
         toggleVisibility(this.find("#unlink"), elm);
@@ -92,11 +117,11 @@ define("tinymce/inlite/ui/Forms", [
           Actions.createLink(editor, url);
           hide();
         });
-      }
+      },
     });
   };
 
   return {
-    createQuickLinkForm: createQuickLinkForm
+    createQuickLinkForm: createQuickLinkForm,
   };
 });

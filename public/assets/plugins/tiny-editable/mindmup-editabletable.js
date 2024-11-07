@@ -8,14 +8,24 @@ $.fn.editableTableWidget = function (options) {
         return opts;
       },
       activeOptions = $.extend(buildDefaultOptions(), options),
-      ARROW_LEFT = 37, ARROW_UP = 38, ARROW_RIGHT = 39, ARROW_DOWN = 40, ENTER = 13, ESC = 27, TAB = 9,
+      ARROW_LEFT = 37,
+      ARROW_UP = 38,
+      ARROW_RIGHT = 39,
+      ARROW_DOWN = 40,
+      ENTER = 13,
+      ESC = 27,
+      TAB = 9,
       element = $(this),
-      editor = activeOptions.editor.css("position", "absolute").hide().appendTo(element.parent()),
+      editor = activeOptions.editor
+        .css("position", "absolute")
+        .hide()
+        .appendTo(element.parent()),
       active,
       showEditor = function (select) {
         active = element.find("td:focus");
         if (active.length) {
-          editor.val(active.text())
+          editor
+            .val(active.text())
             .removeClass("error")
             .show()
             .offset(active.offset())
@@ -53,33 +63,38 @@ $.fn.editableTableWidget = function (options) {
         }
         return [];
       };
-    editor.blur(function () {
-      setActiveText();
-      editor.hide();
-    }).keydown(function (e) {
-      if (e.which === ENTER) {
+    editor
+      .blur(function () {
         setActiveText();
         editor.hide();
-        active.focus();
-        e.preventDefault();
-        e.stopPropagation();
-      } else if (e.which === ESC) {
-        editor.val(active.text());
-        e.preventDefault();
-        e.stopPropagation();
-        editor.hide();
-        active.focus();
-      } else if (e.which === TAB) {
-        active.focus();
-      } else if (this.selectionEnd - this.selectionStart === this.value.length) {
-        var possibleMove = movement(active, e.which);
-        if (possibleMove.length > 0) {
-          possibleMove.focus();
+      })
+      .keydown(function (e) {
+        if (e.which === ENTER) {
+          setActiveText();
+          editor.hide();
+          active.focus();
           e.preventDefault();
           e.stopPropagation();
+        } else if (e.which === ESC) {
+          editor.val(active.text());
+          e.preventDefault();
+          e.stopPropagation();
+          editor.hide();
+          active.focus();
+        } else if (e.which === TAB) {
+          active.focus();
+        } else if (
+          this.selectionEnd - this.selectionStart ===
+          this.value.length
+        ) {
+          var possibleMove = movement(active, e.which);
+          if (possibleMove.length > 0) {
+            possibleMove.focus();
+            e.preventDefault();
+            e.stopPropagation();
+          }
         }
-      }
-    })
+      })
       .on("input paste", function () {
         var evt = $.Event("validate");
         active.trigger(evt, editor.val());
@@ -89,7 +104,8 @@ $.fn.editableTableWidget = function (options) {
           editor.removeClass("error");
         }
       });
-    element.on("click keypress dblclick", showEditor)
+    element
+      .on("click keypress dblclick", showEditor)
       .css("cursor", "pointer")
       .keydown(function (e) {
         var prevent = true,
@@ -114,18 +130,31 @@ $.fn.editableTableWidget = function (options) {
 
     $(window).on("resize", function () {
       if (editor.is(":visible")) {
-        editor.offset(active.offset())
+        editor
+          .offset(active.offset())
           .width(active.width())
           .height(active.height());
       }
     });
   });
-
 };
 $.fn.editableTableWidget.defaultOptions = {
-  cloneProperties: ["padding", "padding-top", "padding-bottom", "padding-left", "padding-right",
-					  "text-align", "font", "font-size", "font-family", "font-weight",
-					  "border", "border-top", "border-bottom", "border-left", "border-right"],
-  editor: $("<input>")
+  cloneProperties: [
+    "padding",
+    "padding-top",
+    "padding-bottom",
+    "padding-left",
+    "padding-right",
+    "text-align",
+    "font",
+    "font-size",
+    "font-family",
+    "font-weight",
+    "border",
+    "border-top",
+    "border-bottom",
+    "border-left",
+    "border-right",
+  ],
+  editor: $("<input>"),
 };
-

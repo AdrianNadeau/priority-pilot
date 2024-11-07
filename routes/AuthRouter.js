@@ -9,32 +9,26 @@ const persons = require("../controllers/person.controller");
 // const Op = db.Sequelize.Op;
 
 //Authentications all TABs.
-Authrouter.get("/login", function(req, res)
-{
+Authrouter.get("/login", function (req, res) {
   res.render("Pages/pages-login");
 });
-Authrouter.post("/login", function(req, res)
-{
+Authrouter.post("/login", function (req, res) {
   res.render("Pages/pages-login");
 });
-Authrouter.get("/pages-login-2", function(req, res)
-{
+Authrouter.get("/pages-login-2", function (req, res) {
   res.render("Pages/pages-login-2");
 });
 
-Authrouter.get("/register", function(req, res)
-{
+Authrouter.get("/register", function (req, res) {
   res.render("Pages/pages-register");
 });
-Authrouter.get("/confirm", function(req, res)
-{
+Authrouter.get("/confirm", function (req, res) {
   res.render("Pages/pages-register-confirm");
 });
 Authrouter.post("/register", companies.create);
 Authrouter.post("/auth/login", persons.login);
 
-Authrouter.get("/session-expired", function(req, res)
-{
+Authrouter.get("/session-expired", function (req, res) {
   res.render("Pages/pages-session-timeout");
 });
 
@@ -69,7 +63,7 @@ Authrouter.get("/session-expired", function(req, res)
 // router.get("/about", function (req, res) {
 //       res.send("About this wiki");
 //     });
-   
+
 // Authrouter.get('/pages-coming-soon', function(req, res)
 // {
 //       res.render('Pages/pages-comingsoon');
@@ -94,20 +88,18 @@ Authrouter.get("/session-expired", function(req, res)
 //           res.status(500).json({ error: error.message });
 //       }
 //   });
-Authrouter.get("/logout", function(req, res) {
+Authrouter.get("/logout", function (req, res) {
   // Destroy session on the server-side
-  req.session.destroy(err => {
+  req.session.destroy((err) => {
     if (err) {
       console.error("Error destroying session:", err);
       res.status(500).send("Error logging out");
     } else {
-      
       // Clear cookie on the client-side
       res.clearCookie("connect.sid", { path: "/" });
       res.redirect("/login"); // Redirect to login page or any other page
     }
   });
 });
-
 
 module.exports = Authrouter;

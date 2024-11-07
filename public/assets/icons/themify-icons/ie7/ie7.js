@@ -7,10 +7,11 @@
 	<!--<![endif]-->
 */
 
-(function() {
+(function () {
   function addIcon(el, entity) {
     var html = el.innerHTML;
-    el.innerHTML = "<span style=\"font-family: 'themify'\">" + entity + "</span>" + html;
+    el.innerHTML =
+      "<span style=\"font-family: 'themify'\">" + entity + "</span>" + html;
   }
   var icons = {
       "ti-wand": "&#xe600;",
@@ -365,13 +366,15 @@
       "ti-css3": "&#xe75d;",
       "ti-rss": "&#xe75e;",
       "ti-rss-alt": "&#xe75f;",
-      "0": 0
+      0: 0,
     },
     els = document.getElementsByTagName("*"),
-    i, c, el;
+    i,
+    c,
+    el;
   for (i = 0; ; i += 1) {
     el = els[i];
-    if(!el) {
+    if (!el) {
       break;
     }
     c = el.className;
@@ -380,4 +383,4 @@
       addIcon(el, icons[c[0]]);
     }
   }
-}());
+})();

@@ -4,23 +4,22 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     company_name: {
       type: Sequelize.STRING,
-      required: true
+      required: true,
     },
     company_headline: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     company_description: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     company_logo: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
-        
   });
-  
+
   return Company;
 };

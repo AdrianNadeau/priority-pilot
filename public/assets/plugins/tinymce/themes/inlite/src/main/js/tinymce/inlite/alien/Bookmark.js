@@ -8,19 +8,18 @@
  * Contributing: http://www.tinymce.com/contributing
  */
 
-define("tinymce/inlite/alien/Bookmark", [
-], function () {
+define("tinymce/inlite/alien/Bookmark", [], function () {
   /**
-	 * Returns a range bookmark. This will convert indexed bookmarks into temporary span elements with
-	 * index 0 so that they can be restored properly after the DOM has been modified. Text bookmarks will not have spans
-	 * added to them since they can be restored after a dom operation.
-	 *
-	 * So this: <p><b>|</b><b>|</b></p>
-	 * becomes: <p><b><span data-mce-type="bookmark">|</span></b><b data-mce-type="bookmark">|</span></b></p>
-	 *
-	 * @param  {DOMRange} rng DOM Range to get bookmark on.
-	 * @return {Object} Bookmark object.
-	 */
+   * Returns a range bookmark. This will convert indexed bookmarks into temporary span elements with
+   * index 0 so that they can be restored properly after the DOM has been modified. Text bookmarks will not have spans
+   * added to them since they can be restored after a dom operation.
+   *
+   * So this: <p><b>|</b><b>|</b></p>
+   * becomes: <p><b><span data-mce-type="bookmark">|</span></b><b data-mce-type="bookmark">|</span></b></p>
+   *
+   * @param  {DOMRange} rng DOM Range to get bookmark on.
+   * @return {Object} Bookmark object.
+   */
   var create = function (dom, rng) {
     var bookmark = {};
 
@@ -31,7 +30,7 @@ define("tinymce/inlite/alien/Bookmark", [
       offset = rng[start ? "startOffset" : "endOffset"];
 
       if (container.nodeType == 1) {
-        offsetNode = dom.create("span", {"data-mce-type": "bookmark"});
+        offsetNode = dom.create("span", { "data-mce-type": "bookmark" });
 
         if (container.hasChildNodes()) {
           offset = Math.min(offset, container.childNodes.length - 1);
@@ -63,16 +62,17 @@ define("tinymce/inlite/alien/Bookmark", [
   };
 
   /**
-	 * Moves the selection to the current bookmark and removes any selection container wrappers.
-	 *
-	 * @param {Object} bookmark Bookmark object to move selection to.
-	 */
+   * Moves the selection to the current bookmark and removes any selection container wrappers.
+   *
+   * @param {Object} bookmark Bookmark object to move selection to.
+   */
   var resolve = function (dom, bookmark) {
     function restoreEndPoint(start) {
       var container, offset, node;
 
       function nodeIndex(container) {
-        var node = container.parentNode.firstChild, idx = 0;
+        var node = container.parentNode.firstChild,
+          idx = 0;
 
         while (node) {
           if (node == container) {
@@ -80,7 +80,10 @@ define("tinymce/inlite/alien/Bookmark", [
           }
 
           // Skip data-mce-type=bookmark nodes
-          if (node.nodeType != 1 || node.getAttribute("data-mce-type") != "bookmark") {
+          if (
+            node.nodeType != 1 ||
+            node.getAttribute("data-mce-type") != "bookmark"
+          ) {
             idx++;
           }
 
@@ -123,8 +126,6 @@ define("tinymce/inlite/alien/Bookmark", [
 
   return {
     create: create,
-    resolve: resolve
+    resolve: resolve,
   };
 });
-
-

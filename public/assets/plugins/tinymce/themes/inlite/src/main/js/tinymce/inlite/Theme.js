@@ -18,8 +18,19 @@ define("tinymce/inlite/Theme", [
   "tinymce/inlite/core/ElementMatcher",
   "tinymce/inlite/core/Matcher",
   "tinymce/inlite/alien/Arr",
-  "tinymce/inlite/core/PredicateId"
-], function(ThemeManager, Delay, Panel, Buttons, SkinLoader, SelectionMatcher, ElementMatcher, Matcher, Arr, PredicateId) {
+  "tinymce/inlite/core/PredicateId",
+], function (
+  ThemeManager,
+  Delay,
+  Panel,
+  Buttons,
+  SkinLoader,
+  SelectionMatcher,
+  ElementMatcher,
+  Matcher,
+  Arr,
+  PredicateId,
+) {
   var getSelectionElements = function (editor) {
     var node = editor.selection.getNode();
     var elms = editor.dom.getParents(node);
@@ -34,7 +45,7 @@ define("tinymce/inlite/Theme", [
     return {
       predicate: selectorPredicate,
       id: id,
-      items: items
+      items: items,
     };
   };
 
@@ -43,7 +54,7 @@ define("tinymce/inlite/Theme", [
 
     return Arr.flatten([
       contextToolbars ? contextToolbars : [],
-      createToolbar(editor, "img", "image", "alignleft aligncenter alignright")
+      createToolbar(editor, "img", "image", "alignleft aligncenter alignright"),
     ]);
   };
 
@@ -57,7 +68,7 @@ define("tinymce/inlite/Theme", [
       ElementMatcher.element(elements[0], contextToolbarsPredicateIds),
       SelectionMatcher.textSelection("text"),
       SelectionMatcher.emptyTextBlock(elements, "insert"),
-      ElementMatcher.parent(elements, contextToolbarsPredicateIds)
+      ElementMatcher.parent(elements, contextToolbarsPredicateIds),
     ]);
 
     return result && result.rect ? result : null;
@@ -92,7 +103,10 @@ define("tinymce/inlite/Theme", [
 
   var bindContextualToolbarsEvents = function (editor, panel) {
     var throttledTogglePanel = Delay.throttle(togglePanel(editor, panel), 0);
-    var throttledTogglePanelWhenNotInForm = Delay.throttle(ignoreWhenFormIsVisible(panel, togglePanel(editor, panel)), 0);
+    var throttledTogglePanelWhenNotInForm = Delay.throttle(
+      ignoreWhenFormIsVisible(panel, togglePanel(editor, panel)),
+      0,
+    );
 
     editor.on("blur hide ObjectResizeStart", panel.hide);
     editor.on("click", throttledTogglePanel);
@@ -107,9 +121,9 @@ define("tinymce/inlite/Theme", [
     editor.shortcuts.remove("meta+k");
     editor.shortcuts.add("meta+k", "", function () {
       var toolbars = getToolbars(editor);
-      var result = result = Matcher.match(editor, [
-        SelectionMatcher.textSelection("quicklink")
-      ]);
+      var result = (result = Matcher.match(editor, [
+        SelectionMatcher.textSelection("quicklink"),
+      ]));
 
       if (result) {
         panel.show(editor, result.id, result.rect, toolbars);
@@ -138,13 +152,15 @@ define("tinymce/inlite/Theme", [
     Buttons.addToEditor(editor, panel);
 
     var renderUI = function () {
-      return editor.inline ? renderInlineUI(editor, panel) : fail("inlite theme only supports inline mode.");
+      return editor.inline
+        ? renderInlineUI(editor, panel)
+        : fail("inlite theme only supports inline mode.");
     };
 
     return {
-      renderUI: renderUI
+      renderUI: renderUI,
     };
   });
 
-  return function() {};
+  return function () {};
 });

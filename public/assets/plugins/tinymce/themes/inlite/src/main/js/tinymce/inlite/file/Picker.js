@@ -8,9 +8,9 @@
  * Contributing: http://www.tinymce.com/contributing
  */
 
-define("tinymce/inlite/file/Picker", [
-  "global!tinymce.util.Promise"
-], function (Promise) {
+define("tinymce/inlite/file/Picker", ["global!tinymce.util.Promise"], function (
+  Promise,
+) {
   var pickFile = function () {
     return new Promise(function (resolve) {
       var fileInput;
@@ -23,7 +23,7 @@ define("tinymce/inlite/file/Picker", [
       fileInput.style.opacity = 0.001;
       document.body.appendChild(fileInput);
 
-      fileInput.onchange = function(e) {
+      fileInput.onchange = function (e) {
         resolve(Array.prototype.slice.call(e.target.files));
       };
 
@@ -33,8 +33,6 @@ define("tinymce/inlite/file/Picker", [
   };
 
   return {
-    pickFile: pickFile
+    pickFile: pickFile,
   };
 });
-
-

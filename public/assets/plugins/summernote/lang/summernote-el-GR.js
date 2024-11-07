@@ -1,4 +1,4 @@
-(function($) {
+(function ($) {
   $.extend($.summernote.lang, {
     "el-GR": {
       font: {
@@ -11,7 +11,7 @@
         strikethrough: "Διεγραμμένα",
         subscript: "Δείκτης",
         superscript: "Εκθέτης",
-        size: "Μέγεθος"
+        size: "Μέγεθος",
       },
       image: {
         image: "εικόνα",
@@ -30,10 +30,11 @@
         dropImage: "Αφήστε την εικόνα",
         selectFromFiles: "Επιλογή από αρχεία",
         maximumFileSize: "Μέγιστο μέγεθος αρχείου",
-        maximumFileSizeError: "Το μέγεθος είναι μεγαλύτερο από το μέγιστο επιτρεπτό.",
+        maximumFileSizeError:
+          "Το μέγεθος είναι μεγαλύτερο από το μέγιστο επιτρεπτό.",
         url: "URL",
         remove: "Αφαίρεση",
-        original: "Original"
+        original: "Original",
       },
       link: {
         link: "Σύνδεσμος",
@@ -42,14 +43,14 @@
         edit: "Επεξεργασία συνδέσμου",
         textToDisplay: "Κείμενο συνδέσμου",
         url: "URL",
-        openInNewWindow: "Άνοιγμα σε νέο παράθυρο"
+        openInNewWindow: "Άνοιγμα σε νέο παράθυρο",
       },
       video: {
         video: "Βίντεο",
         videoLink: "Σύνδεσμος Βίντεο",
         insert: "Εισαγωγή",
         url: "URL",
-        providers: "(YouTube, Vimeo, Vine, Instagram, DailyMotion or Youku)"
+        providers: "(YouTube, Vimeo, Vine, Instagram, DailyMotion or Youku)",
       },
       table: {
         table: "Πίνακας",
@@ -59,10 +60,10 @@
         addColRight: "Add column right",
         delRow: "Delete row",
         delCol: "Delete column",
-        delTable: "Delete table"
+        delTable: "Delete table",
       },
       hr: {
-        insert: "Εισαγωγή οριζόντιας γραμμής"
+        insert: "Εισαγωγή οριζόντιας γραμμής",
       },
       style: {
         style: "Στυλ",
@@ -74,16 +75,16 @@
         h3: "συνδέσμου 3",
         h4: "συνδέσμου 4",
         h5: "συνδέσμου 5",
-        h6: "συνδέσμου 6"
+        h6: "συνδέσμου 6",
       },
       lists: {
         unordered: "Αταξινόμητη λίστα",
-        ordered: "Ταξινομημένη λίστα"
+        ordered: "Ταξινομημένη λίστα",
       },
       options: {
         help: "Βοήθεια",
         fullscreen: "Πλήρης οθόνη",
-        codeview: "Προβολή HTML"
+        codeview: "Προβολή HTML",
       },
       paragraph: {
         paragraph: "Παράγραφος",
@@ -92,7 +93,7 @@
         left: "Αριστερή στοίχιση",
         center: "Στοίχιση στο κέντρο",
         right: "Δεξιά στοίχιση",
-        justify: "Πλήρης στοίχιση"
+        justify: "Πλήρης στοίχιση",
       },
       color: {
         recent: "Πρόσφατη επιλογή",
@@ -102,7 +103,7 @@
         transparent: "Διαφανές",
         setTransparent: "Επιλογή διαφάνειας",
         reset: "Επαναφορά",
-        resetToDefault: "Επαναφορά στις προκαθορισμένες τιμές"
+        resetToDefault: "Επαναφορά στις προκαθορισμένες τιμές",
       },
       shortcut: {
         shortcuts: "Συντομεύσεις",
@@ -111,45 +112,46 @@
         action: "Ενέργεια",
         paragraphFormatting: "Διαμόρφωση παραγράφου",
         documentStyle: "Στυλ κειμένου",
-        extraKeys: "Επιπλέον συντομεύσεις"
+        extraKeys: "Επιπλέον συντομεύσεις",
       },
       help: {
-        "insertParagraph": "Εισαγωγή παραγράφου",
-        "undo": "Αναιρεί την προηγούμενη εντολή",
-        "redo": "Επαναλαμβάνει την προηγούμενη εντολή",
-        "tab": "Εσοχή",
-        "untab": "Αναίρεση εσοχής",
-        "bold": "Ορισμός έντονου στυλ",
-        "italic": "Ορισμός πλάγιου στυλ",
-        "underline": "Ορισμός υπογεγραμμένου στυλ",
-        "strikethrough": "Ορισμός διεγραμμένου στυλ",
-        "removeFormat": "Αφαίρεση στυλ",
-        "justifyLeft": "Ορισμός αριστερής στοίχισης",
-        "justifyCenter": "Ορισμός κεντρικής στοίχισης",
-        "justifyRight": "Ορισμός δεξιάς στοίχισης",
-        "justifyFull": "Ορισμός πλήρους στοίχισης",
-        "insertUnorderedList": "Ορισμός μη-ταξινομημένης λίστας",
-        "insertOrderedList": "Ορισμός ταξινομημένης λίστας",
-        "outdent": "Προεξοχή παραγράφου",
-        "indent": "Εσοχή παραγράφου",
-        "formatPara": "Αλλαγή της μορφής του τρέχοντος μπλοκ σε παράγραφο (P tag)",
-        "formatH1": "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H1",
-        "formatH2": "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H2",
-        "formatH3": "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H3",
-        "formatH4": "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H4",
-        "formatH5": "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H5",
-        "formatH6": "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H6",
-        "insertHorizontalRule": "Εισαγωγή οριζόντιας γραμμής",
-        "linkDialog.show": "Εμφάνιση διαλόγου συνδέσμου"
+        insertParagraph: "Εισαγωγή παραγράφου",
+        undo: "Αναιρεί την προηγούμενη εντολή",
+        redo: "Επαναλαμβάνει την προηγούμενη εντολή",
+        tab: "Εσοχή",
+        untab: "Αναίρεση εσοχής",
+        bold: "Ορισμός έντονου στυλ",
+        italic: "Ορισμός πλάγιου στυλ",
+        underline: "Ορισμός υπογεγραμμένου στυλ",
+        strikethrough: "Ορισμός διεγραμμένου στυλ",
+        removeFormat: "Αφαίρεση στυλ",
+        justifyLeft: "Ορισμός αριστερής στοίχισης",
+        justifyCenter: "Ορισμός κεντρικής στοίχισης",
+        justifyRight: "Ορισμός δεξιάς στοίχισης",
+        justifyFull: "Ορισμός πλήρους στοίχισης",
+        insertUnorderedList: "Ορισμός μη-ταξινομημένης λίστας",
+        insertOrderedList: "Ορισμός ταξινομημένης λίστας",
+        outdent: "Προεξοχή παραγράφου",
+        indent: "Εσοχή παραγράφου",
+        formatPara:
+          "Αλλαγή της μορφής του τρέχοντος μπλοκ σε παράγραφο (P tag)",
+        formatH1: "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H1",
+        formatH2: "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H2",
+        formatH3: "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H3",
+        formatH4: "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H4",
+        formatH5: "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H5",
+        formatH6: "Αλλαγή της μορφής του τρέχοντος μπλοκ σε H6",
+        insertHorizontalRule: "Εισαγωγή οριζόντιας γραμμής",
+        "linkDialog.show": "Εμφάνιση διαλόγου συνδέσμου",
       },
       history: {
         undo: "Αναίρεση",
-        redo: "Επαναληψη"
+        redo: "Επαναληψη",
       },
       specialChar: {
         specialChar: "SPECIAL CHARACTERS",
-        select: "Επιλέξτε ειδικούς χαρακτήρες"
-      }
-    }
+        select: "Επιλέξτε ειδικούς χαρακτήρες",
+      },
+    },
   });
 })(jQuery);

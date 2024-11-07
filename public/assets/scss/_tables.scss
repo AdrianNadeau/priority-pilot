@@ -12,16 +12,20 @@ th {
   font-size: 0.9rem;
 }
 
-.table>tbody>tr>td, .table>tfoot>tr>td, .table>thead>tr>td {
+.table > tbody > tr > td,
+.table > tfoot > tr > td,
+.table > thead > tr > td {
   padding: 15px 12px;
 }
 
-.table-sm td, .table-sm th {
+.table-sm td,
+.table-sm th {
   padding: 8px 6px;
 }
 
-.table-hover tbody tr:hover,.table-striped tbody tr:nth-of-type(odd),
-.thead-default th{
+.table-hover tbody tr:hover,
+.table-striped tbody tr:nth-of-type(odd),
+.thead-default th {
   background-color: rgba(0, 0, 0, 0.03);
 }
 
@@ -129,7 +133,7 @@ table.focus-on {
     input[type="checkbox"]:checked + label {
       &::after {
         content: "\f00c";
-        font-family: 'FontAwesome';
+        font-family: "FontAwesome";
       }
     }
     input[type="checkbox"]:disabled + label {
@@ -152,8 +156,8 @@ table.focus-on {
     margin-bottom: 5px;
     margin-top: 5px;
   }
-  .fixed-solution{
-    .sticky-table-header{
+  .fixed-solution {
+    .sticky-table-header {
       top: 70px !important;
     }
   }

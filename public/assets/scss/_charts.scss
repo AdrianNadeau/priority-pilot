@@ -33,12 +33,11 @@
   z-index: 2;
 
   &:after {
-    content: '%';
+    content: "%";
     margin-left: 0.1em;
-    font-size: .8em;
+    font-size: 0.8em;
   }
 }
-
 
 /* Morris chart */
 .morris-hover.morris-default-style {
@@ -64,11 +63,10 @@
 }
 
 .morris-charts {
-  text{
+  text {
     font-family: $font-primary !important;
   }
 }
-
 
 /* Flot chart */
 #flotTip {
@@ -173,10 +171,10 @@
   text-align: center;
   pointer-events: none;
   z-index: 1;
-  -webkit-transition: opacity .2s linear;
-  -moz-transition: opacity .2s linear;
-  -o-transition: opacity .2s linear;
-  transition: opacity .2s linear;
+  -webkit-transition: opacity 0.2s linear;
+  -moz-transition: opacity 0.2s linear;
+  -o-transition: opacity 0.2s linear;
+  transition: opacity 0.2s linear;
 }
 .chartist-tooltip.tooltip-show {
   opacity: 1;
@@ -186,7 +184,7 @@
 .c3 svg {
   max-width: 100%;
 }
-.c3-tooltip td>span {
+.c3-tooltip td > span {
   background: $dark;
 }
 .c3-tooltip td {

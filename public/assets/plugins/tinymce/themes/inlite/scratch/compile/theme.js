@@ -18,11 +18,12 @@ defineGlobal("global!tinymce.DOM", tinymce.DOM);
 
 define("tinymce/inlite/ui/Toolbar", [
   "global!tinymce.util.Tools",
-  "global!tinymce.ui.Factory"
+  "global!tinymce.ui.Factory",
 ], function (Tools, Factory) {
   var setActiveItem = function (item, name) {
-    return function(state, args) {
-      var nodeName, i = args.parents.length;
+    return function (state, args) {
+      var nodeName,
+        i = args.parents.length;
 
       while (i--) {
         nodeName = args.parents[i].nodeName;
@@ -39,11 +40,11 @@ define("tinymce/inlite/ui/Toolbar", [
     var result = function (selector, handler) {
       return {
         selector: selector,
-        handler: handler
+        handler: handler,
       };
     };
 
-    var activeHandler = function(state) {
+    var activeHandler = function (state) {
       item.active(state);
     };
 
@@ -80,25 +81,26 @@ define("tinymce/inlite/ui/Toolbar", [
   };
 
   var create = function (editor, name, items) {
-    var toolbarItems = [], buttonGroup;
+    var toolbarItems = [],
+      buttonGroup;
 
     if (!items) {
       return;
     }
 
-    Tools.each(items.split(/[ ,]/), function(item) {
+    Tools.each(items.split(/[ ,]/), function (item) {
       var itemName;
 
       if (item == "|") {
         buttonGroup = null;
       } else {
         if (Factory.has(item)) {
-          item = {type: item};
+          item = { type: item };
           toolbarItems.push(item);
           buttonGroup = null;
         } else {
           if (!buttonGroup) {
-            buttonGroup = {type: "buttongroup", items: []};
+            buttonGroup = { type: "buttongroup", items: [] };
             toolbarItems.push(buttonGroup);
           }
 
@@ -124,12 +126,12 @@ define("tinymce/inlite/ui/Toolbar", [
       type: "toolbar",
       layout: "flow",
       name: name,
-      items: toolbarItems
+      items: toolbarItems,
     });
   };
 
   return {
-    create: create
+    create: create,
   };
 });
 
@@ -148,24 +150,23 @@ defineGlobal("global!tinymce.util.Promise", tinymce.util.Promise);
  * Generates unique ids this is the same as in core but since
  * it's not exposed as a global we can't access it.
  */
-define("tinymce/inlite/alien/Uuid", [
-], function() {
+define("tinymce/inlite/alien/Uuid", [], function () {
   var count = 0;
 
   var seed = function () {
     var rnd = function () {
-      return Math.round(Math.random() * 0xFFFFFFFF).toString(36);
+      return Math.round(Math.random() * 0xffffffff).toString(36);
     };
 
     return "s" + Date.now().toString(36) + rnd() + rnd() + rnd();
   };
 
   var uuid = function (prefix) {
-    return prefix + (count++) + seed();
+    return prefix + count++ + seed();
   };
 
   return {
-    uuid: uuid
+    uuid: uuid,
   };
 });
 
@@ -179,19 +180,18 @@ define("tinymce/inlite/alien/Uuid", [
  * Contributing: http://www.tinymce.com/contributing
  */
 
-define("tinymce/inlite/alien/Bookmark", [
-], function () {
+define("tinymce/inlite/alien/Bookmark", [], function () {
   /**
-	 * Returns a range bookmark. This will convert indexed bookmarks into temporary span elements with
-	 * index 0 so that they can be restored properly after the DOM has been modified. Text bookmarks will not have spans
-	 * added to them since they can be restored after a dom operation.
-	 *
-	 * So this: <p><b>|</b><b>|</b></p>
-	 * becomes: <p><b><span data-mce-type="bookmark">|</span></b><b data-mce-type="bookmark">|</span></b></p>
-	 *
-	 * @param  {DOMRange} rng DOM Range to get bookmark on.
-	 * @return {Object} Bookmark object.
-	 */
+   * Returns a range bookmark. This will convert indexed bookmarks into temporary span elements with
+   * index 0 so that they can be restored properly after the DOM has been modified. Text bookmarks will not have spans
+   * added to them since they can be restored after a dom operation.
+   *
+   * So this: <p><b>|</b><b>|</b></p>
+   * becomes: <p><b><span data-mce-type="bookmark">|</span></b><b data-mce-type="bookmark">|</span></b></p>
+   *
+   * @param  {DOMRange} rng DOM Range to get bookmark on.
+   * @return {Object} Bookmark object.
+   */
   var create = function (dom, rng) {
     var bookmark = {};
 
@@ -202,7 +202,7 @@ define("tinymce/inlite/alien/Bookmark", [
       offset = rng[start ? "startOffset" : "endOffset"];
 
       if (container.nodeType == 1) {
-        offsetNode = dom.create("span", {"data-mce-type": "bookmark"});
+        offsetNode = dom.create("span", { "data-mce-type": "bookmark" });
 
         if (container.hasChildNodes()) {
           offset = Math.min(offset, container.childNodes.length - 1);
@@ -234,16 +234,17 @@ define("tinymce/inlite/alien/Bookmark", [
   };
 
   /**
-	 * Moves the selection to the current bookmark and removes any selection container wrappers.
-	 *
-	 * @param {Object} bookmark Bookmark object to move selection to.
-	 */
+   * Moves the selection to the current bookmark and removes any selection container wrappers.
+   *
+   * @param {Object} bookmark Bookmark object to move selection to.
+   */
   var resolve = function (dom, bookmark) {
     function restoreEndPoint(start) {
       var container, offset, node;
 
       function nodeIndex(container) {
-        var node = container.parentNode.firstChild, idx = 0;
+        var node = container.parentNode.firstChild,
+          idx = 0;
 
         while (node) {
           if (node == container) {
@@ -251,7 +252,10 @@ define("tinymce/inlite/alien/Bookmark", [
           }
 
           // Skip data-mce-type=bookmark nodes
-          if (node.nodeType != 1 || node.getAttribute("data-mce-type") != "bookmark") {
+          if (
+            node.nodeType != 1 ||
+            node.getAttribute("data-mce-type") != "bookmark"
+          ) {
             idx++;
           }
 
@@ -294,11 +298,9 @@ define("tinymce/inlite/alien/Bookmark", [
 
   return {
     create: create,
-    resolve: resolve
+    resolve: resolve,
   };
 });
-
-
 
 defineGlobal("global!tinymce.dom.TreeWalker", tinymce.dom.TreeWalker);
 defineGlobal("global!tinymce.dom.RangeUtils", tinymce.dom.RangeUtils);
@@ -322,10 +324,12 @@ define("tinymce/inlite/alien/Unlink", [
   "tinymce/inlite/alien/Bookmark",
   "global!tinymce.util.Tools",
   "global!tinymce.dom.TreeWalker",
-  "global!tinymce.dom.RangeUtils"
+  "global!tinymce.dom.RangeUtils",
 ], function (Bookmark, Tools, TreeWalker, RangeUtils) {
   var getSelectedElements = function (rootElm, startNode, endNode) {
-    var walker, node, elms = [];
+    var walker,
+      node,
+      elms = [];
 
     walker = new TreeWalker(startNode, rootElm);
     for (node = startNode; node; node = walker.next()) {
@@ -370,10 +374,16 @@ define("tinymce/inlite/alien/Unlink", [
     selection = editor.selection;
     dom = editor.dom;
     rng = selection.getRng();
-    startElm = getParentAnchorOrSelf(dom, RangeUtils.getNode(rng.startContainer, rng.startOffset));
+    startElm = getParentAnchorOrSelf(
+      dom,
+      RangeUtils.getNode(rng.startContainer, rng.startOffset),
+    );
     endElm = RangeUtils.getNode(rng.endContainer, rng.endOffset);
     rootElm = editor.getBody();
-    anchorElms = Tools.grep(getSelectedElements(rootElm, startElm, endElm), isLink);
+    anchorElms = Tools.grep(
+      getSelectedElements(rootElm, startElm, endElm),
+      isLink,
+    );
 
     return anchorElms;
   };
@@ -383,7 +393,7 @@ define("tinymce/inlite/alien/Unlink", [
   };
 
   return {
-    unlinkSelection: unlinkSelection
+    unlinkSelection: unlinkSelection,
   };
 });
 
@@ -399,12 +409,12 @@ define("tinymce/inlite/alien/Unlink", [
 
 define("tinymce/inlite/core/Actions", [
   "tinymce/inlite/alien/Uuid",
-  "tinymce/inlite/alien/Unlink"
+  "tinymce/inlite/alien/Unlink",
 ], function (Uuid, Unlink) {
   var createTableHtml = function (cols, rows) {
     var x, y, html;
 
-    html = "<table data-mce-id=\"mce\" style=\"width: 100%\">";
+    html = '<table data-mce-id="mce" style="width: 100%">';
     html += "<tbody>";
 
     for (y = 0; y < rows; y++) {
@@ -452,7 +462,9 @@ define("tinymce/inlite/core/Actions", [
     blobInfo = blobCache.create(Uuid.uuid("mceu"), blob, base64);
     blobCache.add(blobInfo);
 
-    editor.insertContent(editor.dom.createHTML("img", {src: blobInfo.blobUri()}));
+    editor.insertContent(
+      editor.dom.createHTML("img", { src: blobInfo.blobUri() }),
+    );
   };
 
   var collapseSelectionToEnd = function (editor) {
@@ -472,7 +484,7 @@ define("tinymce/inlite/core/Actions", [
   };
 
   var insertLink = function (editor, url) {
-    editor.execCommand("mceInsertLink", false, {href: url});
+    editor.execCommand("mceInsertLink", false, { href: url });
     collapseSelectionToEnd(editor);
   };
 
@@ -490,7 +502,7 @@ define("tinymce/inlite/core/Actions", [
     formatBlock: formatBlock,
     insertBlob: insertBlob,
     createLink: createLink,
-    unlink: unlink
+    unlink: unlink,
   };
 });
 
@@ -504,10 +516,11 @@ define("tinymce/inlite/core/Actions", [
  * Contributing: http://www.tinymce.com/contributing
  */
 
-define("tinymce/inlite/core/UrlType", [
-], function () {
+define("tinymce/inlite/core/UrlType", [], function () {
   var isDomainLike = function (href) {
-    return /^www\.|\.(com|org|edu|gov|uk|net|ca|de|jp|fr|au|us|ru|ch|it|nl|se|no|es|mil)$/i.test(href.trim());
+    return /^www\.|\.(com|org|edu|gov|uk|net|ca|de|jp|fr|au|us|ru|ch|it|nl|se|no|es|mil)$/i.test(
+      href.trim(),
+    );
   };
 
   var isAbsolute = function (href) {
@@ -516,11 +529,9 @@ define("tinymce/inlite/core/UrlType", [
 
   return {
     isDomainLike: isDomainLike,
-    isAbsolute: isAbsolute
+    isAbsolute: isAbsolute,
   };
 });
-
-
 
 /**
  * Forms.js
@@ -537,24 +548,30 @@ define("tinymce/inlite/ui/Forms", [
   "global!tinymce.ui.Factory",
   "global!tinymce.util.Promise",
   "tinymce/inlite/core/Actions",
-  "tinymce/inlite/core/UrlType"
+  "tinymce/inlite/core/UrlType",
 ], function (Tools, Factory, Promise, Actions, UrlType) {
   var focusFirstTextBox = function (form) {
-    form.find("textbox").eq(0).each(function (ctrl) {
-      ctrl.focus();
-    });
+    form
+      .find("textbox")
+      .eq(0)
+      .each(function (ctrl) {
+        ctrl.focus();
+      });
   };
 
   var createForm = function (name, spec) {
     var form = Factory.create(
-      Tools.extend({
-        type: "form",
-        layout: "flex",
-        direction: "row",
-        padding: 5,
-        name: name,
-        spacing: 3
-      }, spec)
+      Tools.extend(
+        {
+          type: "form",
+          layout: "flex",
+          direction: "row",
+          padding: 5,
+          name: name,
+          spacing: 3,
+        },
+        spec,
+      ),
     );
 
     form.on("show", function () {
@@ -575,13 +592,15 @@ define("tinymce/inlite/ui/Forms", [
         function (result) {
           var output = result === true ? "http://" + href : href;
           resolve(output);
-        }
+        },
       );
     });
   };
 
   var convertLinkToAbsolute = function (editor, href) {
-    return !UrlType.isAbsolute(href) && UrlType.isDomainLike(href) ? askAboutPrefix(editor, href) : Promise.resolve(href);
+    return !UrlType.isAbsolute(href) && UrlType.isDomainLike(href)
+      ? askAboutPrefix(editor, href)
+      : Promise.resolve(href);
   };
 
   var createQuickLinkForm = function (editor, hide) {
@@ -593,12 +612,29 @@ define("tinymce/inlite/ui/Forms", [
 
     return createForm("quicklink", {
       items: [
-        {type: "button", name: "unlink", icon: "unlink", onclick: unlink, tooltip: "Remove link"},
-        {type: "textbox", name: "linkurl", placeholder: "Paste or type a link"},
-        {type: "button", icon: "checkmark", subtype: "primary", tooltip: "Ok", onclick: "submit"}
+        {
+          type: "button",
+          name: "unlink",
+          icon: "unlink",
+          onclick: unlink,
+          tooltip: "Remove link",
+        },
+        {
+          type: "textbox",
+          name: "linkurl",
+          placeholder: "Paste or type a link",
+        },
+        {
+          type: "button",
+          icon: "checkmark",
+          subtype: "primary",
+          tooltip: "Ok",
+          onclick: "submit",
+        },
       ],
       onshow: function () {
-        var elm, linkurl = "";
+        var elm,
+          linkurl = "";
 
         elm = editor.dom.getParent(editor.selection.getStart(), "a[href]");
         if (elm) {
@@ -606,7 +642,7 @@ define("tinymce/inlite/ui/Forms", [
         }
 
         this.fromJSON({
-          linkurl: linkurl
+          linkurl: linkurl,
         });
 
         toggleVisibility(this.find("#unlink"), elm);
@@ -616,12 +652,12 @@ define("tinymce/inlite/ui/Forms", [
           Actions.createLink(editor, url);
           hide();
         });
-      }
+      },
     });
   };
 
   return {
-    createQuickLinkForm: createQuickLinkForm
+    createQuickLinkForm: createQuickLinkForm,
   };
 });
 
@@ -636,14 +672,13 @@ defineGlobal("global!tinymce.geom.Rect", tinymce.geom.Rect);
  * Contributing: http://www.tinymce.com/contributing
  */
 
-define("tinymce/inlite/core/Convert", [
-], function () {
+define("tinymce/inlite/core/Convert", [], function () {
   var fromClientRect = function (clientRect) {
     return {
       x: clientRect.left,
       y: clientRect.top,
       w: clientRect.width,
-      h: clientRect.height
+      h: clientRect.height,
     };
   };
 
@@ -654,13 +689,13 @@ define("tinymce/inlite/core/Convert", [
       width: geomRect.w,
       height: geomRect.h,
       right: geomRect.x + geomRect.w,
-      bottom: geomRect.y + geomRect.h
+      bottom: geomRect.y + geomRect.h,
     };
   };
 
   return {
     fromClientRect: fromClientRect,
-    toClientRect: toClientRect
+    toClientRect: toClientRect,
   };
 });
 
@@ -677,7 +712,7 @@ define("tinymce/inlite/core/Convert", [
 define("tinymce/inlite/core/Measure", [
   "global!tinymce.DOM",
   "global!tinymce.geom.Rect",
-  "tinymce/inlite/core/Convert"
+  "tinymce/inlite/core/Convert",
 ], function (DOM, Rect, Convert) {
   var toAbsolute = function (rect) {
     var vp = DOM.getViewPort();
@@ -686,7 +721,7 @@ define("tinymce/inlite/core/Measure", [
       x: rect.x + vp.x,
       y: rect.y + vp.y,
       w: rect.w,
-      h: rect.h
+      h: rect.h,
     };
   };
 
@@ -697,7 +732,7 @@ define("tinymce/inlite/core/Measure", [
       x: clientRect.left,
       y: clientRect.top,
       w: Math.max(elm.clientWidth, elm.offsetWidth),
-      h: Math.max(elm.clientHeight, elm.offsetHeight)
+      h: Math.max(elm.clientHeight, elm.offsetHeight),
     });
   };
 
@@ -722,7 +757,7 @@ define("tinymce/inlite/core/Measure", [
     getElementRect: getElementRect,
     getPageAreaRect: getPageAreaRect,
     getContentAreaRect: getContentAreaRect,
-    getSelectionRect: getSelectionRect
+    getSelectionRect: getSelectionRect,
   };
 });
 
@@ -738,23 +773,34 @@ define("tinymce/inlite/core/Measure", [
 
 define("tinymce/inlite/core/Layout", [
   "global!tinymce.geom.Rect",
-  "tinymce/inlite/core/Convert"
+  "tinymce/inlite/core/Convert",
 ], function (Rect, Convert) {
   var result = function (rect, position) {
     return {
       rect: rect,
-      position: position
+      position: position,
     };
   };
 
   var moveTo = function (rect, toRect) {
-    return {x: toRect.x, y: toRect.y, w: rect.w, h: rect.h};
+    return { x: toRect.x, y: toRect.y, w: rect.w, h: rect.h };
   };
 
-  var calcByPositions = function (testPositions1, testPositions2, targetRect, contentAreaRect, panelRect) {
+  var calcByPositions = function (
+    testPositions1,
+    testPositions2,
+    targetRect,
+    contentAreaRect,
+    panelRect,
+  ) {
     var relPos, relRect, outputPanelRect;
 
-    relPos = Rect.findBestRelativePosition(panelRect, targetRect, contentAreaRect, testPositions1);
+    relPos = Rect.findBestRelativePosition(
+      panelRect,
+      targetRect,
+      contentAreaRect,
+      testPositions1,
+    );
     targetRect = Rect.clamp(targetRect, contentAreaRect);
 
     if (relPos) {
@@ -765,7 +811,12 @@ define("tinymce/inlite/core/Layout", [
 
     targetRect = Rect.intersect(contentAreaRect, targetRect);
     if (targetRect) {
-      relPos = Rect.findBestRelativePosition(panelRect, targetRect, contentAreaRect, testPositions2);
+      relPos = Rect.findBestRelativePosition(
+        panelRect,
+        targetRect,
+        contentAreaRect,
+        testPositions2,
+      );
       if (relPos) {
         relRect = Rect.relativePosition(panelRect, targetRect, relPos);
         outputPanelRect = moveTo(panelRect, relRect);
@@ -785,7 +836,7 @@ define("tinymce/inlite/core/Layout", [
       ["bc-tc", "bl-tl", "br-tr"],
       targetRect,
       contentAreaRect,
-      panelRect
+      panelRect,
     );
   };
 
@@ -795,18 +846,23 @@ define("tinymce/inlite/core/Layout", [
       ["bc-tc", "bl-tl", "br-tr"],
       targetRect,
       contentAreaRect,
-      panelRect
+      panelRect,
     );
   };
 
-  var userConstrain = function (handler, targetRect, contentAreaRect, panelRect) {
+  var userConstrain = function (
+    handler,
+    targetRect,
+    contentAreaRect,
+    panelRect,
+  ) {
     var userConstrainedPanelRect;
 
     if (typeof handler === "function") {
       userConstrainedPanelRect = handler({
         elementRect: Convert.toClientRect(targetRect),
         contentAreaRect: Convert.toClientRect(contentAreaRect),
-        panelRect: Convert.toClientRect(panelRect)
+        panelRect: Convert.toClientRect(panelRect),
       });
 
       return Convert.fromClientRect(userConstrainedPanelRect);
@@ -818,7 +874,7 @@ define("tinymce/inlite/core/Layout", [
   return {
     calcInsert: calcInsert,
     calc: calc,
-    userConstrain: userConstrain
+    userConstrain: userConstrain,
   };
 });
 
@@ -839,10 +895,11 @@ define("tinymce/inlite/ui/Panel", [
   "tinymce/inlite/ui/Toolbar",
   "tinymce/inlite/ui/Forms",
   "tinymce/inlite/core/Measure",
-  "tinymce/inlite/core/Layout"
+  "tinymce/inlite/core/Layout",
 ], function (Tools, Factory, DOM, Toolbar, Forms, Measure, Layout) {
   return function () {
-    var DEFAULT_TEXT_SELECTION_ITEMS = "bold italic | quicklink h2 h3 blockquote";
+    var DEFAULT_TEXT_SELECTION_ITEMS =
+      "bold italic | quicklink h2 h3 blockquote";
     var DEFAULT_INSERT_TOOLBAR_ITEMS = "quickimage quicktable";
     var panel, currentRect;
 
@@ -863,13 +920,14 @@ define("tinymce/inlite/ui/Panel", [
     };
 
     var create = function (editor, toolbars) {
-      var items, settings = editor.settings;
+      var items,
+        settings = editor.settings;
 
       items = createToolbars(editor, toolbars);
       items = items.concat([
         Toolbar.create(editor, "text", getTextSelectionToolbarItems(settings)),
         Toolbar.create(editor, "insert", getInsertToolbarItems(settings)),
-        Forms.createQuickLinkForm(editor, hide)
+        Forms.createQuickLinkForm(editor, hide),
       ]);
 
       return Factory.create({
@@ -885,9 +943,9 @@ define("tinymce/inlite/ui/Panel", [
         fixed: true,
         border: 1,
         items: items,
-        oncancel: function() {
+        oncancel: function () {
           editor.focus();
-        }
+        },
       });
     };
 
@@ -904,13 +962,16 @@ define("tinymce/inlite/ui/Panel", [
     var togglePositionClass = function (panel, relPos) {
       relPos = relPos ? relPos.substr(0, 2) : "";
 
-      Tools.each({
-        t: "down",
-        b: "up",
-        c: "center"
-      }, function(cls, pos) {
-        panel.classes.toggle("arrow-" + cls, pos === relPos.substr(0, 1));
-      });
+      Tools.each(
+        {
+          t: "down",
+          b: "up",
+          c: "center",
+        },
+        function (cls, pos) {
+          panel.classes.toggle("arrow-" + cls, pos === relPos.substr(0, 1));
+        },
+      );
 
       if (relPos === "cr") {
         panel.classes.toggle("arrow-left", true);
@@ -919,12 +980,15 @@ define("tinymce/inlite/ui/Panel", [
         panel.classes.toggle("arrow-left", true);
         panel.classes.toggle("arrow-right", true);
       } else {
-        Tools.each({
-          l: "left",
-          r: "right"
-        }, function(cls, pos) {
-          panel.classes.toggle("arrow-" + cls, pos === relPos.substr(1, 1));
-        });
+        Tools.each(
+          {
+            l: "left",
+            r: "right",
+          },
+          function (cls, pos) {
+            panel.classes.toggle("arrow-" + cls, pos === relPos.substr(1, 1));
+          },
+        );
       }
     };
 
@@ -957,7 +1021,15 @@ define("tinymce/inlite/ui/Panel", [
       if (result) {
         panelRect = result.rect;
         currentRect = targetRect;
-        movePanelTo(panel, Layout.userConstrain(userConstainHandler, targetRect, contentAreaRect, panelRect));
+        movePanelTo(
+          panel,
+          Layout.userConstrain(
+            userConstainHandler,
+            targetRect,
+            contentAreaRect,
+            panelRect,
+          ),
+        );
 
         togglePositionClass(panel, result.position);
       } else {
@@ -988,7 +1060,15 @@ define("tinymce/inlite/ui/Panel", [
 
         if (result) {
           panelRect = result.rect;
-          movePanelTo(panel, Layout.userConstrain(userConstainHandler, currentRect, contentAreaRect, panelRect));
+          movePanelTo(
+            panel,
+            Layout.userConstrain(
+              userConstainHandler,
+              currentRect,
+              contentAreaRect,
+              panelRect,
+            ),
+          );
 
           togglePositionClass(panel, result.position);
         }
@@ -998,7 +1078,10 @@ define("tinymce/inlite/ui/Panel", [
     var show = function (editor, id, targetRect, toolbars) {
       if (!panel) {
         panel = create(editor, toolbars);
-        panel.renderTo(document.body).reflow().moveTo(targetRect.x, targetRect.y);
+        panel
+          .renderTo(document.body)
+          .reflow()
+          .moveTo(targetRect.x, targetRect.y);
         editor.nodeChanged();
       }
 
@@ -1013,9 +1096,12 @@ define("tinymce/inlite/ui/Panel", [
 
     var focus = function () {
       if (panel) {
-        panel.find("toolbar:visible").eq(0).each(function (item) {
-          item.focus(true);
-        });
+        panel
+          .find("toolbar:visible")
+          .eq(0)
+          .each(function (item) {
+            item.focus(true);
+          });
       }
     };
 
@@ -1036,7 +1122,7 @@ define("tinymce/inlite/ui/Panel", [
       inForm: inForm,
       hide: hide,
       focus: focus,
-      remove: remove
+      remove: remove,
     };
   };
 });
@@ -1052,13 +1138,13 @@ define("tinymce/inlite/ui/Panel", [
  */
 
 define("tinymce/inlite/file/Conversions", [
-  "global!tinymce.util.Promise"
+  "global!tinymce.util.Promise",
 ], function (Promise) {
   var blobToBase64 = function (blob) {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
       var reader = new FileReader();
 
-      reader.onloadend = function() {
+      reader.onloadend = function () {
         resolve(reader.result.split(",")[1]);
       };
 
@@ -1067,11 +1153,9 @@ define("tinymce/inlite/file/Conversions", [
   };
 
   return {
-    blobToBase64: blobToBase64
+    blobToBase64: blobToBase64,
   };
 });
-
-
 
 /**
  * Picker.js
@@ -1083,9 +1167,9 @@ define("tinymce/inlite/file/Conversions", [
  * Contributing: http://www.tinymce.com/contributing
  */
 
-define("tinymce/inlite/file/Picker", [
-  "global!tinymce.util.Promise"
-], function (Promise) {
+define("tinymce/inlite/file/Picker", ["global!tinymce.util.Promise"], function (
+  Promise,
+) {
   var pickFile = function () {
     return new Promise(function (resolve) {
       var fileInput;
@@ -1098,7 +1182,7 @@ define("tinymce/inlite/file/Picker", [
       fileInput.style.opacity = 0.001;
       document.body.appendChild(fileInput);
 
-      fileInput.onchange = function(e) {
+      fileInput.onchange = function (e) {
         resolve(Array.prototype.slice.call(e.target.files));
       };
 
@@ -1108,11 +1192,9 @@ define("tinymce/inlite/file/Picker", [
   };
 
   return {
-    pickFile: pickFile
+    pickFile: pickFile,
   };
 });
-
-
 
 /**
  * Buttons.js
@@ -1128,7 +1210,7 @@ define("tinymce/inlite/ui/Buttons", [
   "tinymce/inlite/ui/Panel",
   "tinymce/inlite/file/Conversions",
   "tinymce/inlite/file/Picker",
-  "tinymce/inlite/core/Actions"
+  "tinymce/inlite/core/Actions",
 ], function (Panel, Conversions, Picker, Actions) {
   var addHeaderButtons = function (editor) {
     var formatBlock = function (name) {
@@ -1149,7 +1231,7 @@ define("tinymce/inlite/ui/Buttons", [
           // TODO: Remove this hack that produces bold H1-H6 when we have proper icons
           var span = this.getEl().firstChild.firstChild;
           span.style.fontWeight = "bold";
-        }
+        },
       });
     }
   };
@@ -1161,7 +1243,7 @@ define("tinymce/inlite/ui/Buttons", [
       stateSelector: "a[href]",
       onclick: function () {
         panel.showForm(editor, "quicklink");
-      }
+      },
     });
 
     editor.addButton("quickimage", {
@@ -1175,7 +1257,7 @@ define("tinymce/inlite/ui/Buttons", [
             Actions.insertBlob(editor, base64, blob);
           });
         });
-      }
+      },
     });
 
     editor.addButton("quicktable", {
@@ -1184,14 +1266,14 @@ define("tinymce/inlite/ui/Buttons", [
       onclick: function () {
         panel.hide();
         Actions.insertTable(editor, 2, 2);
-      }
+      },
     });
 
     addHeaderButtons(editor);
   };
 
   return {
-    addToEditor: addToEditor
+    addToEditor: addToEditor,
   };
 });
 
@@ -1208,7 +1290,7 @@ defineGlobal("global!tinymce.EditorManager", tinymce.EditorManager);
 
 define("tinymce/inlite/core/SkinLoader", [
   "global!tinymce.EditorManager",
-  "global!tinymce.DOM"
+  "global!tinymce.DOM",
 ], function (EditorManager, DOM) {
   var fireSkinLoaded = function (editor, callback) {
     var done = function () {
@@ -1236,11 +1318,9 @@ define("tinymce/inlite/core/SkinLoader", [
   };
 
   return {
-    load: load
+    load: load,
   };
 });
-
-
 
 /**
  * Matcher.js
@@ -1252,13 +1332,12 @@ define("tinymce/inlite/core/SkinLoader", [
  * Contributing: http://www.tinymce.com/contributing
  */
 
-define("tinymce/inlite/core/Matcher", [
-], function () {
+define("tinymce/inlite/core/Matcher", [], function () {
   // result :: String, Rect -> Matcher.result
   var result = function (id, rect) {
     return {
       id: id,
-      rect: rect
+      rect: rect,
     };
   };
 
@@ -1278,7 +1357,7 @@ define("tinymce/inlite/core/Matcher", [
 
   return {
     match: match,
-    result: result
+    result: result,
   };
 });
 
@@ -1294,7 +1373,7 @@ define("tinymce/inlite/core/Matcher", [
 
 define("tinymce/inlite/core/SelectionMatcher", [
   "tinymce/inlite/core/Matcher",
-  "tinymce/inlite/core/Measure"
+  "tinymce/inlite/core/Measure",
 ], function (Matcher, Measure) {
   // textSelection :: String -> (Editor -> Matcher.result | Null)
   var textSelection = function (id) {
@@ -1310,7 +1389,8 @@ define("tinymce/inlite/core/SelectionMatcher", [
   // emptyTextBlock :: [Elements], String -> (Editor -> Matcher.result | Null)
   var emptyTextBlock = function (elements, id) {
     return function (editor) {
-      var i, textBlockElementsMap = editor.schema.getTextBlockElements();
+      var i,
+        textBlockElementsMap = editor.schema.getTextBlockElements();
 
       for (i = 0; i < elements.length; i++) {
         if (elements[i].nodeName === "TABLE") {
@@ -1334,7 +1414,7 @@ define("tinymce/inlite/core/SelectionMatcher", [
 
   return {
     textSelection: textSelection,
-    emptyTextBlock: emptyTextBlock
+    emptyTextBlock: emptyTextBlock,
   };
 });
 
@@ -1350,14 +1430,17 @@ define("tinymce/inlite/core/SelectionMatcher", [
 
 define("tinymce/inlite/core/ElementMatcher", [
   "tinymce/inlite/core/Matcher",
-  "tinymce/inlite/core/Measure"
+  "tinymce/inlite/core/Measure",
 ], function (Matcher, Measure) {
   // element :: Element, [PredicateId] -> (Editor -> Matcher.result | Null)
   var element = function (element, predicateIds) {
     return function (editor) {
       for (var i = 0; i < predicateIds.length; i++) {
         if (predicateIds[i].predicate(element)) {
-          return Matcher.result(predicateIds[i].id, Measure.getElementRect(editor, element));
+          return Matcher.result(
+            predicateIds[i].id,
+            Measure.getElementRect(editor, element),
+          );
         }
       }
 
@@ -1371,7 +1454,10 @@ define("tinymce/inlite/core/ElementMatcher", [
       for (var i = 0; i < elements.length; i++) {
         for (var x = 0; x < predicateIds.length; x++) {
           if (predicateIds[x].predicate(elements[i])) {
-            return Matcher.result(predicateIds[x].id, Measure.getElementRect(editor, elements[i]));
+            return Matcher.result(
+              predicateIds[x].id,
+              Measure.getElementRect(editor, elements[i]),
+            );
           }
         }
       }
@@ -1382,7 +1468,7 @@ define("tinymce/inlite/core/ElementMatcher", [
 
   return {
     element: element,
-    parent: parent
+    parent: parent,
   };
 });
 
@@ -1396,16 +1482,17 @@ define("tinymce/inlite/core/ElementMatcher", [
  * Contributing: http://www.tinymce.com/contributing
  */
 
-define("tinymce/inlite/alien/Arr", [
-], function () {
+define("tinymce/inlite/alien/Arr", [], function () {
   var flatten = function (arr) {
     return arr.reduce(function (results, item) {
-      return Array.isArray(item) ? results.concat(flatten(item)) : results.concat(item);
+      return Array.isArray(item)
+        ? results.concat(flatten(item))
+        : results.concat(item);
     }, []);
   };
 
   return {
-    flatten: flatten
+    flatten: flatten,
   };
 });
 
@@ -1420,12 +1507,12 @@ define("tinymce/inlite/alien/Arr", [
  */
 
 define("tinymce/inlite/core/PredicateId", [
-  "global!tinymce.util.Tools"
+  "global!tinymce.util.Tools",
 ], function (Tools) {
   var create = function (id, predicate) {
     return {
       id: id,
-      predicate: predicate
+      predicate: predicate,
     };
   };
 
@@ -1438,7 +1525,7 @@ define("tinymce/inlite/core/PredicateId", [
 
   return {
     create: create,
-    fromContextToolbars: fromContextToolbars
+    fromContextToolbars: fromContextToolbars,
   };
 });
 
@@ -1462,8 +1549,19 @@ define("tinymce/inlite/Theme", [
   "tinymce/inlite/core/ElementMatcher",
   "tinymce/inlite/core/Matcher",
   "tinymce/inlite/alien/Arr",
-  "tinymce/inlite/core/PredicateId"
-], function(ThemeManager, Delay, Panel, Buttons, SkinLoader, SelectionMatcher, ElementMatcher, Matcher, Arr, PredicateId) {
+  "tinymce/inlite/core/PredicateId",
+], function (
+  ThemeManager,
+  Delay,
+  Panel,
+  Buttons,
+  SkinLoader,
+  SelectionMatcher,
+  ElementMatcher,
+  Matcher,
+  Arr,
+  PredicateId,
+) {
   var getSelectionElements = function (editor) {
     var node = editor.selection.getNode();
     var elms = editor.dom.getParents(node);
@@ -1478,7 +1576,7 @@ define("tinymce/inlite/Theme", [
     return {
       predicate: selectorPredicate,
       id: id,
-      items: items
+      items: items,
     };
   };
 
@@ -1487,7 +1585,7 @@ define("tinymce/inlite/Theme", [
 
     return Arr.flatten([
       contextToolbars ? contextToolbars : [],
-      createToolbar(editor, "img", "image", "alignleft aligncenter alignright")
+      createToolbar(editor, "img", "image", "alignleft aligncenter alignright"),
     ]);
   };
 
@@ -1501,7 +1599,7 @@ define("tinymce/inlite/Theme", [
       ElementMatcher.element(elements[0], contextToolbarsPredicateIds),
       SelectionMatcher.textSelection("text"),
       SelectionMatcher.emptyTextBlock(elements, "insert"),
-      ElementMatcher.parent(elements, contextToolbarsPredicateIds)
+      ElementMatcher.parent(elements, contextToolbarsPredicateIds),
     ]);
 
     return result && result.rect ? result : null;
@@ -1536,7 +1634,10 @@ define("tinymce/inlite/Theme", [
 
   var bindContextualToolbarsEvents = function (editor, panel) {
     var throttledTogglePanel = Delay.throttle(togglePanel(editor, panel), 0);
-    var throttledTogglePanelWhenNotInForm = Delay.throttle(ignoreWhenFormIsVisible(panel, togglePanel(editor, panel)), 0);
+    var throttledTogglePanelWhenNotInForm = Delay.throttle(
+      ignoreWhenFormIsVisible(panel, togglePanel(editor, panel)),
+      0,
+    );
 
     editor.on("blur hide ObjectResizeStart", panel.hide);
     editor.on("click", throttledTogglePanel);
@@ -1551,9 +1652,9 @@ define("tinymce/inlite/Theme", [
     editor.shortcuts.remove("meta+k");
     editor.shortcuts.add("meta+k", "", function () {
       var toolbars = getToolbars(editor);
-      var result = result = Matcher.match(editor, [
-        SelectionMatcher.textSelection("quicklink")
-      ]);
+      var result = (result = Matcher.match(editor, [
+        SelectionMatcher.textSelection("quicklink"),
+      ]));
 
       if (result) {
         panel.show(editor, result.id, result.rect, toolbars);
@@ -1582,13 +1683,15 @@ define("tinymce/inlite/Theme", [
     Buttons.addToEditor(editor, panel);
 
     var renderUI = function () {
-      return editor.inline ? renderInlineUI(editor, panel) : fail("inlite theme only supports inline mode.");
+      return editor.inline
+        ? renderInlineUI(editor, panel)
+        : fail("inlite theme only supports inline mode.");
     };
 
     return {
-      renderUI: renderUI
+      renderUI: renderUI,
     };
   });
 
-  return function() {};
+  return function () {};
 });

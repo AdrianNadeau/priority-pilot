@@ -11,7 +11,7 @@
 define("tinymce/inlite/core/Measure", [
   "global!tinymce.DOM",
   "global!tinymce.geom.Rect",
-  "tinymce/inlite/core/Convert"
+  "tinymce/inlite/core/Convert",
 ], function (DOM, Rect, Convert) {
   var toAbsolute = function (rect) {
     var vp = DOM.getViewPort();
@@ -20,7 +20,7 @@ define("tinymce/inlite/core/Measure", [
       x: rect.x + vp.x,
       y: rect.y + vp.y,
       w: rect.w,
-      h: rect.h
+      h: rect.h,
     };
   };
 
@@ -31,7 +31,7 @@ define("tinymce/inlite/core/Measure", [
       x: clientRect.left,
       y: clientRect.top,
       w: Math.max(elm.clientWidth, elm.offsetWidth),
-      h: Math.max(elm.clientHeight, elm.offsetHeight)
+      h: Math.max(elm.clientHeight, elm.offsetHeight),
     });
   };
 
@@ -56,6 +56,6 @@ define("tinymce/inlite/core/Measure", [
     getElementRect: getElementRect,
     getPageAreaRect: getPageAreaRect,
     getContentAreaRect: getContentAreaRect,
-    getSelectionRect: getSelectionRect
+    getSelectionRect: getSelectionRect,
   };
 });

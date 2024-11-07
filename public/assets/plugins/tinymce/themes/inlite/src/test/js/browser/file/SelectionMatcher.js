@@ -10,7 +10,7 @@
 
 define("tinymce/inlite/core/SelectionMatcher", [
   "tinymce/inlite/core/Matcher",
-  "tinymce/inlite/core/Measure"
+  "tinymce/inlite/core/Measure",
 ], function (Matcher, Measure) {
   // textSelection :: String -> (Editor -> Matcher.result | Null)
   var textSelection = function (id) {
@@ -26,7 +26,8 @@ define("tinymce/inlite/core/SelectionMatcher", [
   // emptyTextBlock :: [Elements], String -> (Editor -> Matcher.result | Null)
   var emptyTextBlock = function (elements, id) {
     return function (editor) {
-      var i, textBlockElementsMap = editor.schema.getTextBlockElements();
+      var i,
+        textBlockElementsMap = editor.schema.getTextBlockElements();
 
       for (i = 0; i < elements.length; i++) {
         if (elements[i].nodeName === "TABLE") {
@@ -50,6 +51,6 @@ define("tinymce/inlite/core/SelectionMatcher", [
 
   return {
     textSelection: textSelection,
-    emptyTextBlock: emptyTextBlock
+    emptyTextBlock: emptyTextBlock,
   };
 });

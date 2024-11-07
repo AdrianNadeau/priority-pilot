@@ -4,15 +4,12 @@
  File: Peity Init
  */
 
-
-!function ($) {
+!(function ($) {
   "use strict";
 
-  var PeietyCharts = function () {
-  };
+  var PeietyCharts = function () {};
 
-  PeietyCharts.prototype.init = function () {
-
+  (PeietyCharts.prototype.init = function () {
     // line
     $(".peity-line").each(function () {
       $(this).peity("line", $(this).data());
@@ -32,22 +29,12 @@
     $(".peity-donut").each(function () {
       $(this).peity("donut", $(this).data());
     });
-
-  },
-  $.PeietyCharts = new PeietyCharts, $.PeietyCharts.Constructor = PeietyCharts;
-
-}(window.jQuery),
-
-//initializing
-function ($) {
-  "use strict";
-  $.PeietyCharts.init();
-}(window.jQuery);
-
-
-
-
-
-
-
-   
+  }),
+    ($.PeietyCharts = new PeietyCharts()),
+    ($.PeietyCharts.Constructor = PeietyCharts);
+})(window.jQuery),
+  //initializing
+  (function ($) {
+    "use strict";
+    $.PeietyCharts.init();
+  })(window.jQuery);

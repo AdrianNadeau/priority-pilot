@@ -9,12 +9,12 @@
  */
 
 define("tinymce/inlite/core/PredicateId", [
-  "global!tinymce.util.Tools"
+  "global!tinymce.util.Tools",
 ], function (Tools) {
   var create = function (id, predicate) {
     return {
       id: id,
-      predicate: predicate
+      predicate: predicate,
     };
   };
 
@@ -27,6 +27,6 @@ define("tinymce/inlite/core/PredicateId", [
 
   return {
     create: create,
-    fromContextToolbars: fromContextToolbars
+    fromContextToolbars: fromContextToolbars,
   };
 });

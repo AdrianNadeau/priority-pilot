@@ -1,6 +1,6 @@
 {
   "development": {
-   "username": "priority_pilot",
+    "username": "priority_pilot",
     "password": "priority_pilot",
     "database": "priority_pilot",
     "host": "127.0.0.1",

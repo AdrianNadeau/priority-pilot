@@ -13,23 +13,23 @@
 
 .alert-success {
   color: $success;
-  background-color: lighten($success,40%);
+  background-color: lighten($success, 40%);
   .alert-link {
-    color: darken($success,10%);
+    color: darken($success, 10%);
   }
   hr {
-    border-top-color: darken($success,10%);
+    border-top-color: darken($success, 10%);
   }
 }
 
 .alert-info {
   color: $info;
-  background-color: lighten($info,35%);
+  background-color: lighten($info, 35%);
   .alert-link {
-    color: darken($info,10%);
+    color: darken($info, 10%);
   }
   hr {
-    border-top-color: darken($info,10%);
+    border-top-color: darken($info, 10%);
   }
 }
 
@@ -46,12 +46,12 @@
 
 .alert-danger {
   color: $danger;
-  background-color: lighten($danger,32%);
+  background-color: lighten($danger, 32%);
   .alert-link {
-    color: darken($danger,10%);
+    color: darken($danger, 10%);
   }
   hr {
-    border-top-color: darken($danger,25%);
+    border-top-color: darken($danger, 25%);
   }
 }
 

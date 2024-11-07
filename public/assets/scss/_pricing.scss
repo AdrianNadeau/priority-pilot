@@ -2,7 +2,7 @@
   Pricing
 ===================*/
 .plan-card {
-  .plan-icon{
+  .plan-icon {
     display: inline-block;
     font-size: 35px;
     width: 100px;
@@ -14,20 +14,18 @@
     border-radius: 50%;
     background: $primary;
     box-shadow: 0 0 3px $lightdark-alt;
-    transition: all .3s;
+    transition: all 0.3s;
   }
 
   .plan-price {
-    span{
+    span {
       font-size: 15px;
       vertical-align: middle;
     }
   }
-  .plan-features  {
-    p{
+  .plan-features {
+    p {
       line-height: 32px;
     }
   }
 }
-
-

@@ -12,7 +12,10 @@ const authenticateUser = async (email, password) => {
     const person = await Person.findOne({ where: { email } });
     if (!person) return null;
 
-    const isMatch = await bcrypt.compare(password.trim(), person.password.trim());
+    const isMatch = await bcrypt.compare(
+      password.trim(),
+      person.password.trim(),
+    );
     return isMatch ? person : null;
   } catch (error) {
     console.error("Authentication error:", error);
@@ -23,22 +26,41 @@ const authenticateUser = async (email, password) => {
 // Register and create a new user
 exports.create = async (req, res) => {
   try {
-    const { email, first_name, last_name, initials, password, register_yn, isAdmin } = req.body;
+    const {
+      email,
+      first_name,
+      last_name,
+      initials,
+      password,
+      register_yn,
+      isAdmin,
+    } = req.body;
     const company_id_fk = req.session.company?.id;
 
     // Ensure company exists for this session
     const company = await Company.findByPk(company_id_fk);
-    if (!company) return res.status(404).json({ message: "Company not found." });
+    if (!company)
+      return res.status(404).json({ message: "Company not found." });
 
-    if (!email || !password) return res.status(400).json({ message: "Email and password are required." });
+    if (!email || !password)
+      return res
+        .status(400)
+        .json({ message: "Email and password are required." });
 
     const existingPerson = await Person.findOne({ where: { email } });
-    if (existingPerson) return res.status(409).json({ message: "User with this email already exists." });
+    if (existingPerson)
+      return res
+        .status(409)
+        .json({ message: "User with this email already exists." });
 
-    // const isAdminStatus = isAdmin === "on" || register_yn === "y";
-    // console.log("isAdminStatus:", isAdminStatus);
+    // Determine admin status
+    const isAdminStatus = isAdmin === "on" || register_yn === "y";
+    console.log("isAdminStatus:", isAdminStatus);
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create the new person
     const newPerson = await Person.create({
       email,
       first_name,
@@ -49,6 +71,7 @@ exports.create = async (req, res) => {
       isAdmin: isAdminStatus,
     });
 
+    // Update session
     req.session.company = company;
     req.session.person = newPerson;
     console.log("Redirecting to Dashboard...");
@@ -80,7 +103,8 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     const person = await authenticateUser(email, password);
-    if (!person) return res.status(401).json({ message: "Invalid username or password." });
+    if (!person)
+      return res.status(401).json({ message: "Invalid username or password." });
 
     const company = await Company.findByPk(person.company_id_fk);
     if (!company) return res.redirect("/login");
@@ -98,7 +122,11 @@ exports.login = async (req, res) => {
     });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).send({ message: err.message || "Some error occurred while logging in." });
+    res
+      .status(500)
+      .send({
+        message: err.message || "Some error occurred while logging in.",
+      });
   }
 };
 
@@ -125,11 +153,15 @@ exports.findOneForEdit = async (req, res) => {
     if (personData) {
       res.render("Pages/pages-edit-person", { personData });
     } else {
-      res.status(404).send({ message: `Cannot find Person with id=${req.params.id}.` });
+      res
+        .status(404)
+        .send({ message: `Cannot find Person with id=${req.params.id}.` });
     }
   } catch (error) {
     console.error("Error retrieving person:", error);
-    res.status(500).send({ message: `Error retrieving Person with id=${req.params.id}` });
+    res
+      .status(500)
+      .send({ message: `Error retrieving Person with id=${req.params.id}` });
   }
 };
 
@@ -139,11 +171,15 @@ exports.update = async (req, res) => {
     const { person_id, isAdmin, ...personDetails } = req.body;
     personDetails.isAdmin = isAdmin === "on";
 
-    const [updated] = await Person.update(personDetails, { where: { id: person_id } });
+    const [updated] = await Person.update(personDetails, {
+      where: { id: person_id },
+    });
     if (updated) {
       res.redirect("/persons/");
     } else {
-      res.status(404).send({ message: `Cannot update Person with id=${person_id}.` });
+      res
+        .status(404)
+        .send({ message: `Cannot update Person with id=${person_id}.` });
     }
   } catch (error) {
     console.error("Error updating person:", error);
@@ -158,7 +194,9 @@ exports.delete = async (req, res) => {
     if (deleted) {
       res.send({ message: "Person was deleted successfully!" });
     } else {
-      res.status(404).send({ message: `Cannot delete Person with id=${req.params.id}.` });
+      res
+        .status(404)
+        .send({ message: `Cannot delete Person with id=${req.params.id}.` });
     }
   } catch (error) {
     console.error("Error deleting person:", error);

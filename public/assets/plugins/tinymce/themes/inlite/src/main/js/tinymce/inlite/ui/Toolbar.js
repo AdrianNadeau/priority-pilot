@@ -10,11 +10,12 @@
 
 define("tinymce/inlite/ui/Toolbar", [
   "global!tinymce.util.Tools",
-  "global!tinymce.ui.Factory"
+  "global!tinymce.ui.Factory",
 ], function (Tools, Factory) {
   var setActiveItem = function (item, name) {
-    return function(state, args) {
-      var nodeName, i = args.parents.length;
+    return function (state, args) {
+      var nodeName,
+        i = args.parents.length;
 
       while (i--) {
         nodeName = args.parents[i].nodeName;
@@ -31,11 +32,11 @@ define("tinymce/inlite/ui/Toolbar", [
     var result = function (selector, handler) {
       return {
         selector: selector,
-        handler: handler
+        handler: handler,
       };
     };
 
-    var activeHandler = function(state) {
+    var activeHandler = function (state) {
       item.active(state);
     };
 
@@ -72,25 +73,26 @@ define("tinymce/inlite/ui/Toolbar", [
   };
 
   var create = function (editor, name, items) {
-    var toolbarItems = [], buttonGroup;
+    var toolbarItems = [],
+      buttonGroup;
 
     if (!items) {
       return;
     }
 
-    Tools.each(items.split(/[ ,]/), function(item) {
+    Tools.each(items.split(/[ ,]/), function (item) {
       var itemName;
 
       if (item == "|") {
         buttonGroup = null;
       } else {
         if (Factory.has(item)) {
-          item = {type: item};
+          item = { type: item };
           toolbarItems.push(item);
           buttonGroup = null;
         } else {
           if (!buttonGroup) {
-            buttonGroup = {type: "buttongroup", items: []};
+            buttonGroup = { type: "buttongroup", items: [] };
             toolbarItems.push(buttonGroup);
           }
 
@@ -116,11 +118,11 @@ define("tinymce/inlite/ui/Toolbar", [
       type: "toolbar",
       layout: "flow",
       name: name,
-      items: toolbarItems
+      items: toolbarItems,
     });
   };
 
   return {
-    create: create
+    create: create,
   };
 });

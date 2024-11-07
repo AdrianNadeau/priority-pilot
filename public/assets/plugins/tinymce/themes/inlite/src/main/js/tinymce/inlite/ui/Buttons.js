@@ -12,7 +12,7 @@ define("tinymce/inlite/ui/Buttons", [
   "tinymce/inlite/ui/Panel",
   "tinymce/inlite/file/Conversions",
   "tinymce/inlite/file/Picker",
-  "tinymce/inlite/core/Actions"
+  "tinymce/inlite/core/Actions",
 ], function (Panel, Conversions, Picker, Actions) {
   var addHeaderButtons = function (editor) {
     var formatBlock = function (name) {
@@ -33,7 +33,7 @@ define("tinymce/inlite/ui/Buttons", [
           // TODO: Remove this hack that produces bold H1-H6 when we have proper icons
           var span = this.getEl().firstChild.firstChild;
           span.style.fontWeight = "bold";
-        }
+        },
       });
     }
   };
@@ -45,7 +45,7 @@ define("tinymce/inlite/ui/Buttons", [
       stateSelector: "a[href]",
       onclick: function () {
         panel.showForm(editor, "quicklink");
-      }
+      },
     });
 
     editor.addButton("quickimage", {
@@ -59,7 +59,7 @@ define("tinymce/inlite/ui/Buttons", [
             Actions.insertBlob(editor, base64, blob);
           });
         });
-      }
+      },
     });
 
     editor.addButton("quicktable", {
@@ -68,13 +68,13 @@ define("tinymce/inlite/ui/Buttons", [
       onclick: function () {
         panel.hide();
         Actions.insertTable(editor, 2, 2);
-      }
+      },
     });
 
     addHeaderButtons(editor);
   };
 
   return {
-    addToEditor: addToEditor
+    addToEditor: addToEditor,
   };
 });

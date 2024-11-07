@@ -4,7 +4,7 @@
 
 .count-down {
   padding: 0;
-  text-align:center;
+  text-align: center;
   height: auto;
 
   li {
@@ -29,10 +29,12 @@
       font-weight: normal !important;
     }
   }
-
 }
 
-#days-title, #hours-title, #mins-title, #secs-title {
+#days-title,
+#hours-title,
+#mins-title,
+#secs-title {
   display: block;
   color: $primary;
   text-transform: uppercase;

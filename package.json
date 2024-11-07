@@ -7,7 +7,9 @@
     "dev": "nodemon index.js",
     "prod": "node index.js",
     "test": "test nodemon index.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "prettier:check": "prettier  '/**/*.{js,ejs}'",
+    "prettier:fix": "prettier --write 'styles/**/*.scss' 'scripts/**/*.{js,jsx,ts,tsx}'"
   },
   "author": "CODERTHEMES",
   "license": "ISC",
@@ -35,6 +37,7 @@
     "nodemon": "^3.1.0",
     "path": "^0.12.7",
     "pg": "^8.11.5",
+    "prettier": "^3.3.3",
     "redis": "^4.7.0",
     "req-flash": "0.0.3",
     "sequelize": "^6.37.3",

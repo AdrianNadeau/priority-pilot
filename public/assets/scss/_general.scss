@@ -14,7 +14,12 @@ html {
   min-height: 100%;
   background: $bg-body;
 }
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 10px 0;
   font-family: $font-secondary;
 }
@@ -55,8 +60,8 @@ a {
 
 code {
   background-color: rgb(247, 247, 249);
-  padding: .2rem .4rem;
-  border-radius: .25rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
 }
 
 .container {
@@ -99,15 +104,14 @@ code {
   top: 0;
 }
 
-
 /* Social */
 .social-links {
   li {
     a {
       -webkit-border-radius: 50%;
-      background: lighten($light,4%);
+      background: lighten($light, 4%);
       border-radius: 50%;
-      color: lighten($lightdark7,15%);
+      color: lighten($lightdark7, 15%);
       display: inline-block;
       height: 30px;
       line-height: 30px;

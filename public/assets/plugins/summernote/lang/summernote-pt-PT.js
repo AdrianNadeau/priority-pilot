@@ -1,4 +1,4 @@
-(function($) {
+(function ($) {
   $.extend($.summernote.lang, {
     "pt-PT": {
       font: {
@@ -11,7 +11,7 @@
         strikethrough: "Riscado",
         subscript: "Subscript",
         superscript: "Superscript",
-        size: "Tamanho da fonte"
+        size: "Tamanho da fonte",
       },
       image: {
         image: "Imagem",
@@ -30,17 +30,18 @@
         dropImage: "Arraste uma imagem ou texto",
         selectFromFiles: "Selecione a partir dos arquivos",
         maximumFileSize: "Tamanho máximo do fixeiro",
-        maximumFileSizeError: "Tamanho máximo do fixeiro é maior que o permitido.",
+        maximumFileSizeError:
+          "Tamanho máximo do fixeiro é maior que o permitido.",
         url: "Endereço da imagem",
         remove: "Remover Imagem",
-        original: "Original"
+        original: "Original",
       },
       video: {
         video: "Vídeo",
         videoLink: "Link para vídeo",
         insert: "Inserir vídeo",
         url: "URL do vídeo?",
-        providers: "(YouTube, Vimeo, Vine, Instagram, DailyMotion ou Youku)"
+        providers: "(YouTube, Vimeo, Vine, Instagram, DailyMotion ou Youku)",
       },
       link: {
         link: "Link",
@@ -49,7 +50,7 @@
         edit: "Editar",
         textToDisplay: "Texto para exibir",
         url: "Que endereço esta licação leva?",
-        openInNewWindow: "Abrir numa nova janela"
+        openInNewWindow: "Abrir numa nova janela",
       },
       table: {
         table: "Tabela",
@@ -59,10 +60,10 @@
         addColRight: "Adicionar coluna à Esquerda",
         delRow: "Excluir linha",
         delCol: "Excluir coluna",
-        delTable: "Excluir tabela"
+        delTable: "Excluir tabela",
       },
       hr: {
-        insert: "Inserir linha horizontal"
+        insert: "Inserir linha horizontal",
       },
       style: {
         style: "Estilo",
@@ -74,16 +75,16 @@
         h3: "Título 3",
         h4: "Título 4",
         h5: "Título 5",
-        h6: "Título 6"
+        h6: "Título 6",
       },
       lists: {
         unordered: "Lista com marcadores",
-        ordered: "Lista numerada"
+        ordered: "Lista numerada",
       },
       options: {
         help: "Ajuda",
         fullscreen: "Janela Completa",
-        codeview: "Ver código-fonte"
+        codeview: "Ver código-fonte",
       },
       paragraph: {
         paragraph: "Parágrafo",
@@ -92,7 +93,7 @@
         left: "Alinhar à esquerda",
         center: "Alinhar ao centro",
         right: "Alinha à direita",
-        justify: "Justificado"
+        justify: "Justificado",
       },
       color: {
         recent: "Cor recente",
@@ -103,7 +104,7 @@
         setTransparent: "Fundo transparente",
         reset: "Restaurar",
         resetToDefault: "Restaurar padrão",
-        cpSelect: "Selecionar"
+        cpSelect: "Selecionar",
       },
       shortcut: {
         shortcuts: "Atalhos do teclado",
@@ -111,45 +112,45 @@
         textFormatting: "Formatação de texto",
         action: "Ação",
         paragraphFormatting: "Formatação de parágrafo",
-        documentStyle: "Estilo de documento"
+        documentStyle: "Estilo de documento",
       },
       help: {
-        "insertParagraph": "Inserir Parágrafo",
-        "undo": "Desfazer o último comando",
-        "redo": "Refazer o último comando",
-        "tab": "Maior tabulação",
-        "untab": "Menor tabulação",
-        "bold": "Colocar em negrito",
-        "italic": "Colocar em itálico",
-        "underline": "Colocar em sublinhado",
-        "strikethrough": "Colocar em riscado",
-        "removeFormat": "Limpar o estilo",
-        "justifyLeft": "Definir alinhado à esquerda",
-        "justifyCenter": "Definir alinhado ao centro",
-        "justifyRight": "Definir alinhado à direita",
-        "justifyFull": "Definir justificado",
-        "insertUnorderedList": "Alternar lista não ordenada",
-        "insertOrderedList": "Alternar lista ordenada",
-        "outdent": "Recuar parágrafo atual",
-        "indent": "Avançar parágrafo atual",
-        "formatPara": "Alterar formato do bloco para parágrafo",
-        "formatH1": "Alterar formato do bloco para Título 1",
-        "formatH2": "Alterar formato do bloco para Título 2",
-        "formatH3": "Alterar formato do bloco para Título 3",
-        "formatH4": "Alterar formato do bloco para Título 4",
-        "formatH5": "Alterar formato do bloco para Título 5",
-        "formatH6": "Alterar formato do bloco para Título 6",
-        "insertHorizontalRule": "Inserir linha horizontal",
-        "linkDialog.show": "Inserir uma ligração"
+        insertParagraph: "Inserir Parágrafo",
+        undo: "Desfazer o último comando",
+        redo: "Refazer o último comando",
+        tab: "Maior tabulação",
+        untab: "Menor tabulação",
+        bold: "Colocar em negrito",
+        italic: "Colocar em itálico",
+        underline: "Colocar em sublinhado",
+        strikethrough: "Colocar em riscado",
+        removeFormat: "Limpar o estilo",
+        justifyLeft: "Definir alinhado à esquerda",
+        justifyCenter: "Definir alinhado ao centro",
+        justifyRight: "Definir alinhado à direita",
+        justifyFull: "Definir justificado",
+        insertUnorderedList: "Alternar lista não ordenada",
+        insertOrderedList: "Alternar lista ordenada",
+        outdent: "Recuar parágrafo atual",
+        indent: "Avançar parágrafo atual",
+        formatPara: "Alterar formato do bloco para parágrafo",
+        formatH1: "Alterar formato do bloco para Título 1",
+        formatH2: "Alterar formato do bloco para Título 2",
+        formatH3: "Alterar formato do bloco para Título 3",
+        formatH4: "Alterar formato do bloco para Título 4",
+        formatH5: "Alterar formato do bloco para Título 5",
+        formatH6: "Alterar formato do bloco para Título 6",
+        insertHorizontalRule: "Inserir linha horizontal",
+        "linkDialog.show": "Inserir uma ligração",
       },
       history: {
         undo: "Desfazer",
-        redo: "Refazer"
+        redo: "Refazer",
       },
       specialChar: {
         specialChar: "SPECIAL CHARACTERS",
-        select: "Select Special characters"
-      }
-    }
+        select: "Select Special characters",
+      },
+    },
   });
 })(jQuery);

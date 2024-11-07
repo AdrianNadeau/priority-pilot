@@ -1,4 +1,4 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 
 const db = require("./models");
@@ -6,22 +6,21 @@ const Project = db.projects;
 const Op = db.Sequelize.Op;
 
 // Dashboard
-router.get('/', async function (req, res) {
-    
+router.get("/", async function (req, res) {
   let company_id_fk;
 
   try {
-      company_id_fk = req.session.company.id;
+    company_id_fk = req.session.company.id;
   } catch (error) {
-      console.log("SESSION INVALID");
-    return res.redirect('/login');
+    console.log("SESSION INVALID");
+    return res.redirect("/login");
   }
   try {
     // Fetch some data based on the company_id_fk
     const projects = await Project.findAll({ where: { company_id_fk } });
   } catch (error) {
-    console.error('Database Query Error: ', error);
-    res.status(500).send('Internal Server Error');
+    console.error("Database Query Error: ", error);
+    res.status(500).send("Internal Server Error");
   }
   // Custom SQL query
   const query = `
@@ -36,104 +35,121 @@ router.get('/', async function (req, res) {
       WHERE proj.company_id_fk = ? ORDER BY proj.phase_id_fk;`;
 
   //calcuate tax varialbestotalPH
-  let totalPitchCount = 0, totalPitchCost = 0, totalPitchPH = 0;
-  let totalPriorityCount = 0, totalPriorityCost = 0, totalPriorityPH = 0;
-  let totalDiscoveryCount = 0, totalDiscoveryCost = 0, totalDiscoveryPH = 0; 
-  let totalDeliveryCount = 0, totalDeliveryCost = 0, totalDeliveryPH = 0; 
-  let totalOperactionsCount = 0, totalOperationsCost = 0, totalOperationsPH = 0;
-  let totalCost = 0, usedCost = 0, availableCost = 0, totalPH = 0, totalUsedPH = 0, totalAvailPH = 0
- 
-
+  let totalPitchCount = 0,
+    totalPitchCost = 0,
+    totalPitchPH = 0;
+  let totalPriorityCount = 0,
+    totalPriorityCost = 0,
+    totalPriorityPH = 0;
+  let totalDiscoveryCount = 0,
+    totalDiscoveryCost = 0,
+    totalDiscoveryPH = 0;
+  let totalDeliveryCount = 0,
+    totalDeliveryCost = 0,
+    totalDeliveryPH = 0;
+  let totalOperactionsCount = 0,
+    totalOperationsCost = 0,
+    totalOperationsPH = 0;
+  let totalCost = 0,
+    usedCost = 0,
+    availableCost = 0,
+    totalPH = 0,
+    totalUsedPH = 0,
+    totalAvailPH = 0;
 
   try {
-      const data = await db.sequelize.query(query, {
-          replacements: [company_id_fk],
-          type: db.sequelize.QueryTypes.SELECT
-      });
-    
+    const data = await db.sequelize.query(query, {
+      replacements: [company_id_fk],
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
     // Calculate totalCostLeft (Total cost - Operations cost)
     data.forEach(function (project) {
-        try {
-            // Convert project cost and effort
-            
-            let projectCost = parseFloat(project.project_cost.toString().replace(/,/g, '')) || 0;
-            let projectEffortPH = parseInt(project.effort) || 0;
-            totalCost += projectCost;
-            totalPH+=projectEffortPH;
+      try {
+        // Convert project cost and effort
 
-            // Categorize based on phase name
-            switch (project.phase_name.toLowerCase()) {
-                case "pitch":
-                    totalPitchCount++;
-                    totalPitchCost += projectCost;
-                    totalPitchPH += projectEffortPH;
-                    totalPH += totalPitchPH;
-                    
-                    break;
-                case "priority":
-                    totalPriorityCount++;
-                    totalPriorityCost += projectCost;
-                    totalPriorityPH += projectEffortPH;
-                    totalPH += totalPriorityPH;
-                    break;
-                case "discovery":
-                    
-                    totalDiscoveryCount++;
-                    totalDiscoveryCost += projectCost;
-                    totalDiscoveryPH += projectEffortPH;
-                    totalPH += totalDiscoveryPH;
-                    
-                    break;
-                case "delivery":
-                    totalDeliveryCount++;
-                    totalDeliveryCost += projectCost;
-                    totalDeliveryPH += projectEffortPH;
-                    totalPH += totalDeliveryPH;
-                    totalUsedPH += projectEffortPH;
-                    break;
-                case "done":
-                    totalOperactionsCount++;
-                    totalOperationsCost += projectCost;
-                    totalOperationsPH += projectEffortPH;
-                    totalPH += totalOperationsPH;
-                    totalUsedPH += projectEffortPH;
-                    break;
-                default:
-                    console.log("Unknown phase: " + project.phase_name);
-            }
-        } catch (error) {
-            console.log("Error processing project:", error);
+        let projectCost =
+          parseFloat(project.project_cost.toString().replace(/,/g, "")) || 0;
+        let projectEffortPH = parseInt(project.effort) || 0;
+        totalCost += projectCost;
+        totalPH += projectEffortPH;
+
+        // Categorize based on phase name
+        switch (project.phase_name.toLowerCase()) {
+          case "pitch":
+            totalPitchCount++;
+            totalPitchCost += projectCost;
+            totalPitchPH += projectEffortPH;
+            totalPH += totalPitchPH;
+
+            break;
+          case "priority":
+            totalPriorityCount++;
+            totalPriorityCost += projectCost;
+            totalPriorityPH += projectEffortPH;
+            totalPH += totalPriorityPH;
+            break;
+          case "discovery":
+            totalDiscoveryCount++;
+            totalDiscoveryCost += projectCost;
+            totalDiscoveryPH += projectEffortPH;
+            totalPH += totalDiscoveryPH;
+
+            break;
+          case "delivery":
+            totalDeliveryCount++;
+            totalDeliveryCost += projectCost;
+            totalDeliveryPH += projectEffortPH;
+            totalPH += totalDeliveryPH;
+            totalUsedPH += projectEffortPH;
+            break;
+          case "done":
+            totalOperactionsCount++;
+            totalOperationsCost += projectCost;
+            totalOperationsPH += projectEffortPH;
+            totalPH += totalOperationsPH;
+            totalUsedPH += projectEffortPH;
+            break;
+          default:
+            console.log("Unknown phase: " + project.phase_name);
         }
-        
+      } catch (error) {
+        console.log("Error processing project:", error);
+      }
     });
-    
-    totalCost=totalPitchCost +totalPriorityCost + totalDiscoveryCost + totalDeliveryCost + totalOperationsCost;
-    // console.log("totalCost",totalCost)
-    usedCost=totalCost-totalOperationsCost;
-    // console.log("usedCost",usedCost)
-    availableCost=totalCost-usedCost;
-    // console.log("availableCost",availableCost);
-    totalPH=totalPitchPH + totalPriorityPH + totalDiscoveryPH + totalDeliveryPH + totalOperationsPH;
-    totalUsedPH = totalPH - totalOperationsPH;
-    totalAvailPH = totalPH-totalUsedPH;
-    
-    
-   
-    // Calculate totalCostLeft (Total cost - Operations cost)
-    totalCost=formatCost(totalCost);
-    console.log("formatted totalCost:",totalCost)
-    usedCost=formatCost(usedCost),
-    console.log("formatted usedCost:",usedCost)
-    
-    
-    availableCost=formatCost(availableCost),
-    console.log("avail:",availableCost),
-    // usedCost=formatCost(totalOperationsCost),
-    totalOperationsCost=formatCost(totalOperationsCost),
 
-    
-    // Render the page with the data
-    res.render('Dashboard/dashboard1', {
+    totalCost =
+      totalPitchCost +
+      totalPriorityCost +
+      totalDiscoveryCost +
+      totalDeliveryCost +
+      totalOperationsCost;
+    // console.log("totalCost",totalCost)
+    usedCost = totalCost - totalOperationsCost;
+    // console.log("usedCost",usedCost)
+    availableCost = totalCost - usedCost;
+    // console.log("availableCost",availableCost);
+    totalPH =
+      totalPitchPH +
+      totalPriorityPH +
+      totalDiscoveryPH +
+      totalDeliveryPH +
+      totalOperationsPH;
+    totalUsedPH = totalPH - totalOperationsPH;
+    totalAvailPH = totalPH - totalUsedPH;
+
+    // Calculate totalCostLeft (Total cost - Operations cost)
+    totalCost = formatCost(totalCost);
+    console.log("formatted totalCost:", totalCost);
+    (usedCost = formatCost(usedCost)),
+      console.log("formatted usedCost:", usedCost);
+
+    (availableCost = formatCost(availableCost)),
+      console.log("avail:", availableCost),
+      // usedCost=formatCost(totalOperationsCost),
+      (totalOperationsCost = formatCost(totalOperationsCost)),
+      // Render the page with the data
+      res.render("Dashboard/dashboard1", {
         projects: data,
         totalPitchCount,
         pitchTotalCost: formatCost(totalPitchCost),
@@ -159,38 +175,32 @@ router.get('/', async function (req, res) {
         usedCost,
         availableCost: availableCost,
         totalPitchPH: formatValue(totalPitchPH),
-        
-       
-        
-    });
-
+      });
 
     // Helper function to format values with commas
     function formatValue(value) {
-        
-        if (value === undefined || value === null) {
-            return '0';
-        }
-        return value.toLocaleString('en-US');
+      if (value === undefined || value === null) {
+        return "0";
+      }
+      return value.toLocaleString("en-US");
     }
   } catch (err) {
-      console.error("Error while fetching data:", err);
-      res.status(500).send("Internal Server Error");
+    console.error("Error while fetching data:", err);
+    res.status(500).send("Internal Server Error");
   }
 });
-    
-    
+
 const formatCost = (cost) => {
-    if (cost >= 1000000000) {
-        return `${(cost / 1000000000).toFixed(1)}B`;
-    }
-    if (cost >= 1000000) {
-        return `${(cost / 1000000).toFixed(1)}M`;
-    }
-    if (cost >= 1000) {
-        return `${(cost / 1000).toFixed(1)}K`;
-    }
-    return 0;
+  if (cost >= 1000000000) {
+    return `${(cost / 1000000000).toFixed(1)}B`;
+  }
+  if (cost >= 1000000) {
+    return `${(cost / 1000000).toFixed(1)}M`;
+  }
+  if (cost >= 1000) {
+    return `${(cost / 1000).toFixed(1)}K`;
+  }
+  return 0;
 };
 // Helper function to format cost values
 

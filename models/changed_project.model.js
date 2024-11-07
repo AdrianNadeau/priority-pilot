@@ -4,98 +4,95 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     project_id_fk: {
       type: Sequelize.INTEGER,
-      required: true, unique: true
+      required: true,
+      unique: true,
     },
     company_id_fk: {
       type: Sequelize.INTEGER,
-      
     },
     project_name: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     project_headline: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     project_description: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     project_why: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     project_what: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     health: {
       type: Sequelize.STRING,
-      default:""
+      default: "",
     },
     start_date: {
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     end_date: {
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     next_milestone_date: {
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
-    
+
     phase_id_fk: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     priority_id_fk: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
-    
+
     sponsor_id_fk: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     prime_id_fk: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     project_cost: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     effort: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     benefit: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     impact: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     complexity: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     tags: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     deleted_date: {
-      type: Sequelize.DATE
-      
+      type: Sequelize.DATE,
     },
     deleted_yn: {
       type: Sequelize.STRING,
-      default:"n"
+      default: "n",
     },
     change_date: {
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     pitch_message: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     change_reason_id_fk: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     change_explanation: {
-      type: Sequelize.STRING
-    }
-    
-   
+      type: Sequelize.STRING,
+    },
   });
 
   return ChangedProject;

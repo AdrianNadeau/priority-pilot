@@ -1,6 +1,6 @@
-module.exports = app => {
+module.exports = (app) => {
   const projects = require("../controllers/project.controller.js");
-  
+
   var router = require("express").Router();
   // Define routes using controller functions
   router.post("/", projects.create);
@@ -14,7 +14,6 @@ module.exports = app => {
   router.get("/flight/view/", projects.flight);
   router.get("/health/view/", projects.health);
   router.delete("/", projects.deleteAll);
-   
+
   app.use("/projects", router);
-    
 };

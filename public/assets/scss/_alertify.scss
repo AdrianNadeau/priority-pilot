@@ -2,7 +2,8 @@
   Alertify
 ===================*/
 
-.alertify,.alertify-logs {
+.alertify,
+.alertify-logs {
   z-index: 999;
 }
 
@@ -12,19 +13,20 @@
   }
 }
 
-.alertify-logs>.show {
+.alertify-logs > .show {
   padding: 10px 20px;
   border-radius: 3px;
 }
-.alertify-logs>.success {
+.alertify-logs > .success {
   background-color: $success;
   color: $white;
 }
 
-.alertify-logs>.error {
+.alertify-logs > .error {
   background-color: $danger;
   color: $white;
 }
-.alertify-logs>*, .alertify-logs>.default {
+.alertify-logs > *,
+.alertify-logs > .default {
   background-color: $primary;
 }

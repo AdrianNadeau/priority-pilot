@@ -4,32 +4,31 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     project_id_fk: {
-          
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     change_date: {
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     //integer
     change_reason: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     change_headline: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     change_explanation: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     company_id_fk: {
       type: Sequelize.DataTypes.INTEGER,
@@ -41,7 +40,7 @@ module.exports = (sequelize, Sequelize) => {
       //   key: 'id'
       // },
       // allowNull: false
-    }
+    },
   });
 
   return ChangeLog;

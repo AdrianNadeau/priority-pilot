@@ -4,23 +4,21 @@
  File: Range Slider  Init
  */
 
-
-!function($) {
+!(function ($) {
   "use strict";
 
-  var RangeSlider = function() {};
+  var RangeSlider = function () {};
 
-  RangeSlider.prototype.init = function () {
-
+  (RangeSlider.prototype.init = function () {
     $("#range_01").ionRangeSlider({
-      skin: "modern"
+      skin: "modern",
     });
 
     $("#range_02").ionRangeSlider({
       skin: "modern",
       min: 100,
       max: 1000,
-      from: 550
+      from: 550,
     });
 
     $("#range_03").ionRangeSlider({
@@ -31,7 +29,7 @@
       max: 1000,
       from: 200,
       to: 800,
-      prefix: "$"
+      prefix: "$",
     });
 
     $("#range_04").ionRangeSlider({
@@ -41,7 +39,7 @@
       min: -1000,
       max: 1000,
       from: -500,
-      to: 500
+      to: 500,
     });
 
     $("#range_05").ionRangeSlider({
@@ -52,14 +50,27 @@
       max: 1000,
       from: -500,
       to: 500,
-      step: 250
+      step: 250,
     });
 
     $("#range_06").ionRangeSlider({
       skin: "modern",
       grid: true,
       from: 3,
-      values: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+      values: [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ],
     });
 
     $("#range_07").ionRangeSlider({
@@ -69,7 +80,7 @@
       max: 1000000,
       from: 200000,
       step: 1000,
-      prettify_enabled: true
+      prettify_enabled: true,
     });
 
     $("#range_08").ionRangeSlider({
@@ -77,7 +88,7 @@
       min: 100,
       max: 1000,
       from: 550,
-      disable: true
+      disable: true,
     });
     $("#range_09").ionRangeSlider({
       skin: "modern",
@@ -86,7 +97,7 @@
       max: 70,
       from: 30,
       prefix: "Age ",
-      max_postfix: "+"
+      max_postfix: "+",
     });
     $("#range_10").ionRangeSlider({
       skin: "modern",
@@ -97,7 +108,7 @@
       to: 155,
       prefix: "Weight: ",
       postfix: " million pounds",
-      decorate_both: true
+      decorate_both: true,
     });
     $("#range_11").ionRangeSlider({
       skin: "modern",
@@ -106,7 +117,7 @@
       min: -90,
       max: 90,
       from: 0,
-      postfix: "Â°"
+      postfix: "Â°",
     });
     $("#range_12").ionRangeSlider({
       skin: "modern",
@@ -117,16 +128,14 @@
       to: 1800,
       hide_min_max: true,
       hide_from_to: true,
-      grid: true
+      grid: true,
     });
-
-  },
-  $.RangeSlider = new RangeSlider, $.RangeSlider.Constructor = RangeSlider;
-
-}(window.jQuery),
-
-//initializing
-function($) {
-  "use strict";
-  $.RangeSlider.init();
-}(window.jQuery);
+  }),
+    ($.RangeSlider = new RangeSlider()),
+    ($.RangeSlider.Constructor = RangeSlider);
+})(window.jQuery),
+  //initializing
+  (function ($) {
+    "use strict";
+    $.RangeSlider.init();
+  })(window.jQuery);

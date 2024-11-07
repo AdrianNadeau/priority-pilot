@@ -1,12 +1,10 @@
-
 /*
  Template Name: Admiria - Bootstrap 4 Admin Dashboard
  Author: Themesbrand
  File: Calendar Init
  */
 
-
-$(document).ready(function() {
+$(document).ready(function () {
   var date = new Date();
   var d = date.getDate();
   var m = date.getMonth();
@@ -18,16 +16,14 @@ $(document).ready(function() {
 
      */
 
-
   /* initialize the external events
      -----------------------------------------------------------------*/
 
-  $("#external-events div.external-event").each(function() {
-
+  $("#external-events div.external-event").each(function () {
     // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
     // it doesn't need to have a start or end
     var eventObject = {
-      title: $.trim($(this).text()) // use the element's text as the event title
+      title: $.trim($(this).text()), // use the element's text as the event title
     };
 
     // store the Event Object in the DOM element so we can get to it later
@@ -36,21 +32,19 @@ $(document).ready(function() {
     // make the event draggable using jQuery UI
     $(this).draggable({
       zIndex: 999,
-      revert: true,      // will cause the event to go back to its
-      revertDuration: 0  //  original position after the drag
+      revert: true, // will cause the event to go back to its
+      revertDuration: 0, //  original position after the drag
     });
-
   });
-
 
   /* initialize the calendar
      -----------------------------------------------------------------*/
 
-  var calendar =  $("#calendar").fullCalendar({
+  var calendar = $("#calendar").fullCalendar({
     header: {
       left: "title",
       center: "agendaDay,agendaWeek,month",
-      right: "prev,next today"
+      right: "prev,next today",
     },
     editable: true,
     firstDay: 1, //  1(Monday) this can be changed to 0(Sunday) for the USA system
@@ -59,35 +53,37 @@ $(document).ready(function() {
 
     axisFormat: "h:mm",
     columnFormat: {
-      month: "ddd",    // Mon
+      month: "ddd", // Mon
       week: "ddd d", // Mon 7
-      day: "dddd M/d",  // Monday 9/7
-      agendaDay: "dddd d"
+      day: "dddd M/d", // Monday 9/7
+      agendaDay: "dddd d",
     },
     titleFormat: {
       month: "MMMM YYYY", // September 2009
       week: "MMMM YYYY", // September 2009
-      day: "MMMM YYYY"                  // Tuesday, Sep 8, 2009
+      day: "MMMM YYYY", // Tuesday, Sep 8, 2009
     },
     allDaySlot: false,
     selectHelper: true,
-    select: function(start, end, allDay) {
+    select: function (start, end, allDay) {
       var title = prompt("Event Title:");
       if (title) {
-        calendar.fullCalendar("renderEvent",
+        calendar.fullCalendar(
+          "renderEvent",
           {
             title: title,
             start: start,
             end: end,
-            allDay: allDay
+            allDay: allDay,
           },
-          true // make the event "stick"
+          true, // make the event "stick"
         );
       }
       calendar.fullCalendar("unselect");
     },
     droppable: true, // this allows things to be dropped onto the calendar !!!
-    drop: function(date, allDay) { // this function is called when something is dropped
+    drop: function (date, allDay) {
+      // this function is called when something is dropped
 
       // retrieve the dropped element's stored Event Object
       var originalEventObject = $(this).data("eventObject");
@@ -108,66 +104,61 @@ $(document).ready(function() {
         // if so, remove the element from the "Draggable Events" list
         $(this).remove();
       }
-
     },
 
     events: [
       {
         title: "All Day Event",
-        start: new Date(y, m, 1)
+        start: new Date(y, m, 1),
       },
       {
         id: 999,
         title: "Repeating Event",
-        start: new Date(y, m, d-5, 18, 0),
+        start: new Date(y, m, d - 5, 18, 0),
         allDay: false,
-        className: "bg-teal"
+        className: "bg-teal",
       },
       {
         id: 999,
         title: "Meeting",
-        start: new Date(y, m, d-3, 16, 0),
+        start: new Date(y, m, d - 3, 16, 0),
         allDay: false,
-        className: "bg-purple"
+        className: "bg-purple",
       },
       {
         id: 999,
         title: "Meeting",
-        start: new Date(y, m, d+4, 16, 0),
+        start: new Date(y, m, d + 4, 16, 0),
         allDay: false,
-        className: "bg-warning"
+        className: "bg-warning",
       },
       {
         title: "Meeting",
         start: new Date(y, m, d, 10, 30),
         allDay: false,
-        className: "bg-danger"
+        className: "bg-danger",
       },
       {
         title: "Lunch",
         start: new Date(y, m, d, 12, 0),
         end: new Date(y, m, d, 14, 0),
         allDay: false,
-        className: "bg-success"
+        className: "bg-success",
       },
       {
         title: "Birthday Party",
-        start: new Date(y, m, d+1, 19, 0),
-        end: new Date(y, m, d+1, 22, 30),
+        start: new Date(y, m, d + 1, 19, 0),
+        end: new Date(y, m, d + 1, 22, 30),
         allDay: false,
-        className: "bg-brown"
+        className: "bg-brown",
       },
       {
         title: "Click for Google",
         start: new Date(y, m, 28),
         end: new Date(y, m, 29),
         url: "http://google.com/",
-        className: "bg-pink"
+        className: "bg-pink",
       },
     ],
   });
-
-
 });
-
-

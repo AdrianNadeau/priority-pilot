@@ -15,10 +15,11 @@ define("tinymce/inlite/ui/Panel", [
   "tinymce/inlite/ui/Toolbar",
   "tinymce/inlite/ui/Forms",
   "tinymce/inlite/core/Measure",
-  "tinymce/inlite/core/Layout"
+  "tinymce/inlite/core/Layout",
 ], function (Tools, Factory, DOM, Toolbar, Forms, Measure, Layout) {
   return function () {
-    var DEFAULT_TEXT_SELECTION_ITEMS = "bold italic | quicklink h2 h3 blockquote";
+    var DEFAULT_TEXT_SELECTION_ITEMS =
+      "bold italic | quicklink h2 h3 blockquote";
     var DEFAULT_INSERT_TOOLBAR_ITEMS = "quickimage quicktable";
     var panel, currentRect;
 
@@ -39,13 +40,14 @@ define("tinymce/inlite/ui/Panel", [
     };
 
     var create = function (editor, toolbars) {
-      var items, settings = editor.settings;
+      var items,
+        settings = editor.settings;
 
       items = createToolbars(editor, toolbars);
       items = items.concat([
         Toolbar.create(editor, "text", getTextSelectionToolbarItems(settings)),
         Toolbar.create(editor, "insert", getInsertToolbarItems(settings)),
-        Forms.createQuickLinkForm(editor, hide)
+        Forms.createQuickLinkForm(editor, hide),
       ]);
 
       return Factory.create({
@@ -61,9 +63,9 @@ define("tinymce/inlite/ui/Panel", [
         fixed: true,
         border: 1,
         items: items,
-        oncancel: function() {
+        oncancel: function () {
           editor.focus();
-        }
+        },
       });
     };
 
@@ -80,13 +82,16 @@ define("tinymce/inlite/ui/Panel", [
     var togglePositionClass = function (panel, relPos) {
       relPos = relPos ? relPos.substr(0, 2) : "";
 
-      Tools.each({
-        t: "down",
-        b: "up",
-        c: "center"
-      }, function(cls, pos) {
-        panel.classes.toggle("arrow-" + cls, pos === relPos.substr(0, 1));
-      });
+      Tools.each(
+        {
+          t: "down",
+          b: "up",
+          c: "center",
+        },
+        function (cls, pos) {
+          panel.classes.toggle("arrow-" + cls, pos === relPos.substr(0, 1));
+        },
+      );
 
       if (relPos === "cr") {
         panel.classes.toggle("arrow-left", true);
@@ -95,12 +100,15 @@ define("tinymce/inlite/ui/Panel", [
         panel.classes.toggle("arrow-left", true);
         panel.classes.toggle("arrow-right", true);
       } else {
-        Tools.each({
-          l: "left",
-          r: "right"
-        }, function(cls, pos) {
-          panel.classes.toggle("arrow-" + cls, pos === relPos.substr(1, 1));
-        });
+        Tools.each(
+          {
+            l: "left",
+            r: "right",
+          },
+          function (cls, pos) {
+            panel.classes.toggle("arrow-" + cls, pos === relPos.substr(1, 1));
+          },
+        );
       }
     };
 
@@ -133,7 +141,15 @@ define("tinymce/inlite/ui/Panel", [
       if (result) {
         panelRect = result.rect;
         currentRect = targetRect;
-        movePanelTo(panel, Layout.userConstrain(userConstainHandler, targetRect, contentAreaRect, panelRect));
+        movePanelTo(
+          panel,
+          Layout.userConstrain(
+            userConstainHandler,
+            targetRect,
+            contentAreaRect,
+            panelRect,
+          ),
+        );
 
         togglePositionClass(panel, result.position);
       } else {
@@ -164,7 +180,15 @@ define("tinymce/inlite/ui/Panel", [
 
         if (result) {
           panelRect = result.rect;
-          movePanelTo(panel, Layout.userConstrain(userConstainHandler, currentRect, contentAreaRect, panelRect));
+          movePanelTo(
+            panel,
+            Layout.userConstrain(
+              userConstainHandler,
+              currentRect,
+              contentAreaRect,
+              panelRect,
+            ),
+          );
 
           togglePositionClass(panel, result.position);
         }
@@ -174,7 +198,10 @@ define("tinymce/inlite/ui/Panel", [
     var show = function (editor, id, targetRect, toolbars) {
       if (!panel) {
         panel = create(editor, toolbars);
-        panel.renderTo(document.body).reflow().moveTo(targetRect.x, targetRect.y);
+        panel
+          .renderTo(document.body)
+          .reflow()
+          .moveTo(targetRect.x, targetRect.y);
         editor.nodeChanged();
       }
 
@@ -189,9 +216,12 @@ define("tinymce/inlite/ui/Panel", [
 
     var focus = function () {
       if (panel) {
-        panel.find("toolbar:visible").eq(0).each(function (item) {
-          item.focus(true);
-        });
+        panel
+          .find("toolbar:visible")
+          .eq(0)
+          .each(function (item) {
+            item.focus(true);
+          });
       }
     };
 
@@ -212,7 +242,7 @@ define("tinymce/inlite/ui/Panel", [
       inForm: inForm,
       hide: hide,
       focus: focus,
-      remove: remove
+      remove: remove,
     };
   };
 });

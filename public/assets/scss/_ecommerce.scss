@@ -4,7 +4,7 @@
 
 .product-list-box {
   position: relative;
-  border: 1px solid rgba($muted,0.12);
+  border: 1px solid rgba($muted, 0.12);
   padding: 10px;
   margin-bottom: 20px;
 
@@ -30,9 +30,8 @@
     display: block;
   }
   .detail {
-
-    h4{
-      a{
+    h4 {
+      a {
         white-space: nowrap;
         display: block;
         overflow: hidden;
@@ -46,4 +45,3 @@
   height: 48px;
   width: 48px;
 }
-

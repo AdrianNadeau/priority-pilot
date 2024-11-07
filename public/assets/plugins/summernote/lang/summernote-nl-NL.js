@@ -1,4 +1,4 @@
-(function($) {
+(function ($) {
   $.extend($.summernote.lang, {
     "nl-NL": {
       font: {
@@ -11,7 +11,7 @@
         strikethrough: "Doorhalen",
         subscript: "Subscript",
         superscript: "Superscript",
-        size: "Tekstgrootte"
+        size: "Tekstgrootte",
       },
       image: {
         image: "Afbeelding",
@@ -33,14 +33,14 @@
         maximumFileSizeError: "Maximum file size exceeded.",
         url: "URL van de afbeelding",
         remove: "Verwijder afbeelding",
-        original: "Original"
+        original: "Original",
       },
       video: {
         video: "Video",
         videoLink: "Video link",
         insert: "Video invoegen",
         url: "URL van de video",
-        providers: "(YouTube, Vimeo, Vine, Instagram, DailyMotion of Youku)"
+        providers: "(YouTube, Vimeo, Vine, Instagram, DailyMotion of Youku)",
       },
       link: {
         link: "Link",
@@ -49,7 +49,7 @@
         edit: "Wijzigen",
         textToDisplay: "Tekst van link",
         url: "Naar welke URL moet deze link verwijzen?",
-        openInNewWindow: "Open in nieuw venster"
+        openInNewWindow: "Open in nieuw venster",
       },
       table: {
         table: "Tabel",
@@ -59,10 +59,10 @@
         addColRight: "Kolom rechts toevoegen",
         delRow: "Verwijder rij",
         delCol: "Verwijder kolom",
-        delTable: "Verwijder tabel"
+        delTable: "Verwijder tabel",
       },
       hr: {
-        insert: "Horizontale lijn invoegen"
+        insert: "Horizontale lijn invoegen",
       },
       style: {
         style: "Stijl",
@@ -74,16 +74,16 @@
         h3: "Kop 3",
         h4: "Kop 4",
         h5: "Kop 5",
-        h6: "Kop 6"
+        h6: "Kop 6",
       },
       lists: {
         unordered: "Ongeordende lijst",
-        ordered: "Geordende lijst"
+        ordered: "Geordende lijst",
       },
       options: {
         help: "Help",
         fullscreen: "Volledig scherm",
-        codeview: "Bekijk Code"
+        codeview: "Bekijk Code",
       },
       paragraph: {
         paragraph: "Paragraaf",
@@ -92,7 +92,7 @@
         left: "Links uitlijnen",
         center: "Centreren",
         right: "Rechts uitlijnen",
-        justify: "Uitvullen"
+        justify: "Uitvullen",
       },
       color: {
         recent: "Recente kleur",
@@ -102,7 +102,7 @@
         transparent: "Transparant",
         setTransparent: "Transparant",
         reset: "Standaard",
-        resetToDefault: "Standaard kleur"
+        resetToDefault: "Standaard kleur",
       },
       shortcut: {
         shortcuts: "Toetsencombinaties",
@@ -111,45 +111,45 @@
         action: "Acties",
         paragraphFormatting: "Paragraafstijlen",
         documentStyle: "Documentstijlen",
-        extraKeys: "Extra keys"
+        extraKeys: "Extra keys",
       },
       help: {
-        "insertParagraph": "Alinea invoegen",
-        "undo": "Laatste handeling ongedaan maken",
-        "redo": "Laatste handeling opnieuw uitvoeren",
-        "tab": "Tab",
-        "untab": "Herstel tab",
-        "bold": "Stel stijl in als vet",
-        "italic": "Stel stijl in als cursief",
-        "underline": "Stel stijl in als onderstreept",
-        "strikethrough": "Stel stijl in als doorgestreept",
-        "removeFormat": "Verwijder stijl",
-        "justifyLeft": "Lijn links uit",
-        "justifyCenter": "Set center align",
-        "justifyRight": "Lijn rechts uit",
-        "justifyFull": "Lijn uit op volledige breedte",
-        "insertUnorderedList": "Zet ongeordende lijstweergave aan",
-        "insertOrderedList": "Zet geordende lijstweergave aan",
-        "outdent": "Verwijder inspringing huidige alinea",
-        "indent": "Inspringen op huidige alinea",
-        "formatPara": "Wijzig formattering huidig blok in alinea(P tag)",
-        "formatH1": "Formatteer huidig blok als H1",
-        "formatH2": "Formatteer huidig blok als H2",
-        "formatH3": "Formatteer huidig blok als H3",
-        "formatH4": "Formatteer huidig blok als H4",
-        "formatH5": "Formatteer huidig blok als H5",
-        "formatH6": "Formatteer huidig blok als H6",
-        "insertHorizontalRule": "Invoegen horizontale lijn",
-        "linkDialog.show": "Toon Link Dialoogvenster"
+        insertParagraph: "Alinea invoegen",
+        undo: "Laatste handeling ongedaan maken",
+        redo: "Laatste handeling opnieuw uitvoeren",
+        tab: "Tab",
+        untab: "Herstel tab",
+        bold: "Stel stijl in als vet",
+        italic: "Stel stijl in als cursief",
+        underline: "Stel stijl in als onderstreept",
+        strikethrough: "Stel stijl in als doorgestreept",
+        removeFormat: "Verwijder stijl",
+        justifyLeft: "Lijn links uit",
+        justifyCenter: "Set center align",
+        justifyRight: "Lijn rechts uit",
+        justifyFull: "Lijn uit op volledige breedte",
+        insertUnorderedList: "Zet ongeordende lijstweergave aan",
+        insertOrderedList: "Zet geordende lijstweergave aan",
+        outdent: "Verwijder inspringing huidige alinea",
+        indent: "Inspringen op huidige alinea",
+        formatPara: "Wijzig formattering huidig blok in alinea(P tag)",
+        formatH1: "Formatteer huidig blok als H1",
+        formatH2: "Formatteer huidig blok als H2",
+        formatH3: "Formatteer huidig blok als H3",
+        formatH4: "Formatteer huidig blok als H4",
+        formatH5: "Formatteer huidig blok als H5",
+        formatH6: "Formatteer huidig blok als H6",
+        insertHorizontalRule: "Invoegen horizontale lijn",
+        "linkDialog.show": "Toon Link Dialoogvenster",
       },
       history: {
         undo: "Ongedaan maken",
-        redo: "Opnieuw doorvoeren"
+        redo: "Opnieuw doorvoeren",
       },
       specialChar: {
         specialChar: "SPECIALE TEKENS",
-        select: "Selecteer Speciale Tekens"
-      }
-    }
+        select: "Selecteer Speciale Tekens",
+      },
+    },
   });
 })(jQuery);

@@ -5,15 +5,13 @@
  File: Sweet Alert init js
  */
 
-!function ($) {
+!(function ($) {
   "use strict";
 
-  var SweetAlert = function () {
-  };
+  var SweetAlert = function () {};
 
   //examples
-  SweetAlert.prototype.init = function () {
-
+  (SweetAlert.prototype.init = function () {
     //Basic
     $("#sa-basic").on("click", function () {
       Swal.fire("Any fool can use a computer");
@@ -21,25 +19,19 @@
 
     //A title with a text under
     $("#sa-title").click(function () {
-      Swal.fire(
-        "The Internet?",
-        "That thing is still around?",
-        "question"
-      );
+      Swal.fire("The Internet?", "That thing is still around?", "question");
     });
 
     //Success Message
     $("#sa-success").click(function () {
-      Swal.fire(
-        {
-          title: "Good job!",
-          text: "You clicked the button!",
-          type: "success",
-          showCancelButton: true,
-          confirmButtonClass: "btn btn-success",
-          cancelButtonClass: "btn btn-danger m-l-10"
-        }
-      );
+      Swal.fire({
+        title: "Good job!",
+        text: "You clicked the button!",
+        type: "success",
+        showCancelButton: true,
+        confirmButtonClass: "btn btn-success",
+        cancelButtonClass: "btn btn-danger m-l-10",
+      });
     });
 
     //Warning Message
@@ -51,13 +43,9 @@
         showCancelButton: true,
         confirmButtonClass: "btn btn-success",
         cancelButtonClass: "btn btn-danger m-l-10",
-        confirmButtonText: "Yes, delete it!"
+        confirmButtonText: "Yes, delete it!",
       }).then(function () {
-        Swal.fire(
-          "Deleted!",
-          "Your file has been deleted.",
-          "success"
-        );
+        Swal.fire("Deleted!", "Your file has been deleted.", "success");
       });
     });
 
@@ -72,24 +60,19 @@
         cancelButtonText: "No, cancel!",
         confirmButtonClass: "btn btn-success",
         cancelButtonClass: "btn btn-danger m-l-10",
-        buttonsStyling: false
-      }).then(function () {
-        Swal.fire(
-          "Deleted!",
-          "Your file has been deleted.",
-          "success"
-        );
-      }, function (dismiss) {
-        // dismiss can be 'cancel', 'overlay',
-        // 'close', and 'timer'
-        if (dismiss === "cancel") {
-          Swal.fire(
-            "Cancelled",
-            "Your imaginary file is safe :)",
-            "error"
-          );
-        }
-      });
+        buttonsStyling: false,
+      }).then(
+        function () {
+          Swal.fire("Deleted!", "Your file has been deleted.", "success");
+        },
+        function (dismiss) {
+          // dismiss can be 'cancel', 'overlay',
+          // 'close', and 'timer'
+          if (dismiss === "cancel") {
+            Swal.fire("Cancelled", "Your imaginary file is safe :)", "error");
+          }
+        },
+      );
     });
 
     //Custom Image
@@ -99,7 +82,7 @@
         text: "Modal with a custom image.",
         imageUrl: "assets/images/logo.png",
         imageHeight: 28,
-        animation: false
+        animation: false,
       });
     });
 
@@ -113,16 +96,16 @@
         onBeforeOpen: () => {
           Swal.showLoading();
           timerInterval = setInterval(() => {
-            Swal.getContent().querySelector("strong")
-              .textContent = Swal.getTimerLeft();
+            Swal.getContent().querySelector("strong").textContent =
+              Swal.getTimerLeft();
           }, 100);
         },
         onClose: () => {
           clearInterval(timerInterval);
-        }
+        },
       }).then((result) => {
         if (
-        // Read more about handling dismissals
+          // Read more about handling dismissals
           result.dismiss === Swal.DismissReason.timer
         ) {
           console.log("I was closed by the timer");
@@ -135,15 +118,16 @@
       Swal.fire({
         title: "<i>HTML</i> <u>example</u>",
         type: "info",
-        html: "You can use <b>bold text</b>, " +
-                "<a href=\"//Themesbrand.in/\">links</a> " +
-                "and other HTML tags",
+        html:
+          "You can use <b>bold text</b>, " +
+          '<a href="//Themesbrand.in/">links</a> ' +
+          "and other HTML tags",
         showCloseButton: true,
         showCancelButton: true,
         confirmButtonClass: "btn btn-success",
         cancelButtonClass: "btn btn-danger m-l-10",
-        confirmButtonText: "<i class=\"fa fa-thumbs-up\"></i> Great!",
-        cancelButtonText: "<i class=\"fa fa-thumbs-down\"></i>"
+        confirmButtonText: '<i class="fa fa-thumbs-up"></i> Great!',
+        cancelButtonText: '<i class="fa fa-thumbs-down"></i>',
       });
     });
 
@@ -153,7 +137,8 @@
         title: "Custom width, padding, background.",
         width: 600,
         padding: 100,
-        background: "#fff url(//subtlepatterns2015.subtlepatterns.netdna-cdn.com/patterns/geometry.png)"
+        background:
+          "#fff url(//subtlepatterns2015.subtlepatterns.netdna-cdn.com/patterns/geometry.png)",
       });
     });
 
@@ -178,12 +163,12 @@
             }, 2000);
           });
         },
-        allowOutsideClick: false
+        allowOutsideClick: false,
       }).then(function (email) {
         swal({
           type: "success",
           title: "Ajax request finished!",
-          html: "Submitted email: " + email
+          html: "Submitted email: " + email,
         });
       });
     });
@@ -194,56 +179,56 @@
         input: "text",
         confirmButtonText: "Next &rarr;",
         showCancelButton: true,
-        progressSteps: ["1", "2", "3"]
-      }).queue([
-        {
-          title: "Question 1",
-          text: "Chaining swal2 modals is easy"
-        },
-        "Question 2",
-        "Question 3"
-      ]).then((result) => {
-        if (result.value) {
-          Swal.fire({
-            title: "All done!",
-            html:
-                      "Your answers: <pre><code>" +
-                        JSON.stringify(result.value) +
-                      "</code></pre>",
-            confirmButtonText: "Lovely!"
-          });
-        }
-      });
+        progressSteps: ["1", "2", "3"],
+      })
+        .queue([
+          {
+            title: "Question 1",
+            text: "Chaining swal2 modals is easy",
+          },
+          "Question 2",
+          "Question 3",
+        ])
+        .then((result) => {
+          if (result.value) {
+            Swal.fire({
+              title: "All done!",
+              html:
+                "Your answers: <pre><code>" +
+                JSON.stringify(result.value) +
+                "</code></pre>",
+              confirmButtonText: "Lovely!",
+            });
+          }
+        });
     });
 
     //Danger
     $("#dynamic-alert").click(function () {
-      swal.queue([{
-        title: "Your public IP",
-        confirmButtonText: "Show my public IP",
-        text: "Your public IP will be received " +
-                "via AJAX request",
-        showLoaderOnConfirm: true,
-        preConfirm: function () {
-          return new Promise(function (resolve) {
-            $.get("https://api.ipify.org?format=json")
-              .done(function (data) {
+      swal.queue([
+        {
+          title: "Your public IP",
+          confirmButtonText: "Show my public IP",
+          text: "Your public IP will be received " + "via AJAX request",
+          showLoaderOnConfirm: true,
+          preConfirm: function () {
+            return new Promise(function (resolve) {
+              $.get("https://api.ipify.org?format=json").done(function (data) {
                 swal.insertQueueStep(data.ip);
                 resolve();
               });
-          });
-        }
-      }]);
+            });
+          },
+        },
+      ]);
     });
-
-
-  },
-  //init
-  $.SweetAlert = new SweetAlert, $.SweetAlert.Constructor = SweetAlert;
-}(window.jQuery),
-
-//initializing
-function ($) {
-  "use strict";
-  $.SweetAlert.init();
-}(window.jQuery);
+  }),
+    //init
+    ($.SweetAlert = new SweetAlert()),
+    ($.SweetAlert.Constructor = SweetAlert);
+})(window.jQuery),
+  //initializing
+  (function ($) {
+    "use strict";
+    $.SweetAlert.init();
+  })(window.jQuery);

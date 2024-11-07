@@ -1,4 +1,4 @@
-(function($) {
+(function ($) {
   $.extend($.summernote.lang, {
     "nb-NO": {
       font: {
@@ -11,7 +11,7 @@
         strikethrough: "Gjennomstrek",
         subscript: "Subscript",
         superscript: "Superscript",
-        size: "Skriftstørrelse"
+        size: "Skriftstørrelse",
       },
       image: {
         image: "Bilde",
@@ -33,14 +33,14 @@
         maximumFileSizeError: "Maximum file size exceeded.",
         url: "Bilde-URL",
         remove: "Fjern bilde",
-        original: "Original"
+        original: "Original",
       },
       video: {
         video: "Video",
         videoLink: "Videolenke",
         insert: "Sett inn video",
         url: "Video-URL",
-        providers: "(YouTube, Vimeo, Vine, Instagram, DailyMotion eller Youku)"
+        providers: "(YouTube, Vimeo, Vine, Instagram, DailyMotion eller Youku)",
       },
       link: {
         link: "Lenke",
@@ -49,7 +49,7 @@
         edit: "Rediger",
         textToDisplay: "Visningstekst",
         url: "Til hvilken URL skal denne lenken peke?",
-        openInNewWindow: "Åpne i nytt vindu"
+        openInNewWindow: "Åpne i nytt vindu",
       },
       table: {
         table: "Tabell",
@@ -59,10 +59,10 @@
         addColRight: "Add column right",
         delRow: "Delete row",
         delCol: "Delete column",
-        delTable: "Delete table"
+        delTable: "Delete table",
       },
       hr: {
-        insert: "Sett inn horisontal linje"
+        insert: "Sett inn horisontal linje",
       },
       style: {
         style: "Stil",
@@ -74,16 +74,16 @@
         h3: "Overskrift 3",
         h4: "Overskrift 4",
         h5: "Overskrift 5",
-        h6: "Overskrift 6"
+        h6: "Overskrift 6",
       },
       lists: {
         unordered: "Punktliste",
-        ordered: "Nummerert liste"
+        ordered: "Nummerert liste",
       },
       options: {
         help: "Hjelp",
         fullscreen: "Fullskjerm",
-        codeview: "HTML-visning"
+        codeview: "HTML-visning",
       },
       paragraph: {
         paragraph: "Avsnitt",
@@ -92,7 +92,7 @@
         left: "Venstrejustert",
         center: "Midtstilt",
         right: "Høyrejustert",
-        justify: "Blokkjustert"
+        justify: "Blokkjustert",
       },
       color: {
         recent: "Nylig valgt farge",
@@ -102,7 +102,7 @@
         transparent: "Gjennomsiktig",
         setTransparent: "Sett gjennomsiktig",
         reset: "Nullstill",
-        resetToDefault: "Nullstill til standard"
+        resetToDefault: "Nullstill til standard",
       },
       shortcut: {
         shortcuts: "Hurtigtaster",
@@ -110,45 +110,45 @@
         textFormatting: "Tekstformatering",
         action: "Handling",
         paragraphFormatting: "Avsnittsformatering",
-        documentStyle: "Dokumentstil"
+        documentStyle: "Dokumentstil",
       },
       help: {
-        "insertParagraph": "Insert Paragraph",
-        "undo": "Undoes the last command",
-        "redo": "Redoes the last command",
-        "tab": "Tab",
-        "untab": "Untab",
-        "bold": "Set a bold style",
-        "italic": "Set a italic style",
-        "underline": "Set a underline style",
-        "strikethrough": "Set a strikethrough style",
-        "removeFormat": "Clean a style",
-        "justifyLeft": "Set left align",
-        "justifyCenter": "Set center align",
-        "justifyRight": "Set right align",
-        "justifyFull": "Set full align",
-        "insertUnorderedList": "Toggle unordered list",
-        "insertOrderedList": "Toggle ordered list",
-        "outdent": "Outdent on current paragraph",
-        "indent": "Indent on current paragraph",
-        "formatPara": "Change current block's format as a paragraph(P tag)",
-        "formatH1": "Change current block's format as H1",
-        "formatH2": "Change current block's format as H2",
-        "formatH3": "Change current block's format as H3",
-        "formatH4": "Change current block's format as H4",
-        "formatH5": "Change current block's format as H5",
-        "formatH6": "Change current block's format as H6",
-        "insertHorizontalRule": "Insert horizontal rule",
-        "linkDialog.show": "Show Link Dialog"
+        insertParagraph: "Insert Paragraph",
+        undo: "Undoes the last command",
+        redo: "Redoes the last command",
+        tab: "Tab",
+        untab: "Untab",
+        bold: "Set a bold style",
+        italic: "Set a italic style",
+        underline: "Set a underline style",
+        strikethrough: "Set a strikethrough style",
+        removeFormat: "Clean a style",
+        justifyLeft: "Set left align",
+        justifyCenter: "Set center align",
+        justifyRight: "Set right align",
+        justifyFull: "Set full align",
+        insertUnorderedList: "Toggle unordered list",
+        insertOrderedList: "Toggle ordered list",
+        outdent: "Outdent on current paragraph",
+        indent: "Indent on current paragraph",
+        formatPara: "Change current block's format as a paragraph(P tag)",
+        formatH1: "Change current block's format as H1",
+        formatH2: "Change current block's format as H2",
+        formatH3: "Change current block's format as H3",
+        formatH4: "Change current block's format as H4",
+        formatH5: "Change current block's format as H5",
+        formatH6: "Change current block's format as H6",
+        insertHorizontalRule: "Insert horizontal rule",
+        "linkDialog.show": "Show Link Dialog",
       },
       history: {
         undo: "Angre",
-        redo: "Gjør om"
+        redo: "Gjør om",
       },
       specialChar: {
         specialChar: "SPECIAL CHARACTERS",
-        select: "Select Special characters"
-      }
-    }
+        select: "Select Special characters",
+      },
+    },
   });
 })(jQuery);

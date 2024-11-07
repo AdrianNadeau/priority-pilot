@@ -8,35 +8,33 @@
     font-size: 28px !important;
     font-weight: 500 !important;
   }
-  
 }
 
-.swal2-icon{
-  &.swal2-question{
+.swal2-icon {
+  &.swal2-question {
     border-color: $primary !important;
     color: $primary !important;
   }
 }
 
-.swal2-popup{
+.swal2-popup {
   .swal2-content {
     font-size: 16px !important;
   }
-  .swal2-styled{
-    &:focus{
+  .swal2-styled {
+    &:focus {
       box-shadow: none !important;
     }
   }
 }
 
-
-.swal2-icon{
+.swal2-icon {
   &.swal2-success {
     .swal2-success-ring {
       border-color: $success !important;
     }
 
-    [class^=swal2-success-line]{
+    [class^="swal2-success-line"] {
       background: $success !important;
     }
   }

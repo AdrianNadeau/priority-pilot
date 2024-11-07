@@ -2,7 +2,7 @@
   Card
 ===================*/
 .card {
-  border: 1px solid rgba($muted,0.12);
+  border: 1px solid rgba($muted, 0.12);
 }
 .card-primary {
   background-color: $primary;
@@ -61,14 +61,13 @@
   border-color: $blue-grey;
 }
 
-
-@media (min-width: 576px){
+@media (min-width: 576px) {
   .card-deck {
-      margin-right: -10px;
-      margin-left: -10px;
-      .card{
-        margin-left: 10px;
-        margin-right: 10px;
+    margin-right: -10px;
+    margin-left: -10px;
+    .card {
+      margin-left: 10px;
+      margin-right: 10px;
     }
   }
 }

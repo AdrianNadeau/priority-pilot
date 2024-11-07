@@ -18,10 +18,12 @@ define("tinymce/inlite/alien/Unlink", [
   "tinymce/inlite/alien/Bookmark",
   "global!tinymce.util.Tools",
   "global!tinymce.dom.TreeWalker",
-  "global!tinymce.dom.RangeUtils"
+  "global!tinymce.dom.RangeUtils",
 ], function (Bookmark, Tools, TreeWalker, RangeUtils) {
   var getSelectedElements = function (rootElm, startNode, endNode) {
-    var walker, node, elms = [];
+    var walker,
+      node,
+      elms = [];
 
     walker = new TreeWalker(startNode, rootElm);
     for (node = startNode; node; node = walker.next()) {
@@ -66,10 +68,16 @@ define("tinymce/inlite/alien/Unlink", [
     selection = editor.selection;
     dom = editor.dom;
     rng = selection.getRng();
-    startElm = getParentAnchorOrSelf(dom, RangeUtils.getNode(rng.startContainer, rng.startOffset));
+    startElm = getParentAnchorOrSelf(
+      dom,
+      RangeUtils.getNode(rng.startContainer, rng.startOffset),
+    );
     endElm = RangeUtils.getNode(rng.endContainer, rng.endOffset);
     rootElm = editor.getBody();
-    anchorElms = Tools.grep(getSelectedElements(rootElm, startElm, endElm), isLink);
+    anchorElms = Tools.grep(
+      getSelectedElements(rootElm, startElm, endElm),
+      isLink,
+    );
 
     return anchorElms;
   };
@@ -79,6 +87,6 @@ define("tinymce/inlite/alien/Unlink", [
   };
 
   return {
-    unlinkSelection: unlinkSelection
+    unlinkSelection: unlinkSelection,
   };
 });

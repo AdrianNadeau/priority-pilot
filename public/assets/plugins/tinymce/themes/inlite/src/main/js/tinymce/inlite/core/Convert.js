@@ -8,14 +8,13 @@
  * Contributing: http://www.tinymce.com/contributing
  */
 
-define("tinymce/inlite/core/Convert", [
-], function () {
+define("tinymce/inlite/core/Convert", [], function () {
   var fromClientRect = function (clientRect) {
     return {
       x: clientRect.left,
       y: clientRect.top,
       w: clientRect.width,
-      h: clientRect.height
+      h: clientRect.height,
     };
   };
 
@@ -26,12 +25,12 @@ define("tinymce/inlite/core/Convert", [
       width: geomRect.w,
       height: geomRect.h,
       right: geomRect.x + geomRect.w,
-      bottom: geomRect.y + geomRect.h
+      bottom: geomRect.y + geomRect.h,
     };
   };
 
   return {
     fromClientRect: fromClientRect,
-    toClientRect: toClientRect
+    toClientRect: toClientRect,
   };
 });

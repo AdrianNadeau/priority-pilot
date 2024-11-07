@@ -1,4 +1,4 @@
-GMaps.prototype.drawOverlay = function(options) {
+GMaps.prototype.drawOverlay = function (options) {
   var overlay = new google.maps.OverlayView(),
     auto_show = true;
 
@@ -8,7 +8,7 @@ GMaps.prototype.drawOverlay = function(options) {
     auto_show = options.auto_show;
   }
 
-  overlay.onAdd = function() {
+  overlay.onAdd = function () {
     var el = document.createElement("div");
 
     el.style.borderStyle = "none";
@@ -22,21 +22,28 @@ GMaps.prototype.drawOverlay = function(options) {
     if (!options.layer) {
       options.layer = "overlayLayer";
     }
-    
+
     var panes = this.getPanes(),
       overlayLayer = panes[options.layer],
-      stop_overlay_events = ["contextmenu", "DOMMouseScroll", "dblclick", "mousedown"];
+      stop_overlay_events = [
+        "contextmenu",
+        "DOMMouseScroll",
+        "dblclick",
+        "mousedown",
+      ];
 
     overlayLayer.appendChild(el);
 
     for (var ev = 0; ev < stop_overlay_events.length; ev++) {
-      (function(object, name) {
-        google.maps.event.addDomListener(object, name, function(e){
-          if (navigator.userAgent.toLowerCase().indexOf("msie") != -1 && document.all) {
+      (function (object, name) {
+        google.maps.event.addDomListener(object, name, function (e) {
+          if (
+            navigator.userAgent.toLowerCase().indexOf("msie") != -1 &&
+            document.all
+          ) {
             e.cancelBubble = true;
             e.returnValue = false;
-          }
-          else {
+          } else {
             e.stopPropagation();
           }
         });
@@ -45,7 +52,7 @@ GMaps.prototype.drawOverlay = function(options) {
 
     if (options.click) {
       panes.overlayMouseTarget.appendChild(overlay.el);
-      google.maps.event.addDomListener(overlay.el, "click", function() {
+      google.maps.event.addDomListener(overlay.el, "click", function () {
         options.click.apply(overlay, [overlay]);
       });
     }
@@ -53,9 +60,11 @@ GMaps.prototype.drawOverlay = function(options) {
     google.maps.event.trigger(this, "ready");
   };
 
-  overlay.draw = function() {
+  overlay.draw = function () {
     var projection = this.getProjection(),
-      pixel = projection.fromLatLngToDivPixel(new google.maps.LatLng(options.lat, options.lng));
+      pixel = projection.fromLatLngToDivPixel(
+        new google.maps.LatLng(options.lat, options.lng),
+      );
 
     options.horizontalOffset = options.horizontalOffset || 0;
     options.verticalOffset = options.verticalOffset || 0;
@@ -66,29 +75,32 @@ GMaps.prototype.drawOverlay = function(options) {
       content_width = content.clientWidth;
 
     switch (options.verticalAlign) {
-    case "top":
-      el.style.top = (pixel.y - content_height + options.verticalOffset) + "px";
-      break;
-    default:
-    case "middle":
-      el.style.top = (pixel.y - (content_height / 2) + options.verticalOffset) + "px";
-      break;
-    case "bottom":
-      el.style.top = (pixel.y + options.verticalOffset) + "px";
-      break;
+      case "top":
+        el.style.top = pixel.y - content_height + options.verticalOffset + "px";
+        break;
+      default:
+      case "middle":
+        el.style.top =
+          pixel.y - content_height / 2 + options.verticalOffset + "px";
+        break;
+      case "bottom":
+        el.style.top = pixel.y + options.verticalOffset + "px";
+        break;
     }
 
     switch (options.horizontalAlign) {
-    case "left":
-      el.style.left = (pixel.x - content_width + options.horizontalOffset) + "px";
-      break;
-    default:
-    case "center":
-      el.style.left = (pixel.x - (content_width / 2) + options.horizontalOffset) + "px";
-      break;
-    case "right":
-      el.style.left = (pixel.x + options.horizontalOffset) + "px";
-      break;
+      case "left":
+        el.style.left =
+          pixel.x - content_width + options.horizontalOffset + "px";
+        break;
+      default:
+      case "center":
+        el.style.left =
+          pixel.x - content_width / 2 + options.horizontalOffset + "px";
+        break;
+      case "right":
+        el.style.left = pixel.x + options.horizontalOffset + "px";
+        break;
     }
 
     el.style.display = auto_show ? "block" : "none";
@@ -98,13 +110,12 @@ GMaps.prototype.drawOverlay = function(options) {
     }
   };
 
-  overlay.onRemove = function() {
+  overlay.onRemove = function () {
     var el = overlay.el;
 
     if (options.remove) {
       options.remove.apply(this, [el]);
-    }
-    else {
+    } else {
       overlay.el.parentNode.removeChild(overlay.el);
       overlay.el = null;
     }
@@ -114,7 +125,7 @@ GMaps.prototype.drawOverlay = function(options) {
   return overlay;
 };
 
-GMaps.prototype.removeOverlay = function(overlay) {
+GMaps.prototype.removeOverlay = function (overlay) {
   for (var i = 0; i < this.overlays.length; i++) {
     if (this.overlays[i] === overlay) {
       this.overlays[i].setMap(null);
@@ -125,8 +136,8 @@ GMaps.prototype.removeOverlay = function(overlay) {
   }
 };
 
-GMaps.prototype.removeOverlays = function() {
-  for (var i = 0, item; item = this.overlays[i]; i++) {
+GMaps.prototype.removeOverlays = function () {
+  for (var i = 0, item; (item = this.overlays[i]); i++) {
     item.setMap(null);
   }
 

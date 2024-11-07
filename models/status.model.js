@@ -4,37 +4,36 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     project_id_fk: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     prime_id_fk: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     status_date: {
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     progress: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     issue: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
-    
+
     actions: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     accomplishments: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     health: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     attachment: {
-      type: Sequelize.STRING
-    }
-   
+      type: Sequelize.STRING,
+    },
   });
 
   return Status;

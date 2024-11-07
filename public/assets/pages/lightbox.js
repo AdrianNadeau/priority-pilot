@@ -4,13 +4,12 @@
  File: Lightbox Init
  */
 
-!function($) {
+!(function ($) {
   "use strict";
 
-  var Lightbox = function() {};
+  var Lightbox = function () {};
 
-  Lightbox.prototype.init = function () {
-
+  (Lightbox.prototype.init = function () {
     /*
 		 Single Image
 		 */
@@ -20,9 +19,8 @@
       closeOnContentClick: true,
       mainClass: "mfp-img-mobile",
       image: {
-        verticalFit: true
-      }
-
+        verticalFit: true,
+      },
     });
 
     $(".image-popup-no-margins").magnificPopup({
@@ -32,12 +30,12 @@
       fixedContentPos: true,
       mainClass: "mfp-no-margins mfp-with-zoom", // class to remove default margin from left and right side
       image: {
-        verticalFit: true
+        verticalFit: true,
       },
       zoom: {
         enabled: true,
-        duration: 300 // don't foget to change the duration also in CSS
-      }
+        duration: 300, // don't foget to change the duration also in CSS
+      },
     });
 
     /*
@@ -51,11 +49,11 @@
       gallery: {
         enabled: true,
         navigateByImgClick: true,
-        preload: [0,1] // Will preload 0 - before current, and 1 after the current image
+        preload: [0, 1], // Will preload 0 - before current, and 1 after the current image
       },
       image: {
-        tError: "<a href=\"%url%\">The image #%curr%</a> could not be loaded."
-      }
+        tError: '<a href="%url%">The image #%curr%</a> could not be loaded.',
+      },
     });
 
     /*
@@ -69,20 +67,25 @@
       mainClass: "mfp-with-zoom mfp-img-mobile",
       image: {
         verticalFit: true,
-        titleSrc: function(item) {
-          return item.el.attr("title") + " &middot; <a href=\""+item.el.attr("data-source")+"\" target=\"_blank\">image source</a>";
-        }
+        titleSrc: function (item) {
+          return (
+            item.el.attr("title") +
+            ' &middot; <a href="' +
+            item.el.attr("data-source") +
+            '" target="_blank">image source</a>'
+          );
+        },
       },
       gallery: {
-        enabled: true
+        enabled: true,
       },
       zoom: {
         enabled: true,
         duration: 300, // don't foget to change the duration also in CSS
-        opener: function(element) {
+        opener: function (element) {
           return element.find("img");
-        }
-      }
+        },
+      },
     });
 
     /*
@@ -94,7 +97,7 @@
       mainClass: "mfp-fade",
       removalDelay: 160,
       preloader: false,
-      fixedContentPos: false
+      fixedContentPos: false,
     });
 
     /*
@@ -109,7 +112,7 @@
       preloader: false,
       midClick: true,
       removalDelay: 300,
-      mainClass: "my-mfp-zoom-in"
+      mainClass: "my-mfp-zoom-in",
     });
 
     $(".popup-with-move-anim").magnificPopup({
@@ -121,16 +124,14 @@
       preloader: false,
       midClick: true,
       removalDelay: 300,
-      mainClass: "my-mfp-slide-bottom"
+      mainClass: "my-mfp-slide-bottom",
     });
-
-  },
-  $.Lightbox = new Lightbox, $.Lightbox.Constructor = Lightbox;
-
-}(window.jQuery),
-
-//initializing
-function($) {
-  "use strict";
-  $.Lightbox.init();
-}(window.jQuery);
+  }),
+    ($.Lightbox = new Lightbox()),
+    ($.Lightbox.Constructor = Lightbox);
+})(window.jQuery),
+  //initializing
+  (function ($) {
+    "use strict";
+    $.Lightbox.init();
+  })(window.jQuery);

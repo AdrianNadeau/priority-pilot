@@ -14,8 +14,6 @@
 //   }
 // });
 
-
-
 // const db = {};
 
 // db.Sequelize = Sequelize;
@@ -44,20 +42,31 @@ let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  sequelize = new Sequelize(
+    config.database,
+    config.username,
+    config.password,
+    config,
+  );
 }
 
 db.companies = require("./company.model.js")(sequelize, Sequelize);
 db.persons = require("./person.model.js")(sequelize, Sequelize);
 db.change_logs = require("./change_log.model.js")(sequelize, Sequelize);
-db.change_logs_reason = require("./change_reason.model.js")(sequelize, Sequelize);
+db.change_logs_reason = require("./change_reason.model.js")(
+  sequelize,
+  Sequelize,
+);
 db.projects = require("./project.model.js")(sequelize, Sequelize);
 db.priorities = require("./priority.model.js")(sequelize, Sequelize);
 db.tags = require("./tag.model.js")(sequelize, Sequelize);
 db.statuses = require("./status.model.js")(sequelize, Sequelize);
 db.phases = require("./phase.model.js")(sequelize, Sequelize);
 db.change_reasons = require("./change_reason.model.js")(sequelize, Sequelize);
-db.changed_projects = require("./changed_project.model.js")(sequelize, Sequelize);
+db.changed_projects = require("./changed_project.model.js")(
+  sequelize,
+  Sequelize,
+);
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

@@ -1,27 +1,31 @@
-GMaps.prototype.toImage = function(options) {
+GMaps.prototype.toImage = function (options) {
   var options = options || {},
     static_map_options = {};
 
-  static_map_options["size"] = options["size"] || [this.el.clientWidth, this.el.clientHeight];
+  static_map_options["size"] = options["size"] || [
+    this.el.clientWidth,
+    this.el.clientHeight,
+  ];
   static_map_options["lat"] = this.getCenter().lat();
   static_map_options["lng"] = this.getCenter().lng();
 
   if (this.markers.length > 0) {
     static_map_options["markers"] = [];
-    
+
     for (var i = 0; i < this.markers.length; i++) {
       static_map_options["markers"].push({
         lat: this.markers[i].getPosition().lat(),
-        lng: this.markers[i].getPosition().lng()
+        lng: this.markers[i].getPosition().lng(),
       });
     }
   }
 
   if (this.polylines.length > 0) {
     var polyline = this.polylines[0];
-    
+
     static_map_options["polyline"] = {};
-    static_map_options["polyline"]["path"] = google.maps.geometry.encoding.encodePath(polyline.getPath());
+    static_map_options["polyline"]["path"] =
+      google.maps.geometry.encoding.encodePath(polyline.getPath());
     static_map_options["polyline"]["strokeColor"] = polyline.strokeColor;
     static_map_options["polyline"]["strokeOpacity"] = polyline.strokeOpacity;
     static_map_options["polyline"]["strokeWeight"] = polyline.strokeWeight;
@@ -30,10 +34,12 @@ GMaps.prototype.toImage = function(options) {
   return GMaps.staticMapURL(static_map_options);
 };
 
-GMaps.staticMapURL = function(options){
+GMaps.staticMapURL = function (options) {
   var parameters = [],
     data,
-    static_root = (location.protocol === "file:" ? "http:" : location.protocol ) + "//maps.googleapis.com/maps staticmap";
+    static_root =
+      (location.protocol === "file:" ? "http:" : location.protocol) +
+      "//maps.googleapis.com/maps staticmap";
 
   if (options.url) {
     static_root = options.url;
@@ -43,7 +49,7 @@ GMaps.staticMapURL = function(options){
   static_root += "?";
 
   var markers = options.markers;
-  
+
   delete options.markers;
 
   if (!markers && options.marker) {
@@ -62,17 +68,14 @@ GMaps.staticMapURL = function(options){
   if (options.center) {
     parameters.push("center=" + options.center);
     delete options.center;
-  }
-  else if (options.address) {
+  } else if (options.address) {
     parameters.push("center=" + options.address);
     delete options.address;
-  }
-  else if (options.lat) {
+  } else if (options.lat) {
     parameters.push(["center=", options.lat, ",", options.lng].join(""));
     delete options.lat;
     delete options.lng;
-  }
-  else if (options.visible) {
+  } else if (options.visible) {
     var visible = encodeURI(options.visible.join("|"));
     parameters.push("visible=" + visible);
   }
@@ -83,8 +86,7 @@ GMaps.staticMapURL = function(options){
       size = size.join("x");
     }
     delete options.size;
-  }
-  else {
+  } else {
     size = "630x300";
   }
   parameters.push("size=" + size);
@@ -107,14 +109,13 @@ GMaps.staticMapURL = function(options){
   if (markers) {
     var marker, loc;
 
-    for (var i = 0; data = markers[i]; i++) {
+    for (var i = 0; (data = markers[i]); i++) {
       marker = [];
 
       if (data.size && data.size !== "normal") {
         marker.push("size:" + data.size);
         delete data.size;
-      }
-      else if (data.icon) {
+      } else if (data.icon) {
         marker.push("icon:" + encodeURI(data.icon));
         delete data.icon;
       }
@@ -129,12 +130,12 @@ GMaps.staticMapURL = function(options){
         delete data.label;
       }
 
-      loc = (data.address ? data.address : data.lat + "," + data.lng);
+      loc = data.address ? data.address : data.lat + "," + data.lng;
       delete data.address;
       delete data.lat;
       delete data.lng;
 
-      for(var param in data){
+      for (var param in data) {
         if (data.hasOwnProperty(param)) {
           marker.push(param + ":" + data[param]);
         }
@@ -157,7 +158,7 @@ GMaps.staticMapURL = function(options){
   if (styles) {
     for (var i = 0; i < styles.length; i++) {
       var styleRule = [];
-      if (styles[i].featureType){
+      if (styles[i].featureType) {
         styleRule.push("feature:" + styles[i].featureType.toLowerCase());
       }
 
@@ -184,7 +185,7 @@ GMaps.staticMapURL = function(options){
 
   /** Polylines **/
   function parseColor(color, opacity) {
-    if (color[0] === "#"){
+    if (color[0] === "#") {
       color = color.replace("#", "0x");
 
       if (opacity) {
@@ -198,7 +199,7 @@ GMaps.staticMapURL = function(options){
           opacity += opacity;
         }
 
-        color = color.slice(0,8) + opacity;
+        color = color.slice(0, 8) + opacity;
       }
     }
     return color;
@@ -224,11 +225,10 @@ GMaps.staticMapURL = function(options){
 
     var path = data.path;
     if (path.join) {
-      for (var j=0, pos; pos=path[j]; j++) {
+      for (var j = 0, pos; (pos = path[j]); j++) {
         polyline.push(pos.join(","));
       }
-    }
-    else {
+    } else {
       polyline.push("enc:" + path);
     }
 

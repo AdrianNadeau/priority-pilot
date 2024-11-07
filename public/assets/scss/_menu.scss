@@ -10,7 +10,7 @@
   z-index: 999;
 }
 
-.logo{
+.logo {
   line-height: 80px;
 }
 
@@ -134,7 +134,7 @@
 .nav-user {
   margin-right: 10px;
   img {
-    height:36px;
+    height: 36px;
     width: 36px;
   }
 }
@@ -147,11 +147,11 @@
 
 .menu-title {
   padding: 12px 25px !important;
-  letter-spacing: .035em;
+  letter-spacing: 0.035em;
   pointer-events: none;
   cursor: default;
   font-size: 13px;
-  color: rgba($white,0.5);
+  color: rgba($white, 0.5);
   margin-top: 10px !important;
 }
 
@@ -197,7 +197,6 @@
   }
 }
 
-
 body.fixed-left {
   .side-menu.left {
     bottom: 50px;
@@ -224,7 +223,7 @@ body.fixed-left {
   padding-top: 80px;
 }
 
-.button-menu-mobile{
+.button-menu-mobile {
   background-color: $white;
   font-size: 28px;
   width: 42px;
@@ -238,7 +237,6 @@ body.fixed-left {
   height: $height;
 }
 
-
 .search-wrap {
   background-color: $white;
   color: $dark;
@@ -250,7 +248,7 @@ body.fixed-left {
   height: 70px;
   padding: 0 15px;
   transform: translate3d(0, -100%, 0);
-  transition: .3s;
+  transition: 0.3s;
 
   form {
     display: flex;
@@ -287,7 +285,10 @@ body.fixed-left {
   transform: translate3d(0, 0, 0);
 }
 
-#sidebar-menu, #sidebar-menu ul, #sidebar-menu li, #sidebar-menu a {
+#sidebar-menu,
+#sidebar-menu ul,
+#sidebar-menu li,
+#sidebar-menu a {
   border: 0;
   font-weight: normal;
   line-height: 1;
@@ -298,7 +299,7 @@ body.fixed-left {
   text-decoration: none;
 }
 
-.navbar-nav>li>a.notification-icon-box {
+.navbar-nav > li > a.notification-icon-box {
   line-height: 70px;
 
   i {
@@ -319,17 +320,17 @@ body.fixed-left {
       }
       li.active {
         a {
-          color: rgba($white,0.8);
+          color: rgba($white, 0.8);
         }
       }
       a {
-        color: rgba($white,0.5);
+        color: rgba($white, 0.5);
         display: block;
         padding: 12px 20px 12px 55px;
         font-size: 15px;
 
         &:hover {
-          color: rgba($white,0.8);
+          color: rgba($white, 0.8);
         }
         i {
           margin-right: 5px;
@@ -345,13 +346,13 @@ body.fixed-left {
 }
 
 #sidebar-menu > ul > li > a {
-  color: rgba($white,0.5);
+  color: rgba($white, 0.5);
   display: block;
   padding: 12px 20px;
   background-color: $left-bar;
 
   &:hover {
-    color: rgba($white,0.8);
+    color: rgba($white, 0.8);
     text-decoration: none;
   }
 
@@ -368,8 +369,8 @@ body.fixed-left {
 }
 
 #sidebar-menu > ul > li.nav-active > a {
-  background-color: darken($left-bar,2%);
-  color: rgba($white,0.8);
+  background-color: darken($left-bar, 2%);
+  color: rgba($white, 0.8);
 }
 #sidebar-menu > ul > li > a > span {
   vertical-align: middle;
@@ -392,10 +393,10 @@ body.fixed-left {
 }
 
 #sidebar-menu > ul > li > a.active {
-  color: rgba($white,0.8);
+  color: rgba($white, 0.8);
 
   i {
-    color: rgba($white,0.8);
+    color: rgba($white, 0.8);
   }
 }
 
@@ -403,9 +404,7 @@ body.fixed-left {
   display: block;
 }
 
-
 #wrapper.enlarged {
-
   .left.side-menu {
     padding-top: 0;
     z-index: 5;
@@ -417,14 +416,14 @@ body.fixed-left {
 }
 
 #wrapper.enlarged .footer {
-    left: 0;
+  left: 0;
 }
 
 .user-details {
   min-height: 80px;
   padding: 20px;
   position: relative;
-  color: rgba($white,0.8);
+  color: rgba($white, 0.8);
 
   img {
     position: relative;
@@ -438,7 +437,7 @@ body.fixed-left {
     .user-status {
       display: inline-block;
       padding: 3px 10px;
-      border: 1px solid rgba($white,0.8);
+      border: 1px solid rgba($white, 0.8);
       border-radius: 20px;
       font-size: 12px;
     }

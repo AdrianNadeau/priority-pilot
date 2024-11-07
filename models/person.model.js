@@ -5,43 +5,44 @@ module.exports = (sequelize, Sequelize) => {
       autoIncrement: true,
       primaryKey: true,
       type: Sequelize.INTEGER,
-      unique:true
+      unique: true,
     },
     first_name: {
       type: Sequelize.STRING,
-      required: true
+      required: true,
     },
     last_name: {
       type: Sequelize.STRING,
-      required: true
+      required: true,
     },
     email: {
       type: Sequelize.STRING,
-      required: true, unique: true
+      required: true,
+      unique: true,
     },
     password: {
       type: Sequelize.STRING,
-      required: true
+      required: true,
     },
     initials: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
     isAdmin: {
       type: Sequelize.BOOLEAN,
-      default:false
+      default: false,
     },
-        
+
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     company_id_fk: {
       type: Sequelize.DataTypes.INTEGER,
-    }
+    },
   });
 
   return Person;

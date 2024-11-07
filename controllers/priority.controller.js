@@ -7,26 +7,26 @@ exports.create = (req, res) => {
   // Validate request
   if (!req.body.priority_name) {
     res.status(400).send({
-      message: "Priority Name can not be empty!"
+      message: "Priority Name can not be empty!",
     });
     return;
   }
-  
+
   // Create a Priority
   const priority = {
     priority_name: req.body.priority_name,
     priority_description: req.body.priority_description,
   };
-    // console.log("+++++++++++++++++++++++++++++ priority: ",priority)
-    // Save Priority in the database
+  // console.log("+++++++++++++++++++++++++++++ priority: ",priority)
+  // Save Priority in the database
   Priority.create(priority)
-    .then(data => {
+    .then((data) => {
       res.send(data);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-            err.message || "Some error occurred while creating the Priority."
+          err.message || "Some error occurred while creating the Priority.",
       });
     });
 };
@@ -34,16 +34,18 @@ exports.create = (req, res) => {
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
   const priority_name = req.query.priority_name;
-  var condition = priority_name ? { priority_name: { [Op.iLike]: `%${company_name}%` } } : null;
-  
+  var condition = priority_name
+    ? { priority_name: { [Op.iLike]: `%${company_name}%` } }
+    : null;
+
   Priority.findAll({ where: condition })
-    .then(data => {
+    .then((data) => {
       res.send(data);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-            err.message || "Some error occurred while retrieving companies."
+          err.message || "Some error occurred while retrieving companies.",
       });
     });
 };
@@ -51,20 +53,20 @@ exports.findAll = (req, res) => {
 // Find a single Priority with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
-  
+
   Priority.findByPk(id)
-    .then(data => {
+    .then((data) => {
       if (data) {
         res.send(data);
       } else {
         res.status(404).send({
-          message: `Cannot find Priority with id=${id}.`
+          message: `Cannot find Priority with id=${id}.`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Error retrieving Priority with id=" + id
+        message: "Error retrieving Priority with id=" + id,
       });
     });
 };
@@ -72,24 +74,24 @@ exports.findOne = (req, res) => {
 // Update a Priority by the id in the request
 exports.update = (req, res) => {
   const id = req.params.id;
-  
+
   Priority.update(req.body, {
-    where: { id: id }
+    where: { id: id },
   })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({
-          message: "Priority was updated successfully."
+          message: "Priority was updated successfully.",
         });
       } else {
         res.send({
-          message: `Cannot update Priority with id=${id}. Maybe Priority was not found or req.body is empty!`
+          message: `Cannot update Priority with id=${id}. Maybe Priority was not found or req.body is empty!`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Error updating Priority with id=" + id
+        message: "Error updating Priority with id=" + id,
       });
     });
 };
@@ -97,24 +99,24 @@ exports.update = (req, res) => {
 // Delete a Priority with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
-  
+
   Priority.destroy({
-    where: { id: id }
+    where: { id: id },
   })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({
-          message: "Priority was deleted successfully!"
+          message: "Priority was deleted successfully!",
         });
       } else {
         res.send({
-          message: `Cannot delete Priority with id=${id}. Maybe Priority was not found!`
+          message: `Cannot delete Priority with id=${id}. Maybe Priority was not found!`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Could not delete Priority with id=" + id
+        message: "Could not delete Priority with id=" + id,
       });
     });
 };
@@ -123,16 +125,15 @@ exports.delete = (req, res) => {
 exports.deleteAll = (req, res) => {
   Priority.destroy({
     where: {},
-    truncate: false
+    truncate: false,
   })
-    .then(nums => {
+    .then((nums) => {
       res.send({ message: `${nums} Companies were deleted successfully!` });
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-            err.message || "Some error occurred while removing all companies."
+          err.message || "Some error occurred while removing all companies.",
       });
     });
 };
-

@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Access public folder from root
 app.use("/public", express.static("public"));
-app.get("/layouts/", function(req, res) {
+app.get("/layouts/", function (req, res) {
   res.render("view");
 });
 
@@ -22,18 +22,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const sessionMiddleware = session({
-
   secret: process.env.SECRET,
   resave: true,
   saveUninitialized: true,
-  rolling: true // Force regeneration of session ID for each request
+  rolling: true, // Force regeneration of session ID for each request
 });
 app.use(sessionMiddleware);
 
-
-
 // Add Authentication Route file with app
-app.use("/", Authrouter); 
+app.use("/", Authrouter);
 app.use("/control", DashboardRouter);
 
 // Set up storage engine
@@ -42,8 +39,11 @@ const storage = multer.diskStorage({
     cb(null, "/resources/static/assets/uploads/company_logos"); // Directory to store files
   },
   filename: function (req, file, cb) {
-    cb(null, file.fieldname + "-" + Date.now() + path.extname(file.originalname)); // Unique file name
-  }
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname),
+    ); // Unique file name
+  },
 });
 
 //For set layouts of html view
@@ -52,10 +52,11 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(expressLayouts);
 // Add Route file with app
-app.use("/", router); 
+app.use("/", router);
 
 const db = require("./models");
-db.sequelize.sync()
+db.sequelize
+  .sync()
   .then(() => {
     console.log("DB Connected...");
   })
@@ -76,6 +77,6 @@ require("./routes/phase.routes")(app);
 require("./routes/priority.routes")(app);
 require("./routes/change_reason.routes.js")(app);
 
-http.listen(8080, function(){
+http.listen(8080, function () {
   console.log("listening on *:8080");
 });

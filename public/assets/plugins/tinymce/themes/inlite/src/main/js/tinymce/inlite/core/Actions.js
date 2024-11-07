@@ -10,12 +10,12 @@
 
 define("tinymce/inlite/core/Actions", [
   "tinymce/inlite/alien/Uuid",
-  "tinymce/inlite/alien/Unlink"
+  "tinymce/inlite/alien/Unlink",
 ], function (Uuid, Unlink) {
   var createTableHtml = function (cols, rows) {
     var x, y, html;
 
-    html = "<table data-mce-id=\"mce\" style=\"width: 100%\">";
+    html = '<table data-mce-id="mce" style="width: 100%">';
     html += "<tbody>";
 
     for (y = 0; y < rows; y++) {
@@ -63,7 +63,9 @@ define("tinymce/inlite/core/Actions", [
     blobInfo = blobCache.create(Uuid.uuid("mceu"), blob, base64);
     blobCache.add(blobInfo);
 
-    editor.insertContent(editor.dom.createHTML("img", {src: blobInfo.blobUri()}));
+    editor.insertContent(
+      editor.dom.createHTML("img", { src: blobInfo.blobUri() }),
+    );
   };
 
   var collapseSelectionToEnd = function (editor) {
@@ -83,7 +85,7 @@ define("tinymce/inlite/core/Actions", [
   };
 
   var insertLink = function (editor, url) {
-    editor.execCommand("mceInsertLink", false, {href: url});
+    editor.execCommand("mceInsertLink", false, { href: url });
     collapseSelectionToEnd(editor);
   };
 
@@ -101,6 +103,6 @@ define("tinymce/inlite/core/Actions", [
     formatBlock: formatBlock,
     insertBlob: insertBlob,
     createLink: createLink,
-    unlink: unlink
+    unlink: unlink,
   };
 });

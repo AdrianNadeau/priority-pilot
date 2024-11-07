@@ -92,34 +92,102 @@
 .table-responsive[data-pattern="priority-columns"] > .table-bordered {
   border: 0;
 }
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > thead > tr > th:first-child,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tbody > tr > th:first-child,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tfoot > tr > th:first-child,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > thead > tr > td:first-child,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tbody > tr > td:first-child,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tfoot > tr > td:first-child {
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > thead
+  > tr
+  > th:first-child,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tbody
+  > tr
+  > th:first-child,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tfoot
+  > tr
+  > th:first-child,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > thead
+  > tr
+  > td:first-child,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tbody
+  > tr
+  > td:first-child,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tfoot
+  > tr
+  > td:first-child {
   border-left: 0;
 }
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > thead > tr > th:last-child,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tbody > tr > th:last-child,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tfoot > tr > th:last-child,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > thead > tr > td:last-child,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tbody > tr > td:last-child,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tfoot > tr > td:last-child {
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > thead
+  > tr
+  > th:last-child,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tbody
+  > tr
+  > th:last-child,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tfoot
+  > tr
+  > th:last-child,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > thead
+  > tr
+  > td:last-child,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tbody
+  > tr
+  > td:last-child,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tfoot
+  > tr
+  > td:last-child {
   border-right: 0;
 }
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tbody > tr:last-child > th,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tfoot > tr:last-child > th,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tbody > tr:last-child > td,
-.table-responsive[data-pattern="priority-columns"] > .table-bordered > tfoot > tr:last-child > td {
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tbody
+  > tr:last-child
+  > th,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tfoot
+  > tr:last-child
+  > th,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tbody
+  > tr:last-child
+  > td,
+.table-responsive[data-pattern="priority-columns"]
+  > .table-bordered
+  > tfoot
+  > tr:last-child
+  > td {
   border-bottom: 0;
 }
 .table-responsive.absolute-solution {
   position: relative;
 }
-.mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="-1"],
+.mq.js
+  .table-responsive[data-pattern="priority-columns"]
+  th[data-priority="-1"],
 .mq.js.lt-ie10 .sticky-table-header th[data-priority="-1"],
-.mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="-1"],
+.mq.js
+  .table-responsive[data-pattern="priority-columns"]
+  td[data-priority="-1"],
 .mq.js.lt-ie10 .sticky-table-header td[data-priority="-1"],
 .mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="0"],
 .mq.js.lt-ie10 .sticky-table-header th[data-priority="0"],
@@ -151,9 +219,13 @@
 .mq.js.lt-ie10 .sticky-table-header td[data-priority="6"] {
   display: none;
 }
-.lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="1"],
+.lt-ie9.mq.js
+  .table-responsive[data-pattern="priority-columns"]
+  th[data-priority="1"],
 .lt-ie9.mq.js.lt-ie10 .sticky-table-header th[data-priority="1"],
-.lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="1"],
+.lt-ie9.mq.js
+  .table-responsive[data-pattern="priority-columns"]
+  td[data-priority="1"],
 .lt-ie9.mq.js.lt-ie10 .sticky-table-header td[data-priority="1"] {
   display: inline;
 }
@@ -164,71 +236,111 @@
   display: table-cell;
 }
 @media screen and (min-width: 480px) {
-  .lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="2"],
+  .lt-ie9.mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    th[data-priority="2"],
   .lt-ie9.mq.js.lt-ie10 .sticky-table-header th[data-priority="2"],
-  .lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="2"],
+  .lt-ie9.mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    td[data-priority="2"],
   .lt-ie9.mq.js.lt-ie10 .sticky-table-header td[data-priority="2"] {
     display: inline;
   }
-  .mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="2"],
+  .mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    th[data-priority="2"],
   .mq.js.lt-ie10 .sticky-table-header th[data-priority="2"],
-  .mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="2"],
+  .mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    td[data-priority="2"],
   .mq.js.lt-ie10 .sticky-table-header td[data-priority="2"] {
     display: table-cell;
   }
 }
 @media screen and (min-width: 640px) {
-  .lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="3"],
+  .lt-ie9.mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    th[data-priority="3"],
   .lt-ie9.mq.js.lt-ie10 .sticky-table-header th[data-priority="3"],
-  .lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="3"],
+  .lt-ie9.mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    td[data-priority="3"],
   .lt-ie9.mq.js.lt-ie10 .sticky-table-header td[data-priority="3"] {
     display: inline;
   }
-  .mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="3"],
+  .mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    th[data-priority="3"],
   .mq.js.lt-ie10 .sticky-table-header th[data-priority="3"],
-  .mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="3"],
+  .mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    td[data-priority="3"],
   .mq.js.lt-ie10 .sticky-table-header td[data-priority="3"] {
     display: table-cell;
   }
 }
 @media screen and (min-width: 800px) {
-  .lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="4"],
+  .lt-ie9.mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    th[data-priority="4"],
   .lt-ie9.mq.js.lt-ie10 .sticky-table-header th[data-priority="4"],
-  .lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="4"],
+  .lt-ie9.mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    td[data-priority="4"],
   .lt-ie9.mq.js.lt-ie10 .sticky-table-header td[data-priority="4"] {
     display: inline;
   }
-  .mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="4"],
+  .mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    th[data-priority="4"],
   .mq.js.lt-ie10 .sticky-table-header th[data-priority="4"],
-  .mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="4"],
+  .mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    td[data-priority="4"],
   .mq.js.lt-ie10 .sticky-table-header td[data-priority="4"] {
     display: table-cell;
   }
 }
 @media screen and (min-width: 960px) {
-  .lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="5"],
+  .lt-ie9.mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    th[data-priority="5"],
   .lt-ie9.mq.js.lt-ie10 .sticky-table-header th[data-priority="5"],
-  .lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="5"],
+  .lt-ie9.mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    td[data-priority="5"],
   .lt-ie9.mq.js.lt-ie10 .sticky-table-header td[data-priority="5"] {
     display: inline;
   }
-  .mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="5"],
+  .mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    th[data-priority="5"],
   .mq.js.lt-ie10 .sticky-table-header th[data-priority="5"],
-  .mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="5"],
+  .mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    td[data-priority="5"],
   .mq.js.lt-ie10 .sticky-table-header td[data-priority="5"] {
     display: table-cell;
   }
 }
 @media screen and (min-width: 1120px) {
-  .lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="6"],
+  .lt-ie9.mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    th[data-priority="6"],
   .lt-ie9.mq.js.lt-ie10 .sticky-table-header th[data-priority="6"],
-  .lt-ie9.mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="6"],
+  .lt-ie9.mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    td[data-priority="6"],
   .lt-ie9.mq.js.lt-ie10 .sticky-table-header td[data-priority="6"] {
     display: inline;
   }
-  .mq.js .table-responsive[data-pattern="priority-columns"] th[data-priority="6"],
+  .mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    th[data-priority="6"],
   .mq.js.lt-ie10 .sticky-table-header th[data-priority="6"],
-  .mq.js .table-responsive[data-pattern="priority-columns"] td[data-priority="6"],
+  .mq.js
+    .table-responsive[data-pattern="priority-columns"]
+    td[data-priority="6"],
   .mq.js.lt-ie10 .sticky-table-header td[data-priority="6"] {
     display: table-cell;
   }
@@ -251,15 +363,27 @@
 .lt-ie9 .mq.js.lt-ie10 .sticky-table-header td.cell-show {
   display: inline;
 }
-.lt-ie9 .mq.js .table-responsive[data-pattern="priority-columns"].display-all th,
+.lt-ie9
+  .mq.js
+  .table-responsive[data-pattern="priority-columns"].display-all
+  th,
 .lt-ie9 .mq.js.lt-ie10 .sticky-table-header.display-all th,
-.lt-ie9 .mq.js .table-responsive[data-pattern="priority-columns"].display-all td,
+.lt-ie9
+  .mq.js
+  .table-responsive[data-pattern="priority-columns"].display-all
+  td,
 .lt-ie9 .mq.js.lt-ie10 .sticky-table-header.display-all td {
   display: inline !important;
 }
-.lt-ie9 .mq.js .table-responsive[data-pattern="priority-columns"].display-all th[data-priority="-1"],
+.lt-ie9
+  .mq.js
+  .table-responsive[data-pattern="priority-columns"].display-all
+  th[data-priority="-1"],
 .lt-ie9 .mq.js.lt-ie10 .sticky-table-header.display-all th[data-priority="-1"],
-.lt-ie9 .mq.js .table-responsive[data-pattern="priority-columns"].display-all td[data-priority="-1"],
+.lt-ie9
+  .mq.js
+  .table-responsive[data-pattern="priority-columns"].display-all
+  td[data-priority="-1"],
 .lt-ie9 .mq.js.lt-ie10 .sticky-table-header.display-all td[data-priority="-1"] {
   display: none !important;
 }
@@ -269,9 +393,15 @@
 .mq.js.lt-ie10 .sticky-table-header table.display-all td {
   display: table-cell !important;
 }
-.mq.js .table-responsive[data-pattern="priority-columns"] table.display-all th[data-priority="-1"],
+.mq.js
+  .table-responsive[data-pattern="priority-columns"]
+  table.display-all
+  th[data-priority="-1"],
 .mq.js.lt-ie10 .sticky-table-header table.display-all th[data-priority="-1"],
-.mq.js .table-responsive[data-pattern="priority-columns"] table.display-all td[data-priority="-1"],
+.mq.js
+  .table-responsive[data-pattern="priority-columns"]
+  table.display-all
+  td[data-priority="-1"],
 .mq.js.lt-ie10 .sticky-table-header table.display-all td[data-priority="-1"] {
   display: none !important;
 }

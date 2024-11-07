@@ -4,16 +4,14 @@
  File: Dashboard Init
 */
 
-
-!function($) {
+!(function ($) {
   "use strict";
 
-  var Dashboard = function() {};
+  var Dashboard = function () {};
 
-  Dashboard.prototype.init = function () {
-
+  (Dashboard.prototype.init = function () {
     // Peity line
-    $(".peity-line").each(function() {
+    $(".peity-line").each(function () {
       $(this).peity("line", $(this).data());
     });
 
@@ -29,31 +27,29 @@
           ["iMacs", 200, 130, 90, 240, 130, 220],
           ["Tablets", 300, 200, 160, 400, 250, 250],
           ["iPhones", 200, 130, 90, 240, 130, 220],
-          ["Macbooks", 130, 120, 150, 140, 160, 150]
+          ["Macbooks", 130, 120, 150, 140, 160, 150],
         ],
         types: {
           SonyVaio: "bar",
           iMacs: "bar",
           Tablets: "spline",
           iPhones: "line",
-          Macbooks: "bar"
+          Macbooks: "bar",
         },
         colors: {
           SonyVaio: "#5468da",
           iMacs: "#4ac18e",
           Tablets: "#ffbb44",
           iPhones: "#ea553d",
-          Macbooks: "#6d60b0"
+          Macbooks: "#6d60b0",
         },
-        groups: [
-          ["SonyVaio","iMacs"]
-        ]
+        groups: [["SonyVaio", "iMacs"]],
       },
       axis: {
         x: {
-          type: "categorized"
-        }
-      }
+          type: "categorized",
+        },
+      },
     });
 
     //C3 Donut Chart
@@ -63,29 +59,27 @@
         columns: [
           ["Desktops", 78],
           ["Mobiles", 40],
-          ["Tablets", 25]
+          ["Tablets", 25],
         ],
-        type : "donut"
+        type: "donut",
       },
       donut: {
         title: "Sales Analytics",
         width: 30,
         label: {
-          show:false
-        }
+          show: false,
+        },
       },
       color: {
-        pattern: ["#5468da", "#4ac18e","#6d60b0"]
-      }
+        pattern: ["#5468da", "#4ac18e", "#6d60b0"],
+      },
     });
-
-  },
-  $.Dashboard = new Dashboard, $.Dashboard.Constructor = Dashboard;
-
-}(window.jQuery),
-
-//initializing
-function($) {
-  "use strict";
-  $.Dashboard.init();
-}(window.jQuery);
+  }),
+    ($.Dashboard = new Dashboard()),
+    ($.Dashboard.Constructor = Dashboard);
+})(window.jQuery),
+  //initializing
+  (function ($) {
+    "use strict";
+    $.Dashboard.init();
+  })(window.jQuery);

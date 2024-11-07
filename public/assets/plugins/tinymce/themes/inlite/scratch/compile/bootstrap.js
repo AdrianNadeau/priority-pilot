@@ -1,51 +1,59 @@
 (function (scope) {
-  var ephox = scope.ephox = scope.ephox || {};
-  var bolt = ephox.bolt = ephox.bolt || {};
+  var ephox = (scope.ephox = scope.ephox || {});
+  var bolt = (ephox.bolt = ephox.bolt || {});
 
   var def = function (deps, factory) {
     return factory.apply(null, deps);
   };
-  var kernel = bolt.kernel = bolt.kernel || {};
+  var kernel = (bolt.kernel = bolt.kernel || {});
   kernel.api = kernel.api || {};
   kernel.async = kernel.api || {};
   kernel.fp = kernel.fp || {};
   kernel.modulator = kernel.modulator || {};
   kernel.module = kernel.module || {};
   kernel.fp.array = def(
-    [
-    ],
+    [],
 
     function () {
       var equals = function (a1, a2) {
-        if (a1.length !== a2.length)
-        {return false;}
-        for (var i = 0; i < a1.length; ++i)
-        {if (a1[i] !== a2[i])
-        {return false;}}
+        if (a1.length !== a2.length) {
+          return false;
+        }
+        for (var i = 0; i < a1.length; ++i) {
+          if (a1[i] !== a2[i]) {
+            return false;
+          }
+        }
         return true;
       };
 
       var forall = function (a, f) {
-        var fn = f || function (x) {
-          return x === true;
-        };
-        for (var i = 0; i < a.length; ++i)
-        {if (fn(a[i]) !== true)
-        {return false;}}
+        var fn =
+          f ||
+          function (x) {
+            return x === true;
+          };
+        for (var i = 0; i < a.length; ++i) {
+          if (fn(a[i]) !== true) {
+            return false;
+          }
+        }
         return true;
       };
 
       var map = function (a, f) {
         var r = [];
-        for (var i = 0; i < a.length; ++i)
-        {r.push(f(a[i], i));}
+        for (var i = 0; i < a.length; ++i) {
+          r.push(f(a[i], i));
+        }
         return r;
       };
 
       var flatten = function (a) {
         var r = [];
-        for (var i = 0; i < a.length; ++i)
-        {r = r.concat(a[i]);}
+        for (var i = 0; i < a.length; ++i) {
+          r = r.concat(a[i]);
+        }
         return r;
       };
 
@@ -55,9 +63,11 @@
 
       var filter = function (a, f) {
         var r = [];
-        for (var i = 0; i < a.length; ++i)
-        {if (f(a[i]))
-        {r.push(a[i]);}}
+        for (var i = 0; i < a.length; ++i) {
+          if (f(a[i])) {
+            r.push(a[i]);
+          }
+        }
         return r;
       };
 
@@ -70,9 +80,11 @@
       };
 
       var indexof = function (a, x) {
-        for (var i = 0; i < a.length; ++i)
-        {if (a[i] === x)
-        {return i;}}
+        for (var i = 0; i < a.length; ++i) {
+          if (a[i] === x) {
+            return i;
+          }
+        }
         return -1;
       };
 
@@ -85,20 +97,21 @@
         filter: filter,
         each: each,
         contains: contains,
-        indexof: indexof
+        indexof: indexof,
       };
-    }
+    },
   );
   kernel.fp.object = def(
-    [
-    ],
+    [],
 
     function () {
       var map = function (o, f) {
         var r = {};
-        for (var i in o)
-        {if (o.hasOwnProperty(i))
-        {r[i] = f(i, o[i]);}}
+        for (var i in o) {
+          if (o.hasOwnProperty(i)) {
+            r[i] = f(i, o[i]);
+          }
+        }
         return r;
       };
 
@@ -122,13 +135,12 @@
         each: each,
         keys: keys,
         map: map,
-        merge: merge
+        merge: merge,
       };
-    }
+    },
   );
   kernel.fp.functions = def(
-    [
-    ],
+    [],
 
     function () {
       var curry = function (f) {
@@ -155,13 +167,12 @@
       return {
         curry: curry,
         not: not,
-        apply: apply
+        apply: apply,
       };
-    }
-  );kernel.async.map = def(
-    [
-      kernel.fp.array
-    ],
+    },
+  );
+  kernel.async.map = def(
+    [kernel.fp.array],
 
     function (ar) {
       var amap = function (data, f, oncomplete) {
@@ -173,68 +184,66 @@
           f(datum, function (result) {
             ++count;
             results[i] = result;
-            if (count === total)
-            {oncomplete(results);}
+            if (count === total) {
+              oncomplete(results);
+            }
           });
         });
       };
 
       return {
-        amap: amap
+        amap: amap,
       };
-    }
+    },
   );
   /**
- * This module has a dual responsibility:
- *  1. Ensures that asynchronous function calls, 'f', that share the same
- *     'key' are not executed in parallel.
- *  2. In the case where an attempt to call in parallel is prevented,
- *     the 'action' callbacks are executed when the asynchronous call is
- *     completed.
- *
- * Example:
- *  When we async-map to remotely fetch module definition, it is
- *  important that only a single define is evaluated, but the
- *  notification that the definition has completed is propagated
- *  to all interested parties.
- *
- *    1. we require dependencies 'x' and 'y'
- *
- *    2. both x and y are defined in the same file  (i.e. compiled together), 'a.js'.
- *
- *    3. we resolve x and y, to their load spec using a modulator
- *        x_spec = {load: function () { -- load a.js -- }, url: a.js, serial: false};
- *        y_spec = {load: function () { -- load a.js -- }, url: a.js, serial: false};
- *
- *    4. we make the piggyback call for x:
- *        piggybacker.piggyback(x_spec.url, x_spec.load, xdone);
- *
- *       this will register the 'xdone' action, and actually
- *       trigger the load call, with a synthetic callback
- *       responsible for triggering all registered actions.
- *
- *    5. we make the piggyback call for y:
- *        piggybacker.piggyback(y_spec.url, y_spec.load, ydone);
- *
- *       this will register the 'ydone' action, but NOT trigger
- *       the load call.
- *
- *    6. the load call completes, and calls the synthetic callback,
- *       which is responsible for triggering both 'xdone' and 'ydone'.
- *
- *    7. something else happens that means we have to load 'a.js' again,
- *       the piggybacker DOES NOT prevent this call, and will follow
- *       the above process.
- */
+   * This module has a dual responsibility:
+   *  1. Ensures that asynchronous function calls, 'f', that share the same
+   *     'key' are not executed in parallel.
+   *  2. In the case where an attempt to call in parallel is prevented,
+   *     the 'action' callbacks are executed when the asynchronous call is
+   *     completed.
+   *
+   * Example:
+   *  When we async-map to remotely fetch module definition, it is
+   *  important that only a single define is evaluated, but the
+   *  notification that the definition has completed is propagated
+   *  to all interested parties.
+   *
+   *    1. we require dependencies 'x' and 'y'
+   *
+   *    2. both x and y are defined in the same file  (i.e. compiled together), 'a.js'.
+   *
+   *    3. we resolve x and y, to their load spec using a modulator
+   *        x_spec = {load: function () { -- load a.js -- }, url: a.js, serial: false};
+   *        y_spec = {load: function () { -- load a.js -- }, url: a.js, serial: false};
+   *
+   *    4. we make the piggyback call for x:
+   *        piggybacker.piggyback(x_spec.url, x_spec.load, xdone);
+   *
+   *       this will register the 'xdone' action, and actually
+   *       trigger the load call, with a synthetic callback
+   *       responsible for triggering all registered actions.
+   *
+   *    5. we make the piggyback call for y:
+   *        piggybacker.piggyback(y_spec.url, y_spec.load, ydone);
+   *
+   *       this will register the 'ydone' action, but NOT trigger
+   *       the load call.
+   *
+   *    6. the load call completes, and calls the synthetic callback,
+   *       which is responsible for triggering both 'xdone' and 'ydone'.
+   *
+   *    7. something else happens that means we have to load 'a.js' again,
+   *       the piggybacker DOES NOT prevent this call, and will follow
+   *       the above process.
+   */
   kernel.async.piggybacker = def(
-    [
-      kernel.fp.array,
-      kernel.fp.functions
-    ],
+    [kernel.fp.array, kernel.fp.functions],
 
     function (ar, fn) {
       var create = function () {
-        var queue = {};  // key -> [actions]
+        var queue = {}; // key -> [actions]
 
         var process = function (key) {
           var actions = queue[key];
@@ -244,7 +253,7 @@
 
         var piggyback = function (key, f, action) {
           if (queue[key] === undefined) {
-            queue[key] = [ action ];
+            queue[key] = [action];
             f(fn.curry(process, key));
           } else {
             queue[key].push(action);
@@ -252,27 +261,27 @@
         };
 
         return {
-          piggyback: piggyback
+          piggyback: piggyback,
         };
       };
 
       return {
-        create: create
+        create: create,
       };
-    }
+    },
   );
   kernel.modulator.globalator = def(
-    [
-    ],
+    [],
 
     function () {
       var create = function () {
-      // FIX pull out
+        // FIX pull out
         var resolve = function (name, scope) {
           var parts = name.split(".");
           var r = scope;
-          for (var i = 0; i < parts.length && r !== undefined; ++i)
-          {r = r[parts[i]];}
+          for (var i = 0; i < parts.length && r !== undefined; ++i) {
+            r = r[parts[i]];
+          }
           return r;
         };
 
@@ -288,68 +297,86 @@
           var load = function (onsuccess, onfailure) {
             var instance = resolve(name, global);
             if (instance !== undefined) {
-              define(id, [], function () { return instance; });
+              define(id, [], function () {
+                return instance;
+              });
               onsuccess();
             } else {
-              onfailure("Modulator error: could not resolve global [" + name + "]");
+              onfailure(
+                "Modulator error: could not resolve global [" + name + "]",
+              );
             }
           };
 
           return {
             url: id, // this just needs to be unique, no download required.
             load: load,
-            serial: true
+            serial: true,
           };
         };
 
         return {
           can: can,
-          get: get
+          get: get,
         };
       };
       return {
-        create: create
+        create: create,
       };
-    }
+    },
   );
   kernel.modulator.bolt = def(
-    [
-      kernel.fp.functions
-    ],
+    [kernel.fp.functions],
 
     function (fn) {
-      var create = function (loader, pather, namespace, path, idTransformer, options) {
+      var create = function (
+        loader,
+        pather,
+        namespace,
+        path,
+        idTransformer,
+        options,
+      ) {
         var can = function (id) {
-          return id === namespace || id.indexOf(namespace + ".") === 0 || id.indexOf(namespace + "/") === 0;
+          return (
+            id === namespace ||
+            id.indexOf(namespace + ".") === 0 ||
+            id.indexOf(namespace + "/") === 0
+          );
         };
 
         var get = function (id) {
-          var before = options !== undefined && options.absolute === true ? path : pather(path);
-          var after = options !== undefined && options.fresh === true ? "?cachebuster=" + new Date().getTime() : "";
+          var before =
+            options !== undefined && options.absolute === true
+              ? path
+              : pather(path);
+          var after =
+            options !== undefined && options.fresh === true
+              ? "?cachebuster=" + new Date().getTime()
+              : "";
           var url = before + "/" + idTransformer(id) + ".js" + after;
           var load = fn.curry(loader.load, url);
 
           return {
             url: url,
             load: load,
-            serial: false
+            serial: false,
           };
         };
 
         return {
           can: can,
-          get: get
+          get: get,
         };
       };
 
       return {
-        create: create
+        create: create,
       };
-    }
-  );kernel.module.stratifier = def(
-    [
-      kernel.fp.array
-    ],
+    },
+  );
+  kernel.module.stratifier = def(
+    [kernel.fp.array],
 
     function (ar) {
       var stratify = function (specs) {
@@ -360,27 +387,25 @@
       };
 
       return {
-        stratify: stratify
+        stratify: stratify,
       };
-    }
+    },
   );
   /**
- * This module performs dependency analysis of strings that depend on sets of
- * strings.
- *
- * The input is an array of root strings to start analysis from, and an object
- * that contains a mapping of each string to the strings it depends on.
- *
- * Performing an analysis results in either:
- *   1. an empty array, indicating that all dependencies are satisfied,
- *   2. an array of strings that are, at the minimum, still needed in order to
- *      satisfy the given dependency trees, or
- *   3. an array of strings that form a dependency cycle.
- */
+   * This module performs dependency analysis of strings that depend on sets of
+   * strings.
+   *
+   * The input is an array of root strings to start analysis from, and an object
+   * that contains a mapping of each string to the strings it depends on.
+   *
+   * Performing an analysis results in either:
+   *   1. an empty array, indicating that all dependencies are satisfied,
+   *   2. an array of strings that are, at the minimum, still needed in order to
+   *      satisfy the given dependency trees, or
+   *   3. an array of strings that form a dependency cycle.
+   */
   kernel.module.analyser = def(
-    [
-      kernel.fp.array
-    ],
+    [kernel.fp.array],
 
     function (array) {
       var collect = function (path, name) {
@@ -390,9 +415,9 @@
       };
 
       /**
-     * @param {array} roots Contains a list of root ids
-     * @param {object} modules Contains dependency information in format: { id: [ 'id1', 'id2' ] }
-     */
+       * @param {array} roots Contains a list of root ids
+       * @param {object} modules Contains dependency information in format: { id: [ 'id1', 'id2' ] }
+       */
       var analyse = function (roots, modules) {
         var done = {};
         var path = [];
@@ -404,10 +429,11 @@
         };
 
         var examine = function (name) {
-          if (modules[name])
-          {children(name);}
-          else
-          {missing.push(name);}
+          if (modules[name]) {
+            children(name);
+          } else {
+            missing.push(name);
+          }
         };
 
         var descend = function (name) {
@@ -417,10 +443,11 @@
         };
 
         var decycle = function (name) {
-          if (array.contains(path, name))
-          {cycle = collect(path, name);}
-          else
-          {descend(name);}
+          if (array.contains(path, name)) {
+            cycle = collect(path, name);
+          } else {
+            descend(name);
+          }
         };
 
         var attempt = function (name) {
@@ -436,9 +463,9 @@
       };
 
       return {
-        analyse: analyse
+        analyse: analyse,
       };
-    }
+    },
   );
   kernel.module.fetcher = def(
     [
@@ -446,19 +473,29 @@
       kernel.fp.functions,
       kernel.async.map,
       kernel.async.piggybacker,
-      kernel.module.stratifier
+      kernel.module.stratifier,
     ],
 
     function (ar, fn, map, piggybacker, stratifier) {
-      var create = function (regulator, validator, onerror, define, require, demand) {
+      var create = function (
+        regulator,
+        validator,
+        onerror,
+        define,
+        require,
+        demand,
+      ) {
         var piggyback = piggybacker.create();
 
         var validate = function (onsuccess, results) {
           var failed = ar.filter(results, fn.not(validator));
-          if (failed.length > 0)
-          {onerror("Fetcher error: modules were not defined: " + failed.join(", "));}
-          else
-          {onsuccess();}
+          if (failed.length > 0) {
+            onerror(
+              "Fetcher error: modules were not defined: " + failed.join(", "),
+            );
+          } else {
+            onsuccess();
+          }
         };
 
         var mapper = function (spec, onresult) {
@@ -476,64 +513,85 @@
         };
 
         var fetch = function (ids, onsuccess) {
-          regulator.regulate(ids, define, require, demand, function (specs) {
-            asyncfetch(specs, onsuccess);
-          }, onerror);
+          regulator.regulate(
+            ids,
+            define,
+            require,
+            demand,
+            function (specs) {
+              asyncfetch(specs, onsuccess);
+            },
+            onerror,
+          );
         };
 
         return {
-          fetch: fetch
+          fetch: fetch,
         };
       };
 
       return {
-        create: create
+        create: create,
       };
-    }
+    },
   );
   kernel.module.loader = def(
-    [
-      kernel.module.analyser
-    ],
+    [kernel.module.analyser],
 
     function (analyser) {
-      var load = function (roots, deps, fetcher, oncontinue, onsuccess, onerror) {
+      var load = function (
+        roots,
+        deps,
+        fetcher,
+        oncontinue,
+        onsuccess,
+        onerror,
+      ) {
         var result = analyser.analyse(roots, deps);
 
-        if (result.cycle)
-        {onerror("Dependency error: a circular module dependency exists from " + result.cycle.join(" ~> "));}
-        else if (result.load.length === 0)
-        {onsuccess();}
-        else
-        {fetcher.fetch(result.load, oncontinue);}
+        if (result.cycle) {
+          onerror(
+            "Dependency error: a circular module dependency exists from " +
+              result.cycle.join(" ~> "),
+          );
+        } else if (result.load.length === 0) {
+          onsuccess();
+        } else {
+          fetcher.fetch(result.load, oncontinue);
+        }
       };
 
       return {
-        load: load
+        load: load,
       };
-    }
+    },
   );
   kernel.module.manager = def(
     [
       kernel.fp.array,
       kernel.fp.object,
       kernel.module.loader,
-      kernel.module.fetcher
+      kernel.module.fetcher,
     ],
 
     function (ar, obj, loader, fetcher) {
       var create = function (regulator, onerror) {
-        var blueprints = {};  // id -> { id: string, dependencies: [ string ], definition: function }
-        var modules = {};     // id -> module
+        var blueprints = {}; // id -> { id: string, dependencies: [ string ], definition: function }
+        var modules = {}; // id -> module
 
         // Adds a module to the system.
         var define = function (id, dependencies, definition) {
-          if (id === undefined)
-          {onerror("Define error: module id can not be undefined");}
-          else if (blueprints[id] !== undefined)
-          {onerror("Define error: module '" + id + "' is already defined");}
-          else
-          {blueprints[id] = { id: id, dependencies: dependencies, definition: definition };}
+          if (id === undefined) {
+            onerror("Define error: module id can not be undefined");
+          } else if (blueprints[id] !== undefined) {
+            onerror("Define error: module '" + id + "' is already defined");
+          } else {
+            blueprints[id] = {
+              id: id,
+              dependencies: dependencies,
+              definition: definition,
+            };
+          }
         };
 
         // Loads a set of modules asynchronously.
@@ -555,49 +613,59 @@
 
         // Instantiates a module and all of its dependencies.
         var demand = function (id) {
-          if (modules[id] !== undefined)
-          {return modules[id];}
-          if (blueprints[id] === undefined)
-          {throw "module '" + id + "' is not defined";}
+          if (modules[id] !== undefined) {
+            return modules[id];
+          }
+          if (blueprints[id] === undefined) {
+            throw "module '" + id + "' is not defined";
+          }
           var result = instantiate(id);
-          if (result === undefined)
-          {throw "module '" + id + "' returned undefined from definition function";}
+          if (result === undefined) {
+            throw (
+              "module '" + id + "' returned undefined from definition function"
+            );
+          }
           modules[id] = result;
           return result;
         };
 
         var instantiate = function (id) {
           var blueprint = blueprints[id];
-          var args = ar.map(blueprint.dependencies, demand);  // Instantiate dependencies
-          return blueprint.definition.apply(null, args);  // Instantiate self
+          var args = ar.map(blueprint.dependencies, demand); // Instantiate dependencies
+          return blueprint.definition.apply(null, args); // Instantiate self
         };
 
-        var validator = function (id) { return blueprints[id] !== undefined; };
-        var fetch = fetcher.create(regulator, validator, onerror, define, require, demand);
+        var validator = function (id) {
+          return blueprints[id] !== undefined;
+        };
+        var fetch = fetcher.create(
+          regulator,
+          validator,
+          onerror,
+          define,
+          require,
+          demand,
+        );
 
         return {
           define: define,
           require: require,
-          demand: demand
+          demand: demand,
         };
       };
 
       return {
-        create: create
+        create: create,
       };
-    }
+    },
   );
   kernel.api.sources = def(
-    [
-      kernel.fp.array,
-      kernel.fp.object,
-      kernel.modulator.globalator
-    ],
+    [kernel.fp.array, kernel.fp.object, kernel.modulator.globalator],
 
     function (ar, obj, globalator) {
       var create = function (builtins, configuration) {
         var data = {
-          "global": { instance: globalator }
+          global: { instance: globalator },
         };
         obj.each(builtins, function (key, value) {
           data[key] = { instance: value };
@@ -606,11 +674,12 @@
           data[spec.type] = { id: spec.modulator };
         });
         var sourcespecs = configuration.sources.slice(0);
-        var sources = [ globalator.create() ];
+        var sources = [globalator.create()];
 
         var guard = function (type) {
-          if (data[type] === undefined)
-          {throw "Unknown modulator type [" + type + "].";}
+          if (data[type] === undefined) {
+            throw "Unknown modulator type [" + type + "].";
+          }
         };
 
         var isResolved = function (type) {
@@ -634,9 +703,11 @@
         };
 
         var find = function (id) {
-          for (var i = 0; i < sources.length; ++i)
-          {if (sources[i].can(id))
-          {return { found: sources[i] };}}
+          for (var i = 0; i < sources.length; ++i) {
+            if (sources[i].can(id)) {
+              return { found: sources[i] };
+            }
+          }
           return { notfound: true };
         };
 
@@ -647,8 +718,9 @@
               var instance = instanceOf(spec.type);
               var source = instance.create.apply(null, spec.args);
               sources.push(source);
-            } else
-            {left.push(spec);}
+            } else {
+              left.push(spec);
+            }
           });
           sourcespecs = left;
         };
@@ -659,46 +731,58 @@
           instanceOf: instanceOf,
           register: register,
           find: find,
-          crank: crank
+          crank: crank,
         };
       };
 
       return {
-        create: create
+        create: create,
       };
-    }
+    },
   );
   kernel.api.regulator = def(
-    [
-      kernel.fp.array,
-      kernel.fp.functions
-    ],
+    [kernel.fp.array, kernel.fp.functions],
 
     function (ar, fn) {
       var create = function (sources) {
-      /*
-       * 1. Resolve configuration as much as possible
-       * 2. Check for unresolved modulator types that are required to continue.
-       *   a) Go ahead and resolve, if we have everything we need.
-       *   b) Delay, requiring the modulators, then retry.
-       */
-        var regulate = function (ids, define, require, demand, onsuccess, onerror) {
+        /*
+         * 1. Resolve configuration as much as possible
+         * 2. Check for unresolved modulator types that are required to continue.
+         *   a) Go ahead and resolve, if we have everything we need.
+         *   b) Delay, requiring the modulators, then retry.
+         */
+        var regulate = function (
+          ids,
+          define,
+          require,
+          demand,
+          onsuccess,
+          onerror,
+        ) {
           sources.crank();
           var required = ar.map(ids, determinetype);
           var unresolved = ar.filter(required, fn.not(sources.isResolved));
-          if (unresolved.length === 0)
-          {resolve(ids,  define, require, demand, onsuccess, onerror);}
-          else
-          {delay(unresolved, ids, define, require, demand, onsuccess, onerror);}
+          if (unresolved.length === 0) {
+            resolve(ids, define, require, demand, onsuccess, onerror);
+          } else {
+            delay(unresolved, ids, define, require, demand, onsuccess, onerror);
+          }
         };
 
-        var resolve = function (ids,  define, require, demand, onsuccess, onerror) {
+        var resolve = function (
+          ids,
+          define,
+          require,
+          demand,
+          onsuccess,
+          onerror,
+        ) {
           var r = [];
           for (var i = 0; i < ids.length; ++i) {
             var id = ids[i];
             var source = sources.find(id);
             if (source.notfound) {
-              onerror("Could not find source for module [" +  id + "]");
+              onerror("Could not find source for module [" + id + "]");
               return;
             }
             var spec = source.found.get(id, define, require, demand);
@@ -712,11 +796,19 @@
             id: id,
             url: spec.url,
             load: spec.load,
-            serial: spec.serial
+            serial: spec.serial,
           };
         };
 
-        var delay = function (types, ids, define, require, demand, onsuccess, onerror) {
+        var delay = function (
+          types,
+          ids,
+          define,
+          require,
+          demand,
+          onsuccess,
+          onerror,
+        ) {
           var modulatorids = ar.map(types, sources.idOf);
           require(modulatorids, function (/* modulators */) {
             var modulators = arguments;
@@ -733,21 +825,17 @@
         };
 
         return {
-          regulate: regulate
+          regulate: regulate,
         };
       };
 
       return {
-        create: create
+        create: create,
       };
-    }
+    },
   );
   kernel.api.config = def(
-    [
-      kernel.module.manager,
-      kernel.api.regulator,
-      kernel.api.sources
-    ],
+    [kernel.module.manager, kernel.api.regulator, kernel.api.sources],
 
     function (manager, regulator, sources) {
       var configure = function (configuration, builtins, onerror) {
@@ -758,38 +846,41 @@
         return {
           define: engine.define,
           require: engine.require,
-          demand: engine.demand
+          demand: engine.demand,
         };
       };
 
       return {
-        configure: configure
+        configure: configure,
       };
-    }
+    },
   );
 })(Function("return this")());
 
 (function (scope) {
-  var ephox = scope.ephox = scope.ephox || {};
-  var bolt = ephox.bolt = ephox.bolt || {};
+  var ephox = (scope.ephox = scope.ephox || {});
+  var bolt = (ephox.bolt = ephox.bolt || {});
 
   var def = function (deps, factory) {
     return factory.apply(null, deps);
   };
-  var loader = bolt.loader = bolt.loader || {};
+  var loader = (bolt.loader = bolt.loader || {});
   loader.executor = loader.executor || {};
   loader.api = loader.api || {};
   loader.transporter = loader.transporter || {};
   loader.tag = loader.tag || {};
   loader.tag.script = def(
-    [
-    ],
+    [],
 
     function () {
       var guard = function (callback) {
         return function (evt) {
-          if (evt.srcElement.readyState === "loaded" || evt.srcElement.readyState === "complete")
-          {callback();}
+          if (
+            evt.srcElement.readyState === "loaded" ||
+            evt.srcElement.readyState === "complete"
+          ) {
+            callback();
+          }
         };
       };
 
@@ -798,10 +889,11 @@
       };
 
       var onload = function (el, callback) {
-        if (ie(el))
-        {el.attachEvent("onreadystatechange", guard(callback));}
-        else
-        {el.addEventListener("load", callback, false);}
+        if (ie(el)) {
+          el.attachEvent("onreadystatechange", guard(callback));
+        } else {
+          el.addEventListener("load", callback, false);
+        }
       };
 
       var createtag = function (callback) {
@@ -819,46 +911,50 @@
       };
 
       return {
-        insert: insert
+        insert: insert,
       };
-    }
+    },
   );
   loader.transporter.commonjs = def(
-    [
-    ],
+    [],
 
     function () {
       var read = function (url, success, error) {
         var fs = require("fs");
         fs.exists(url, function (exists) {
-          if (exists)
-          {fs.readFile(url, "UTF-8", function (err, data) {
-            if (err)
-            {error("Error reading file [" + url + "], error [" + err + "]");}
-            else
-            {success(data);}
-          });}
-          else
-          {error("File does not exist [" + url + "]");}
+          if (exists) {
+            fs.readFile(url, "UTF-8", function (err, data) {
+              if (err) {
+                error("Error reading file [" + url + "], error [" + err + "]");
+              } else {
+                success(data);
+              }
+            });
+          } else {
+            error("File does not exist [" + url + "]");
+          }
         });
       };
 
       return {
-        read: read
+        read: read,
       };
-    }
+    },
   );
   loader.transporter.xhr = def(
-    [
-    ],
+    [],
 
     function () {
       var requestObject = function () {
-      // Correct way to use XMLHttpRequest in IE:
-      // http://blogs.msdn.com/b/ie/archive/2006/01/23/516393.aspx
+        // Correct way to use XMLHttpRequest in IE:
+        // http://blogs.msdn.com/b/ie/archive/2006/01/23/516393.aspx
         var factories = [
-          function () { return new XMLHttpRequest(); },
-          function () { return new ActiveXObject("Microsoft.XMLHTTP"); }
+          function () {
+            return new XMLHttpRequest();
+          },
+          function () {
+            return new ActiveXObject("Microsoft.XMLHTTP");
+          },
         ];
 
         return fallback(factories);
@@ -868,23 +964,32 @@
         for (var i = 0; i < items.length; ++i) {
           try {
             return items[i]();
-          } catch (e) {
-          }
+          } catch (e) {}
         }
       };
 
       var handler = function (req, url, success, error) {
         return function () {
-          if (req.readyState === 4)
-          {done(req, url, success, error);}
+          if (req.readyState === 4) {
+            done(req, url, success, error);
+          }
         };
       };
 
       var done = function (req, url, success, error) {
-        if (req.status === 200 || req.status === 304)
-        {success(req.responseText);}
-        else
-        {error("Transport error: " + req.status + " " + req.statusText + " for resource: \"" + url + "\"");}
+        if (req.status === 200 || req.status === 304) {
+          success(req.responseText);
+        } else {
+          error(
+            "Transport error: " +
+              req.status +
+              " " +
+              req.statusText +
+              ' for resource: "' +
+              url +
+              '"',
+          );
+        }
       };
 
       var getUrl = function (req, url, success, error) {
@@ -895,26 +1000,26 @@
 
       var request = function (url, success, error) {
         var req = requestObject();
-        if (req)
-        {getUrl(req, url, success, error);}
-        else
-        {error("Transport error: browser does not support XMLHttpRequest.");}
+        if (req) {
+          getUrl(req, url, success, error);
+        } else {
+          error("Transport error: browser does not support XMLHttpRequest.");
+        }
       };
 
       return {
-        request: request
+        request: request,
       };
-    }
+    },
   );
   loader.executor.evaller = def(
-    [
-    ],
+    [],
 
     function () {
       var execute = function (data, onsuccess, onfailure) {
         try {
           eval(data);
-        } catch(e) {
+        } catch (e) {
           onfailure(e);
           return;
         }
@@ -923,14 +1028,12 @@
       };
 
       return {
-        execute: execute
+        execute: execute,
       };
-    }
+    },
   );
   loader.executor.injector = def(
-    [
-      loader.tag.script
-    ],
+    [loader.tag.script],
 
     function (script) {
       var execute = function (data, onsuccess, onfailure) {
@@ -943,19 +1046,16 @@
         // Injection does not fire events, but execution happens synchronously,
         // so we just make an explicit callback
         script.insert(inject, noop);
-        onsuccess(); 
+        onsuccess();
       };
 
       return {
-        execute: execute
+        execute: execute,
       };
-    }
+    },
   );
   loader.api.commonjsevaller = def(
-    [
-      loader.transporter.commonjs,
-      loader.executor.evaller
-    ],
+    [loader.transporter.commonjs, loader.executor.evaller],
 
     function (commonjs, evaller) {
       var load = function (url, onsuccess, onfailure) {
@@ -967,14 +1067,12 @@
       };
 
       return {
-        load: load
+        load: load,
       };
-    }
+    },
   );
   loader.api.scripttag = def(
-    [
-      loader.tag.script
-    ],
+    [loader.tag.script],
 
     function (script) {
       var load = function (url, onsuccess, onfailure) {
@@ -986,15 +1084,12 @@
       };
 
       return {
-        load: load
+        load: load,
       };
-    }
+    },
   );
   loader.api.xhrevaller = def(
-    [
-      loader.transporter.xhr,
-      loader.executor.evaller
-    ],
+    [loader.transporter.xhr, loader.executor.evaller],
 
     function (xhr, evaller) {
       var load = function (url, onsuccess, onfailure) {
@@ -1006,15 +1101,12 @@
       };
 
       return {
-        load: load
+        load: load,
       };
-    }
+    },
   );
   loader.api.xhrinjector = def(
-    [
-      loader.transporter.xhr,
-      loader.executor.injector
-    ],
+    [loader.transporter.xhr, loader.executor.injector],
 
     function (xhr, injector) {
       var load = function (url, onsuccess, onfailure) {
@@ -1026,20 +1118,20 @@
       };
 
       return {
-        load: load
+        load: load,
       };
-    }
+    },
   );
 })(Function("return this")());
 
 (function (scope) {
-  var ephox = scope.ephox = scope.ephox || {};
-  var bolt = ephox.bolt = ephox.bolt || {};
+  var ephox = (scope.ephox = scope.ephox || {});
+  var bolt = (ephox.bolt = ephox.bolt || {});
 
   var def = function (deps, factory) {
     return factory.apply(null, deps);
   };
-  var module = bolt.module = bolt.module || {};
+  var module = (bolt.module = bolt.module || {});
   module.bootstrap = module.bootstrap || {};
   module.config = module.config || {};
   module.error = module.error || {};
@@ -1048,8 +1140,7 @@
   module.runtime = module.runtime || {};
   module.util = module.util || {};
   module.error.error = def(
-    [
-    ],
+    [],
 
     function () {
       var die = function (msg) {
@@ -1057,13 +1148,12 @@
       };
 
       return {
-        die: die
+        die: die,
       };
-    }
+    },
   );
   module.config.mapper = def(
-    [
-    ],
+    [],
 
     function () {
       var flat = function (id) {
@@ -1083,14 +1173,12 @@
       return {
         flat: flat,
         hierarchical: hierarchical,
-        constant: constant
+        constant: constant,
       };
-    }
+    },
   );
   module.api = def(
-    [
-      module.runtime
-    ],
+    [module.runtime],
 
     function (runtime) {
       var delegate = function (method) {
@@ -1105,13 +1193,12 @@
         demand: delegate("demand"),
         main: delegate("main"),
         load: delegate("load"),
-        loadscript: delegate("loadscript")
+        loadscript: delegate("loadscript"),
       };
-    }
+    },
   );
   module.util.path = def(
-    [
-    ],
+    [],
 
     function () {
       var dirname = function (file) {
@@ -1128,13 +1215,12 @@
 
       return {
         basename: basename,
-        dirname: dirname
+        dirname: dirname,
       };
-    }
+    },
   );
   module.util.locator = def(
-    [
-    ],
+    [],
 
     function () {
       var browser = function () {
@@ -1150,14 +1236,12 @@
       };
 
       return {
-        locate: locate
+        locate: locate,
       };
-    }
+    },
   );
   module.util.pather = def(
-    [
-      module.util.path
-    ],
+    [module.util.path],
 
     function (path) {
       var create = function (relativeto) {
@@ -1168,17 +1252,18 @@
       };
 
       return {
-        create: create
+        create: create,
       };
-    }
-  );module.modulator.modulators = def(
+    },
+  );
+  module.modulator.modulators = def(
     [
       ephox.bolt.kernel.fp.functions,
       ephox.bolt.kernel.modulator.bolt,
       ephox.bolt.loader.api.commonjsevaller,
       ephox.bolt.loader.api.scripttag,
       ephox.bolt.loader.api.xhrevaller,
-      ephox.bolt.loader.api.xhrinjector
+      ephox.bolt.loader.api.xhrinjector,
     ],
 
     function (fn, bolt, commonjsevaller, scripttag, xhrevaller, xhrinjector) {
@@ -1186,7 +1271,7 @@
         var create = fn.curry(modulator.create, loader);
 
         return {
-          create: create
+          create: create,
         };
       };
 
@@ -1194,29 +1279,27 @@
         boltcommonjs: wrap(bolt, commonjsevaller),
         boltscripttag: wrap(bolt, scripttag),
         boltxhreval: wrap(bolt, xhrevaller),
-        boltxhrinjector: wrap(bolt, xhrinjector)
+        boltxhrinjector: wrap(bolt, xhrinjector),
       };
-    }
+    },
   );
   module.config.builtins = def(
     [
       ephox.bolt.module.modulator.modulators.boltscripttag,
-      ephox.bolt.module.modulator.modulators.boltcommonjs
+      ephox.bolt.module.modulator.modulators.boltcommonjs,
     ],
 
     function (boltscripttag, boltcommonjs) {
       return {
-      // TODO: 'amd' is maintained for backwards compatibility, will be removed
-      // at some point.
+        // TODO: 'amd' is maintained for backwards compatibility, will be removed
+        // at some point.
         browser: { bolt: boltscripttag, amd: boltscripttag },
-        commonjs: { bolt: boltcommonjs, amd: boltcommonjs }
+        commonjs: { bolt: boltcommonjs, amd: boltcommonjs },
       };
-    }
+    },
   );
   module.config.specs = def(
-    [
-      module.util.pather
-    ],
+    [module.util.pather],
 
     function (pather) {
       var type = function (type, implementation) {
@@ -1224,7 +1307,7 @@
           type: type,
           implementation: implementation,
           modulator: implementation + ".Modulator",
-          compiler: implementation + ".Compiler"
+          compiler: implementation + ".Compiler",
         };
       };
 
@@ -1233,23 +1316,21 @@
           return {
             type: type,
             relativeto: relativeto,
-            args: [ pather.create(relativeto) ].concat(Array.prototype.slice.call(arguments, 1))
+            args: [pather.create(relativeto)].concat(
+              Array.prototype.slice.call(arguments, 1),
+            ),
           };
         };
       };
 
       return {
         type: type,
-        source: source
+        source: source,
       };
-    }
+    },
   );
   module.reader.bouncing = def(
-    [
-      ephox.bolt.kernel.fp.array,
-      module.error.error,
-      module.config.specs
-    ],
+    [ephox.bolt.kernel.fp.array, module.error.error, module.config.specs],
 
     function (ar, error, specs) {
       var bounce = function (done, read, acc) {
@@ -1264,28 +1345,29 @@
         var accumulated = {
           sources: acc.sources.concat(cfg.sources || []),
           types: acc.types.concat(cfg.types || []),
-          configs: munged.concat(acc.configs)
+          configs: munged.concat(acc.configs),
         };
-        if (accumulated.configs.length > 0)
-        {bounce(done, read, accumulated);}
-        else
-        {done({ sources: accumulated.sources, types: accumulated.types });}
+        if (accumulated.configs.length > 0) {
+          bounce(done, read, accumulated);
+        } else {
+          done({ sources: accumulated.sources, types: accumulated.types });
+        }
       };
 
       /*
-     * All precedence is depth-first, pre-order. Example:
-     *
-     *        A
-     *       /-\
-     *      B   C
-     *     /|   |\
-     *    D E   F G
-     *
-     * Configs are read in A, B, D, E, C, F, G.
-     *
-     * If configs mixed delegation and sources, the
-     * sources would be ordered the same: A, B, D, E, C, F, G.
-     */
+       * All precedence is depth-first, pre-order. Example:
+       *
+       *        A
+       *       /-\
+       *      B   C
+       *     /|   |\
+       *    D E   F G
+       *
+       * Configs are read in A, B, D, E, C, F, G.
+       *
+       * If configs mixed delegation and sources, the
+       * sources would be ordered the same: A, B, D, E, C, F, G.
+       */
 
       var evaluate = function (file, payload, done, read, acc) {
         var result = {};
@@ -1305,43 +1387,45 @@
       };
 
       return {
-        evaluate: evaluate
+        evaluate: evaluate,
       };
-    }
+    },
   );
   module.reader.browser = def(
     [
       module.error.error,
       module.reader.bouncing,
       module.util.path,
-      ephox.bolt.loader.transporter.xhr
+      ephox.bolt.loader.transporter.xhr,
     ],
 
     function (error, bouncing, path, xhr) {
       var read = function (relativeto, file, done, acc) {
-        var accumulated = acc || { sources: [], types: [],  configs: [] };
+        var accumulated = acc || { sources: [], types: [], configs: [] };
         var base = path.dirname(relativeto);
         var absolute = base + "/" + file;
-        xhr.request(absolute, function (payload) {
-          bouncing.evaluate(absolute, payload, done, read, accumulated);
-        }, error.die);
+        xhr.request(
+          absolute,
+          function (payload) {
+            bouncing.evaluate(absolute, payload, done, read, accumulated);
+          },
+          error.die,
+        );
       };
 
       return {
-        read: read
+        read: read,
       };
-    }
+    },
   );
   module.reader.node = def(
-    [
-      module.reader.bouncing
-    ],
+    [module.reader.bouncing],
 
     function (bouncing, path, fs) {
       var read = function (relativeto, file, done, acc) {
         var fs = require("fs");
         var path = require("path");
-        var accumulated = acc || { sources: [], types: [],  configs: [] };
+        var accumulated = acc || { sources: [], types: [], configs: [] };
         var base = path.dirname(relativeto);
         var absolute = path.resolve(base, file);
         var payload = fs.readFileSync(absolute, "UTF-8");
@@ -1349,13 +1433,12 @@
       };
 
       return {
-        read: read
+        read: read,
       };
-    }
+    },
   );
   module.reader.direct = def(
-    [
-    ],
+    [],
 
     function () {
       var create = function (configuration) {
@@ -1363,21 +1446,18 @@
           done({
             sources: configuration.sources || [],
             types: configuration.types || [],
-            configs: configuration.configs || []
+            configs: configuration.configs || [],
           });
         };
       };
 
       return {
-        create: create
+        create: create,
       };
-    }
+    },
   );
   module.bootstrap.configloader = def(
-    [
-      module.util.locator,
-      module.reader.browser
-    ],
+    [module.util.locator, module.reader.browser],
 
     function (locator, browser) {
       var create = function (file) {
@@ -1388,13 +1468,12 @@
       };
 
       return {
-        create: create
+        create: create,
       };
-    }
-  );module.bootstrap.deferred = def(
-    [
-      ephox.bolt.kernel.fp.array
-    ],
+    },
+  );
+  module.bootstrap.deferred = def(
+    [ephox.bolt.kernel.fp.array],
 
     function (ar) {
       var deferred = [];
@@ -1415,31 +1494,27 @@
 
       return {
         require: require,
-        configured: configured
+        configured: configured,
       };
-    }
+    },
   );
   module.bootstrap.main = def(
-    [
-      ephox.bolt.kernel.api.config,
-      module.bootstrap.deferred,
-      module.runtime
-    ],
+    [ephox.bolt.kernel.api.config, module.bootstrap.deferred, module.runtime],
 
     function (config, deferred, runtime) {
       var main = function (id, args, configids, callback) {
         runtime.require(configids || [], function () {
           callback && callback.apply(null, arguments);
-          runtime.require([ id ], function (module) {
+          runtime.require([id], function (module) {
             module.apply(null, args || []);
           });
         });
       };
 
       return {
-        main: main
+        main: main,
       };
-    }
+    },
   );
   module.bootstrap.install = def(
     [
@@ -1447,11 +1522,13 @@
       module.bootstrap.deferred,
       module.bootstrap.main,
       module.runtime,
-      module.error.error
+      module.error.error,
     ],
 
     function (config, deferred, main, runtime, error) {
-      var notready = function () { throw "bolt not initialised, can not call define or demand, did you mean to use require or main?"; };
+      var notready = function () {
+        throw "bolt not initialised, can not call define or demand, did you mean to use require or main?";
+      };
 
       var install = function (reader, builtins, load, loadscript) {
         runtime.define = notready;
@@ -1472,11 +1549,10 @@
       };
 
       return {
-        install: install
+        install: install,
       };
-    }
+    },
   );
-
 })(Function("return this")());
 (function () {
   var install = ephox.bolt.module.bootstrap.install;
@@ -1490,37 +1566,162 @@
   var reader = direct.create({
     sources: [
       source("bolt", "tinymce/inlite/Theme", ".", mapper.constant("theme")),
-      source("bolt", "global!tinymce.ThemeManager", ".", mapper.constant("theme")),
-      source("bolt", "global!tinymce.util.Delay", ".", mapper.constant("theme")),
+      source(
+        "bolt",
+        "global!tinymce.ThemeManager",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "global!tinymce.util.Delay",
+        ".",
+        mapper.constant("theme"),
+      ),
       source("bolt", "tinymce/inlite/ui/Panel", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/ui/Buttons", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/core/SkinLoader", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/core/SelectionMatcher", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/core/ElementMatcher", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/core/Matcher", ".", mapper.constant("theme")),
+      source(
+        "bolt",
+        "tinymce/inlite/ui/Buttons",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/core/SkinLoader",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/core/SelectionMatcher",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/core/ElementMatcher",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/core/Matcher",
+        ".",
+        mapper.constant("theme"),
+      ),
       source("bolt", "tinymce/inlite/alien/Arr", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/core/PredicateId", ".", mapper.constant("theme")),
-      source("bolt", "global!tinymce.util.Tools", ".", mapper.constant("theme")),
-      source("bolt", "global!tinymce.ui.Factory", ".", mapper.constant("theme")),
+      source(
+        "bolt",
+        "tinymce/inlite/core/PredicateId",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "global!tinymce.util.Tools",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "global!tinymce.ui.Factory",
+        ".",
+        mapper.constant("theme"),
+      ),
       source("bolt", "global!tinymce.DOM", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/ui/Toolbar", ".", mapper.constant("theme")),
+      source(
+        "bolt",
+        "tinymce/inlite/ui/Toolbar",
+        ".",
+        mapper.constant("theme"),
+      ),
       source("bolt", "tinymce/inlite/ui/Forms", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/core/Measure", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/core/Layout", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/file/Conversions", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/file/Picker", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/core/Actions", ".", mapper.constant("theme")),
-      source("bolt", "global!tinymce.EditorManager", ".", mapper.constant("theme")),
-      source("bolt", "global!tinymce.util.Promise", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/alien/Uuid", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/alien/Unlink", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/core/UrlType", ".", mapper.constant("theme")),
+      source(
+        "bolt",
+        "tinymce/inlite/core/Measure",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/core/Layout",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/file/Conversions",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/file/Picker",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/core/Actions",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "global!tinymce.EditorManager",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "global!tinymce.util.Promise",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/alien/Uuid",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/alien/Unlink",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/core/UrlType",
+        ".",
+        mapper.constant("theme"),
+      ),
       source("bolt", "global!tinymce.geom.Rect", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/core/Convert", ".", mapper.constant("theme")),
-      source("bolt", "tinymce/inlite/alien/Bookmark", ".", mapper.constant("theme")),
-      source("bolt", "global!tinymce.dom.TreeWalker", ".", mapper.constant("theme")),
-      source("bolt", "global!tinymce.dom.RangeUtils", ".", mapper.constant("theme"))
-    ]
+      source(
+        "bolt",
+        "tinymce/inlite/core/Convert",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "tinymce/inlite/alien/Bookmark",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "global!tinymce.dom.TreeWalker",
+        ".",
+        mapper.constant("theme"),
+      ),
+      source(
+        "bolt",
+        "global!tinymce.dom.RangeUtils",
+        ".",
+        mapper.constant("theme"),
+      ),
+    ],
   });
   install.install(reader, builtins, transport, script);
 })();

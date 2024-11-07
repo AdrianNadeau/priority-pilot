@@ -1,21 +1,18 @@
-
 module.exports = (sequelize, Sequelize) => {
   const Phase = sequelize.define("phases", {
     id: {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     phase_name: {
       type: Sequelize.STRING,
-      required: true
+      required: true,
     },
     phase_description: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
     },
-       
-        
   });
 
   return Phase;

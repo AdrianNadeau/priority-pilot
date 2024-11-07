@@ -2,68 +2,60 @@ const db = require("../models");
 const ChangeLog = db.change_logs;
 const Op = db.Sequelize.Op;
 
-// Create and Save a new 
+// Create and Save a new
 exports.create = (req, res) => {
   // create a snapshot of current values before and submit to change_log table
 
-
   const project_id = req.body.project_id;
-  console.log("project_id:",project_id);
+  console.log("project_id:", project_id);
   let company_id_fk;
-  try{
-    
-    if(!req.session){
+  try {
+    if (!req.session) {
       res.redirect("/pages-500");
-    }
-    else{
+    } else {
       company_id_fk = req.session.company.id;
     }
-  }catch(error){
-    console.log("error:",error);
-  }  
+  } catch (error) {
+    console.log("error:", error);
+  }
 
   const currentDate = new Date();
   console.log(currentDate);
   const change_log = {
-    change_date:currentDate,
+    change_date: currentDate,
     change_reason: req.body.change_reason,
     change_headline: req.body.change_headline,
     change_explanation: req.body.change_explanation,
     project_id_fk: project_id,
-    company_id_fk: company_id_fk
-      
+    company_id_fk: company_id_fk,
   };
-  console.log("change_log:",change_log);
+  console.log("change_log:", change_log);
   // Save  in the database
   ChangeLog.create(change_log)
-    .then(data => {
+    .then((data) => {
       // res.send(data);
-      // save version of current version in 
-      res.redirect("/projects/cockpit/"+project_id);
+      // save version of current version in
+      res.redirect("/projects/cockpit/" + project_id);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-            err.message || "Some error occurred while creating the Company."
+          err.message || "Some error occurred while creating the Company.",
       });
     });
 };
 
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
-  
   ChangeLog.findAll({
-    order: [
-      ["change_date", "ASC"]
-    ]
+    order: [["change_date", "ASC"]],
   })
-    .then(data => {
+    .then((data) => {
       res.send(data);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message:
-            err.message || "Some error occurred while retrieving people."
+        message: err.message || "Some error occurred while retrieving people.",
       });
     });
 };
@@ -71,44 +63,42 @@ exports.findAll = (req, res) => {
 // Find a single  with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
-  
+
   ChangeLog.findByPk(id)
-    .then(data => {
+    .then((data) => {
       if (data) {
         res.send(data);
       } else {
         res.status(404).send({
-          message: `Cannot find Company with id=${id}.`
+          message: `Cannot find Company with id=${id}.`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Error retrieving Company with id=" + id
+        message: "Error retrieving Company with id=" + id,
       });
     });
 };
 
 exports.findAllByProject = (req, res) => {
-  try{
-    
-    if(!req.session){
+  try {
+    if (!req.session) {
       res.redirect("/pages-500");
-    }
-    else{
+    } else {
       company_id_fk = req.session.company.id;
     }
-  }catch(error){
-    console.log("error:",error);
-  }    
-  
+  } catch (error) {
+    console.log("error:", error);
+  }
+
   // const project_id  = req.params.project_id;
-  
+
   //   ChangeLog.find({project_id_fk: project_id, company_id_fk:company_id_fk })
   //     .then(data => {
   //       if (data) {
   //         res.send(data);
-          
+
   //       } else {
   //         res.status(404).send({
   //           message: `Cannot find Company with id=${id}.`
@@ -124,24 +114,24 @@ exports.findAllByProject = (req, res) => {
 // Update a  by the id in the request
 exports.update = (req, res) => {
   const id = req.params.id;
-  
+
   ChangeLog.update(req.body, {
-    where: { id: id }
+    where: { id: id },
   })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({
-          message: "Company was updated successfully."
+          message: "Company was updated successfully.",
         });
       } else {
         res.send({
-          message: `Cannot update Company with id=${id}. Maybe Company was not found or req.body is empty!`
+          message: `Cannot update Company with id=${id}. Maybe Company was not found or req.body is empty!`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Error updating  with id=" + id
+        message: "Error updating  with id=" + id,
       });
     });
 };
@@ -149,24 +139,24 @@ exports.update = (req, res) => {
 // Delete a  with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
-  
+
   ChangeLog.destroy({
-    where: { id: id }
+    where: { id: id },
   })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({
-          message: "Company was deleted successfully!"
+          message: "Company was deleted successfully!",
         });
       } else {
         res.send({
-          message: `Cannot delete Company with id=${id}. Maybe Company was not found!`
+          message: `Cannot delete Company with id=${id}. Maybe Company was not found!`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Could not delete Company with id=" + id
+        message: "Could not delete Company with id=" + id,
       });
     });
 };
@@ -175,16 +165,15 @@ exports.delete = (req, res) => {
 exports.deleteAll = (req, res) => {
   ChangeLog.destroy({
     where: {},
-    truncate: false
+    truncate: false,
   })
-    .then(nums => {
+    .then((nums) => {
       res.send({ message: `${nums} Companies were deleted successfully!` });
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-            err.message || "Some error occurred while removing all companies."
+          err.message || "Some error occurred while removing all companies.",
       });
     });
 };
-

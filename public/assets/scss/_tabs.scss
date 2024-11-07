@@ -2,7 +2,8 @@
    Tabs & Accordions
 ============= */
 
-.nav-tabs,.nav-pills {
+.nav-tabs,
+.nav-pills {
   .nav-link {
     font-family: $font-secondary;
     color: $dark;
@@ -11,7 +12,7 @@
 }
 
 .nav-tabs-custom {
-  border-bottom: 2px solid #DDD;
+  border-bottom: 2px solid #ddd;
 
   .nav-item {
     position: relative;
@@ -38,7 +39,8 @@
   transform: scale(0);
 }
 
-.nav-tabs-custom > li > a.active::after, .nav-tabs-custom > li:hover > a::after {
+.nav-tabs-custom > li > a.active::after,
+.nav-tabs-custom > li:hover > a::after {
   transform: scale(1);
 }
 

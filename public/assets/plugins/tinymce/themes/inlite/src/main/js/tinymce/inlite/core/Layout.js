@@ -10,23 +10,34 @@
 
 define("tinymce/inlite/core/Layout", [
   "global!tinymce.geom.Rect",
-  "tinymce/inlite/core/Convert"
+  "tinymce/inlite/core/Convert",
 ], function (Rect, Convert) {
   var result = function (rect, position) {
     return {
       rect: rect,
-      position: position
+      position: position,
     };
   };
 
   var moveTo = function (rect, toRect) {
-    return {x: toRect.x, y: toRect.y, w: rect.w, h: rect.h};
+    return { x: toRect.x, y: toRect.y, w: rect.w, h: rect.h };
   };
 
-  var calcByPositions = function (testPositions1, testPositions2, targetRect, contentAreaRect, panelRect) {
+  var calcByPositions = function (
+    testPositions1,
+    testPositions2,
+    targetRect,
+    contentAreaRect,
+    panelRect,
+  ) {
     var relPos, relRect, outputPanelRect;
 
-    relPos = Rect.findBestRelativePosition(panelRect, targetRect, contentAreaRect, testPositions1);
+    relPos = Rect.findBestRelativePosition(
+      panelRect,
+      targetRect,
+      contentAreaRect,
+      testPositions1,
+    );
     targetRect = Rect.clamp(targetRect, contentAreaRect);
 
     if (relPos) {
@@ -37,7 +48,12 @@ define("tinymce/inlite/core/Layout", [
 
     targetRect = Rect.intersect(contentAreaRect, targetRect);
     if (targetRect) {
-      relPos = Rect.findBestRelativePosition(panelRect, targetRect, contentAreaRect, testPositions2);
+      relPos = Rect.findBestRelativePosition(
+        panelRect,
+        targetRect,
+        contentAreaRect,
+        testPositions2,
+      );
       if (relPos) {
         relRect = Rect.relativePosition(panelRect, targetRect, relPos);
         outputPanelRect = moveTo(panelRect, relRect);
@@ -57,7 +73,7 @@ define("tinymce/inlite/core/Layout", [
       ["bc-tc", "bl-tl", "br-tr"],
       targetRect,
       contentAreaRect,
-      panelRect
+      panelRect,
     );
   };
 
@@ -67,18 +83,23 @@ define("tinymce/inlite/core/Layout", [
       ["bc-tc", "bl-tl", "br-tr"],
       targetRect,
       contentAreaRect,
-      panelRect
+      panelRect,
     );
   };
 
-  var userConstrain = function (handler, targetRect, contentAreaRect, panelRect) {
+  var userConstrain = function (
+    handler,
+    targetRect,
+    contentAreaRect,
+    panelRect,
+  ) {
     var userConstrainedPanelRect;
 
     if (typeof handler === "function") {
       userConstrainedPanelRect = handler({
         elementRect: Convert.toClientRect(targetRect),
         contentAreaRect: Convert.toClientRect(contentAreaRect),
-        panelRect: Convert.toClientRect(panelRect)
+        panelRect: Convert.toClientRect(panelRect),
       });
 
       return Convert.fromClientRect(userConstrainedPanelRect);
@@ -90,6 +111,6 @@ define("tinymce/inlite/core/Layout", [
   return {
     calcInsert: calcInsert,
     calc: calc,
-    userConstrain: userConstrain
+    userConstrain: userConstrain,
   };
 });
