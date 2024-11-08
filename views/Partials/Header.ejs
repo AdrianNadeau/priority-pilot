@@ -1,28 +1,28 @@
 <div class="left side-menu">
-
-    <!-- LOGO -->
-    <div class="topbar-left">
-        <div >
-           <!-- <h3><a href="/" style="color:white;" class="logo text-center">Priority Pilot</a></h3> -->
-           <img src="/../../public/assets/images/logo-sm.png" alt="logo">
-            <!-- <a href="/" class="logo"><img src="public/assets/images/logo-sm.png" height="36" alt="logo"></a> -->
-        </div>
+  <!-- LOGO -->
+  <div class="topbar-left">
+    <div>
+      <!-- <h3><a href="/" style="color:white;" class="logo text-center">Priority Pilot</a></h3> -->
+      <img src="/../../public/assets/images/logo-sm.png" alt="logo" />
+      <!-- <a href="/" class="logo"><img src="public/assets/images/logo-sm.png" height="36" alt="logo"></a> -->
     </div>
+  </div>
 
-    <div class="sidebar-inner slimscrollleft">
-        <div id="sidebar-menu">
-            <ul>
+  <div class="sidebar-inner slimscrollleft">
+    <div id="sidebar-menu">
+      <ul>
+        <% if (person && person.isAdmin) { %>
+        <li class="has_sub">
+          <a a href="/" onclick="forwardToDashboard();"
+            ><i class="mdi mdi-view-dashboard"></i> <span>Mission Control</span>
+          </a>
+        </li>
 
-                <li class="has_sub">
-                    <a a href="/" onclick=forwardToDashboard(); ><i class="mdi mdi-view-dashboard"></i> <span>Mission Control</span> </a>
-                   
-                </li>
-
-                <!-- <li>
+        <!-- <li>
                     <a href="widgets" class="waves-effect"><i class="mdi mdi-cube-outline"></i><span> Widgets </span></a>
                 </li> -->
 
-                <!-- <li class="has_sub">
+        <!-- <li class="has_sub">
                     <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-email-outline"></i><span> Email <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span></a>
                     <ul class="list-unstyled">
                         <li><a href="email-inbox">Inbox</a></li>
@@ -31,11 +31,11 @@
                     </ul>
                 </li> -->
 
-                <!-- <li>
+        <!-- <li>
                     <a href="calendar" class="waves-effect"><i class="mdi mdi-calendar-check"></i><span> Calendar </span></a>
                 </li> -->
 
-                <!-- <li class="menu-title">Components</li>
+        <!-- <li class="menu-title">Components</li>
 
                 <li class="has_sub">
                     <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-buffer"></i> <span> User Interface <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span> </a>
@@ -68,13 +68,24 @@
                         <li><a href="ui-sessiontimeout">Session Timeout</a></li>
                     </ul>
                 </li> -->
-
-                <li>
-                    <a href="/projects" class="waves-effect"><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a>
-                </li>
-                <li>
-                    <a href="/persons" class="waves-effect"><i class="mdi mdi-account-location"></i><span> Employees </span></a>
-                </li><!-- <li class="has_sub">
+                    <li>
+                        <a href="/projects" class="waves-effect"
+                          ><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a
+                        >
+                      </li>
+                      <li>
+                        <a href="/persons" class="waves-effect"
+                          ><i class="mdi mdi-account-location"></i><span> Employees </span></a
+                        >
+                      </li>
+                  <% } else { %>
+                    <li class="has_sub">
+                        <a href="/" class="waves-effect" onclick="forwardToDashboard();"
+                          ><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a
+                        >
+                      </li>
+                      <% } %>
+        <!-- <li class="has_sub">
                     <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-chart-line"></i><span> Charts <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span></a>
                     <ul class="list-unstyled">
                         <li><a href="charts-morris">Morris Chart</a></li>
@@ -88,7 +99,7 @@
                     </ul>
                 </li> -->
 
-                <!-- <li class="has_sub">
+        <!-- <li class="has_sub">
                     <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-format-list-bulleted-type"></i><span> Tables <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span></a>
                     <ul class="list-unstyled">
                         <li><a href="tables-basic">Basic Tables</a></li>
@@ -98,7 +109,7 @@
                     </ul>
                 </li> -->
 
-                <!-- <li class="has_sub">
+        <!-- <li class="has_sub">
                     <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-album"></i> <span> Icons  <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span></span> </a>
                     <ul class="list-unstyled">
                         <li><a href="icons-material">Material Design</a></li>
@@ -112,7 +123,7 @@
                     </ul>
                 </li> -->
 
-                <!-- <li class="has_sub">
+        <!-- <li class="has_sub">
                     <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-google-maps"></i><span> Maps <span class="badge badge-pill badge-danger pull-right">2</span> </span></a>
                     <ul class="list-unstyled">
                         <li><a href="maps-google"> Google Map</a></li>
@@ -120,9 +131,9 @@
                     </ul>
                 </li> -->
 
-                <!-- <li class="menu-title">Extras</li> -->
+        <!-- <li class="menu-title">Extras</li> -->
 
-                <!-- <li class="has_sub">
+        <!-- <li class="has_sub">
                     
                     <ul class="list-unstyled">
                         <li><a href="pages-login">Login</a></li>
@@ -136,7 +147,7 @@
                     </ul>
                 </li> -->
 
-                <!-- <li class="has_sub">
+        <!-- <li class="has_sub">
                     <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-google-pages"></i><span> Extra Pages <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span></a>
                     <ul class="list-unstyled">
                         <li><a href="pages-timeline">Timeline</a></li>
@@ -152,7 +163,7 @@
                     </ul>
                 </li> -->
 
-                <!-- <li class="has_sub">
+        <!-- <li class="has_sub">
                     <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-cart-outline"></i><span> Ecommerce <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span></a>
                     <ul class="list-unstyled">
                         <li><a href="ecommerce-product-list">Product List</a></li>
@@ -167,7 +178,7 @@
                     <a href="../frontend/" class="waves-effect" target="_blank"><i class="mdi mdi-airplane"></i><span> Front End </span></a>
                 </li> -->
 
-                <!-- <li class="has_sub">
+        <!-- <li class="has_sub">
                     <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-flask-outline"></i><span> Email Templates <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span></a>
                     <ul class="list-unstyled">
                         <li><a href="email-templates-basic">Basic Action Email</a></li>
@@ -176,7 +187,7 @@
                     </ul>
                 </li> -->
 
-                <!-- <li class="menu-title">Help & Support</li>
+        <!-- <li class="menu-title">Help & Support</li>
 
                 <li>
                     <a href="pages-faq" class="waves-effect"><i class="mdi mdi-help-circle"></i><span> FAQ </span></a>
@@ -189,14 +200,14 @@
                 <li>
                     <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-file-document-box"></i><span> Documentation </span></a>
                 </li> -->
-
-            </ul>
-        </div>
-        <div class="clearfix"></div>
-    </div> <!-- end sidebarinner -->
+      </ul>
+    </div>
+    <div class="clearfix"></div>
+  </div>
+  <!-- end sidebarinner -->
 </div>
 <script>
-    function forwardToDashboard(){
-        window.location.replace("/");
-    }
+  function forwardToDashboard() {
+    window.location.replace("/");
+  }
 </script>

@@ -10,6 +10,8 @@ var router = require("./router.js");
 var Authrouter = require("./routes/AuthRouter.js");
 var DashboardRouter = require("./routes/DashboardRouter.js");
 
+var authMiddleware = require("./middleware/authMiddleware.js");
+
 app.use(express.urlencoded({ extended: true }));
 
 // Access public folder from root
@@ -32,6 +34,7 @@ app.use(sessionMiddleware);
 // Add Authentication Route file with app
 app.use("/", Authrouter);
 app.use("/control", DashboardRouter);
+app.use(authMiddleware);
 
 // Set up storage engine
 const storage = multer.diskStorage({

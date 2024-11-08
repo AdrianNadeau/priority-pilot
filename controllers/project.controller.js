@@ -136,7 +136,7 @@ exports.findAll = async (req, res) => {
     });
 
     const query =
-      "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date,  prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
+      "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
 
     await db.sequelize
       .query(query, {
@@ -580,7 +580,6 @@ exports.update = (req, res) => {
   company_id_fk = req.session.company.id;
   const change_reason = req.body.change_reason;
   // Create a Project
-  console.log;
   const project = {
     company_id_fk: company_id_fk,
     project_name: req.body.project_name,
@@ -588,11 +587,11 @@ exports.update = (req, res) => {
     // project_description :req.body.project_description,
     project_why: req.body.project_why,
     project_what: req.body.project_what,
-    start_date: startDateTest,
-    end_date: endDateTest,
-    next_milestone_date: nextMilestoneDateTest,
-    deleted_date: req.body.deleted_date,
-    change_date: req.body.change_date,
+    // start_date: startDateTest,
+    // end_date: endDateTest,
+    // next_milestone_date: nextMilestoneDateTest,
+    // deleted_date: req.body.deleted_date,
+    // change_date: req.body.change_date,
     priority_id_fk: req.body.priority_id_fk,
     sponsor_id_fk: req.body.sponsor_id_fk,
     prime_id_fk: req.body.prime_id_fk,
@@ -619,9 +618,9 @@ exports.update = (req, res) => {
           project_description: req.body.project_description,
           project_why: req.body.project_why,
           project_what: req.body.project_what,
-          start_date: req.body.start_date,
-          end_date: req.body.end_date,
-          next_milestone_date: req.body.next_milestone_date,
+          // start_date: startDateTest,
+          // end_date: endDateTest,
+          // next_milestone_date: nextMilestoneDateTest,
           // deleted_date: deletedDateTest,
           // change_date: changeDateTest,
           priority_id_fk: req.body.priority_id_fk,

@@ -5,8 +5,10 @@ const db = require("./models");
 const Project = db.projects;
 const Op = db.Sequelize.Op;
 
+const isAdminMiddleware = require("./middleware/isAdminMiddleware");
+
 // Dashboard
-router.get("/", async function (req, res) {
+router.get("/", isAdminMiddleware, async function (req, res) {
   let company_id_fk;
 
   // Validate session and retrieve company_id_fk
