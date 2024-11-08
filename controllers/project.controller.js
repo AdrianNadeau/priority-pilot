@@ -31,8 +31,6 @@ exports.create = (req, res) => {
   console.log("endDateTest:", endDateTest);
   const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
   console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
-  // const deletedDateTest = insertValidDate(null);
-  // const changeDateTest = insertValidDate(req.body.change_date);
 
   let pitch_message = "";
   if (req.body.phase_id_fk == 1) {
@@ -50,8 +48,6 @@ exports.create = (req, res) => {
     start_date: startDateTest,
     end_date: endDateTest,
     next_milestone_date: nextMilestoneDateTest,
-    // deleted_date:deletedDateTest,
-    // change_date:changeDateTest,
     priority_id_fk: req.body.priority_id_fk,
     sponsor_id_fk: req.body.sponsor_id_fk,
     prime_id_fk: req.body.prime_id_fk,
@@ -396,6 +392,7 @@ exports.radar = async (req, res) => {
   }
   const query = `
   SELECT
+    SUM(CASE WHEN phase_id_fk = 1 THEN 1 ELSE 0 END) AS phase_1_count,
     SUM(CASE WHEN phase_id_fk = 2 THEN 1 ELSE 0 END) AS phase_2_count,
     SUM(CASE WHEN phase_id_fk = 3 THEN 1 ELSE 0 END) AS phase_3_count,
     SUM(CASE WHEN phase_id_fk = 4 THEN 1 ELSE 0 END) AS phase_4_count,
@@ -567,11 +564,18 @@ exports.update = (req, res) => {
     console.log("error:", error);
   }
   const id = req.params.id;
+  console.log("ID:", id);
 
   // Ensure session exists and fetch company ID
   if (!req.session || !req.session.company) {
     res.redirect("/pages-500");
   }
+  const startDateTest = insertValidDate(req.body.start_date);
+  console.log("startDateTest:", startDateTest);
+  const endDateTest = insertValidDate(req.body.end_date);
+  console.log("endDateTest:", endDateTest);
+  const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
+  console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
   //convert dates
   company_id_fk = req.session.company.id;
   const change_reason = req.body.change_reason;
@@ -584,9 +588,9 @@ exports.update = (req, res) => {
     // project_description :req.body.project_description,
     project_why: req.body.project_why,
     project_what: req.body.project_what,
-    start_date: req.body.start_date,
-    end_date: req.body.end_date,
-    next_milestone_date: req.body.next_milestone_date,
+    start_date: startDateTest,
+    end_date: endDateTest,
+    next_milestone_date: nextMilestoneDateTest,
     deleted_date: req.body.deleted_date,
     change_date: req.body.change_date,
     priority_id_fk: req.body.priority_id_fk,
@@ -618,8 +622,8 @@ exports.update = (req, res) => {
           start_date: req.body.start_date,
           end_date: req.body.end_date,
           next_milestone_date: req.body.next_milestone_date,
-          deleted_date: deletedDateTest,
-          change_date: changeDateTest,
+          // deleted_date: deletedDateTest,
+          // change_date: changeDateTest,
           priority_id_fk: req.body.priority_id_fk,
           sponsor_id_fk: req.body.sponsor_id_fk,
           prime_id_fk: req.body.prime_id_fk,
@@ -702,11 +706,14 @@ exports.deleteAll = (req, res) => {
     });
 };
 function insertValidDate(dateString) {
-  console.log("DATESTRING:", dateString);
-  const date = new Date(dateString);
-  // Format the date to "YYYY-MM-DD"
-  const formattedDate = date.toISOString().split("T")[0];
-
-  console.log(formattedDate); // Output: "2024-12-31"
-  return formattedDate;
+  try {
+    const date = new Date(dateString);
+    // Format the date to "YYYY-MM-DD"
+    const formattedDate = date.toISOString().split("T")[0];
+    console.log(formattedDate); // Output: "2024-12-31"
+    return formattedDate;
+  } catch (error) {
+    console.log("Error:", error);
+    return null;
+  }
 }

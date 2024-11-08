@@ -56,171 +56,188 @@
                         </div>
                         <div class="form-group">
                           <label for="start_date">Start Date (YYYY-MM-DD): </label>
-                          <% if(project.start_date){ %>
-                            
-                            <input type="text" id="end_date" name="end_date" class="form-control" value="<%= new Date(project.start_date).toISOString().split('T')[0] %>">
-                          <%}%>
+                          <% if (project.start_date) { %>
+                            <input type="text" id="start_date" name="start_date" class="form-control" value="<%= new Date(project.start_date).toISOString().split('T')[0] %>">
+                          <% } else { %>
+                            <input type="text" id="start_date" name="start_date" class="form-control" value="">
+                          <% } %>
+                          
                           
                         </div>
                         <div class="form-group">
                           <label for="end_date">End Date (YYYY-MM-DD):</label>
-                          <input type="text" id="end_date" name="end_date" class="form-control" value="<%= new Date(project.end_date).toISOString().split('T')[0] %>">
+                          <% if (project.end_date) { %>
+                            <input type="text" id="end_date" name="end_date" class="form-control" value="<%= new Date(project.end_date).toISOString().split('T')[0] %>">
+                          <% } else { %>
+                            <input type="text" id="end_date" name="end_date" class="form-control" value="">
+                          <% } %>
                           
                         </div>
                         <div class="form-group">
                           <label for="datepicker">Next Milestone Date (YYYY-MM-DD):</label>
-                          <input type="text" id="end_date" name="end_date" class="form-control" value="<%= new Date(project.next_milestone_date).toISOString().split('T')[0] %>">
+                          <% if (project.next_milestone_date) { %>
+                            <input type="text" id="next_milestone_date" name="next_milestone_date" class="form-control" value="<%= new Date(project.end_date).toISOString().split('T')[0] %>">
+                          <% } else { %>
+                            <input type="text" id="next_milestone_date" name="next_milestone_date" class="form-control" value="">
+                          <% } %>
                          
                         </div>
                       </div>
                     </div>
                     <div class="col-md-6">
-                      <div class="form-group">
-                        <!-- Other form-group blocks -->
-                      </div>
-                      <div class="form-group">
-                        <label for="phase">Phase:</label>
-                        <select name="phase_id_fk" id="phase_id_fk">
-                          <% phases.forEach(function(phase){ %>
-                            <% if (phase.id == project.phase_id_fk) { %>
-                              <option selected value="<%= phase.id %>"><%= phase.phase_name %></option>
-                            <% } else { %>
-                              <option value="<%= phase.id %>"><%= phase.phase_name %></option>
-                            <% } %>
-                          <% }) %>
-                        </select>
-                      </div>
-                    
-                      <div>
-                        <% if (project.phase_name == "Pitch") { %>
-                          <textarea name="pitch_message" rows="4" style="width: 400px;" id="pitch_message"><%= project.pitch_message %></textarea>
-                        <% } %>
-                      </div>
-                    
-                      <div id="otherPhaseFields">
-                        <div class="form-group">
-                          <label for="priority">Priority:</label>
-                          <select name="priority_id_fk" id="priority_id_fk">
-                            <% priorities.forEach(function(priority) { %>
-                              <% if (priority.id == project.priority_id_fk) { %>
-                                <option selected value="<%= priority.id %>"><%= priority.priority_name %></option>
-                              <% } else { %>
-                                <option value="<%= priority.id %>"><%= priority.priority_name %></option>
-                              <% } %>
-                            <% }) %>
-                          </select>
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="phase">Phase:</label>
+                            <select name="phase_id_fk" id="phase_id_fk" class="form-control">
+                              <% phases.forEach(function(phase){ %>
+                                <% if (phase.id == project.phase_id_fk) { %>
+                                  <option selected value="<%= phase.id %>"><%= phase.phase_name %></option>
+                                <% } else { %>
+                                  <option value="<%= phase.id %>"><%= phase.phase_name %></option>
+                                <% } %>
+                              <% }) %>
+                            </select>
+                          </div>
                         </div>
-                    
-                        <div class="form-group">
-                          <label for="sponsor">Sponsor:</label>
-                          <select name="sponsor_id_fk" id="sponsor_id_fk">
-                            <% sponsors.forEach(function(sponsor){ %>
-                              <% if (sponsor.id == project.sponsor_id_fk) { %>
-                                <option selected value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
-                              <% } else { %>
-                                <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
-                              <% } %>
-                            <% }) %>
-                          </select>
-                        </div>
-                    
-                        <div class="form-group">
-                          <label for="prime">Prime:</label>
-                          <select name="prime_id_fk" id="prime_id_fk">
-                            <% primes.forEach(function(prime){ %>
-                              <% if (prime.id == project.prime_id_fk) { %>
-                                <option selected value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
-                              <% } else { %>
-                                <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
-                              <% } %>
-                            <% }) %>
-                          </select>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="priority">Priority:</label>
+                            <select name="priority_id_fk" id="priority_id_fk" class="form-control">
+                              <% priorities.forEach(function(priority) { %>
+                                <% if (priority.id == project.priority_id_fk) { %>
+                                  <option selected value="<%= priority.id %>"><%= priority.priority_name %></option>
+                                <% } else { %>
+                                  <option value="<%= priority.id %>"><%= priority.priority_name %></option>
+                                <% } %>
+                              <% }) %>
+                            </select>
+                          </div>
                         </div>
                       </div>
-                    
-                      <div class="form-group" id="effort_option">
-                        <label for="effort">Effort (PH):</label><br/>
-                        <input type="text" style="width:100px;" class="form-control" id="effort" name="effort" value="<%= project.effort %>">
-                      </div>
-                    
-                      <div class="form-group" id="benefit_option">
-                        <label for="benefit">Benefit (ROI or $):</label><br/>
-                        <input type="text" style="width:100px;" class="form-control" id="benefit" name="benefit" value="<%= project.benefit %>">
-                      </div>
-                    
-                      <div class="form-group" id="impact_option">
-                        <label for="impact">Impact:</label>
-                        <select name="impact" id="impact">
-                          <% if (project.impact != null && project.impact != undefined) { %>
-                            <% for (var i = 1; i <= 10; i++) { %>
-                              <% if (i == project.impact) { %>
-                                <option selected value="<%= i %>"><%= i %></option>
-                              <% } else { %>
-                                <option value="<%= i %>"><%= i %></option>
-                              <% } %>
-                            <% } %>
-                          <% } else { %>
-                            <% for (var i = 1; i <= 10; i++) { %>
-                              <option value="<%= i %>"><%= i %></option>
-                            <% } %>
-                          <% } %>
-                          
-                            
-                        </select>
-                      </div>
-                    
-                      <div class="form-group" id="complexity_option">
-                        <label for="complexity">Complexity:</label>
-                        <select name="complexity" id="complexity">
-                          
-
-                          <% if (project.complexity != null && project.complexity != undefined) { %>
-                            <% for (var i = 1; i <= 10; i++) { %>
-                              <% if (i == project.complexity) { %>
-                                <option selected value="<%= i %>"><%= i %></option>
-                              <% } else { %>
-                                <option value="<%= i %>"><%= i %></option>
-                              <% } %>
-                            <% } %>
-                          <% } else { %>
-                            <% for (var i = 1; i <= 10; i++) { %>
-                              <option value="<%= i %>"><%= i %></option>
-                            <% } %>
-                          <% } %>
-                        </select>
-                      </div>
-                    
-                      <div class="form-group" id="cost_option">
-                        <label for="project_cost">Estimated Cost:</label>
-                        <input type="text" class="form-control" id="project_cost" name="project_cost" value="<%= project.project_cost %>">
-                      </div>
-                    
-                      <div class="form-group" id="tags_option">
-                        <label for="project_tags">Tags (comma separated):</label>
-                        <%= project.tags %>
-                        <input type="text" class="form-control" id="project_tags" value="<%= project.tags %>" name="project_tags">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="sponsor">Sponsor:</label>
+                            <select name="sponsor_id_fk" id="sponsor_id_fk" class="form-control">
+                              <% sponsors.forEach(function(sponsor){ %>
+                                <% if (sponsor.id == project.sponsor_id_fk) { %>
+                                  <option selected value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
+                                <% } else { %>
+                                  <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
+                                <% } %>
+                              <% }) %>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="prime">Prime:</label>
+                            <select name="prime_id_fk" id="prime_id_fk" class="form-control">
+                              <% primes.forEach(function(prime){ %>
+                                <% if (prime.id == project.prime_id_fk) { %>
+                                  <option selected value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
+                                <% } else { %>
+                                  <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
+                                <% } %>
+                              <% }) %>
+                            </select>
+                          </div>
+                        </div>
                       </div>
                      
-                    </div>
                     
-                    </div>
-                  
-                </div>
-                <!-- Add more rows and columns if needed -->
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary waves-effect" onclick=cancelForm() data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#openConfirm" id="btnOpenConfirm">Submit</button>
-
-                    <!-- if edit, add delete button -->
-                    <!-- <button class="btn btn-danger w-md waves-effect waves-light" onClick='openDeleteModal()' type="button">Delete</button> -->
-                    <!-- if edit, add delete button -->
-                </div>
-            
-            </div>
+                     
+<div class="row">
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="effort">Effort (PH):</label>
+      <input type="text" class="form-control" id="effort" name="effort" value="<%= project.effort %>">
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="benefit">Benefit (ROI or $):</label>
+      <input type="text" class="form-control" id="benefit" name="benefit" value="<%= project.benefit %>">
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="impact">Impact:</label>
+      <select name="impact" id="impact" class="form-control">
+        <% if (project.impact != null && project.impact != undefined) { %>
+          <% for (var i = 1; i <= 10; i++) { %>
+            <% if (i == project.impact) { %>
+              <option selected value="<%= i %>"><%= i %></option>
+            <% } else { %>
+              <option value="<%= i %>"><%= i %></option>
+            <% } %>
+          <% } %>
+        <% } else { %>
+          <% for (var i = 1; i <= 10; i++) { %>
+            <option value="<%= i %>"><%= i %></option>
+          <% } %>
+        <% } %>
+      </select>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="complexity">Complexity:</label>
+      <select name="complexity" id="complexity" class="form-control">
+        <% if (project.complexity != null && project.complexity != undefined) { %>
+          <% for (var i = 1; i <= 10; i++) { %>
+            <% if (i == project.complexity) { %>
+              <option selected value="<%= i %>"><%= i %></option>
+            <% } else { %>
+              <option value="<%= i %>"><%= i %></option>
+            <% } %>
+          <% } %>
+        <% } else { %>
+          <% for (var i = 1; i <= 10; i++) { %>
+            <option value="<%= i %>"><%= i %></option>
+          <% } %>
+        <% } %>
+      </select>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="project_cost">Estimated Cost:</label>
+      <input type="text" class="form-control" id="project_cost" name="project_cost" value="<%= project.project_cost %>">
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="project_tags">Tags (comma separated):</label>
+      <input type="text" class="form-control" id="project_tags" name="project_tags" value="<%= project.tags %>">
+    </div>
+  </div>
+</div>
+    
+</div>                
+                      
+                    
+               
+               
         </div>
        
     </div>
 </div>
+ <!-- Add more rows and columns if needed -->
+     <div class="modal-footer">
+      <button type="button" class="btn btn-secondary waves-effect" onclick=cancelForm() data-dismiss="modal">Cancel</button>
+      <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#openConfirm" id="btnOpenConfirm">Submit</button>
+
+      <!-- if edit, add delete button -->
+      <!-- <button class="btn btn-danger w-md waves-effect waves-light" onClick='openDeleteModal()' type="button">Delete</button> -->
+      <!-- if edit, add delete button -->
+  </div>
+
 <div id="openConfirm" class="modal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
   <div class="modal-dialog">
       <div class="modal-content" style="width: 500px;">

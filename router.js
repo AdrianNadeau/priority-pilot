@@ -144,8 +144,8 @@ router.get("/", async function (req, res) {
         totalUsedPH: formatValue(totalPH - totalOperationsPH),
         totalAvailPH: formatValue(totalPH - (totalPH - totalOperationsPH)),
         totalPitchPH: formatValue(totalPitchPH),
-        usedCost: formatCost(usedCost),
-        availableCost: formatCost(availableCost),
+        usedCost: formatCost(availableCost),
+        availableCost: formatCost(usedCost),
         totalOperationsCost: formatCost(totalOperationsCost),
         session: req.session,
       });

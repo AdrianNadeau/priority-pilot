@@ -59,16 +59,8 @@ exports.create = async (req, res) => {
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    let isAdminStatus = false;
-    if (register_yn === "y") {
-      //add register admin
-      isAdminStatus = true;
-    } else {
-      //check from add person from admin
-      console.log("in portal");
-      isAdminStatus = false;
-    }
-    // Create admin the new person
+
+    // Create the new person
     const newPerson = await Person.create({
       email,
       first_name,
