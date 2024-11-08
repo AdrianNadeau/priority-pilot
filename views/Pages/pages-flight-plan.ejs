@@ -11,7 +11,7 @@
         </button>
     </li>
     <li class="hide-phone list-inline-item app-search">
-        <h3 class="page-title">Flight Plan</h3>
+        <h3 class="page-title">In Flight Plan</h3>
     </li>
 </ul>
 
@@ -52,7 +52,7 @@
                                         <% if (health.phase_name === 'Delivery') { %>
                                             <tr><td style="background-color:#D0D0D0;color:black;font-size:1.5em;" class="text-center" colspan="8">Delivery</td></tr>
                                         <% } %>
-                                        <td style='background-color:<%=bgColor%>;color:white;'><%= health.project_name %></td>
+                                        <td style='background-color:<%=bgColor%>;'><%= health.project_name %></td>
                                             <td><%= new Date(health.start_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
                                             <td><%= new Date(health.end_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
                                             <td><%= new Date(health.next_milestone_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
