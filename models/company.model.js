@@ -19,6 +19,10 @@ module.exports = (sequelize, Sequelize) => {
     company_logo: {
       type: Sequelize.STRING,
     },
+    portfoilio_budget: {
+      type: Sequelize.FLOAT,
+      allowNull: true,
+    },
   });
 
   return Company;

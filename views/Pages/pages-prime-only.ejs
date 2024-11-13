@@ -1,0 +1,98 @@
+<%- contentFor('HeaderCss') %>
+<!-- Bootstrap CSS -->
+<style>
+  #pitch_message {
+      display: none;
+  }
+</style>
+
+
+<%- contentFor('breadcrumb') %>
+<ul class="list-inline menu-left mb-0">
+    <li class="list-inline-item">
+        <button type="button" class="button-menu-mobile open-left waves-effect">
+            <i class="ion-navicon"></i>
+        </button>
+    </li>
+    
+    <li class="hide-phone list-inline-item app-search">
+        <h3 class="page-title">YOUR PROJECTS</h3>
+      
+        
+    </li>
+</ul>
+
+<%- contentFor('body') %>
+<div class="page-content-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+              <div class="card-body" style="border:0px !important;">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Prime</th>
+                                        <th>Sponsor</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        
+                                        <th>Phase</th>
+                                        <th>Cost</th>
+                                    </tr>
+                                </thead>
+                               
+                                <% projects.forEach(function(project) { %>
+                                  <tbody>
+                                      <tr style="cursor: pointer;">
+                                        <input type="hidden" name="project_id" value = "<%= project.id %>"/>
+                                        <td><%= project.id %></td>
+                                        <td><%= project.project_name %></td>
+
+                                        <% if(project.prime_last_name){ %>
+                                            <td><%= project.prime_last_name %>, <%= project.prime_first_name %> </td>
+                                        <% } else { %>
+                                            <td>N/A</td>
+                                        <% } %>
+
+                                        <% if(project.sponsor_last_name){ %>
+                                          <td><%= project.sponsor_last_name %>, <%= project.sponsor_first_name %> </td>
+                                        <% } else { %>
+                                          <td>N/A</td>
+                                        <% } %>
+                                       
+                                        
+                                        <td>
+                                          <% if(project.start_date){ %>
+                                              <%= project.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                                            <%}%>
+                                       </td>
+                                       <td>
+                                        <% if(project.end_date){ %>
+                                            <%= project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                                          <%}%>
+                                     </td>
+                                        
+                                        <td><%= project.phase_name %></td>
+                                        <td><%= project.project_cost %></td>
+                                        
+                                      </tr>
+                                  </tbody>
+                              <% }); %>
+                              
+                             
+                            </table>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+</div>
+
+<%- contentFor('FooterJs') %>
+
+<%- contentFor('BottomJs') %>

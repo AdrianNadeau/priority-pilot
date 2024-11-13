@@ -10,11 +10,11 @@ module.exports = (app) => {
   router.delete("/:id", projects.delete);
   router.get("/cockpit/:id", projects.cockpit);
   router.get("/edit/:id", projects.findOneForEdit);
-  router.get("/primeprojects/list/:id", projects.findAllPrimeProjects); //primeprojects
+  // router.get("/primeprojects/list/:id", projects.findAllPrimeProjects);
+  router.get("/funnel/view/", projects.findFunnel);
   router.get("/radar/view/", projects.radar);
   router.get("/flight/view/", projects.flight);
   router.get("/health/view/", projects.health);
   router.delete("/", projects.deleteAll);
-
   app.use("/projects", router);
 };

@@ -34,8 +34,7 @@ router.get("/", isAdminMiddleware, async function (req, res) {
     const projects = await Project.findAll({ where: { company_id_fk } });
 
     // Prepare custom SQL query
-    const query = `
-            SELECT proj.company_id_fk, proj.id, proj.project_name, proj.start_date, proj.end_date,
+    const query = `SELECT proj.company_id_fk, proj.id, proj.project_name, proj.start_date, proj.end_date,
                    proj.health, proj.effort AS effort, prime_person.first_name AS prime_first_name,
                    prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name,
                    sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name 
@@ -44,7 +43,6 @@ router.get("/", isAdminMiddleware, async function (req, res) {
             LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
             LEFT JOIN phases ON phases.id = proj.phase_id_fk
             WHERE proj.company_id_fk = ? ORDER BY proj.phase_id_fk;`;
-
     // Initialize cost and effort-related totals
     let totalCost = 0,
       usedCost = 0,
@@ -122,7 +120,6 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       return (value || 0).toLocaleString("en-US");
     }
     if (isAdmin) {
-      console.log("we have an admin: ", person);
       // Render the dashboard page
       res.render("Dashboard/dashboard1", {
         projects: data,

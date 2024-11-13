@@ -99,12 +99,16 @@ exports.findAll = async (req, res) => {
 
 // Login user
 exports.login = async (req, res) => {
+  console.log("LOGIN");
   try {
     const { email, password } = req.body;
 
     const person = await authenticateUser(email, password);
     if (!person)
       return res.status(401).json({ message: "Invalid username or password." });
+    // Determine admin status
+    // const isAdminStatus = isAdmin === "true" || register_yn === "y";
+    // console.log("isAdminStatus:", isAdminStatus);
 
     const company = await Company.findByPk(person.company_id_fk);
     if (!company) return res.redirect("/login");
@@ -117,8 +121,13 @@ exports.login = async (req, res) => {
 
       req.session.company = company;
       req.session.person = person;
-      console.log("Redirecting to Dashboard...");
-      res.redirect("/");
+      if (person.isAdmin) {
+        console.log("Redirecting to Dashboard...");
+        res.redirect("/");
+      } else {
+        console.log("Redirecting to Projects page...");
+        res.redirect("/");
+      }
     });
   } catch (err) {
     console.error("Login error:", err);

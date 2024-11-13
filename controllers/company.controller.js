@@ -4,12 +4,15 @@ const Person = db.persons;
 const Op = db.Sequelize.Op;
 
 exports.create = async (req, res) => {
+  const company_budget = 100000;
+  console.log("company_budget:", company_budget);
   try {
     const {
       company_name,
       company_headline,
       company_description,
       company_logo,
+      portfoilio_budget,
     } = req.body;
     if (!company_name) {
       return res.status(400).json({ message: "Company Name cannot be empty!" });
@@ -20,8 +23,9 @@ exports.create = async (req, res) => {
       company_headline,
       company_description,
       company_logo,
+      portfoilio_budget,
     });
-
+    console.log("company:", company);
     if (company) {
       const session = req.session;
       session.company = company;

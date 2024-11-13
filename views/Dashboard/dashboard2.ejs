@@ -1,9 +1,7 @@
 <%- contentFor('HeaderCss') %>
-<link href="public/assets/plugins/c3/c3.min.css" rel="stylesheet" type="text/css" />
-
 
 <%- contentFor('breadcrumb') %>
-<ul class="list-inline menu-left mb-0">
+<ul class="list-inline menu-left mb-0"> 
     <li class="list-inline-item">
         <button type="button" class="button-menu-mobile open-left waves-effect">
             <i class="ion-navicon"></i>
@@ -18,41 +16,160 @@
 
 <div class="page-content-wrapper">
     <div class="container-fluid">
-        <div class="container">
-            <div class="container" >
-                <div class="row" style="border: 2px solid red;">
-                  <div class="col-5" style="border: 2px solid red;">
-                    1 of 3
-                  </div>
-                  <div class="col-5" style="border: 2px solid red;">
-                    2 of 3
-                  </div>
-                  <div class="col-2" style="border: 2px solid red;">
-                    3 of 3
-                  </div>
+        <div class="row">
+            <!-- Main content -->
+            <div class="col-md-10">
+                <div class="row">
+                     <!-- Priority Section -->
+                     <div class="col-md-12">
+                        <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
+                            <div class="mini-stat-info">
+                                <span class="counter">Priority (<%= priorityCount %>, $<%= priorityTotalCost %>, <%= priorityTotalPH %> PH)</span>
+                            </div>
+                            <div>
+                                <% projects.forEach(function(project) { %>
+                                    <% if (project.phase_name.trim() === 'Priority') { %>
+                                        <span>
+                                            <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
+                                                <%= project.project_name %>
+                                            </button>
+                                        </span>&nbsp;&nbsp;&nbsp;
+                                    <% } %>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                   
+                    <!-- Discovery Section -->
+                    <div class="col-md-12">
+                        <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
+                            <div class="mini-stat-info">
+                                <span class="counter">Discovery (<%= discoveryCount %>, $<%= totalDiscoveryCost %>, <%= discoveryTotalPH %> PH)</span>
+                            </div>
+                            <div>
+                                <% projects.forEach(function(project) { %>
+
+                                  <% if (project.phase_name.trim() === 'Discovery') { %>
+                                    <span>
+                                        <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;; border-width: 2px;border-radius:10px;">
+                                            <%= project.project_name %>
+                                        </button>
+                                    </span>&nbsp;&nbsp;&nbsp;
+                                <% } %>
+                                <% }); %>
+                                   
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Section -->
+                    <div class="col-md-12">
+                        <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
+                            <div class="mini-stat-info">
+                                <span class="counter">Delivery (<%= totalDeliveryCount %>, $<%= deliveryTotalCost %>, <%= deliveryTotalPH %> PH)</span>
+                            </div>
+                            <div>
+                                <% projects.forEach(function(project) { %>
+                                  <% if (project.phase_name.trim() === 'Delivery') { %>
+                                    <span>
+                                        <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
+                                            <%= project.project_name %>
+                                        </button>
+                                    </span>&nbsp;&nbsp;&nbsp;
+                                <% } %>
+                                <% }); %>
+                                    
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Operations Section -->
+                    <div class="col-12">
+                        <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
+                            <div class="mini-stat-info">
+                                <span class="counter">Done (<%= totalOperationsCount %>, $<%= totalOperationsCost %>, <%= operationsTotalPH %> PH)</span>
+                            </div>
+                            <div>
+                                <% projects.forEach(function(project) { %>
+                                  <% if (project.phase_name.trim() === 'Done') { %>
+                                    <span>
+                                        <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
+                                            <%= project.project_name %>
+                                        </button>
+                                    </span>&nbsp;&nbsp;&nbsp;
+                                <% } %>
+                                <% }); %>
+                                   
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            
-           
-          </div>
-       
-        
-      
+            </div>
+
+            <!-- Radar and Flight Plan Buttons -->
+            <div class="col-md-2">
+                <div class="mini-stat bg-white text-center clearfix">
+                    <div>
+                        <button type="button" class="btn btn-light" style="width: 75%; margin-bottom: 5px; border-width: 2px; border-color: black;" onClick="loadRadar();">
+                            Funnel (<%= totalPitchCount %>, $<%= pitchTotalCost %>, <%= totalPitchPH %> PH)
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-light" style="width: 75%; margin-bottom: 5px; border-width: 2px; border-color: black;" onClick="loadRadar();">
+                            Radar
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-light" style="width: 75%; margin-bottom: 5px; border-width: 2px; border-color: black;" onClick="loadFlightPlan();">
+                            Flight Plan
+                        </button>
+                    </div>
+                    <div class="row text-center" style="padding-top: 20px;">
+                        <div class="col-md-12">
+                            <strong>$$</strong>
+                            <ul class="list-unstyled">
+                                <li>Full: <%= totalCost %></li>
+                                <li>Used: <%= usedCost %></li>
+                                <li>Avail: <%= availableCost %></li>
+                            </ul>
+                            <strong>Effort</strong>
+                            <ul class="list-unstyled">
+                                <li>Full: <%= totalPH %> PH</li>
+                                <li>Used: <%= totalUsedPH %> PH</li>
+                                <li>Avail: <%= totalAvailPH %> PH</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <canvas id="moneyChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 
-
-
 <%- contentFor('FooterJs') %>
 <script src="public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
-<!--C3 Chart-->
 <script src="public/assets/plugins/d3/d3.min.js"></script>
 <script src="public/assets/plugins/c3/c3.min.js"></script>
-<!-- KNOB JS -->
 <script src="public/assets/plugins/jquery-knob/excanvas.js"></script>
 <script src="public/assets/plugins/jquery-knob/jquery.knob.js"></script>
-<!-- Page specific js -->
 <script src="public/assets/pages/dashboard.js"></script>
 
- <%- contentFor('BottomJs') %>
- 
+<%- contentFor('BottomJs') %>
+
+<script>
+  function loadProject(project_id) {
+    window.location.replace('/projects/cockpit/' + project_id);
+  }
+  function loadRadar() {
+    window.location.replace('/projects/radar/view/');
+  }
+  function loadFlightPlan() {
+    window.location.replace('/projects/flight/view/');
+  }
+</script>
