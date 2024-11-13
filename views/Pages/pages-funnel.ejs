@@ -1,0 +1,62 @@
+<%- contentFor('HeaderCss') %> 
+
+<%- contentFor('breadcrumb') %>
+<ul class="list-inline menu-left mb-0">
+    <li class="list-inline-item">
+        <button type="button" class="button-menu-mobile open-left waves-effect">
+            <i class="ion-navicon"></i>
+        </button>
+    </li>
+    
+    <li class="hide-phone list-inline-item app-search">
+        <h3 class="page-title">Funnel</h3>
+        <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Funnel Project</button>
+        
+    </li>
+</ul>
+
+<%- contentFor('body') %>
+
+<div class="page-content-wrapper">
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Main content -->
+      <div class="col-md-12"></div>
+
+      <!-- Radar and Flight Plan Buttons -->
+      <div class="col-md-12">
+        <div class="mini-stat bg-white clearfix">
+          <div>
+           <!-- Priority Section -->
+           <div class="col-md-12">
+              <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
+                  <div class="mini-stat-info">
+                      <span class="counter">Funnel (<%= pitchCount %>, $<%= pitchTotalCost %>, <%= pitchTotalPH %> PH)</span>
+                  </div>
+                  <div>
+                      <% projects.forEach(function(project) { %>
+                          <% if (project.phase_name.trim() === 'Pitch') { %>
+                              <span>
+                                  <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
+                                      <%= project.project_name %>
+                                  </button>
+                              </span>&nbsp;&nbsp;&nbsp;
+                          <% } %>
+                      <% }); %>
+                  </div>
+              </div>
+          </div>
+         </div> 
+        </div>
+          
+
+<%- contentFor('FooterJs') %>
+<script src="public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
+<script src="public/assets/plugins/d3/d3.min.js"></script>
+<script src="public/assets/plugins/c3/c3.min.js"></script>
+<script src="public/assets/plugins/jquery-knob/excanvas.js"></script>
+<script src="public/assets/plugins/jquery-knob/jquery.knob.js"></script>
+<script src="public/assets/pages/dashboard.js"></script>
+
+<%- contentFor('BottomJs') %>
+

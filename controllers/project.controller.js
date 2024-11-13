@@ -397,6 +397,7 @@ exports.radar = async (req, res) => {
     SUM(CASE WHEN phase_id_fk = 3 THEN 1 ELSE 0 END) AS phase_3_count,
     SUM(CASE WHEN phase_id_fk = 4 THEN 1 ELSE 0 END) AS phase_4_count,
     SUM(CASE WHEN phase_id_fk = 5 THEN 1 ELSE 0 END) AS phase_5_count,
+    SUM(CASE WHEN phase_id_fk = 1 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_1_total_cost,
     SUM(CASE WHEN phase_id_fk = 2 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_2_total_cost,
     SUM(CASE WHEN phase_id_fk = 3 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_3_total_cost,
     SUM(CASE WHEN phase_id_fk = 4 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_4_total_cost,
@@ -546,7 +547,104 @@ ORDER BY
     return res.status(500).send({ message: "Server error" });
   }
 };
+exports.findFunnel = async (req, res) => {
+  let company_id_fk;
+  let person_id_fk;
+  console.log("FUNNEL!!!");
+  try {
+    if (!req.session) {
+      res.redirect("/pages-500");
+    } else {
+      company_id_fk = req.session.company.id;
+      person_id_fk = req.session.person.id;
+    }
+  } catch (error) {
+    console.log("error:", error);
+  }
+  try {
+    //get all pitch projects with company and prime or sponsor
+    const query = `
+      SELECT 
+    proj.company_id_fk,
+    proj.id,
+    proj.project_name,
+    proj.start_date,
+    proj.end_date,
+    proj.prime_id_fk,
+    proj.effort,
+    prime_person.first_name AS prime_first_name,
+    prime_person.last_name AS prime_last_name,
+    sponsor_person.first_name AS sponsor_first_name,
+    sponsor_person.last_name AS sponsor_last_name,
+    proj.project_cost,
+    phases.phase_name
+FROM
+    projects proj
+LEFT JOIN
+    persons prime_person ON prime_person.id = proj.prime_id_fk
+LEFT JOIN
+    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+LEFT JOIN
+    phases ON phases.id = proj.phase_id_fk
+WHERE
+    proj.company_id_fk = ?
+    AND (proj.prime_id_fk = ? OR proj.sponsor_id_fk = ?)
 
+  `;
+
+    await db.sequelize
+      .query(query, {
+        replacements: [company_id_fk, person_id_fk, person_id_fk],
+        type: db.sequelize.QueryTypes.SELECT,
+      })
+      .then((data) => {
+        // Render the page when all data retrieval operations are complete
+        console.log("***************************************************");
+        const phases = Phase.findAll();
+        console.log(
+          "***************************************************:",
+          data,
+        );
+        const pitchCount = data.length;
+        //function get total project_cost from data
+        let pitchTotalCost = 0;
+        for (let i = 0; i < data.length; i++) {
+          pitchTotalCost += parseFloat(data[i].project_cost);
+        }
+
+        let pitchTotalPH = 0;
+
+        for (let i = 0; i < data.length; i++) {
+          // Convert effort to a number
+          const effort = parseFloat(data[i].effort);
+
+          // Check if effort is not null, not NaN, and not 0
+          if (!isNaN(effort) && effort !== 0) {
+            pitchTotalPH += effort;
+          }
+        }
+        Phase.findAll();
+        console.log("Total Pitch PH:", pitchTotalPH);
+
+        res.render("Pages/pages-funnel", {
+          projects: data,
+          pitchCount,
+          pitchTotalCost,
+          pitchTotalPH,
+          phases: phases,
+        });
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message: err.message || "Some error occurred while retrieving data.",
+        });
+      });
+    // res.send("findFunnel function executed");
+  } catch (error) {
+    console.error("Error in findFunnel:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
 exports.health = async (req, res) => {
   //
   res.render("Pages/pages-health");
