@@ -25,6 +25,7 @@ const authenticateUser = async (email, password) => {
 
 // Register and create a new user
 exports.create = async (req, res) => {
+  console.log("************************************* ....Creating person...");
   try {
     const {
       email,
@@ -54,10 +55,14 @@ exports.create = async (req, res) => {
         .json({ message: "User with this email already exists." });
 
     // Determine admin status
-    const firstName = existingPerson.first_name;
-    console.log("firstName:", firstName);
-    const isAdminStatus = existingPerson.isAdmin;
-    console.log("isAdminStatus:", isAdminStatus);
+    console.log(
+      "**************************************** existingPerson *******************",
+      existingPerson,
+    );
+    // const firstName = existingPerson.first_name;
+    // console.log("firstName:", firstName);
+    // const isAdminStatus = existingPerson.isAdmin;
+    // console.log("isAdminStatus:", isAdminStatus);
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -79,6 +84,11 @@ exports.create = async (req, res) => {
     console.log(
       "************************************* Redirecting to Persons...",
     );
+    if (!newPerson.isAdmin) {
+      res.redirect("/persons");
+    } else {
+      res.redirect("/");
+    }
 
     res.redirect(register_yn === "y" ? "/" : "/persons");
   } catch (error) {
@@ -110,6 +120,7 @@ exports.login = async (req, res) => {
     const person = await authenticateUser(email, password);
     if (!person)
       return res.status(401).json({ message: "Invalid username or password." });
+
     // Determine admin status
     // const isAdminStatus = isAdmin === "true" || register_yn === "y";
     // console.log("isAdminStatus:", isAdminStatus);
