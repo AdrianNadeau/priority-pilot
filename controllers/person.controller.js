@@ -75,7 +75,7 @@ exports.create = async (req, res) => {
     req.session.company = company;
     // req.session.person =  req.session.person;
 
-    if (!newPerson.isAdmin) {
+    if (!newPerson.isAdmin && register_yn === "y") {
       res.redirect("/");
     } else {
       res.redirect("/persons");
