@@ -1,89 +1,163 @@
+<% include ../Partials/HeaderRoot %>
 
-<% include ../Partials/HeaderRoot  %>
+<!-- Loader -->
+<div id="preloader">
+  <div id="status"><div class="spinner"></div></div>
+</div>
 
-        <!-- Loader -->
-        <div id="preloader"><div id="status"><div class="spinner"></div></div></div>
+<!-- Begin page -->
+<div class="accountbg"></div>
+<div class="wrapper-page">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="text-center m-0">
+        <!-- Priority Pilot -->
+        <a href="/" class="logo logo-admin"
+          ><img
+            style="width: 400px"
+            src="public/assets/images/logo.png"
+            alt="logo"
+        /></a>
+      </h3>
 
-        <!-- Begin page -->
-        <div class="accountbg"></div>
-        <div class="wrapper-page">
+      <div class="p-3">
+        <p class="text-muted text-center">Get your Pilot account.</p>
 
-            <div class="card">
-                <div class="card-body">
-               
-                    <h3 class="text-center m-0">
-                        <!-- Priority Pilot -->
-                        <a href="/" class="logo logo-admin"><img style="width:400px;" src="public/assets/images/logo.png" alt="logo"></a>
-                    </h3>
+        <form
+          class="form-horizontal m-t-30 needs-validation"
+          novalidate
+          action="/register"
+          method="POST"
+        >
+          <input type="hidden" id="register_yn" name="register_yn" value="y" />
 
-                    <div class="p-3">
-                        <p class="text-muted text-center">Get your Pilot account.</p>
-                        
+          <div class="form-group needs-validation" novalidate>
+            <label for="company_name">Company Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="company_name"
+              name="company_name"
+              placeholder="Enter Name..."
+              required
+            />
+            <div class="invalid-feedback">Please enter company name.</div>
+          </div>
 
-                        <form class="form-horizontal m-t-30 needs-validation" novalidate action="/register" method="POST">
-                            <input type="hidden" id="register_yn" name="register_yn" value="y"/>
-                            
-                            <div class="form-group needs-validation" novalidate>
-                                <label for="company_name">Company Name</label>
-                                <input type="text" class="form-control" id="company_name"  name="company_name" placeholder="Enter Name..." required>
-                                <div class="invalid-feedback">
-                                    Please enter company name.
-                                  </div>
-                            </div>
+          <div class="form-group">
+            <label for="company_headline">Company Headline</label>
+            <input
+              type="text"
+              class="form-control"
+              id="company_headline"
+              name="company_headline"
+              placeholder="Enter Headline..."
+            />
+          </div>
+          <div class="form-group">
+            <label for="portfoilio_budget">Portfolio Budget</label>
+            <input
+              type="text"
+              class="form-control"
+              id="portfoilio_budget"
+              name="portfoilio_budget"
+              placeholder="Company Portfoilio Budget..."
+            />
+          </div>
 
-                            <div class="form-group">
-                                <label for="company_headline">Company Headline</label>
-                                <input type="text" class="form-control" id="company_headline" name="company_headline" placeholder="Enter Headline...">
-                            </div>
-
-
-                            <div class="form-group row m-t-20">
-                                <div class="col-12 text-center">
-                                    <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Continue</button>
-                                </div>
-                            </div>
-
-                            
-                            <div class="col-12 m-t-20">
-                                <p class="font-14 text-muted mb-0">By registering you agree to the Priority Pilot <a href="#">Terms of Use</a></p>
-                            </div>
-                            <div class="m-t-40 text-center">
-                                <p>Already have an account ? <a href="/login" class="font-500 font-14 font-secondary"> Login </a> </p>
-                                <p>© <%= new Date().getFullYear() - 1; %> - <%= new Date().getFullYear(); %> Priority Pilot.
-                            </div>
-                        </form>
-                    </div>
-
-                </div>
+          <div class="form-group row m-t-20">
+            <div class="col-12 text-center">
+              <button
+                class="btn btn-primary w-md waves-effect waves-light"
+                type="submit"
+              >
+                Continue
+              </button>
             </div>
+          </div>
 
-            <!-- <div class="m-t-40 text-center">
+          <div class="col-12 m-t-20">
+            <p class="font-14 text-muted mb-0">
+              By registering you agree to the Priority Pilot
+              <a href="#">Terms of Use</a>
+            </p>
+          </div>
+          <div class="m-t-40 text-center">
+            <p>
+              Already have an account ?
+              <a href="/login" class="font-500 font-14 font-secondary">
+                Login
+              </a>
+            </p>
+            <p>
+              © <%= new Date().getFullYear() - 1; %> - <%= new
+              Date().getFullYear(); %> Priority Pilot.
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="m-t-40 text-center">
                 <p class="font-14 text-muted mb-0">©  <%= new Date().getFullYear(); %> Priority Pilot.</p>
                 
             </div> -->
+</div>
 
-        </div>
-
-
-        <% include ../Partials/FooterRoot  %>
+<% include ../Partials/FooterRoot %>
 <script>
-(function () {
-  'use strict'
+  (function () {
+    "use strict";
 
-  // Fetch all the forms we want to apply custom Bootstrap validation styles to
-  var forms = document.querySelectorAll('.needs-validation')
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll(".needs-validation");
 
-  // Loop over them and prevent submission
-  Array.prototype.slice.call(forms)
-    .forEach(function (form) {
-      form.addEventListener('submit', function (event) {
-        if (!form.checkValidity()) {
-          event.preventDefault()
-          event.stopPropagation()
-        }
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach(function (form) {
+      form.addEventListener(
+        "submit",
+        function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
 
-        form.classList.add('was-validated')
-      }, false)
-    })
-})()
+          form.classList.add("was-validated");
+        },
+        false,
+      );
+    });
+  })();
+  // Numeric input validation for specific fields
+  const budget = ["portfoilio_budget"];
+
+  document.getElementById(budget).addEventListener("keydown", function (event) {
+    if (
+      ![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
+      !(
+        (event.keyCode >= 48 && event.keyCode <= 57) ||
+        (event.keyCode >= 96 && event.keyCode <= 105)
+      ) &&
+      !(event.ctrlKey || event.metaKey)
+    ) {
+      alert("Only numbers are allowed.");
+      event.preventDefault();
+    }
+  });
+  // Input formatting with commas for project cost and benefit
+
+  document
+    .getElementById("portfoilio_budget")
+    .addEventListener("input", function () {
+      let input = this.value.replace(/[^0-9.]/g, "");
+      if (input.includes(".")) {
+        const parts = input.split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        input = parts.join(".");
+      } else {
+        input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+      this.value = input;
+    });
 </script>

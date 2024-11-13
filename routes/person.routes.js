@@ -15,6 +15,7 @@ module.exports = (app) => {
 
   // Retrieve a single Person with id
   router.get("/edit/:id", persons.findOneForEdit);
+  router.get("/statusprojects/:id", persons.findOneForEdit);
 
   // Retrieve a single Person with id
   router.post("/auth/login/", persons.login);

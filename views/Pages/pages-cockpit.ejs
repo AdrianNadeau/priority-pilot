@@ -44,63 +44,98 @@
       <!-- Left Section: Project Information (8 columns) -->
       <div class="col-8">
         <div class="mini-stat clearfix bg-white">
-          <div><strong>Name:</strong> <%= project[0].project_name %></div>
-          <div><strong>Headline:</strong> <%= project[0].project_headline %></div>
-          <div><strong>Sponsor:</strong> 
-            <% if (project[0].sponsor_last_name && project[0].sponsor_first_name) { %>
-              <%= project[0].sponsor_last_name %>, <%= project[0].sponsor_first_name %>
-            <% } %>
+          <div class="row">
+            <div class="col-md-3">
+              <div><strong>Name:</strong> <%= project[0].project_name %></div>
+            </div>
+            <div class="col-md-3">
+              <div><strong>Headline:</strong> <%= project[0].project_headline %></div>
+            </div>
           </div>
-          <div><strong>Prime:</strong> 
-            <% if (project[0].prime_last_name && project[0].prime_first_name) { %>
-              <%= project[0].prime_last_name %>, <%= project[0].prime_first_name %>
-            <% } %>
-            <div>
-              <strong>Next Milestone Date:</strong> 
-              <% if (project[0].next_milestone_date) { %>
-                <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-              <% } %>
+          <div class="row">
+            <div class="col-md-3">
+              <div><strong>Sponsor:</strong> 
+                <% if (project[0].sponsor_last_name && project[0].sponsor_first_name) { %>
+                  <%= project[0].sponsor_last_name %>, <%= project[0].sponsor_first_name %>
+                <% } %>
+              </div>
             </div>
-  
-            <div>
-              <strong>Investment:</strong> $<%= formattedCost %>
+            <div class="col-md-3">
+              <div><strong>Prime:</strong> 
+                <% if (project[0].prime_last_name && project[0].prime_first_name) { %>
+                  <%= project[0].prime_last_name %>, <%= project[0].prime_first_name %>
+                <% } %>
+              </div>
             </div>
-  
-            <div>
-              <strong>Effort:</strong> <%= project[0].effort %> PH
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <div>
+                <strong>Start Date:</strong> 
+                <% if (project[0].start_date) { %>
+                  <%= project[0].start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                <% } %>
+              </div>
             </div>
-  
-            <div style="padding-top:20px;">
+            <div class="col-md-3">
+              <div>
+                <strong>End Date:</strong> 
+                <% if (project[0].end_date) { %>
+                  <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                <% } %>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <div>
+                <strong>Next Milestone Date:</strong> 
+                <% if (project[0].next_milestone_date) { %>
+                  <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                <% } %>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div>
+                <strong>Investment:</strong> $<%= formattedCost %>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <div>
+                <strong>Effort:</strong> <%= project[0].effort %> PH
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12" style="padding-top:20px;">
               <strong>Why:</strong>
               <textarea class="form-control" id="project_why" rows="5" disabled><%= project[0].project_why %></textarea>
             </div>
-  
-            <div style="padding-top:20px;">
+          </div>
+          <div class="row">
+            <div class="col-md-12" style="padding-top:20px;">
               <strong>What:</strong>
               <textarea class="form-control" id="project_what" rows="5" disabled><%= project[0].project_what %></textarea>
             </div>
-            <div></div>
-            <a href="/projects/edit/<%= project[0].id%>" style="margin-top:20px;">View Project</a>
-            <br/>
-            <strong> Tags :</strong> <%= project[0].tags %>
-            <br/>
-            <strong>Change Log:</strong>
-            
-           
-          
-            
-          
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <a href="/projects/edit/<%= project[0].id%>" style="margin-top:20px;">View Project</a>
+              <br/>
+              <strong> Tags :</strong> <%= project[0].tags %>
+              <br/>
+              <strong>Change Log:</strong>
+            </div>
           </div>
         </div>
       </div>
-      
 
       <!-- Right Section: Status and Button (4 columns) -->
       <div class="col-4">
         <div class="mini-stat clearfix bg-white">
-          
-        
-          <div >
+          <div>
             <strong>Status Updates:</strong><br/>
             <% if (statuses) { %>
               <% statuses.forEach(function(status) { %>
@@ -112,22 +147,21 @@
                 <% } else if (healthStatus === 'red') { %>
                   <span class="red-circle"></span>
                 <% } %>
-                
-                <% if (status.actions) { %>
-                  <%= status.actions %>
+                [<%= status.progress %>%]
+                <% if (status.createdAt) { %>
+                  <a href="#" onClick="getStatus(<%=status.id%>)" data-target="#viewStatusModal" id="viewStatusLink"><%= status.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></a>
+                  
                 <% } %>
                 <div style="width:100% !important;">-------------------------------------</div>
               <% }); %>
             <% } %>
-          
           </div>
-          
-            <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
-          </div>
+          <button type="button" class="btn btn-primary waves-effect waves-light" syle="padding-top:5px;"data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
         </div>
       </div>
     </div>
   </div>
+</div>
 </div>
 <div class="row"></div>
   <div class="col-md-6 m-t-30">
@@ -199,6 +233,50 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
   </div>
+  <div class="row"></div>
+  <div class="col-md-6 m-t-30">
+      <!-- project modal content -->
+      <div id="viewStatusModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="viewStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="viewStatusModalLabel"><strong>View Status</strong></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+              <!-- Modal content goes here -->
+              <strong>Date: </strong><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
+              <strong>Prime:</strong><% if(project[0].prime_last_name) %>
+              <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
+              <div class="form-group">
+                <label for="status_accomplishments"><strong>Accomplishments</strong></label>
+                <textarea id="status_accomplishments" class="form-control" rows="3" disabled></textarea>
+              </div>
+              <div class="form-group">
+                <label for="status_issue"><strong>Issue</strong></label>
+                <textarea id="status_issue" class="form-control" rows="3" disabled></textarea>
+              </div>
+              <div class="form-group">
+                <label for="status_action"><strong>Action</strong></label>
+                <textarea id="status_action" class="form-control" rows="3" disabled></textarea>
+              </div>
+              <div class="form-group">
+                <label for="status_progress"><strong>Progress</strong></label>
+                <input type="text" id="status_progress" class="form-control" disabled>
+              </div>
+              <div class="form-group">
+                <label for="status_health"><strong>Health</strong></label>
+                <input type="text" id="status_health" class="form-control" disabled>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /.modal -->
+  </div>
  
   
 </div>
@@ -211,3 +289,23 @@
 <script src="/public/assets/pages/dashboard.js"></script>
 
 <%- contentFor('BottomJs') %>
+<script>
+  function getStatus(id) {
+    console.log("ID: ", id);
+    fetch(`/statuses/${id}`)
+    .then(response => response.json())
+    .then(data => {
+      //open a popup
+      console.log("STATUSSSSSSSSSSSSSSSSSSSSSSSS:",data);
+      document.getElementById('status_accomplishments').value = data.accomplishments;
+      document.getElementById('status_issue').value = data.issue;
+      document.getElementById('status_action').value = data.actions;
+      document.getElementById('status_progress').value = data.progress;
+      document.getElementById('status_health').value = data.health;
+
+       // Open the modal
+       $('#viewStatusModal').modal('show');
+    })
+    .catch(err => console.error(err));
+  }
+</script>

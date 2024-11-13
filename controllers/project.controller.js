@@ -113,7 +113,6 @@ exports.findAll = async (req, res) => {
       if (!req.session) {
         res.redirect("/pages-500");
       } else {
-        console.log("we have a session");
         company_id_fk = req.session.company.id;
       }
     } catch (error) {
@@ -146,6 +145,91 @@ exports.findAll = async (req, res) => {
       .then((data) => {
         // console.log("***************************************************:",data)
         // Render the page when all data retrieval operations are complete
+        //dah
+        res.render("Pages/pages-projects", {
+          projects: data,
+          phases: phasesData,
+          priorities: prioritiesData,
+          sponsors: personsData,
+          primes: personsData,
+        });
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message: err.message || "Some error occurred while retrieving data.",
+        });
+      });
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+exports.findFunnel = async (req, res) => {
+  console.log("findFunnel***********");
+  try {
+    let company_id_fk;
+    const person_id = req.params.id;
+    try {
+      if (!req.session) {
+        res.redirect("/pages-500");
+      } else {
+        company_id_fk = req.session.company.id;
+      }
+    } catch (error) {
+      console.log("error:", error);
+    }
+    // Retrieve data from all sources
+    const [phasesData, prioritiesData, projectsData] = await Promise.all([
+      Phase.findAll(),
+      Priority.findAll(),
+      // Results will be an empty array and metadata will contain the number of affected rows.
+
+      Project.findAll(), // Assuming Project.findAll() returns a Promise
+    ]);
+    const personsData = await Person.findAll({
+      where: {
+        company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
+      },
+    });
+
+    const query = `
+  SELECT 
+    proj.company_id_fk, 
+    proj.id, 
+    proj.project_name, 
+    proj.start_date, 
+    proj.end_date,
+    proj.health, 
+    proj.effort AS effort, 
+    prime_person.first_name AS prime_first_name,
+    prime_person.last_name AS prime_last_name, 
+    sponsor_person.first_name AS sponsor_first_name,
+    sponsor_person.last_name AS sponsor_last_name, 
+    proj.project_cost, 
+    phases.phase_name 
+  FROM 
+    projects proj
+  LEFT JOIN 
+    persons prime_person ON prime_person.id = proj.prime_id_fk
+  LEFT JOIN 
+    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+  LEFT JOIN 
+    phases ON phases.id = proj.phase_id_fk
+  WHERE 
+    proj.company_id_fk = ? 
+    AND (proj.prime_id_fk IS NOT NULL OR proj.sponsor_id_fk IS NOT NULL)
+  ORDER BY 
+    proj.phase_id_fk;
+`;
+
+    await db.sequelize
+      .query(query, {
+        replacements: [company_id_fk],
+        type: db.sequelize.QueryTypes.SELECT,
+      })
+      .then((data) => {
+        // console.log("***************************************************:",data)
+        // Render the page when all data retrieval operations are complete
+        //dah
         res.render("Pages/pages-projects", {
           projects: data,
           phases: phasesData,
@@ -195,10 +279,6 @@ exports.cockpit = async (req, res) => {
       return res.redirect("/pages-500");
     } else {
       company_id_fk = req.session.company.id;
-      console.log(
-        "********************************* COCKPIT COMPANY ID **************************************",
-        company_id_fk,
-      );
     }
   } catch (error) {
     console.log("error:", error);
@@ -266,7 +346,6 @@ exports.cockpit = async (req, res) => {
         statusColor = "green";
       }
     }
-    console.log("project", data);
     res.render("Pages/pages-cockpit", {
       project: data,
       current_date: currentDate,
@@ -284,6 +363,199 @@ exports.cockpit = async (req, res) => {
   }
 };
 exports.findOneForEdit = async (req, res) => {
+  try {
+    const project_id = req.params.id;
+
+    let company_id_fk;
+
+    // Ensure session exists and fetch company ID
+    if (!req.session || !req.session.company) {
+      res.redirect("/pages-500");
+    }
+
+    company_id_fk = req.session.company.id;
+
+    // Query to fetch project details
+    const query = `
+     SELECT 
+    proj.company_id_fk,
+    proj.id,
+    proj.project_name,
+    proj.start_date,
+    proj.end_date,
+    proj.prime_id_fk,
+    prime_person.first_name AS prime_first_name,
+    prime_person.last_name AS prime_last_name,
+    sponsor_person.first_name AS sponsor_first_name,
+    sponsor_person.last_name AS sponsor_last_name,
+    proj.project_cost,
+    phases.phase_name
+FROM 
+    projects proj
+LEFT JOIN 
+    persons prime_person ON prime_person.id = proj.prime_id_fk
+LEFT JOIN 
+    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+LEFT JOIN 
+    phases ON phases.id = proj.phase_id_fk
+WHERE 
+    proj.company_id_fk = 715
+    AND (
+        proj.prime_id_fk = 415  -- Replace 123 with the actual person ID
+       
+    );
+`;
+
+    try {
+      // Execute the query
+      const data = await db.sequelize.query(query, {
+        replacements: [company_id_fk, project_id],
+        type: db.sequelize.QueryTypes.SELECT,
+      });
+
+      if (!data || data.length === 0) {
+        return res.status(404).send({ message: "Project not found" });
+      }
+
+      // Get reasons for change for the project
+      const change_reasons = await ChangeReason.findAll({
+        company_id_fk: company_id_fk,
+      });
+      // let lastStartDate = null;
+      // let lastEndDate = null;
+      // let milestoneDate = null;
+      // let lastStatusDate = null;
+      // let statusColor = null;
+
+      // Get statuses for the project
+      const statuses = await Status.findAll({
+        where: { project_id_fk: project_id },
+        order: [["status_date", "DESC"]],
+      });
+      if (statuses.length > 0) {
+        lastStatusDate = statuses[0].status_date;
+        statusColor = statuses[0].health;
+      }
+
+      const [phasesData, prioritiesData] = await Promise.all([
+        Phase.findAll(),
+        Priority.findAll(),
+        Project.findAll(),
+      ]);
+
+      // Render the cockpit page with the retrieved data
+      const personsData = await Person.findAll({
+        where: {
+          company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
+        },
+      });
+      res.render("Pages/pages-edit-project", {
+        project: data[0], // Pass the first element of the data array
+        current_date: currentDate,
+        formattedCost: data[0].project_cost,
+        phases: phasesData,
+        priorities: prioritiesData,
+        sponsors: personsData,
+        primes: personsData,
+        change_reasons,
+      });
+    } catch (err) {
+      console.error("Error retrieving data:", err);
+      res.status(500).send({
+        message: err.message || "Error occurred while retrieving data.",
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({
+      message: "An unexpected error occurred.",
+    });
+  }
+};
+// exports.findAllPrimeProjects = async (req, res) => {
+//   try {
+//     let company_id_fk;
+
+//     const person_id = req.params.id;
+
+//     try {
+//       if (!req.session) {
+//         res.redirect("/pages-500");
+//       } else {
+//         company_id_fk = req.session.company.id;
+//       }
+//     } catch (error) {
+//       console.log("error:", error);
+//     }
+
+//     const [phasesData, prioritiesData] = await Promise.all([
+//       Phase.findAll(),
+//       Priority.findAll(),
+//       // Results will be an empty array and metadata will contain the number of affected rows.
+
+//       Project.findAll(), // Assuming Project.findAll() returns a Promise
+//     ]);
+//     const personsData = await Person.findAll({
+//       where: {
+//         company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
+//       },
+//     });
+
+//     const query = `
+//     SELECT
+//         proj.company_id_fk,
+//         proj.id,
+//         proj.project_name,
+//         proj.start_date,
+//         proj.end_date,
+//         proj.prime_id_fk,
+//         prime_person.first_name AS prime_first_name,
+//         prime_person.last_name AS prime_last_name,
+//         sponsor_person.first_name AS sponsor_first_name,
+//         sponsor_person.last_name AS sponsor_last_name,
+//         proj.project_cost,
+//         phases.phase_name
+//     FROM
+//         projects proj
+//     LEFT JOIN
+//         persons prime_person ON prime_person.id = proj.prime_id_fk
+//     LEFT JOIN
+//         persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+//     LEFT JOIN
+//         phases ON phases.id = proj.phase_id_fk
+//     WHERE
+//         proj.company_id_fk = ?
+//         AND proj.person_id_fk = ?
+//         AND prime_person.id = proj.prime_id_fk OR sponsor_person.id = proj.sponsor_id_fk
+// `;
+
+//     await db.sequelize
+//       .query(query, {
+//         replacements: [company_id_fk, person_id],
+//         type: db.sequelize.QueryTypes.SELECT,
+//       })
+//       .then((data) => {
+//         // console.log("***************************************************:",data)
+//         // Render the page when all data retrieval operations are complete
+//         //dah
+//         res.render("Pages/pages-projects", {
+//           projects: data,
+//           phases: phasesData,
+//           priorities: prioritiesData,
+//           sponsors: personsData,
+//           primes: personsData,
+//         });
+//       })
+//       .catch((err) => {
+//         res.status(500).send({
+//           message: err.message || "Some error occurred while retrieving data.",
+//         });
+//       });
+//   } catch (error) {
+//     console.log("error:", error);
+//   }
+// };
+exports.findOneForPrime = async (req, res) => {
   try {
     const project_id = req.params.id;
 
@@ -377,7 +649,187 @@ exports.findOneForEdit = async (req, res) => {
     });
   }
 };
+exports.findFunnel = async (req, res) => {
+  let company_id_fk;
+  let person_id_fk;
 
+  try {
+    if (!req.session) {
+      res.redirect("/pages-500");
+    } else {
+      company_id_fk = req.session.company.id;
+      person_id_fk = req.session.person.id;
+    }
+  } catch (error) {
+    console.log("error:", error);
+  }
+  try {
+    //get all pitch projects with company and prime or sponsor
+    const query = `
+      SELECT 
+    proj.company_id_fk,
+    proj.id,
+    proj.project_name,
+    proj.start_date,
+    proj.end_date,
+    proj.prime_id_fk,
+    proj.effort,
+    prime_person.first_name AS prime_first_name,
+    prime_person.last_name AS prime_last_name,
+    sponsor_person.first_name AS sponsor_first_name,
+    sponsor_person.last_name AS sponsor_last_name,
+    proj.project_cost,
+    phases.phase_name
+FROM
+    projects proj
+LEFT JOIN
+    persons prime_person ON prime_person.id = proj.prime_id_fk
+LEFT JOIN
+    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+LEFT JOIN
+    phases ON phases.id = proj.phase_id_fk
+WHERE
+    proj.company_id_fk = ?
+    AND (proj.prime_id_fk = ? OR proj.sponsor_id_fk = ?)
+
+  `;
+
+    await db.sequelize
+      .query(query, {
+        replacements: [company_id_fk, person_id_fk, person_id_fk],
+        type: db.sequelize.QueryTypes.SELECT,
+      })
+      .then((data) => {
+        // Render the page when all data retrieval operations are complete
+        console.log("***************************************************");
+        const phases = Phase.findAll();
+        console.log(
+          "***************************************************:",
+          data,
+        );
+        const pitchCount = data.length;
+        //function get total project_cost from data
+        let pitchTotalCost = 0;
+        for (let i = 0; i < data.length; i++) {
+          pitchTotalCost += parseFloat(data[i].project_cost);
+        }
+
+        let pitchTotalPH = 0;
+
+        for (let i = 0; i < data.length; i++) {
+          // Convert effort to a number
+          const effort = parseFloat(data[i].effort);
+
+          // Check if effort is not null, not NaN, and not 0
+          if (!isNaN(effort) && effort !== 0) {
+            pitchTotalPH += effort;
+          }
+        }
+        Phase.findAll();
+        console.log("Total Pitch PH:", pitchTotalPH);
+
+        res.render("Pages/pages-funnel", {
+          projects: data,
+          pitchCount,
+          pitchTotalCost,
+          pitchTotalPH,
+          phases: phases,
+        });
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message: err.message || "Some error occurred while retrieving data.",
+        });
+      });
+    // res.send("findFunnel function executed");
+  } catch (error) {
+    console.error("Error in findFunnel:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+// exports.findFunnel = async (req, res) => {
+//   try {
+//     let company_id_fk;
+//     const person_id = req.params.id;
+
+//     try {
+//       if (!req.session) {
+//         res.redirect("/pages-500");
+//       } else {
+//         console.log("we have a session");
+//         company_id_fk = req.session.company.id;
+//       }
+//     } catch (error) {
+//       console.log("error:", error);
+//     }
+
+//     const [phasesData, prioritiesData, projectsData] = await Promise.all([
+//       Phase.findAll(),
+//       Priority.findAll(),
+//       // Results will be an empty array and metadata will contain the number of affected rows.
+
+//       Project.findAll(), // Assuming Project.findAll() returns a Promise
+//     ]);
+//     const personsData = await Person.findAll({
+//       where: {
+//         company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
+//       },
+//     });
+
+//     const query = `
+//     SELECT
+//         proj.company_id_fk,
+//         proj.id,
+//         proj.project_name,
+//         proj.start_date,
+//         proj.end_date,
+//         proj.prime_id_fk,
+//         prime_person.first_name AS prime_first_name,
+//         prime_person.last_name AS prime_last_name,
+//         sponsor_person.first_name AS sponsor_first_name,
+//         sponsor_person.last_name AS sponsor_last_name,
+//         proj.project_cost,
+//         phases.phase_name
+//     FROM
+//         projects proj
+//     LEFT JOIN
+//         persons prime_person ON prime_person.id = proj.prime_id_fk
+//     LEFT JOIN
+//         persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+//     LEFT JOIN
+//         phases ON phases.id = proj.phase_id_fk
+//     WHERE
+//         proj.company_id_fk = ?
+//         AND proj.person_id_fk = ?
+//         AND prime_person.id = proj.prime_id_fk OR sponsor_person.id = proj.sponsor_id_fk
+// `;
+
+//     await db.sequelize
+//       .query(query, {
+//         replacements: [company_id_fk, person_id],
+//         type: db.sequelize.QueryTypes.SELECT,
+//       })
+//       .then((data) => {
+//         // console.log("***************************************************:",data)
+//         // Render the page when all data retrieval operations are complete
+//         //dah
+//         res.render("Pages/pages-projects", {
+//           projects: data,
+//           phases: phasesData,
+//           priorities: prioritiesData,
+//           sponsors: personsData,
+//           primes: personsData,
+//         });
+//       })
+//       .catch((err) => {
+//         res.status(500).send({
+//           message: err.message || "Some error occurred while retrieving data.",
+//         });
+//       });
+//   } catch (error) {
+//     console.log("error:", error);
+//   }
+// };
 exports.radar = async (req, res) => {
   let company_id_fk;
 
