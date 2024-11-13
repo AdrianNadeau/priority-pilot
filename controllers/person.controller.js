@@ -54,7 +54,9 @@ exports.create = async (req, res) => {
         .json({ message: "User with this email already exists." });
 
     // Determine admin status
-    const isAdminStatus = isAdmin === "true" || register_yn === "y";
+    const firstName = existingPerson.first_name;
+    console.log("firstName:", firstName);
+    const isAdminStatus = existingPerson.isAdmin;
     console.log("isAdminStatus:", isAdminStatus);
 
     // Hash the password
@@ -74,7 +76,9 @@ exports.create = async (req, res) => {
     // Update session
     req.session.company = company;
     req.session.person = newPerson;
-    console.log("Redirecting to Dashboard...");
+    console.log(
+      "************************************* Redirecting to Persons...",
+    );
 
     res.redirect(register_yn === "y" ? "/" : "/persons");
   } catch (error) {
