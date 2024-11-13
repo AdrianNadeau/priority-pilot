@@ -25,7 +25,10 @@ const authenticateUser = async (email, password) => {
 
 // Register and create a new user
 exports.create = async (req, res) => {
-  console.log("************************************* ....Creating person...");
+  const { email, first_name, last_name, initials, password, register_yn } =
+    req.body;
+  const isAdmin = req.body.isAdmin === "on"; // Check if the checkbox is checked
+  console.log("ISSSSSSSSSSSSSSSADMINNNNNNNNNNNNNNNNNNNNNN");
   try {
     const {
       email,
@@ -54,16 +57,6 @@ exports.create = async (req, res) => {
         .status(409)
         .json({ message: "User with this email already exists." });
 
-    // Determine admin status
-    console.log(
-      "**************************************** existingPerson *******************",
-      existingPerson,
-    );
-    // const firstName = existingPerson.first_name;
-    // console.log("firstName:", firstName);
-    // const isAdminStatus = existingPerson.isAdmin;
-    // console.log("isAdminStatus:", isAdminStatus);
-
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -75,22 +68,21 @@ exports.create = async (req, res) => {
       initials,
       password: hashedPassword,
       company_id_fk,
-      isAdmin: isAdminStatus,
+      isAdmin: isAdmin,
     });
 
     // Update session
     req.session.company = company;
-    req.session.person = newPerson;
+    const person = req.session.person;
+
     console.log(
       "************************************* Redirecting to Persons...",
     );
-    if (!newPerson.isAdmin) {
+    if (!person.isAdmin) {
       res.redirect("/persons");
     } else {
       res.redirect("/");
     }
-
-    res.redirect(register_yn === "y" ? "/" : "/persons");
   } catch (error) {
     console.error("Error creating person:", error);
     res.status(500).json({ message: "Error creating person." });
