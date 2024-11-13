@@ -182,7 +182,7 @@ exports.update = async (req, res) => {
       where: { id: person_id },
     });
     if (updated) {
-      res.redirect("/");
+      res.redirect("/persons/");
     } else {
       res
         .status(404)
