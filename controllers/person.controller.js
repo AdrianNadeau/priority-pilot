@@ -73,11 +73,11 @@ exports.create = async (req, res) => {
 
     // Update session
     req.session.company = company;
-    const person = req.session.person;
+    // req.session.person =  req.session.person;
 
     console.log("************************************* person...", person);
     if (!newPerson.isAdmin) {
-      res.redirect("/persons");
+      res.redirect("/");
     } else {
       res.redirect("/persons");
     }
@@ -112,8 +112,8 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid username or password." });
 
     // Determine admin status
-    // const isAdminStatus = isAdmin === "true" || register_yn === "y";
-    // console.log("isAdminStatus:", isAdminStatus);
+    const isAdminStatus = isAdmin === "true" || register_yn === "y";
+    console.log("isAdminStatus:", isAdminStatus);
 
     const company = await Company.findByPk(person.company_id_fk);
     if (!company) return res.redirect("/login");
