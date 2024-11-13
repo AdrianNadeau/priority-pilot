@@ -146,7 +146,6 @@ exports.findAll = async (req, res) => {
         type: db.sequelize.QueryTypes.SELECT,
       })
       .then((data) => {
-        // console.log("***************************************************:",data)
         // Render the page when all data retrieval operations are complete
         res.render("Pages/pages-projects", {
           projects: data,

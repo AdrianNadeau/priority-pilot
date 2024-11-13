@@ -143,9 +143,6 @@ exports.findAll = async (req, res) => {
         type: db.sequelize.QueryTypes.SELECT,
       })
       .then((data) => {
-        // console.log("***************************************************:",data)
-        // Render the page when all data retrieval operations are complete
-        //dah
         res.render("Pages/pages-projects", {
           projects: data,
           phases: phasesData,
@@ -164,7 +161,6 @@ exports.findAll = async (req, res) => {
   }
 };
 exports.findFunnel = async (req, res) => {
-  console.log("findFunnel***********");
   try {
     let company_id_fk;
     const person_id = req.params.id;
@@ -185,6 +181,7 @@ exports.findFunnel = async (req, res) => {
 
       Project.findAll(), // Assuming Project.findAll() returns a Promise
     ]);
+    console.log("phasesData:", phasesData);
     const personsData = await Person.findAll({
       where: {
         company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
@@ -701,12 +698,7 @@ WHERE
       })
       .then((data) => {
         // Render the page when all data retrieval operations are complete
-        console.log("***************************************************");
-        const phases = Phase.findAll();
-        console.log(
-          "***************************************************:",
-          data,
-        );
+
         const pitchCount = data.length;
         //function get total project_cost from data
         let pitchTotalCost = 0;
@@ -725,8 +717,7 @@ WHERE
             pitchTotalPH += effort;
           }
         }
-        Phase.findAll();
-        console.log("Total Pitch PH:", pitchTotalPH);
+        const phases = Phase.findAll();
 
         res.render("Pages/pages-funnel", {
           projects: data,

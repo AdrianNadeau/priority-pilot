@@ -28,7 +28,7 @@ exports.create = async (req, res) => {
   const { email, first_name, last_name, initials, password, register_yn } =
     req.body;
   const isAdmin = req.body.isAdmin === "on"; // Check if the checkbox is checked
-  console.log("ISSSSSSSSSSSSSSSADMINNNNNNNNNNNNNNNNNNNNNN");
+
   try {
     const {
       email,
@@ -112,8 +112,8 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid username or password." });
 
     // Determine admin status
-    const isAdminStatus = isAdmin === "true" || register_yn === "y";
-    console.log("isAdminStatus:", isAdminStatus);
+    // const isAdminStatus = isAdmin === "true" || register_yn === "y";
+    // console.log("isAdminStatus:", isAdminStatus);
 
     const company = await Company.findByPk(person.company_id_fk);
     if (!company) return res.redirect("/login");
