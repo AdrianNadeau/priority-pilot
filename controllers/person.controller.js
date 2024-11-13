@@ -81,7 +81,7 @@ exports.create = async (req, res) => {
     if (!person.isAdmin) {
       res.redirect("/persons");
     } else {
-      res.redirect("/");
+      res.redirect("/persons");
     }
   } catch (error) {
     console.error("Error creating person:", error);
