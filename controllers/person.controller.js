@@ -25,10 +25,6 @@ const authenticateUser = async (email, password) => {
 
 // Register and create a new user
 exports.create = async (req, res) => {
-  const { email, first_name, last_name, initials, password, register_yn } =
-    req.body;
-  const isAdmin = req.body.isAdmin === "on"; // Check if the checkbox is checked
-
   try {
     const {
       email,
@@ -57,6 +53,10 @@ exports.create = async (req, res) => {
         .status(409)
         .json({ message: "User with this email already exists." });
 
+    // Determine admin status
+    const isAdminStatus = isAdmin === "true" || register_yn === "y";
+    console.log("isAdminStatus:", isAdminStatus);
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -68,18 +68,15 @@ exports.create = async (req, res) => {
       initials,
       password: hashedPassword,
       company_id_fk,
-      isAdmin: isAdmin,
+      isAdmin: isAdminStatus,
     });
 
     // Update session
     req.session.company = company;
-    // req.session.person =  req.session.person;
+    req.session.person = newPerson;
+    console.log("Redirecting to Dashboard...");
 
-    if (!newPerson.isAdmin && register_yn === "y") {
-      res.redirect("/");
-    } else {
-      res.redirect("/persons");
-    }
+    res.redirect(register_yn === "y" ? "/" : "/persons");
   } catch (error) {
     console.error("Error creating person:", error);
     res.status(500).json({ message: "Error creating person." });
@@ -102,17 +99,12 @@ exports.findAll = async (req, res) => {
 
 // Login user
 exports.login = async (req, res) => {
-  console.log("LOGIN");
   try {
     const { email, password } = req.body;
 
     const person = await authenticateUser(email, password);
     if (!person)
       return res.status(401).json({ message: "Invalid username or password." });
-
-    // Determine admin status
-    // const isAdminStatus = isAdmin === "true" || register_yn === "y";
-    // console.log("isAdminStatus:", isAdminStatus);
 
     const company = await Company.findByPk(person.company_id_fk);
     if (!company) return res.redirect("/login");
@@ -125,13 +117,8 @@ exports.login = async (req, res) => {
 
       req.session.company = company;
       req.session.person = person;
-      if (person.isAdmin) {
-        console.log("Redirecting to Dashboard...");
-        res.redirect("/");
-      } else {
-        console.log("Redirecting to Projects page...");
-        res.redirect("/");
-      }
+      console.log("Redirecting to Dashboard...");
+      res.redirect("/");
     });
   } catch (err) {
     console.error("Login error:", err);

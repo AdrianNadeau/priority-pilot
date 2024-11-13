@@ -59,7 +59,7 @@ app.use("/", router);
 
 const db = require("./models");
 db.sequelize
-  .sync()
+  .sync({ alter: true })
   .then(() => {
     console.log("DB Connected...");
   })

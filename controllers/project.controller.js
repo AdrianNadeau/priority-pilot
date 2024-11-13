@@ -396,12 +396,7 @@ LEFT JOIN
 LEFT JOIN 
     phases ON phases.id = proj.phase_id_fk
 WHERE 
-    proj.company_id_fk = 715
-    AND (
-        proj.prime_id_fk = 415  -- Replace 123 with the actual person ID
-       
-    );
-`;
+proj.company_id_fk = ? AND proj.id = ?`;
 
     try {
       // Execute the query
