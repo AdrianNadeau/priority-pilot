@@ -6,7 +6,6 @@
   }
 </style>
 
-
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
     <li class="list-inline-item">
@@ -87,7 +86,7 @@
                         </div>
                       </div>
                     </div>
-                </div>
+                </otdiv>
             </div>
         </div>
         <div class="row">
@@ -154,11 +153,6 @@
                                             </select>
                                           </div>
                                         </div>
-                                        <div class="form-group">
-                                          <textarea name="pitch_message" rows=4 id="pitch_message" style="width:400px;" placeholder="Enter your pitch message here"></textarea>
-                                          </div>
-                                        </div>
-                                        <div id="otherPhaseFields">
                                         <div class="col-md-6">
                                           <div class="form-group">
                                             <label for="priority">Priority:</label>
@@ -170,7 +164,7 @@
                                           </div>
                                         </div>
                                       </div>
-                                
+                                      <textarea name="pitch_message" rows=4 id="pitch_message" style="width:400px;" placeholder="Enter your pitch message here"></textarea>
                                       <div class="row">
                                         <div class="col-md-6">
                                           <div class="form-group">
@@ -193,7 +187,6 @@
                                           </div>
                                         </div>
                                       </div>
-                                
                                       <div class="row">
                                         <div class="col-md-6">
                                           <div class="form-group">
@@ -208,7 +201,6 @@
                                           </div>
                                         </div>
                                       </div>
-                                
                                       <div class="row">
                                         <div class="col-md-6">
                                           <div class="form-group">
@@ -231,32 +223,29 @@
                                           </div>
                                         </div>
                                       </div>
-                                
-                                      <div class="row">
-                                        <div class="col-md-6">
-                                          <div class="form-group">
-                                            <label for="project_cost">Estimated Cost</label>
-                                            <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
+                                      <div id="otherPhaseFields">
+                                        <div class="row">
+                                          <div class="col-md-6">
+                                            <div class="form-group">
+                                              <label for="project_cost">Estimated Cost</label>
+                                              <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
+                                            </div>
                                           </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                          <div class="form-group">
-                                            <label for="project_tags">Tags (comma separated)</label>
-                                            <input type="text" class="form-control" id="project_tags" name="project_tags">
+                                          <div class="col-md-6">
+                                            <div class="form-group">
+                                              <label for="project_tags">Tags (comma separated)</label>
+                                              <input type="text" class="form-control" id="project_tags" name="project_tags">
+                                            </div>
                                           </div>
                                         </div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
-                                  <!-- Add more rows and columns if needed -->
-                                  <div class="modal-footer">
-                                      <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
-                                      <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
-                                      <!-- if edit, add delete button -->
-                                      <!-- <button class="btn btn-danger w-md waves-effect waves-light" onClick='openDeleteModal()' type="button">Delete</button> -->
-                                      <!-- if edit, add delete button -->
-                                  </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+                                  <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                                </div>
                               </form>
                           </div>
                       </div><!-- /.modal-content -->

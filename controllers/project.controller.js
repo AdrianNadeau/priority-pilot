@@ -657,6 +657,12 @@ exports.findFunnel = async (req, res) => {
   }
   try {
     //get all pitch projects with company and prime or sponsor
+    const phases = await Phase.findAll(); // Retrieve phases from the database
+    // const [phasesData, prioritiesData] = await Promise.all([
+    //   Phase.findAll(),
+    //   Priority.findAll(),
+    //   Project.findAll(),
+    // ]);
     const query = `
       SELECT 
     proj.company_id_fk,
@@ -712,14 +718,13 @@ WHERE
             pitchTotalPH += effort;
           }
         }
-        const phases = Phase.findAll();
 
         res.render("Pages/pages-funnel", {
           projects: data,
           pitchCount,
           pitchTotalCost,
           pitchTotalPH,
-          phases: phases,
+          phases,
         });
       })
       .catch((err) => {

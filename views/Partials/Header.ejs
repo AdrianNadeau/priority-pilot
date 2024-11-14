@@ -11,7 +11,7 @@
   <div class="sidebar-inner slimscrollleft">
     <div id="sidebar-menu">
       <ul>
-        jnhm76yu
+        <% if (person && person.isAdmin) { %>
         <li class="has_sub">
           <a a href="/" onclick="forwardToDashboard();"
             ><i class="mdi mdi-view-dashboard"></i> <span>Mission Control</span>
@@ -68,23 +68,23 @@
                         <li><a href="ui-sessiontimeout">Session Timeout</a></li>
                     </ul>
                 </li> -->
-        <li>
-          <a href="/projects" class="waves-effect"
-            ><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a
-          >
-        </li>
-        <li>
-          <a href="/persons" class="waves-effect"
-            ><i class="mdi mdi-account-location"></i><span> Employees </span></a
-          >
-        </li>
-
-        <!-- <li class="has_sub">
+                    <li>
+                        <a href="/projects" class="waves-effect"
+                          ><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a
+                        >
+                      </li>
+                      <li>
+                        <a href="/persons" class="waves-effect"
+                          ><i class="mdi mdi-account-location"></i><span> Employees </span></a
+                        >
+                      </li>
+                  <% } else { %>
+                    <li class="has_sub">
                         <a href="/projects/primeprojects/list/<%= person.id %>" class="waves-effect"
                           ><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a
                         >
-                      </li> -->
-
+                      </li>
+                      <% } %>
         <!-- <li class="has_sub">
                     <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-chart-line"></i><span> Charts <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span></a>
                     <ul class="list-unstyled">
