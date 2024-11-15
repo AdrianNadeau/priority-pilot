@@ -176,7 +176,7 @@
                 <div class="modal-body">
                     <form action="/statuses" class="needs-validation" novalidate method="POST">
                       <input type="hidden" name="project_id" id="project_id" value="<%=project[0].id %>"/>
-                      <input type="hidden" name="prime_id" id="prime_id_fk" value="<%=project[0].prime_id_fk %>"/>
+                      <input type="hidden" name="prime_id_fk" id="prime_id_fk" value="<%=project[0].prime_id_fk %>"/>
                         <div class="row">
                             <div class="col-md-12">
                                 <!-- First column of form fields -->
@@ -305,7 +305,6 @@
           console.error("Element with ID 'status_accomplishments' not found.");
         }
         document.getElementById('accomplishments').value = data.accomplishments;
-        // console.log(document.getElementById('**status_accomplishments').value)
         document.getElementById('status_issue').value = data.issue;
         document.getElementById('status_action').value = data.actions;
         document.getElementById('status_progress').value = data.progress;
