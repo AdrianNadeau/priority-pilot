@@ -39,7 +39,7 @@
                       <% phases.forEach(function(phase) { %>
                           <% if (phase.phase_name.trim() === 'Pitch') { %>
                               <span>
-                                  <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
+                                  <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= projects[0].health %>; border-width: 2px;border-radius:10px;">
                                       <%= phase.phase_name %>
                                   </button>
                               </span>&nbsp;&nbsp;&nbsp;

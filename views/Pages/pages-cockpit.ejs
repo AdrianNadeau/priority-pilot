@@ -152,7 +152,7 @@
                   <a href="#" onClick="getStatus(<%=status.id%>)" data-target="#viewStatusModal" id="viewStatusLink"><%= status.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></a>
                   
                 <% } %>
-                <div style="width:100% !important;">-------------------------------------</div>
+                <div style="width:100% !important;"><hr/></div>
               <% }); %>
             <% } %>
           </div>
@@ -296,8 +296,8 @@
     .then(response => response.json())
     .then(data => {
       //open a popup
-      console.log("STATUSSSSSSSSSSSSSSSSSSSSSSSS:",data);
-      document.getElementById('status_accomplishments').value = data.accomplishments;
+     
+      document.getElementById('status_accomplishments').value = data.status_accomplishments;
       document.getElementById('status_issue').value = data.issue;
       document.getElementById('status_action').value = data.actions;
       document.getElementById('status_progress').value = data.progress;

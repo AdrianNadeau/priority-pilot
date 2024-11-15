@@ -71,12 +71,9 @@ exports.create = async (req, res) => {
       isAdmin: isAdminStatus,
     });
 
-    if (!req.session.person) {
-      // Update session
-      req.session.company = company;
-      req.session.person = newPerson;
-    }
-
+    // Update session
+    req.session.company = company;
+    req.session.person = newPerson;
     console.log("Redirecting to Dashboard...");
 
     res.redirect(register_yn === "y" ? "/" : "/persons");

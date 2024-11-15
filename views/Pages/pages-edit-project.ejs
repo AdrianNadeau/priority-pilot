@@ -105,6 +105,7 @@
                             <label for="priority">Priority:</label>
                             <select name="priority_id_fk" id="priority_id_fk" class="form-control">
                               <% priorities.forEach(function(priority) { %>
+                                <%=project.priority_id_fk%>
                                 <% if (priority.id == project.priority_id_fk) { %>
                                   <option selected value="<%= priority.id %>"><%= priority.priority_name %></option>
                                 <% } else { %>
