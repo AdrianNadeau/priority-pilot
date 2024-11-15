@@ -386,6 +386,7 @@ exports.findOneForEdit = async (req, res) => {
 	    proj.project_what,
 	    proj.phase_id_fk,	
       proj.prime_id_fk,
+      proj.sponsor_id_fk,
       proj.priority_id_fk,
       proj.impact,
       proj.complexity,
