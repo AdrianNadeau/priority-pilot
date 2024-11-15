@@ -6,7 +6,7 @@ const Op = db.Sequelize.Op;
 // Create and Save a new Status
 exports.create = async (req, res) => {
   try {
-    let prime_id = req.body.prime_id;
+    let prime_id = req.body.prime_id_fk;
     console.log("STATUS PRIMEEEEEEEEEEEEEEEE:", req.body.prime_id_fk);
     if (!prime_id) {
       prime_id = null;

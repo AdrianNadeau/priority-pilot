@@ -3,6 +3,7 @@ const Project = db.projects;
 const Phase = db.phases;
 const Priority = db.priorities;
 const Person = db.persons;
+const currentDate = new Date();
 
 async function isAdminMiddleware(req, res, next) {
   try {
@@ -22,7 +23,7 @@ async function isAdminMiddleware(req, res, next) {
 
     // Retrieve projects where the user is either the sponsor or prime
     const query = `
-      SELECT proj.company_id_fk, proj.id, proj.project_name, proj.start_date, proj.end_date, 
+      SELECT proj.company_id_fk, proj.id, proj.project_name, proj.prime_id_fk, proj.start_date, proj.end_date, 
         prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, 
         sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, 
         proj.project_cost, phases.phase_name 
@@ -53,6 +54,7 @@ async function isAdminMiddleware(req, res, next) {
       priorities: prioritiesData,
       sponsors: personsData,
       primes: personsData,
+      current_date: currentDate,
     });
   } catch (error) {
     console.error("Error in isAdminMiddleware:", error);
