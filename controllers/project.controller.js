@@ -649,7 +649,7 @@ exports.findFunnel = async (req, res) => {
 
     // Retrieve projects related to the company
     const projects = await Project.findAll({
-      where: { company_id_fk: company_id_fk },
+      where: { company_id_fk: company_id_fk, phase_id_fk: 1 },
     });
 
     // Calculate pitch count, total cost, and total effort

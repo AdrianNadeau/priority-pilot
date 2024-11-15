@@ -35,15 +35,23 @@
                       <span class="counter">Funnel (<%= pitchCount %>, $<%= pitchTotalCost %>, <%= pitchTotalPH %> PH)</span>
                   </div>
                   <div>
-                     
-                      <% projects.forEach(function(proj) { %>
+                    <% projects.forEach(function(project) { %>
+                      <% if (project.phase_name.trim() === 'Pitch') { %>
                           <span>
-                                  <button type="button" class="btn btn-light" onclick="loadProject('<%= proj.id %>')" style="margin-bottom: 10px; border-color: <%= projects[0].health %>; border-width: 2px;border-radius:10px;">
+                              <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
+                                  <%= project.project_name %>
+                              </button>
+                          </span>&nbsp;&nbsp;&nbsp;
+                      <% } %>
+                  <% }); %>
+                      <!-- <% projects.forEach(function(proj) { %>
+                          <span>
+                                  <button type="button" class="btn btn-light" loadProject("<%= proj.id %>); style="margin-bottom: 10px; border-color: <%= projects[0].health %>; border-width: 2px;border-radius:10px;">
                                       <%= proj.project_name %>
                                   </button>
                               </span>&nbsp;&nbsp;&nbsp;
-                              
-                      <% }); %>
+                          
+                      <% }); %> -->
                   </div>
               </div>
           </div>
