@@ -10,7 +10,7 @@
     
     <li class="hide-phone list-inline-item app-search">
         <h3 class="page-title">Funnel</h3>
-        <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Project</button>
+        <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Funnel Project</button>
         
         
     </li>
@@ -36,14 +36,13 @@
                   </div>
                   <div>
                      
-                      <% phases.forEach(function(phase) { %>
-                          <% if (phase.phase_name.trim() === 'Pitch') { %>
-                              <span>
-                                  <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= projects[0].health %>; border-width: 2px;border-radius:10px;">
-                                      <%= phase.phase_name %>
+                      <% projects.forEach(function(proj) { %>
+                          <span>
+                                  <button type="button" class="btn btn-light" onclick="loadProject('<%= proj.id %>')" style="margin-bottom: 10px; border-color: <%= projects[0].health %>; border-width: 2px;border-radius:10px;">
+                                      <%= proj.project_name %>
                                   </button>
                               </span>&nbsp;&nbsp;&nbsp;
-                          <% } %>
+                              
                       <% }); %>
                   </div>
               </div>
@@ -240,6 +239,7 @@
 
 <script>
   function loadProject(project_id) {
+    console.log("send to project_id: " + project_id);
     window.location.replace("/projects/cockpit/" + project_id);
   }
 

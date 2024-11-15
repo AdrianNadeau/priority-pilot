@@ -249,8 +249,8 @@
               <strong>Prime:</strong><% if(project[0].prime_last_name) %>
               <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
               <div class="form-group">
-                <label for="status_accomplishments"><strong>Accomplishments</strong></label>
-                <textarea id="status_accomplishments" class="form-control" rows="3" disabled></textarea>
+                <label for="accomplishments"><strong>Accomplishments</strong></label>
+                <textarea id="accomplishments" class="form-control" rows="3" disabled></textarea>
               </div>
               <div class="form-group">
                 <label for="status_issue"><strong>Issue</strong></label>
@@ -296,12 +296,20 @@
     .then(response => response.json())
     .then(data => {
       //open a popup
-     
-      document.getElementById('status_accomplishments').value = data.status_accomplishments;
-      document.getElementById('status_issue').value = data.issue;
-      document.getElementById('status_action').value = data.actions;
-      document.getElementById('status_progress').value = data.progress;
-      document.getElementById('status_health').value = data.health;
+     console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&data:", data.accomplishments);
+     const accomplishmentsElement = document.getElementById('status_accomplishments');
+        if (accomplishmentsElement) {
+          accomplishmentsElement.value = data.accomplishments;
+          console.log("Accomplishments set to:", accomplishmentsElement.value);
+        } else {
+          console.error("Element with ID 'status_accomplishments' not found.");
+        }
+        document.getElementById('accomplishments').value = data.accomplishments;
+        // console.log(document.getElementById('**status_accomplishments').value)
+        document.getElementById('status_issue').value = data.issue;
+        document.getElementById('status_action').value = data.actions;
+        document.getElementById('status_progress').value = data.progress;
+        document.getElementById('status_health').value = data.health;
 
        // Open the modal
        $('#viewStatusModal').modal('show');

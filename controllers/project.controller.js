@@ -641,10 +641,6 @@ exports.findOneForPrime = async (req, res) => {
 };
 exports.findFunnel = async (req, res) => {
   try {
-    console.log(
-      "*************************************** FIND FUNNEL ***************************************",
-    );
-
     const company_id_fk = req.session.company.id;
 
     // Retrieve phases
@@ -672,7 +668,6 @@ exports.findFunnel = async (req, res) => {
       pitchCount: pitchCount,
       pitchTotalCost: pitchTotalCost,
       pitchTotalPH: pitchTotalPH,
-      // other data you need to pass to the template
     });
   } catch (error) {
     console.error("Error finding funnel:", error);
