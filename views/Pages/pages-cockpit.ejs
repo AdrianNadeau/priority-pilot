@@ -127,6 +127,15 @@
               <strong> Tags :</strong> <%= project[0].tags %>
               <br/>
               <strong>Change Log:</strong>
+              <% if (changed_projects) { %>
+                <% changed_projects.forEach(function(change) { %>
+                  <div style="width:100% !important;"><hr/></div>
+                  <% if (change.id) { %>
+                    <a href="#"><%= change.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></a>
+                    
+                  <% } %>
+                <% }); %>
+              <% } %>
             </div>
           </div>
         </div>
@@ -296,7 +305,6 @@
     .then(response => response.json())
     .then(data => {
       //open a popup
-     console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&data:", data.accomplishments);
      const accomplishmentsElement = document.getElementById('status_accomplishments');
         if (accomplishmentsElement) {
           accomplishmentsElement.value = data.accomplishments;

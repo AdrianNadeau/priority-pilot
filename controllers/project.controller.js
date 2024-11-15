@@ -264,7 +264,6 @@ exports.findOne = (req, res) => {
   }
 };
 exports.cockpit = async (req, res) => {
-  console.log("cockpit:", req.params.id);
   const project_id = req.params.id;
 
   let company_id_fk;
@@ -310,17 +309,20 @@ exports.cockpit = async (req, res) => {
       replacements: [company_id_fk, project_id],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    console.log("get logs");
+    let changed_projects;
     try {
-      const changed_project = await db.changed_projects.findAll({
+      changed_projects = await db.changed_projects.findAll({
         where: {
           project_id_fk: project_id,
           company_id_fk: company_id_fk,
         },
         order: [["change_date", "DESC"]],
       });
+      if (changed_projects) {
+        console.log("Cockpit Changed Projects:", changed_projects);
+      }
     } catch (error) {
-      console.log("!!!!!!Error:", error);
+      console.log("Cockpit Changed Projects error:", error);
     }
 
     const statuses = await Status.findAll({
@@ -345,10 +347,10 @@ exports.cockpit = async (req, res) => {
       project: data,
       current_date: currentDate,
       formattedCost: data[0].project_cost,
-
       statuses: statuses,
       lastStatusDate: lastStatusDate,
       statusColor: statusColor,
+      changed_projects,
     });
   } catch (error) {
     console.log("Database Query Error: ", error);
