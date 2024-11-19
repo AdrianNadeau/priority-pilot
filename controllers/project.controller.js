@@ -338,16 +338,16 @@ exports.cockpit = async (req, res) => {
         statusColor = statuses[0].health;
       } else {
         console.log("no status");
-        lastStatusDate = "N/A";
+        lastStatusDate = "";
         statusColor = "green";
       }
     }
+
     res.render("Pages/pages-cockpit", {
       project: data,
       current_date: currentDate,
       formattedCost: data[0].project_cost,
       statuses: statuses,
-      lastStatusDate: lastStatusDate,
       statusColor: statusColor,
       changed_projects,
     });
@@ -594,7 +594,7 @@ exports.findOneForPrime = async (req, res) => {
       // let lastStartDate = null;
       // let lastEndDate = null;
       // let milestoneDate = null;
-      // let lastStatusDate = null;
+      let lastStatusDate = null;
       // let statusColor = null;
 
       // Get statuses for the project
@@ -1064,24 +1064,21 @@ exports.update = async (req, res) => {
       console.log("End Date is missing or null");
     }
 
-    // Check if next_milestone_date has a value and is not null
+    // Check if milestone has a value and is not null
     if (req.body.next_milestone_date) {
       nextMilestoneDate = moment
         .tz(req.body.next_milestone_date, "YYYY-MM-DD", "UTC")
         .set({ hour: 20, minute: 0, second: 0 });
-      if (!nextMilestoneDate.isValid()) {
-        console.log(
-          "Invalid Next Milestone Date:",
-          req.body.next_milestone_date,
-        );
-        return res.status(400).send("Invalid Next Milestone Date");
+      if (!startDate.isValid()) {
+        console.log("Invalid MileStone Date:", req.body.next_milestone_date);
+        return res.status(400).send("Invalid MileStone Date");
       }
       console.log(
-        "Next Milestone Date:",
+        "MileStone Date:",
         nextMilestoneDate.format("YYYY-MM-DD HH:mm:ssZ"),
       );
     } else {
-      console.log("Next Milestone Date is missing or null");
+      console.log("MileStone Date is missing or null");
     }
 
     // Update the project in the database

@@ -7,6 +7,8 @@ const Op = db.Sequelize.Op;
 exports.create = async (req, res) => {
   try {
     let prime_id = req.body.prime_id_fk;
+    const status_date = req.body.status_date;
+    console.log("******************************* status_date: ", status_date);
 
     if (!prime_id) {
       prime_id = null;
@@ -21,19 +23,19 @@ exports.create = async (req, res) => {
       actions: req.body.actions,
       accomplishments: req.body.status_accomplishments,
       attachments: req.body.attachment,
+      status_date: req.body.status_date,
     };
 
     // Save Status in the database
     const data = await Status.create(status);
 
     const id = req.body.project_id;
-    console.log("ID: ", id);
+
     const project = await Project.findByPk(id, {
       where: { project_id: id },
     });
 
     const primeOnly = req.body.prime_only;
-    console.log("primeOnly: ", primeOnly);
     if (project) {
       if (primeOnly && primeOnly === "y") {
         await project.update({ health: req.body.health });
@@ -58,9 +60,6 @@ exports.create = async (req, res) => {
 
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
-  // const company_name = req.query.company_name;
-  // var condition = company_name ? { company_name: { [Op.iLike]: `%${company_name}%` } } : null;
-
   Status.findAll({})
     .then((data) => {
       res.send(data);

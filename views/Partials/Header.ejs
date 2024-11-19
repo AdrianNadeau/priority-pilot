@@ -78,13 +78,13 @@
                           ><i class="mdi mdi-account-location"></i><span> Employees </span></a
                         >
                       </li>
-                  <% } else { %>
+                  <% }else if (person && !person.isAdmin) { %>
                     <li class="has_sub">
                         <a href="/" class="waves-effect"
                           ><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a
                         >
                       </li>
-                      <% } %>
+                  <% } %>
         
         
       

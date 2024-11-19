@@ -160,9 +160,9 @@
                   <span class="red-circle"></span>
                 <% } %>
                 [<%= status.progress %>%]
-                <% if (status.createdAt) { %>
+                <% if (status.status_date) { %>
                   <a href="#" onClick="getStatus(<%= status.id %>)" data-target="#viewStatusModal" id="viewStatusLink">
-                    <%= new Date(status.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                    <%= new Date(status.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
                   </a>
                 <% } %>
                 <div style="width:100% !important;"><hr/></div>
@@ -186,7 +186,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title mt-0">Add Status</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <button type="button" class="close" data-dismiss="modal" >×</button>
                 </div>
                 <div class="modal-body">
                     <form action="/statuses" class="needs-validation" novalidate method="POST">
@@ -197,8 +197,9 @@
                             <div class="col-md-12">
                                 <!-- First column of form fields -->
                                 <div class="form-group needs-validation" novalidate>
-                                  
-                                  <strong>Date: </strong><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
+                                  <strong>Status Date (YYYY-MM-DD): </strong><span id="status_date"></span><br/>
+                                 
+                                  <input type="text" class="form-control" id="status_date" name="status_date" placeholder="yyyy-mm-dd">
                                   <strong>Prime:</strong><% if(project[0].prime_last_name) %>
                                   <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
                                   
@@ -261,7 +262,7 @@
             </div>
             <div class="modal-body">
               <!-- Modal content goes here -->
-              <strong>Date: </strong><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
+              <strong>Date: </strong><br/>
               <strong>Prime:</strong><% if(project[0].prime_last_name) %>
               <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
               <div class="form-group">
@@ -285,21 +286,22 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="viewStatusModalLabel"><strong>View Status</strong></h5>
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <button type="button" class="close" data-dismiss="modal">×</button>
         </div>
         <div class="modal-body">
           <!-- Modal content goes here -->
-          <strong>Date: </strong><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
+          <strong>Date:</strong> <span id="view_status_date"></span><br/>
           <strong>Prime:</strong><% if(project[0].prime_last_name) %>
           <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
           <div class="form-group">
-            <label for="accomplishments"><strong>Accomplishments</strong></label>
-            <textarea id="accomplishments" class="form-control" rows="3" disabled></textarea>
+            <label for="status_accomplishments"><strong>Accomplishments:</strong></label>
+            <textarea id="status_accomplishments" class="form-control" rows="3" disabled></textarea>
           </div>
           <div class="form-group">
-            <label for="status_issue"><strong>Issue</strong></label>
+            <label for="status_issue"><strong>Action</strong></label>
             <textarea id="status_issue" class="form-control" rows="3" disabled></textarea>
           </div>
+          
           <div class="form-group">
             <label for="status_action"><strong>Action</strong></label>
             <textarea id="status_action" class="form-control" rows="3" disabled></textarea>
@@ -322,23 +324,30 @@
 </div><!-- /.modal -->
 <script>
   function getStatus(id) {
-    console.log("ID: ", id);
+    console.log("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIID: ", id);
     fetch(`/statuses/${id}`)
     .then(response => response.json())
     .then(data => {
-      //open a popup
-      const accomplishmentsElement = document.getElementById('status_accomplishments');
-        if (accomplishmentsElement) {
-          accomplishmentsElement.value = data.accomplishments;
-          console.log("Accomplishments set to:", accomplishmentsElement.value);
-        } else {
-          console.error("Element with ID 'status_accomplishments' not found.");
-        }
-        document.getElementById('accomplishments').value = data.accomplishments;
-        document.getElementById('status_issue').value = data.issue;
-        document.getElementById('status_action').value = data.actions;
-        document.getElementById('status_progress').value = data.progress;
-        document.getElementById('status_health').value = data.health;
+      console.log("status data: ", data);
+      //not working
+      if (data.accomplishments) document.getElementById('status_accomplishments').value = data.accomplishments;
+      if (data.issue) document.getElementById('status_issue').value = data.issue;
+      if (data.actions) document.getElementById('status_action').value = data.actions;
+
+      //working
+      if (data.progress) document.getElementById('status_progress').value = data.progress;
+      if (data.health) document.getElementById('status_health').value = data.health;
+      if (data.status_date) {
+          document.getElementById('view_status_date').innerText = 
+              new Date(data.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+        
+        // document.getElementById('status_accomplishments').value = data.accomplishments;
+        // document.getElementById('status_issue').value = data.issue;
+        // document.getElementById('status_action').value = data.actions;
+        // document.getElementById('status_progress').value = data.progress;
+        // document.getElementById('status_health').value = data.health;
+        // document.getElementById('view_status_date').innerText = new Date(data.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
        // Open the modal
        $('#viewStatusModal').modal('show');
@@ -355,13 +364,6 @@
       console.log("Data: ", data);
       
       // const change_reasonElement = document.getElementById('change_reason');
-      //   if (change_reasonElement) {
-      //     change_reasonElement.value = data.change_reason_id_fk;
-      //     console.log("Change Reason set to:", change_reasonElement.value);
-      //   } else {
-      //     console.error("Element with ID 'status_accomplishments' not found.");
-      //   }
-        
       //   console.log("CHANGE DATA:", data);
       //   document.getElementById('change_reason').value = data.change_reason_id_fk;
       //   // document.getElementById('status_issue').value = data.issue;
@@ -371,8 +373,6 @@
 
       //  // Open the modal
       //  $('#viewChangeModal').modal('show');
-
-       // Open the modal
        $('#viewChangeModal').modal('show');
     })
     .catch(err => console.error(err));

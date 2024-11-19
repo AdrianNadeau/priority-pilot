@@ -76,7 +76,7 @@
                         <div class="form-group">
                           <label for="datepicker">Next Milestone Date (YYYY-MM-DD):</label>
                           <% if (project.next_milestone_date) { %>
-                            <input type="text" id="next_milestone_date" name="next_milestone_date" class="form-control" value="<%= new Date(project.end_date).toISOString().split('T')[0] %>">
+                            <input type="text" id="next_milestone_date" name="next_milestone_date" class="form-control" value="<%= new Date(project.next_milestone_date).toISOString().split('T')[0] %>">
                           <% } else { %>
                             <input type="text" id="next_milestone_date" name="next_milestone_date" class="form-control" value="">
                           <% } %>
