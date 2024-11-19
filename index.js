@@ -49,6 +49,9 @@ const storage = multer.diskStorage({
   },
 });
 
+// Serve JavaScript files from the 'utils' directory
+app.use("/utils", express.static(path.join(__dirname, "utils")));
+
 //For set layouts of html view
 var expressLayouts = require("express-ejs-layouts");
 app.set("views", path.join(__dirname, "views"));
@@ -79,6 +82,7 @@ require("./routes/status.routes")(app);
 require("./routes/phase.routes")(app);
 require("./routes/priority.routes")(app);
 require("./routes/change_reason.routes.js")(app);
+require("./routes/changed_project.routes.js")(app);
 
 http.listen(8080, function () {
   console.log("listening on *:8080");

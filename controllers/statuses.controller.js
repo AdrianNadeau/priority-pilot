@@ -7,7 +7,7 @@ const Op = db.Sequelize.Op;
 exports.create = async (req, res) => {
   try {
     let prime_id = req.body.prime_id_fk;
-    console.log("STATUS PRIMEEEEEEEEEEEEEEEE:", req.body.prime_id_fk);
+
     if (!prime_id) {
       prime_id = null;
     }
@@ -25,19 +25,24 @@ exports.create = async (req, res) => {
 
     // Save Status in the database
     const data = await Status.create(status);
-    // Optionally, log the created data
-    //update progress for project record, anything else?
-    const id = req.body.project_id;
-    console.log("Project ID:", id);
 
+    const id = req.body.project_id;
+    console.log("ID: ", id);
     const project = await Project.findByPk(id, {
       where: { project_id: id },
     });
 
+    const primeOnly = req.body.prime_only;
+    console.log("primeOnly: ", primeOnly);
     if (project) {
-      console.log("Update Health:", req.body.health);
-      await project.update({ health: req.body.health });
-      res.redirect("/projects/cockpit/" + id);
+      if (primeOnly && primeOnly === "y") {
+        await project.update({ health: req.body.health });
+        //back to dashboard if not admin
+        res.redirect("/");
+      } else {
+        console.log("ADMIN, SEND TO COCKPIT PAGE");
+        res.redirect("/projects/cockpit/" + id);
+      }
     } else {
       res.send({
         message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,

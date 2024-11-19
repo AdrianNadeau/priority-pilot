@@ -319,21 +319,20 @@ exports.cockpit = async (req, res) => {
         order: [["change_date", "DESC"]],
       });
       if (changed_projects) {
-        console.log("Cockpit Changed Projects:", changed_projects);
       }
     } catch (error) {
       console.log("Cockpit Changed Projects error:", error);
     }
 
+    // Retrieve statuses related to the project
     const statuses = await Status.findAll({
-      where: {
-        project_id_fk: project_id,
-      },
-      order: [["status_date", "DESC"]],
+      where: { project_id_fk: project_id },
+      order: [["createdAt", "DESC"]],
     });
     let lastStatusDate = null;
     let statusColor = null;
     if (statuses) {
+      console.log("we have statuses");
       if (statuses.length > 0) {
         lastStatusDate = statuses[0].status_date;
         statusColor = statuses[0].health;

@@ -6,7 +6,6 @@
   }
 </style>
 
-
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
     <li class="list-inline-item">
@@ -14,11 +13,8 @@
             <i class="ion-navicon"></i>
         </button>
     </li>
-    
     <li class="hide-phone list-inline-item app-search">
-        <h3 class="page-title">YOUR PROJECTS</h3>
-      
-        
+        <h3 class="page-title">Your Projects</h3>
     </li>
 </ul>
 
@@ -27,129 +23,106 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
-              <div class="card-body" style="border:0px !important;">
-                        <div class="table-responsive">
-                            <table class="table mb-0">
-                              <% projects.forEach(function(project) { %>
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Prime</th>
-                                        <th>Sponsor</th>
-                                        <th>Start</th>
-                                        <th>End</th>
-                                        <th>Phase</th>
-                                        <th>Cost</th>
-                                        <% if(project.prime_id_fk == person.id){ %>
-                                        <th>Status</th>
-                                        <%}%>
-                                    </tr>
-                                </thead>
-                               
-                                  <tbody>
-                                      <tr style="cursor: pointer;">
-                                        <input type="hidden" name="project_id" value = "<%= project.id %>"/>
-                                        <td><%= project.id %></td>
-                                        <td><%= project.project_name %></td>
+                <div class="card-body" style="border: 0px !important;">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Prime</th>
+                                    <th>Sponsor</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Phase</th>
+                                    <th>Cost</th>
+                                    <% if (projects.some(project => project.prime_id_fk === person.id)) { %>
+                                    <th>Status</th>
+                                    <% } %>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% projects.forEach(function (project) { %>
+                                <tr style="cursor: pointer;">
+                                    <input type="hidden" name="project_id" value="<%= project.id %>"/>
+                                    <td><%= project.id %></td>
+                                    <td><%= project.project_name %></td>
+                                    <td><%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %></td>
+                                    <td><%= project.sponsor_last_name ? `${project.sponsor_last_name}, ${project.sponsor_first_name}` : "N/A" %></td>
+                                    <td><%= project.start_date ? project.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
+                                    <td><%= project.end_date ? project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
+                                    <td><%= project.phase_name %></td>
+                                    <td><%= project.project_cost %></td>
+                                    <% if (project.prime_id_fk === person.id) { %>
+                                    <td data-toggle="modal" data-target="#myModal_<%= project.id %>">
+                                        <i class="mdi mdi-note-plus"></i>
+                                    </td>
+                                    <% } %>
+                                </tr>
 
-                                        <% if(project.prime_last_name){ %>
-                                            <td><%= project.prime_last_name %>, <%= project.prime_first_name %> </td>
-                                        <% } else { %>
-                                            <td>N/A</td>
-                                        <% } %>
-
-                                        <% if(project.sponsor_last_name){ %>
-                                          <td><%= project.sponsor_last_name %>, <%= project.sponsor_first_name %> </td>
-                                        <% } else { %>
-                                          <td>N/A</td>
-                                        <% } %>
-                                       
-                                        
-                                        <td>
-                                          <% if(project.start_date){ %>
-                                              <%= project.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                                            <%}%>
-                                       </td>
-                                       <td>
-                                        <% if(project.end_date){ %>
-                                            <%= project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                                          <%}%>
-                                     </td>
-                                        
-                                        <td><%= project.phase_name %></td>
-                                        <td><%= project.project_cost %></td>
-                                        <% if(project.prime_id_fk == person.id){ %>
-                                        <td data-toggle="modal" data-target="#myModal"><i class="mdi mdi-note-plus"></i></td>
-                                        <%}%>
-                                      </tr>
-                                  </tbody>
-                                  <div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <!-- Modal -->
+                                <div id="myModal_<%= project.id %>" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
-                                          <form action="/statuses" class="needs-validation" id="addStatusForm" novalidate method="POST">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title mt-0" id="myModalLabel">Add Status</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <input type="hidden" name="project_id" value="<%= project.id %>">
-                                                <input type="hidden" name="prime_id_fk" value="<%= project.prime_id_fk %>">
-                                                <div class="row">
-                                                  <div class="col-md-12">
-                                                    <div class="form-group needs-validation" novalidate>
-                                                      <strong>Date: </strong><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
-                                                      <strong>Prime:</strong><% if(project.prime_last_name) %>
-                                                      <%=project.prime_last_name %>, <%=project.prime_first_name %>
-                                                    </div>
-                                                    <div class="form-group needs-validation" novalidate>
-                                                      <strong>Accomplishments:</strong><br/>
-                                                      <textarea class="form-control" id="status_accomplishments" name="status_accomplishments" rows="3"></textarea>
-                                                    </div>
-                                                    <div class="form-group needs-validation" novalidate>
-                                                      <strong>Issues:</strong><br/>
-                                                      <textarea class="form-control" id="issue" name="issue" rows="3"></textarea>
-                                                    </div>
-                                                    <div class="form-group needs-validation" novalidate>
-                                                      <strong>Actions:</strong><br/>
-                                                      <textarea class="form-control" id="action" name="actions" rows="3"></textarea>
-                                                    </div>
-                                                    <div class="form-group needs-validation" novalidate>
-                                                      <strong>Progress:</strong>
-                                                      <input type="text" class="form-control" id="progress"  name="progress" >
-                                                    </div>
-                                                    <div class="form-group needs-validation" novalidate>
-                                                      <strong>Health:</strong>
-                                                      <select name = "health" id = "health">
-                                                          <option value="Green">Green</option>
-                                                          <option value="Yellow">Yellow</option>
-                                                          <option value="Red">Red</option>
-                                                      </select>
-                                                    </div>
-                                                  </div>
+                                            <form action="/statuses" class="needs-validation" id="addStatusForm" novalidate method="POST">
+                                                <input type="hidden" name="prime_only" value="y">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title mt-0" id="myModalLabel">Add Status</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                                                 </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary waves-effect waves-light">Save changes</button>
-                                            </div>
-                                          </form>
-                                        </div><!-- /.modal-content -->
-                                    </div><!-- /.modal-dialog -->
-                                  </div>
-                              <% }); %>
-                              
-                             
-                            </table>
-                        </div>
-                      </div>
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="project_id" value="<%= project.id %>">
+                                                    <input type="hidden" name="prime_id_fk" value="<%= project.prime_id_fk %>">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group">
+                                                                <strong>Date:</strong> <%= new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
+                                                                <strong>Prime:</strong> <%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <strong>Accomplishments:</strong>
+                                                                <textarea class="form-control" name="status_accomplishments" rows="3"></textarea>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <strong>Issues:</strong>
+                                                                <textarea class="form-control" name="issue" rows="3"></textarea>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <strong>Actions:</strong>
+                                                                <textarea class="form-control" name="actions" rows="3"></textarea>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <strong>Progress:</strong>
+                                                                <input type="text" class="form-control" name="progress">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <strong>Health:</strong>
+                                                                <select class="form-control" name="health">
+                                                                    <option value="Green">Green</option>
+                                                                    <option value="Yellow">Yellow</option>
+                                                                    <option value="Red">Red</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }); %>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-       
+    </div>
 </div>
 
 <%- contentFor('FooterJs') %>
-
 <%- contentFor('BottomJs') %>

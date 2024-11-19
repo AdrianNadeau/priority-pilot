@@ -128,10 +128,13 @@
               <br/>
               <strong>Change Log:</strong>
               <% if (changed_projects) { %>
+                <br/>
                 <% changed_projects.forEach(function(change) { %>
-                  <div style="width:100% !important;"><hr/></div>
+                  
                   <% if (change.id) { %>
-                    <a href="#"><%= change.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></a>
+                    
+                    <a href="#" onClick="getChange(<%=change.id%>,<%change.company_id_fk%>)" data-target="#viewChangeModal" id="viewChangeLink"><%= change.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></a>
+                    <div style="width:100% !important;"><hr/></div>
                     
                   <% } %>
                 <% }); %>
@@ -146,7 +149,7 @@
         <div class="mini-stat clearfix bg-white">
           <div>
             <strong>Status Updates:</strong><br/>
-            <% if (statuses) { %>
+            <% if (statuses && statuses.length > 0) { %>
               <% statuses.forEach(function(status) { %>
                 <% let healthStatus = status.health ? status.health.trim().toLowerCase() : ''; %>
                 <% if (healthStatus === 'green') { %>
@@ -158,11 +161,14 @@
                 <% } %>
                 [<%= status.progress %>%]
                 <% if (status.createdAt) { %>
-                  <a href="#" onClick="getStatus(<%=status.id%>)" data-target="#viewStatusModal" id="viewStatusLink"><%= status.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></a>
-                  
+                  <a href="#" onClick="getStatus(<%= status.id %>)" data-target="#viewStatusModal" id="viewStatusLink">
+                    <%= new Date(status.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  </a>
                 <% } %>
                 <div style="width:100% !important;"><hr/></div>
               <% }); %>
+            <% } else { %>
+              <p>No status updates available</p>
             <% } %>
           </div>
           <button type="button" class="btn btn-primary waves-effect waves-light" syle="padding-top:5px;"data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
@@ -184,6 +190,7 @@
                 </div>
                 <div class="modal-body">
                     <form action="/statuses" class="needs-validation" novalidate method="POST">
+                      <input type="hidden" name="prime_only" value="n">
                       <input type="hidden" name="project_id" id="project_id" value="<%=project[0].id %>"/>
                       <input type="hidden" name="prime_id_fk" id="prime_id_fk" value="<%=project[0].prime_id_fk %>"/>
                         <div class="row">
@@ -245,11 +252,11 @@
   <div class="row"></div>
   <div class="col-md-6 m-t-30">
       <!-- project modal content -->
-      <div id="viewStatusModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="viewStatusModalLabel" aria-hidden="true">
+      <div id="viewChangeModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="viewChangeModalLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="viewStatusModalLabel"><strong>View Status</strong></h5>
+              <h5 class="modal-title" id="viewChangeModalLabel"><strong>View Change</strong></h5>
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -258,46 +265,61 @@
               <strong>Prime:</strong><% if(project[0].prime_last_name) %>
               <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
               <div class="form-group">
-                <label for="accomplishments"><strong>Accomplishments</strong></label>
-                <textarea id="accomplishments" class="form-control" rows="3" disabled></textarea>
+                <label for="change_reason"><strong>Change Reason</strong></label>
+                <textarea id="change_reason" name="change_reason" class="form-control" rows="3" disabled></textarea>
               </div>
               <div class="form-group">
-                <label for="status_issue"><strong>Issue</strong></label>
+                <label for="status_issue"><strong>Change Details</strong></label>
                 <textarea id="status_issue" class="form-control" rows="3" disabled></textarea>
               </div>
-              <div class="form-group">
-                <label for="status_action"><strong>Action</strong></label>
-                <textarea id="status_action" class="form-control" rows="3" disabled></textarea>
-              </div>
-              <div class="form-group">
-                <label for="status_progress"><strong>Progress</strong></label>
-                <input type="text" id="status_progress" class="form-control" disabled>
-              </div>
-              <div class="form-group">
-                <label for="status_health"><strong>Health</strong></label>
-                <input type="text" id="status_health" class="form-control" disabled>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
           </div>
         </div>
       </div>
     </div><!-- /.modal -->
   </div>
- 
-  
-</div>
-<%- contentFor('FooterJs') %>
-<script src="/public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
-<script src="/public/assets/plugins/d3/d3.min.js"></script>
-<script src="/public/assets/plugins/c3/c3.min.js"></script>
-<script src="/public/assets/plugins/jquery-knob/excanvas.js"></script>
-<script src="/public/assets/plugins/jquery-knob/jquery.knob.js"></script>
-<script src="/public/assets/pages/dashboard.js"></script>
-
-<%- contentFor('BottomJs') %>
+  <div id="viewStatusModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="viewStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="viewStatusModalLabel"><strong>View Status</strong></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        </div>
+        <div class="modal-body">
+          <!-- Modal content goes here -->
+          <strong>Date: </strong><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
+          <strong>Prime:</strong><% if(project[0].prime_last_name) %>
+          <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
+          <div class="form-group">
+            <label for="accomplishments"><strong>Accomplishments</strong></label>
+            <textarea id="accomplishments" class="form-control" rows="3" disabled></textarea>
+          </div>
+          <div class="form-group">
+            <label for="status_issue"><strong>Issue</strong></label>
+            <textarea id="status_issue" class="form-control" rows="3" disabled></textarea>
+          </div>
+          <div class="form-group">
+            <label for="status_action"><strong>Action</strong></label>
+            <textarea id="status_action" class="form-control" rows="3" disabled></textarea>
+          </div>
+          <div class="form-group">
+            <label for="status_progress"><strong>Progress</strong></label>
+            <input type="text" id="status_progress" class="form-control" disabled>
+          </div>
+          <div class="form-group">
+            <label for="status_health"><strong>Health</strong></label>
+            <input type="text" id="status_health" class="form-control" disabled>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /.modal -->
 <script>
   function getStatus(id) {
     console.log("ID: ", id);
@@ -305,7 +327,7 @@
     .then(response => response.json())
     .then(data => {
       //open a popup
-     const accomplishmentsElement = document.getElementById('status_accomplishments');
+      const accomplishmentsElement = document.getElementById('status_accomplishments');
         if (accomplishmentsElement) {
           accomplishmentsElement.value = data.accomplishments;
           console.log("Accomplishments set to:", accomplishmentsElement.value);
@@ -320,7 +342,52 @@
 
        // Open the modal
        $('#viewStatusModal').modal('show');
+     
+    })
+    .catch(err => console.error(err));
+  }
+  function getChange(id, company_id) {
+    console.log("ID: ", id);
+    
+    fetch(`/changed_projects/changedlog/${id}/${companyid}`)///changed_projects
+    .then(response => response.json())
+    .then(data => {
+      console.log("Data: ", data);
+      
+      // const change_reasonElement = document.getElementById('change_reason');
+      //   if (change_reasonElement) {
+      //     change_reasonElement.value = data.change_reason_id_fk;
+      //     console.log("Change Reason set to:", change_reasonElement.value);
+      //   } else {
+      //     console.error("Element with ID 'status_accomplishments' not found.");
+      //   }
+        
+      //   console.log("CHANGE DATA:", data);
+      //   document.getElementById('change_reason').value = data.change_reason_id_fk;
+      //   // document.getElementById('status_issue').value = data.issue;
+      //   // document.getElementById('status_action').value = data.actions;
+      //   // document.getElementById('status_progress').value = data.progress;
+      //   // document.getElementById('status_health').value = data.health;
+
+      //  // Open the modal
+      //  $('#viewChangeModal').modal('show');
+
+       // Open the modal
+       $('#viewChangeModal').modal('show');
     })
     .catch(err => console.error(err));
   }
 </script>
+</div>
+ 
+  
+</div>
+<%- contentFor('FooterJs') %>
+<script src="/public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
+<script src="/public/assets/plugins/d3/d3.min.js"></script>
+<script src="/public/assets/plugins/c3/c3.min.js"></script>
+<script src="/public/assets/plugins/jquery-knob/excanvas.js"></script>
+<script src="/public/assets/plugins/jquery-knob/jquery.knob.js"></script>
+<script src="/public/assets/pages/dashboard.js"></script>
+
+<%- contentFor('BottomJs') %>
