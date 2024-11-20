@@ -147,25 +147,11 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       pitchTotalCost: formatValue(phaseData.pitch.cost),
       totalPitchPH: formatValue(phaseData.pitch.ph),
     });
+    console.log("Data", data);
   } catch (error) {
     console.error("Error while fetching data:", error);
     res.status(500).send("Internal Server Error");
   }
 });
-
-const formatCost = (cost) => {
-  console.log("cost", cost);
-  if (cost >= 1000000000) {
-    return `${(cost / 1000000000).toFixed(1)}B`;
-  }
-  if (cost >= 1000000) {
-    return `${(cost / 1000000).toFixed(1)}M`;
-  }
-  if (cost >= 1000) {
-    return `${(cost / 1000).toFixed(1)}K`;
-  }
-  return 0;
-};
-// Helper function to format cost values
 
 module.exports = router;

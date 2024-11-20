@@ -37,14 +37,10 @@ exports.create = async (req, res) => {
 
     const primeOnly = req.body.prime_only;
     if (project) {
-      if (primeOnly && primeOnly === "y") {
-        await project.update({ health: req.body.health });
-        //back to dashboard if not admin
-        res.redirect("/");
-      } else {
-        console.log("ADMIN, SEND TO COCKPIT PAGE");
-        res.redirect("/projects/cockpit/" + id);
-      }
+      console.log("update project health: ", req.body.health);
+      await project.update({ health: req.body.health });
+      //back to dashboard if not admin
+      res.redirect("/");
     } else {
       res.send({
         message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
