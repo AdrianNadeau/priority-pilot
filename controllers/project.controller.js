@@ -1035,7 +1035,7 @@ exports.update = async (req, res) => {
   //convert dates
   console.log("req.body.start_date:", req.body.start_date);
   const startDate = insertValidDate(req.body.start_date);
-  console.log("startDateTest:", startDateTest);
+  console.log("startDate:", startDate);
   const endDate = insertValidDate(req.body.end_date);
   console.log("endDateTest:", endDateTest);
   const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
