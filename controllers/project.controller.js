@@ -1075,12 +1075,15 @@ exports.update = async (req, res) => {
         priority_id_fk: req.body.priority_id_fk,
         sponsor_id_fk: req.body.sponsor_id_fk,
         prime_id_fk: req.body.prime_id_fk,
+        phase_id_fk: req.body.phase_id_fk,
         impact: req.body.impact,
         complexity: req.body.complexity,
         effort: req.body.effort,
         benefit: req.body.benefit,
         project_cost: req.body.project_cost,
         tags: req.body.tags,
+        change_reason_id_fk: req.body.change_reason,
+        change_explanation: req.body.change_explanation,
       },
       {
         where: { id: id, company_id_fk: company_id_fk },
@@ -1101,12 +1104,15 @@ exports.update = async (req, res) => {
         priority_id_fk: req.body.priority_id_fk,
         sponsor_id_fk: req.body.sponsor_id_fk,
         prime_id_fk: req.body.prime_id_fk,
+        phase_id_fk: req.body.phase_id_fk,
         impact: req.body.impact,
         complexity: req.body.complexity,
         effort: req.body.effort,
         benefit: req.body.benefit,
         project_cost: req.body.project_cost,
         tags: req.body.tags,
+        change_reason_id_fk: req.body.change_reason,
+        change_explanation: req.body.change_explanation,
       };
 
       const changedProject = await ChangeProject.create(newChangedProject);

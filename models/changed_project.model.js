@@ -9,7 +9,6 @@ module.exports = (sequelize, Sequelize) => {
     project_id_fk: {
       type: Sequelize.INTEGER,
       required: true,
-      unique: true,
     },
     company_id_fk: {
       type: Sequelize.INTEGER,

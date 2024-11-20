@@ -270,8 +270,8 @@
                 <textarea id="change_reason" name="change_reason" class="form-control" rows="3" disabled></textarea>
               </div>
               <div class="form-group">
-                <label for="status_issue"><strong>Change Details</strong></label>
-                <textarea id="status_issue" class="form-control" rows="3" disabled></textarea>
+                <label for="change_explanation"><strong>Change Details</strong></label>
+                <textarea id="change_explanation" class="form-control" rows="3" disabled></textarea>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -352,14 +352,8 @@
     .then(response => response.json())
     .then(data => {
       console.log("Data: ", data);
-      
-      const change_reasonElement = document.getElementById('change_reason');
-        console.log("CHANGE DATA:", data);
-        document.getElementById('change_reason').value = data.change_reason_id_fk;
-        // document.getElementById('status_issue').value = data.issue;
-        // document.getElementById('status_action').value = data.actions;
-        // document.getElementById('status_progress').value = data.progress;
-        // document.getElementById('status_health').value = data.health;
+      document.getElementById('change_reason').value = data.change_reason_id_fk;
+      document.getElementById('change_explanation').value = data.change_explanation;
 
        // Open the modal
        $('#viewChangeModal').modal('show');

@@ -1,4 +1,5 @@
-const { ChangedProject } = require("../models"); // Adjust the path as needed
+const db = require("../models"); // Adjust the path as needed
+const ChangedProject = db.changed_projects;
 
 // Create and Save a new ChangedProject
 exports.create = async (req, res) => {
@@ -11,7 +12,6 @@ exports.create = async (req, res) => {
     }
 
     const changed_project = {
-      company_id_fk,
       project_name: req.body.project_name,
       start_date: req.body.start_date ? new Date(req.body.start_date) : null,
       end_date: req.body.end_date ? new Date(req.body.end_date) : null,
