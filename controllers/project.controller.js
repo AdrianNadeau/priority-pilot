@@ -1031,16 +1031,6 @@ exports.health = async (req, res) => {
 
 // Update a Project by the id in the request
 exports.update = async (req, res) => {
-  // Initialize startDate, endDate, and nextMilestoneDate
-  //convert dates
-  console.log("req.body.start_date:", req.body.start_date);
-  const startDate = insertValidDate(req.body.start_date);
-  console.log("startDate:", startDate);
-  const endDate = insertValidDate(req.body.end_date);
-  console.log("endDateTest:", endDateTest);
-  const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
-  console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
-
   try {
     // Ensure session exists and fetch company ID
     const id = req.params.id;
@@ -1049,13 +1039,28 @@ exports.update = async (req, res) => {
     }
     const company_id_fk = req.session.company.id;
 
+    // Initialize startDate, endDate, and nextMilestoneDate
+    let startDateTest = null,
+      endDateTest = null,
+      nextMilestoneDateTest = null;
+
+    // Convert dates
+    console.log("req.body.start_date:", req.body.start_date);
+    startDateTest = insertValidDate(req.body.start_date);
+    console.log("startDateTest:", startDateTest);
+    endDateTest = insertValidDate(req.body.end_date);
+    console.log("endDateTest:", endDateTest);
+    nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
+    console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
+
     // Update the project in the database
-    await Project.update(
+    console.log("req.body:", req.body);
+    const [updated] = await Project.update(
       {
-        start_date: startDate ? startDate.toDate() : null,
-        end_date: endDate ? endDate.toDate() : null,
+        start_date: startDateTest ? startDateTest.toDate() : null,
+        end_date: endDateTest ? endDateTest.toDate() : null,
         next_milestone_date: nextMilestoneDateTest
-          ? nextMilestoneDate.toDate()
+          ? nextMilestoneDateTest.toDate()
           : null,
         company_id_fk: company_id_fk,
         project_name: req.body.project_name,
@@ -1063,6 +1068,7 @@ exports.update = async (req, res) => {
         project_description: req.body.project_description,
         project_why: req.body.project_why,
         project_what: req.body.project_what,
+        phase_id_fk: req.body.phase_id_fk,
         priority_id_fk: req.body.priority_id_fk,
         sponsor_id_fk: req.body.sponsor_id_fk,
         prime_id_fk: req.body.prime_id_fk,
@@ -1077,43 +1083,44 @@ exports.update = async (req, res) => {
         where: { id: id, company_id_fk: company_id_fk },
       },
     );
-    //create a new changed project
-    const changedProject = {
-      project_id_fk: id,
-      company_id_fk: company_id_fk,
 
-      start_date: startDate ? startDate.toDate() : null,
-      end_date: endDate ? endDate.toDate() : null,
-      next_milestone_date: nextMilestoneDateTest
-        ? nextMilestoneDateTest.toDate()
-        : null,
+    if (updated) {
+      // Create a new ChangedProject entry
+      const newChangedProject = {
+        project_id_fk: id,
+        company_id_fk: company_id_fk,
+        change_date: new Date(),
+        project_name: req.body.project_name,
+        project_headline: req.body.project_headline,
+        project_description: req.body.project_description,
+        project_why: req.body.project_why,
+        project_what: req.body.project_what,
+        priority_id_fk: req.body.priority_id_fk,
+        sponsor_id_fk: req.body.sponsor_id_fk,
+        prime_id_fk: req.body.prime_id_fk,
+        impact: req.body.impact,
+        complexity: req.body.complexity,
+        effort: req.body.effort,
+        benefit: req.body.benefit,
+        project_cost: req.body.project_cost,
+        tags: req.body.tags,
+      };
 
-      project_name: req.body.project_name,
-      project_headline: req.body.project_headline,
-      project_description: req.body.project_description,
-      project_why: req.body.project_why,
-      project_what: req.body.project_what,
-      priority_id_fk: req.body.priority_id_fk,
-      sponsor_id_fk: req.body.sponsor_id_fk,
-      prime_id_fk: req.body.prime_id_fk,
-      impact: req.body.impact,
-      complexity: req.body.complexity,
-      effort: req.body.effort,
-      benefit: req.body.benefit,
-      project_cost: req.body.project_cost,
-      tags: req.body.tags,
-      change_reason_id_fk: req.body.change_reason_id_fk,
-      change_date: new Date(),
-      change_explanation: req.body.change_explanation,
-    };
-    console.log("changedProject:", changedProject);
-    changedProject = await ChangeProject.create(changedProject);
-    if (changedProject) res.redirect("/projects/");
+      const changedProject = await ChangeProject.create(newChangedProject);
+      console.log("changedProject:", changedProject);
+
+      if (changedProject) res.redirect("/projects/");
+    } else {
+      res.status(404).send({
+        message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
+      });
+    }
   } catch (error) {
     console.error("Error updating project:", error);
     res.status(500).json({ message: "Error updating project" });
   }
 };
+
 // Delete a Project with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
@@ -1152,15 +1159,7 @@ exports.deleteAll = (req, res) => {
       });
     });
 };
-function insertValidDate(dateString) {
-  try {
-    const date = new Date(dateString);
-    // Format the date to "YYYY-MM-DD"
-    const formattedDate = date.toISOString().split("T")[0];
-    console.log(formattedDate); // Output: "2024-12-31"
-    return formattedDate;
-  } catch (error) {
-    console.log("Error:", error);
-    return null;
-  }
+// Helper function to insert valid date
+function insertValidDate(date) {
+  return date ? moment.tz(date, "YYYY-MM-DD", "UTC") : null;
 }
