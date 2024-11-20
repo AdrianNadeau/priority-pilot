@@ -295,24 +295,24 @@
           <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
           <div class="form-group">
             <label for="status_accomplishments"><strong>Accomplishments:</strong></label>
-            <textarea id="status_accomplishments" class="form-control" rows="3" disabled></textarea>
+            <textarea id="view_status_accomplishments" class="form-control" rows="3" disabled></textarea>
           </div>
           <div class="form-group">
-            <label for="status_issue"><strong>Action</strong></label>
-            <textarea id="status_issue" class="form-control" rows="3" disabled></textarea>
+            <label for="status_issue"><strong>Issue</strong></label>
+            <textarea id="view_status_issue" class="form-control" rows="3" disabled></textarea>
           </div>
           
           <div class="form-group">
             <label for="status_action"><strong>Action</strong></label>
-            <textarea id="status_action" class="form-control" rows="3" disabled></textarea>
+            <textarea id="view_status_action" class="form-control" rows="3" disabled></textarea>
           </div>
           <div class="form-group">
             <label for="status_progress"><strong>Progress</strong></label>
-            <input type="text" id="status_progress" class="form-control" disabled>
+            <input type="text" id="view_status_progress" class="form-control" disabled>
           </div>
           <div class="form-group">
             <label for="status_health"><strong>Health</strong></label>
-            <input type="text" id="status_health" class="form-control" disabled>
+            <input type="text" id="view_status_health" class="form-control" disabled>
           </div>
         </div>
         <div class="modal-footer">
@@ -328,14 +328,12 @@
     .then(response => response.json())
     .then(data => {
       console.log("status data: ", data);
-      //not working
-      if (data.accomplishments) document.getElementById('status_accomplishments').value = data.accomplishments;
-      if (data.issue) document.getElementById('status_issue').value = data.issue;
-      if (data.actions) document.getElementById('status_action').value = data.actions;
-
-      //working
-      if (data.progress) document.getElementById('status_progress').value = data.progress;
-      if (data.health) document.getElementById('status_health').value = data.health;
+      // all working
+      if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
+      if (data.issue) document.getElementById('view_status_issue').value = data.issue;
+      if (data.actions) document.getElementById('view_status_action').value = data.actions;
+      if (data.progress) document.getElementById('view_status_progress').value = data.progress;
+      if (data.health) document.getElementById('view_status_health').value = data.health;
       if (data.status_date) {
           document.getElementById('view_status_date').innerText = 
               new Date(data.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
