@@ -61,6 +61,7 @@ app.use(expressLayouts);
 app.use("/", router);
 
 const db = require("./models");
+
 db.sequelize
   .sync({ alter: true })
   .then(() => {

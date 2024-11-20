@@ -65,7 +65,7 @@ db.phases = require("./phase.model.js")(sequelize, Sequelize);
 db.change_reasons = require("./change_reason.model.js")(sequelize, Sequelize);
 db.changed_projects = require("./changed_project.model.js")(
   sequelize,
-  Sequelize,
+  Sequelize.DataTypes,
 );
 
 db.sequelize = sequelize;

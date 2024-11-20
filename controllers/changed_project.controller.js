@@ -1,4 +1,4 @@
-const { ChangedProject, ChangeReason } = require("../models"); // Adjust the path as needed
+const { ChangedProject } = require("../models"); // Adjust the path as needed
 
 // Create and Save a new ChangedProject
 exports.create = async (req, res) => {
@@ -45,9 +45,9 @@ exports.create = async (req, res) => {
   }
 };
 
-// Retrieve all ChangedProjects
 exports.findAll = async (req, res) => {
   try {
+    console.log("ChangedProject", ChangedProject);
     const changedProjects = await ChangedProject.findAll();
     res.status(200).send(changedProjects);
   } catch (err) {
@@ -61,20 +61,12 @@ exports.findAll = async (req, res) => {
 exports.findAllByProjectId = async (req, res) => {
   if (!req.session.company) return res.redirect("/login");
   const company_id_fk = req.session.company.id;
-  console.log(
-    "*********************************** COMPANY:",
-    company_id_fk + " ***********************************",
-  );
-  const project_id_fk = req.params.id;
-  console.log(
-    "*********************************** PROJECT:",
-    project_id_fk + " ***********************************",
-  );
-
+  const changed_id = req.params.id;
+  console.log("changed_id", changed_id);
+  console.log("ChangedProject", ChangedProject);
   try {
     const changedProjects = await ChangedProject.findAll({
-      project_id_fk: project_id_fk,
-      company_id_fk: company_id_fk,
+      changed_id: changed_id,
     });
     res.status(200).send(changedProjects);
   } catch (err) {

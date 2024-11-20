@@ -133,7 +133,7 @@
                   
                   <% if (change.id) { %>
                     
-                    <a href="#" onClick="getChange(<%=change.id%>,<%change.company_id_fk%>)" data-target="#viewChangeModal" id="viewChangeLink"><%= change.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></a>
+                    <a href="#" onClick="getChange(<%=change.id%>)" data-target="#viewChangeModal" id="viewChangeLink"><%= change.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></a>
                     <div style="width:100% !important;"><hr/></div>
                     
                   <% } %>
@@ -324,7 +324,6 @@
 </div><!-- /.modal -->
 <script>
   function getStatus(id) {
-    console.log("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIID: ", id);
     fetch(`/statuses/${id}`)
     .then(response => response.json())
     .then(data => {
@@ -342,37 +341,29 @@
               new Date(data.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       }
         
-        // document.getElementById('status_accomplishments').value = data.accomplishments;
-        // document.getElementById('status_issue').value = data.issue;
-        // document.getElementById('status_action').value = data.actions;
-        // document.getElementById('status_progress').value = data.progress;
-        // document.getElementById('status_health').value = data.health;
-        // document.getElementById('view_status_date').innerText = new Date(data.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
        // Open the modal
        $('#viewStatusModal').modal('show');
      
     })
     .catch(err => console.error(err));
   }
-  function getChange(id, company_id) {
+  function getChange(id) {
     console.log("ID: ", id);
     
-    fetch(`/changed_projects/changedlog/${id}/${companyid}`)///changed_projects
+    fetch(`/changed_projects/changedlog/${id}/`)///changed_projects
     .then(response => response.json())
     .then(data => {
       console.log("Data: ", data);
       
-      // const change_reasonElement = document.getElementById('change_reason');
-      //   console.log("CHANGE DATA:", data);
-      //   document.getElementById('change_reason').value = data.change_reason_id_fk;
-      //   // document.getElementById('status_issue').value = data.issue;
-      //   // document.getElementById('status_action').value = data.actions;
-      //   // document.getElementById('status_progress').value = data.progress;
-      //   // document.getElementById('status_health').value = data.health;
+      const change_reasonElement = document.getElementById('change_reason');
+        console.log("CHANGE DATA:", data);
+        document.getElementById('change_reason').value = data.change_reason_id_fk;
+        // document.getElementById('status_issue').value = data.issue;
+        // document.getElementById('status_action').value = data.actions;
+        // document.getElementById('status_progress').value = data.progress;
+        // document.getElementById('status_health').value = data.health;
 
-      //  // Open the modal
-      //  $('#viewChangeModal').modal('show');
+       // Open the modal
        $('#viewChangeModal').modal('show');
     })
     .catch(err => console.error(err));

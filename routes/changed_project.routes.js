@@ -8,7 +8,7 @@ module.exports = (app) => {
   router.get("/:id", changed_projects.findOne);
   router.post("/:id", changed_projects.update);
   router.delete("/:id", changed_projects.delete);
-  // router.get("/changed/:id/:companyid", changed_projects.findAllByProjectId);
+  router.get("/changed/:id/:companyid", changed_projects.findAllByProjectId);
   router.get("/changedlog/:id/", changed_projects.findAllByProjectId);
 
   // router.get("/cockpit/:id", projects.cockpit);
