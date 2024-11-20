@@ -262,7 +262,7 @@
             </div>
             <div class="modal-body">
               <!-- Modal content goes here -->
-              <strong>Date: </strong><br/>
+              <strong>Date: </strong><span id="view_change_date"></span><br/>
               <strong>Prime:</strong><% if(project[0].prime_last_name) %>
               <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
               <div class="form-group">
@@ -352,11 +352,16 @@
     .then(response => response.json())
     .then(data => {
       console.log("Data: ", data);
-      document.getElementById('change_reason').value = data.change_reason_id_fk;
-      document.getElementById('change_explanation').value = data.change_explanation;
-
-       // Open the modal
-       $('#viewChangeModal').modal('show');
+      fetch(`/change_reason/${data.change_reason_id_fk}/`)
+        .then(reasonResponse => reasonResponse.json())
+        .then(reasonData => {
+          document.getElementById('change_reason').value = reasonData.change_reason;
+          document.getElementById('change_explanation').value = data.change_explanation;
+          document.getElementById('view_change_date').innerText = new Date(data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        // Open the modal
+        $('#viewChangeModal').modal('show');
+        })
+        .catch(err => console.error(err));
     })
     .catch(err => console.error(err));
   }

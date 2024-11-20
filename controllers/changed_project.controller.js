@@ -1,5 +1,6 @@
 const db = require("../models"); // Adjust the path as needed
 const ChangedProject = db.changed_projects;
+const ChangeReason = db.change_reasons;
 
 // Create and Save a new ChangedProject
 exports.create = async (req, res) => {
