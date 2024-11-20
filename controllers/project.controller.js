@@ -1054,7 +1054,10 @@ exports.update = async (req, res) => {
     console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
 
     // Update the project in the database
-    console.log("req.body:", req.body);
+    console.log(
+      "******************************** req.body *****************************",
+      req.body,
+    );
     const [updated] = await Project.update(
       {
         start_date: startDateTest ? startDateTest.toDate() : null,
@@ -1083,7 +1086,7 @@ exports.update = async (req, res) => {
         where: { id: id, company_id_fk: company_id_fk },
       },
     );
-
+    console.log("ID:", id);
     if (updated) {
       // Create a new ChangedProject entry
       const newChangedProject = {
