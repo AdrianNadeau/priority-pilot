@@ -66,20 +66,21 @@ exports.create = (req, res) => {
   // Save Project in the database
   Project.create(project).then(async (data) => {
     //call get all function for project /projects
-    const [phasesData, prioritiesData, personsData, projectsData] =
-      await Promise.all([
-        Phase.findAll(),
-        Priority.findAll(),
+    const phasesData = await Phase.findAll({
+      order: [["id", "ASC"]],
+    });
+    const [prioritiesData, personsData, projectsData] = await Promise.all([
+      Priority.findAll(),
 
-        // Results will be an empty array and metadata will contain the number of affected rows.
-        Person.findAll({
-          where: {
-            company_id_fk: company_id_fk,
-          },
-        }),
-        Project.findAll(),
-        // ChangeReason.findAll()
-      ]);
+      // Results will be an empty array and metadata will contain the number of affected rows.
+      Person.findAll({
+        where: {
+          company_id_fk: company_id_fk,
+        },
+      }),
+      Project.findAll(),
+      // ChangeReason.findAll()
+    ]);
 
     const query =
       "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
@@ -123,8 +124,9 @@ exports.findAll = async (req, res) => {
     }
     console.log("ONE FOR COMPANY_ID", company_id_fk);
 
-    // let phasesData = await Phase.findAll();
-    let phasesData = await Phase.findAll();
+    const phasesData = await Phase.findAll({
+      order: [["id", "ASC"]],
+    });
     let priorities = await Priority.findAll();
 
     const personsData = await Person.findAll({
@@ -429,9 +431,10 @@ proj.company_id_fk = ? AND proj.id = ?`;
         lastStartDate = statuses[0].status_date;
         statusColor = statuses[0].health;
       }
-
-      const [phasesData, prioritiesData] = await Promise.all([
-        Phase.findAll(),
+      const phasesData = await Phase.findAll({
+        order: [["id", "ASC"]],
+      });
+      const [prioritiesData] = await Promise.all([
         Priority.findAll(),
         Project.findAll(),
       ]);
@@ -606,9 +609,10 @@ exports.findOneForPrime = async (req, res) => {
         lastStatusDate = statuses[0].status_date;
         statusColor = statuses[0].health;
       }
-
-      const [phasesData, prioritiesData] = await Promise.all([
-        Phase.findAll(),
+      const phasesData = await Phase.findAll({
+        order: [["id", "ASC"]],
+      });
+      const [prioritiesData] = await Promise.all([
         Priority.findAll(),
         Project.findAll(),
       ]);
@@ -647,7 +651,9 @@ exports.findFunnel = async (req, res) => {
     const company_id_fk = req.session.company.id;
 
     // Retrieve phases
-    const phases = await Phase.findAll();
+    const phases = await Phase.findAll({
+      order: [["id", "ASC"]],
+    });
 
     // Retrieve projects related to the company
     const projects = await Project.findAll({
@@ -988,7 +994,9 @@ exports.findFunnel = async (req, res) => {
     });
 
     // Retrieve phases and priorities
-    const phases = await Phase.findAll();
+    const phases = await Phase.findAll({
+      order: [["id", "ASC"]],
+    });
     const priorities = await Priority.findAll();
 
     // Retrieve sponsors and primes
@@ -1023,6 +1031,16 @@ exports.health = async (req, res) => {
 
 // Update a Project by the id in the request
 exports.update = async (req, res) => {
+  // Initialize startDate, endDate, and nextMilestoneDate
+  //convert dates
+  console.log("req.body.start_date:", req.body.start_date);
+  const startDate = insertValidDate(req.body.start_date);
+  console.log("startDateTest:", startDateTest);
+  const endDate = insertValidDate(req.body.end_date);
+  console.log("endDateTest:", endDateTest);
+  const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
+  console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
+
   try {
     // Ensure session exists and fetch company ID
     const id = req.params.id;
@@ -1031,62 +1049,12 @@ exports.update = async (req, res) => {
     }
     const company_id_fk = req.session.company.id;
 
-    // Initialize startDate, endDate, and nextMilestoneDate
-    let startDate = null;
-    let endDate = null;
-    let nextMilestoneDate = null;
-
-    // Check if start_date has a value and is not null
-    if (req.body.start_date) {
-      startDate = moment
-        .tz(req.body.start_date, "YYYY-MM-DD", "UTC")
-        .set({ hour: 20, minute: 0, second: 0 });
-      if (!startDate.isValid()) {
-        console.log("Invalid Start Date:", req.body.start_date);
-        return res.status(400).send("Invalid Start Date");
-      }
-      console.log("Start Date:", startDate.format("YYYY-MM-DD HH:mm:ssZ"));
-    } else {
-      console.log("Start Date is missing or null");
-    }
-
-    // Check if end_date has a value and is not null
-    if (req.body.end_date) {
-      endDate = moment
-        .tz(req.body.end_date, "YYYY-MM-DD", "UTC")
-        .set({ hour: 20, minute: 0, second: 0 });
-      if (!endDate.isValid()) {
-        console.log("Invalid End Date:", req.body.end_date);
-        return res.status(400).send("Invalid End Date");
-      }
-      console.log("End Date:", endDate.format("YYYY-MM-DD HH:mm:ssZ"));
-    } else {
-      console.log("End Date is missing or null");
-    }
-
-    // Check if milestone has a value and is not null
-    if (req.body.next_milestone_date) {
-      nextMilestoneDate = moment
-        .tz(req.body.next_milestone_date, "YYYY-MM-DD", "UTC")
-        .set({ hour: 20, minute: 0, second: 0 });
-      if (!startDate.isValid()) {
-        console.log("Invalid MileStone Date:", req.body.next_milestone_date);
-        return res.status(400).send("Invalid MileStone Date");
-      }
-      console.log(
-        "MileStone Date:",
-        nextMilestoneDate.format("YYYY-MM-DD HH:mm:ssZ"),
-      );
-    } else {
-      console.log("MileStone Date is missing or null");
-    }
-
     // Update the project in the database
     await Project.update(
       {
         start_date: startDate ? startDate.toDate() : null,
         end_date: endDate ? endDate.toDate() : null,
-        next_milestone_date: nextMilestoneDate
+        next_milestone_date: nextMilestoneDateTest
           ? nextMilestoneDate.toDate()
           : null,
         company_id_fk: company_id_fk,
@@ -1109,8 +1077,38 @@ exports.update = async (req, res) => {
         where: { id: id, company_id_fk: company_id_fk },
       },
     );
+    //create a new changed project
+    const changedProject = {
+      project_id_fk: id,
+      company_id_fk: company_id_fk,
 
-    res.redirect("/projects/");
+      start_date: startDate ? startDate.toDate() : null,
+      end_date: endDate ? endDate.toDate() : null,
+      next_milestone_date: nextMilestoneDateTest
+        ? nextMilestoneDateTest.toDate()
+        : null,
+
+      project_name: req.body.project_name,
+      project_headline: req.body.project_headline,
+      project_description: req.body.project_description,
+      project_why: req.body.project_why,
+      project_what: req.body.project_what,
+      priority_id_fk: req.body.priority_id_fk,
+      sponsor_id_fk: req.body.sponsor_id_fk,
+      prime_id_fk: req.body.prime_id_fk,
+      impact: req.body.impact,
+      complexity: req.body.complexity,
+      effort: req.body.effort,
+      benefit: req.body.benefit,
+      project_cost: req.body.project_cost,
+      tags: req.body.tags,
+      change_reason_id_fk: req.body.change_reason_id_fk,
+      change_date: new Date(),
+      change_explanation: req.body.change_explanation,
+    };
+    console.log("changedProject:", changedProject);
+    changedProject = await ChangeProject.create(changedProject);
+    if (changedProject) res.redirect("/projects/");
   } catch (error) {
     console.error("Error updating project:", error);
     res.status(500).json({ message: "Error updating project" });

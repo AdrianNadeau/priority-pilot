@@ -39,10 +39,11 @@ async function isAdminMiddleware(req, res, next) {
       replacements: [companyId, userId, userId],
       type: db.sequelize.QueryTypes.SELECT,
     });
-
+    const phasesData = await Phase.findAll({
+      order: [["id", "ASC"]],
+    });
     // Retrieve other necessary data for rendering the page
-    const [phasesData, prioritiesData, personsData] = await Promise.all([
-      Phase.findAll(),
+    const [prioritiesData, personsData] = await Promise.all([
       Priority.findAll(),
       Person.findAll({ where: { company_id_fk: companyId } }),
     ]);
