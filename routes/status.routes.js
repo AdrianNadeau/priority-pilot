@@ -10,6 +10,9 @@ module.exports = (app) => {
   router.get("/", statuses.findAll);
 
   // Retrieve a single Tag with id
+  router.get("/projects/:project_id_fk", statuses.findAllByProjectId);
+
+  // Retrieve a single Tag with id
   router.get("/:id", statuses.findOne);
 
   // Update a Tag with id

@@ -68,6 +68,24 @@ exports.findAll = (req, res) => {
     });
 };
 
+// Retrieve all by projectId from the database.
+exports.findAllByProjectId = (req, res) => {
+  const project_id_fk = req.params.project_id_fk;
+  Status.findAll({
+    where: { project_id_fk },
+    order: [["createdAt", "DESC"]],
+  })
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving companies.",
+      });
+    });
+};
+
 // Find a single Status with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
