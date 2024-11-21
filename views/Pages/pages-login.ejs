@@ -1,95 +1,137 @@
-<% include ../Partials/HeaderRoot  %>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<% include ../Partials/HeaderRoot %>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+/>
 <style>
-    .password-container {
-      position: relative;
-      width: 300px;
-    }
+  .password-container {
+    position: relative;
+    width: 300px;
+  }
 
-    .password-container input {
-      width: 100%;
-      padding-right: 40px;
-    }
+  .password-container input {
+    width: 100%;
+    padding-right: 40px;
+  }
 
-    .password-container .toggle-password {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-    }
-  </style>
-<div id="preloader"><div id="status"><div class="spinner"></div></div></div>
+  .password-container .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+</style>
+<div id="preloader">
+  <div id="status"><div class="spinner"></div></div>
+</div>
 
+<!-- Begin page -->
+<div class="accountbg"></div>
+<div class="wrapper-page">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="text-center m-0">
+        <!-- Priority Pilot -->
+        <a href="/" class="logo logo-admin"
+          ><img
+            style="width: 400px"
+            src="public/assets/images/logo.png"
+            alt="logo"
+        /></a>
+      </h3>
 
-   <!-- Begin page -->
-   <div class="accountbg"></div>
-   <div class="wrapper-page">
+      <div class="p-3">
+        <h4 class="font-18 m-b-5 text-center">Welcome Back !</h4>
+        <p class="text-muted text-center">
+          Sign in to continue to Priority Pilot.
+        </p>
 
-       <div class="card">
-           <div class="card-body">
+        <form
+          class="form-horizontal m-t-30"
+          method="POST"
+          action="/persons/auth/login/"
+        >
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              placeholder="Enter email"
+            />
+          </div>
 
-            <h3 class="text-center m-0">
-                <!-- Priority Pilot -->
-                <a href="/" class="logo logo-admin"><img style="width:400px" src ="public/assets/images/logo.png" alt="logo"></a>
-            </h3>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <i class="fas fa-eye toggle-password" id="togglePassword"></i
+            ><input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              placeholder="Enter password"
+            />
+          </div>
 
-               <div class="p-3">
-                   <h4 class="font-18 m-b-5 text-center">Welcome Back !</h4>
-                   <p class="text-muted text-center">Sign in to continue to Priority Pilot.</p>
+          <div class="form-group row m-t-20">
+            <div class="col-sm-6">
+              <div class="custom-control custom-checkbox">
+                <input
+                  type="checkbox"
+                  class="custom-control-input"
+                  id="customControlInline"
+                />
+                <label class="custom-control-label" for="customControlInline"
+                  >Remember me</label
+                >
+              </div>
+            </div>
+            <div class="col-sm-6 text-right">
+              <button
+                class="btn btn-primary w-md waves-effect waves-light"
+                type="submit"
+              >
+                Log In
+              </button>
+            </div>
+          </div>
 
-                   <form class="form-horizontal m-t-30" method="POST" action="/persons/auth/login/">
+          <div class="form-group m-t-10 mb-0 row">
+            <div class="col-12 m-t-20">
+              <a href="pages-recoverpw" class="text-muted"
+                ><i class="mdi mdi-lock"></i> Forgot your password?</a
+              >
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
-                       <div class="form-group">
-                           <label for="email">Email</label>
-                           <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
-                       </div>
+  <div class="m-t-40 text-center">
+    <p>
+      Don't have an account ?
+      <a href="/register" class="font-500 font-14 font-secondary">
+        Signup Now
+      </a>
+    </p>
+    <p>© <%= new Date().getFullYear(); %> Priority Pilot.</p>
+  </div>
+</div>
+<script>
+  const togglePassword = document.querySelector("#togglePassword");
+  const password = document.querySelector("#password");
 
-                       <div class="form-group">
-                           <label for="password">Password</label>
-                           <i class="fas fa-eye toggle-password" id="togglePassword"></i><input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
-                       </div>
+  togglePassword.addEventListener("click", function (e) {
+    // Toggle the type attribute
+    const type =
+      password.getAttribute("type") === "password" ? "text" : "password";
+    password.setAttribute("type", type);
 
-                       <div class="form-group row m-t-20">
-                           <div class="col-sm-6">
-                               <div class="custom-control custom-checkbox">
-                                   <input type="checkbox" class="custom-control-input" id="customControlInline">
-                                   <label class="custom-control-label" for="customControlInline">Remember me</label>
-                               </div>
-                           </div>
-                           <div class="col-sm-6 text-right">
-                               <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Log In</button>
-                           </div>
-                       </div>
-
-                       <div class="form-group m-t-10 mb-0 row">
-                           <div class="col-12 m-t-20">
-                               <a href="pages-recoverpw" class="text-muted"><i class="mdi mdi-lock"></i> Forgot your password?</a>
-                           </div>
-                       </div>
-                   </form>
-               </div>
-
-           </div>
-       </div>
-
-       <div class="m-t-40 text-center">
-           <p>Don't have an account ? <a href="/register" class="font-500 font-14 font-secondary"> Signup Now </a> </p>
-           <p>© <%= new Date().getFullYear() - 1; %> - <%= new Date().getFullYear(); %> Priority Pilot.
-       </div>
-
-   </div>
-   <script>
-    const togglePassword = document.querySelector('#togglePassword');
-    const password = document.querySelector('#password');
-
-    togglePassword.addEventListener('click', function (e) {
-      // Toggle the type attribute
-      const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-      password.setAttribute('type', type);
-      
-      // Toggle the eye / eye slash icon
-      this.classList.toggle('fa-eye-slash');
-    });
-  </script>
-<% include ../Partials/FooterRoot  %>
+    // Toggle the eye / eye slash icon
+    this.classList.toggle("fa-eye-slash");
+  });
+</script>
+<% include ../Partials/FooterRoot %>
