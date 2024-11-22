@@ -32,8 +32,8 @@
                                         <th>NMS</th>
                                         <th>Prime</th>
                                         <th>Sponsor</th>
-                                        <th>Cost</th>
-                                        <th>PH</th>
+                                        <th>Issue(s)</th>
+                                        <th>Actions</th>
                                        
                                        
                                     </tr>
@@ -65,8 +65,8 @@
                                             <td><% if (project.next_milestone_date) { %><%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
                                             <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
                                             <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
-                                            <td><%= project.project_cost %></td>
-                                            <td><%= project.effort %></td>
+                                            <td><%= project.issue %></td>
+                                            <td><%= project.actions %></td>
                                             
                                         </tr>
                                         <% } %>
