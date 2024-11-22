@@ -1,5 +1,5 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
 
 const db = require("./models");
 const Project = db.projects;
@@ -18,7 +18,7 @@ router.get("/", isAdminMiddleware, async function (req, res) {
     }
     company_id_fk = req.session.company.id;
   } catch (error) {
-    console.log("SESSION INVALID");
+    console.error("SESSION INVALID");
     return res.redirect("/login");
   }
 
@@ -35,27 +35,36 @@ router.get("/", isAdminMiddleware, async function (req, res) {
 
     // Custom SQL query to retrieve detailed project info
     const query = `
-      SELECT proj.company_id_fk, proj.id, proj.project_name, proj.start_date, proj.end_date,
-             proj.health, proj.effort AS effort, prime_person.first_name AS prime_first_name,
-             prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name,
-             sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name 
-      FROM projects proj
-      LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk
-      LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-      LEFT JOIN phases ON phases.id = proj.phase_id_fk
-      WHERE proj.company_id_fk = ? 
-      ORDER BY proj.phase_id_fk;`;
-
-    // Initialize totals for costs and efforts
-    let totalCost = 0,
-      totalPH = 0;
-    let phaseData = {
-      pitch: { count: 0, cost: 0, ph: 0 },
-      priority: { count: 0, cost: 0, ph: 0 },
-      discovery: { count: 0, cost: 0, ph: 0 },
-      delivery: { count: 0, cost: 0, ph: 0 },
-      done: { count: 0, cost: 0, ph: 0 },
-    };
+      SELECT 
+        proj.company_id_fk, 
+        proj.id, 
+        proj.project_name, 
+        proj.start_date, 
+        proj.end_date,
+        proj.health, 
+        proj.effort AS effort, 
+        prime_person.first_name AS prime_first_name,
+        prime_person.last_name AS prime_last_name, 
+        sponsor_person.first_name AS sponsor_first_name,
+        sponsor_person.last_name AS sponsor_last_name, 
+        proj.project_cost, 
+        phases.phase_name, 
+        companies.portfolio_budget
+      FROM 
+        projects proj
+      LEFT JOIN 
+        persons prime_person ON prime_person.id = proj.prime_id_fk
+      LEFT JOIN 
+        persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+      LEFT JOIN 
+        phases ON phases.id = proj.phase_id_fk
+      LEFT JOIN 
+        companies ON companies.id = proj.company_id_fk
+      WHERE 
+        proj.company_id_fk = ? 
+      ORDER BY 
+        proj.phase_id_fk;
+    `;
 
     // Execute custom SQL query
     const data = await db.sequelize.query(query, {
@@ -63,95 +72,111 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       type: db.sequelize.QueryTypes.SELECT,
     });
 
+    // Initialize portfolio budget and totals
+    let portfolio_budget = convertToNumber(data[0]?.portfolio_budget || 0);
+    let totalPH = 0;
+
+    // Initialize phase data with default values
+    const phaseData = {
+      pitch: { count: 0, cost: 0, ph: 0 },
+      priority: { count: 0, cost: 0, ph: 0 },
+      discovery: { count: 0, cost: 0, ph: 0 },
+      delivery: { count: 0, cost: 0, ph: 0 },
+      done: { count: 0, cost: 0, ph: 0 },
+    };
+    let usedCost = 0;
     // Process data and calculate totals
     data.forEach((project) => {
       const projectCost =
         parseFloat(project.project_cost.replace(/,/g, "")) || 0;
       const projectEffortPH = parseInt(project.effort) || 0;
 
-      totalCost += projectCost;
       totalPH += projectEffortPH;
 
       // Categorize by phase name and accumulate values
-      const phase = project.phase_name.toLowerCase();
+      const phase = project.phase_name?.toLowerCase() || "unknown";
       if (phaseData[phase]) {
         phaseData[phase].count++;
         phaseData[phase].cost += projectCost;
         phaseData[phase].ph += projectEffortPH;
       } else {
-        console.log("Unknown phase: " + project.phase_name);
+        console.warn("Unknown phase:", project.phase_name);
       }
     });
 
-    // Finalize cost and effort calculations
-    const usedCost = totalCost - phaseData.done.cost;
-    const availableCost = totalCost - usedCost;
+    // Calculate usedCost and availableCost
+    usedCost =
+      phaseData.priority.cost +
+      phaseData.discovery.cost +
+      phaseData.delivery.cost +
+      phaseData.done.cost;
 
-    // Helper function for formatting values
-    function formatValue(value) {
-      return (value || 0).toLocaleString("en-US");
-    }
+    availableCost = portfolio_budget - usedCost;
 
-    // Render the dashboard page
     res.render("Dashboard/dashboard1", {
       projects: data,
-      totalCost: formatValue(totalCost),
-      usedCost: formatValue(usedCost),
-      availableCost: formatValue(availableCost),
-      totalPH: formatValue(totalPH),
-      totalUsedPH: formatValue(totalPH - phaseData.done.ph),
-      totalAvailPH: formatValue(phaseData.done.ph),
+      totalPH: formatCost(totalPH),
+      totalAvailPH: formatCost(phaseData.done.ph),
+      totalUsedPH: formatCost(totalPH - phaseData.done.ph),
+      priorityCount: phaseData.priority.count,
+      // Phase details
       pitch: {
         count: formatValue(phaseData.pitch.count),
-        cost: formatValue(phaseData.pitch.cost),
-        ph: formatValue(phaseData.pitch.ph),
+        cost: formatCost(phaseData.pitch.cost),
+        ph: formatCost(phaseData.pitch.ph),
       },
       priority: {
         count: formatValue(phaseData.priority.count),
-        cost: formatValue(phaseData.priority.cost),
-        ph: formatValue(phaseData.priority.ph),
+        cost: formatCost(phaseData.priority.cost),
+        ph: formatCost(phaseData.priority.ph),
       },
       discovery: {
         count: formatValue(phaseData.discovery.count),
-        cost: formatValue(phaseData.discovery.cost),
+        cost: formatCost(phaseData.discovery.cost),
         ph: formatValue(phaseData.discovery.ph),
       },
       delivery: {
         count: formatValue(phaseData.delivery.count),
-        cost: formatValue(phaseData.delivery.cost),
+        cost: formatCost(phaseData.delivery.cost),
         ph: formatValue(phaseData.delivery.ph),
       },
       operations: {
         count: formatValue(phaseData.done.count),
-        cost: formatValue(phaseData.done.cost),
+        cost: formatCost(phaseData.done.cost),
         ph: formatValue(phaseData.done.ph),
       },
-      session: req.session,
-      priorityCount: formatValue(phaseData.priority.count),
-      priorityTotalCost: formatValue(phaseData.priority.cost),
-      priorityTotalPH: formatValue(phaseData.priority.ph),
-
-      discoveryCount: formatValue(phaseData.discovery.count),
-      totalDiscoveryCost: formatValue(phaseData.discovery.cost),
-      discoveryTotalPH: formatValue(phaseData.discovery.ph),
-
-      totalDeliveryCount: formatValue(phaseData.delivery.count),
-      deliveryTotalCost: formatValue(phaseData.delivery.cost),
-      deliveryTotalPH: formatValue(phaseData.delivery.ph),
-
-      totalOperationsCount: formatValue(phaseData.done.count),
-      operationsTotalCost: formatValue(phaseData.done.cost),
-      operationsTotalPH: formatValue(phaseData.done.ph),
-
-      totalPitchCount: formatValue(phaseData.pitch.count),
-      pitchTotalCost: formatValue(phaseData.pitch.cost),
-      totalPitchPH: formatValue(phaseData.pitch.ph),
+      portfolio_budget: formatCost(portfolio_budget),
+      // Calculate usedCost and availableCost
+      usedCost: formatCost(
+        phaseData.priority.cost +
+          phaseData.discovery.cost +
+          phaseData.delivery.cost +
+          phaseData.done.cost,
+      ),
+      availableCost: formatCost(portfolio_budget - usedCost),
     });
-    console.log("Data", data);
   } catch (error) {
-    console.error("Error while fetching data:", error);
+    console.error("Error while fetching data:", error.message, error.stack);
     res.status(500).send("Internal Server Error");
   }
 });
+
+// Helper functions
+const formatCost = (cost) => {
+  if (cost === null || cost === undefined) return "0";
+  if (cost >= 1_000_000_000) return `${(cost / 1_000_000_000).toFixed(1)}B`;
+  if (cost >= 1_000_000) return `${(cost / 1_000_000).toFixed(1)}M`;
+  if (cost >= 1_000) return `${(cost / 1_000).toFixed(1)}K`;
+  return cost.toString();
+};
+
+const convertToNumber = (value) => {
+  if (typeof value === "number") return value;
+  if (typeof value === "string")
+    return parseFloat(value.replace(/,/g, "")) || 0;
+  return 0;
+};
+
+const formatValue = (value) => (value || 0).toLocaleString("en-US");
 
 module.exports = router;

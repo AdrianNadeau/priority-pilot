@@ -24,7 +24,7 @@
                      <div class="col-md-12">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter">Priority (<%= priorityCount %>, $<%= priorityTotalCost %>, <%= priorityTotalPH %> PH)</span>
+                                <span class="counter">Priority (<%= priority.count %>, $<%= priority.cost %>, <%=priority.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -46,7 +46,7 @@
                     <div class="col-md-12">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter">Discovery (<%= discoveryCount %>, $<%= totalDiscoveryCost %>, <%= discoveryTotalPH %> PH)</span>
+                                <span class="counter">Discovery (<%= discovery.count %>, $<%= discovery.cost %>, <%=discovery.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -68,7 +68,7 @@
                     <div class="col-md-12">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter">Delivery (<%= totalDeliveryCount %>, $<%= deliveryTotalCost %>, <%= deliveryTotalPH %> PH)</span>
+                                <span class="counter">Delivery (<%= delivery.count %>, $<%= delivery.cost %>, <%=delivery.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -89,7 +89,7 @@
                     <div class="col-12">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter">Done (<%= totalOperationsCount %>, $<%= operationsTotalCost %>, <%= operationsTotalPH %> PH)</span>
+                                <span class="counter">Done (<%= operations.count %>, $<%= operations.cost %>, <%=operations.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -113,7 +113,7 @@
                 <div class="mini-stat bg-white text-center clearfix">
                     <div>
                         <button type="button" class="btn btn-light" style="width: 75%; margin-bottom: 5px; border-width: 2px; border-color: black;" onClick="loadFunnel();">
-                            Funnel (<%= totalPitchCount %>, $<%= pitchTotalCost %>, <%= totalPitchPH %> PH)
+                            Funnel (<%= pitch.count %>, $<%= pitch.cost %>, <%=pitch.ph %> PH)
                         </button>
                     </div>
                     <div>
@@ -130,9 +130,9 @@
                         <div class="col-md-12">
                             <strong>$$</strong>
                             <ul class="list-unstyled">
-                                <li>Full: <%= totalCost %></li>
-                                <li>Used: <%= usedCost %></li>
-                                <li>Avail: <%= availableCost %></li>
+                                <li>Full: $<%= portfolio_budget %></li>
+                                <li>Used: $<%= usedCost %></li>
+                                <li>Avail: $<%= availableCost %></li>
                             </ul>
                             <strong>Effort</strong>
                             <ul class="list-unstyled">

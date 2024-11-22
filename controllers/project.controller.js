@@ -311,6 +311,7 @@ exports.cockpit = async (req, res) => {
       replacements: [company_id_fk, project_id],
       type: db.sequelize.QueryTypes.SELECT,
     });
+
     let changed_projects;
     try {
       changed_projects = await db.changed_projects.findAll({
@@ -651,15 +652,15 @@ exports.findFunnel = async (req, res) => {
     const company_id_fk = req.session.company.id;
 
     // Retrieve phases
-    const phases = await Phase.findAll({
-      order: [["id", "ASC"]],
-    });
+    // const phases = await Phase.findAll({
+    //   order: [["id", "ASC"]],
+    // });
 
     // Retrieve projects related to the company
     const projects = await Project.findAll({
       where: { company_id_fk: company_id_fk, phase_id_fk: 1 },
     });
-
+    console.log("************************************* projects ", projects);
     // Calculate pitch count, total cost, and total effort
     const pitchCount = projects.length;
     let pitchTotalCost = 0;
@@ -950,38 +951,51 @@ exports.findFunnel = async (req, res) => {
 
     // Custom SQL query to retrieve project data
     const query = `
-      SELECT 
-        proj.company_id_fk,
-        proj.id,
-        proj.project_name,
-        proj.start_date,
-        proj.end_date,
-        proj.health,
-        proj.effort AS effort,
-        prime_person.first_name AS prime_first_name,
-        prime_person.last_name AS prime_last_name,
-        sponsor_person.first_name AS sponsor_first_name,
-        sponsor_person.last_name AS sponsor_last_name,
-        proj.project_cost,
-        phases.phase_name 
-      FROM 
-        projects proj
-      LEFT JOIN 
-        persons prime_person ON prime_person.id = proj.prime_id_fk
-      LEFT JOIN 
-        persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-      LEFT JOIN 
-        phases ON phases.id = proj.phase_id_fk
-      WHERE 
-        proj.company_id_fk = ? AND (proj.prime_id_fk = ? OR proj.sponsor_id_fk = ?)
-    `;
+    SELECT 
+      proj.company_id_fk,
+      proj.id,
+      proj.project_name,
+      proj.start_date,
+      proj.end_date,
+      proj.health,
+      proj.effort AS effort,
+      prime_person.first_name AS prime_first_name,
+      prime_person.last_name AS prime_last_name,
+      sponsor_person.first_name AS sponsor_first_name,
+      sponsor_person.last_name AS sponsor_last_name,
+      proj.project_cost,
+      phases.phase_name,
+      COUNT(proj.id) AS phase_count
+    FROM
+      projects proj
+    LEFT JOIN
+      persons prime_person ON prime_person.id = proj.prime_id_fk
+    LEFT JOIN
+      persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+    LEFT JOIN
+      phases ON phases.id = proj.phase_id_fk
+    WHERE
+      proj.company_id_fk = ? AND (proj.prime_id_fk = ? OR proj.sponsor_id_fk = ?) AND proj.phase_id_fk = 1
+    GROUP BY
+      proj.company_id_fk,
+      proj.id,
+      proj.project_name,
+      proj.start_date,
+      proj.end_date,
+      proj.health,
+      proj.effort,
+      prime_person.first_name,
+      prime_person.last_name,
+      sponsor_person.first_name,
+      sponsor_person.last_name,
+      proj.project_cost,
+      phases.phase_name
+  `;
 
     const data = await db.sequelize.query(query, {
       replacements: [company_id_fk, person_id_fk, person_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-
-    console.log("get logs");
 
     // Calculate pitch count, total cost, and total effort
     const pitchCount = data.length;
@@ -989,7 +1003,9 @@ exports.findFunnel = async (req, res) => {
     let pitchTotalPH = 0;
 
     data.forEach((project) => {
-      pitchTotalCost += parseFloat(project.project_cost) || 0;
+      pitchTotalCost = parseFloat(project.project_cost.replace(/,/g, "")) || 0;
+      // pitchTotalCost += parseFloat(project.project_cost) || 0;
+      console.log("project.cost:", pitchTotalCost);
       pitchTotalPH += parseFloat(project.effort) || 0;
     });
 
@@ -1006,18 +1022,21 @@ exports.findFunnel = async (req, res) => {
 
     const sponsors = persons.filter((person) => person.role === "sponsor");
     const primes = persons.filter((person) => person.role === "prime");
-
+    console.log("Pitch Count:", pitchCount);
+    console.log("Total Cost:", pitchTotalCost);
+    console.log("Total Effort:", pitchTotalPH);
+    pitchTotalCost = formatCost(pitchTotalCost);
+    pitchTotalPH = formatCost(pitchTotalPH);
     // Render the funnel page with the retrieved data
     res.render("Pages/pages-funnel", {
       phases: phases,
       priorities: priorities,
       projects: data,
-      pitchCount: pitchCount,
-      pitchTotalCost: pitchTotalCost,
-      pitchTotalPH: pitchTotalPH,
       sponsors: sponsors,
       primes: primes,
-      // other data you need to pass to the template
+      pitchCount: pitchCount,
+      pitchTotalCost: formatCost(pitchTotalCost),
+      pitchTotalPH: formatCost(pitchTotalPH),
     });
   } catch (error) {
     console.error("Error finding funnel:", error);
@@ -1045,13 +1064,10 @@ exports.update = async (req, res) => {
       nextMilestoneDateTest = null;
 
     // Convert dates
-    console.log("req.body.start_date:", req.body.start_date);
+
     startDateTest = insertValidDate(req.body.start_date);
-    console.log("startDateTest:", startDateTest);
     endDateTest = insertValidDate(req.body.end_date);
-    console.log("endDateTest:", endDateTest);
     nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
-    console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
 
     // Update the project in the database
     console.log(
@@ -1172,3 +1188,12 @@ exports.deleteAll = (req, res) => {
 function insertValidDate(date) {
   return date ? moment.tz(date, "YYYY-MM-DD", "UTC") : null;
 }
+const formatCost = (cost) => {
+  if (cost === null || cost === undefined) return "0";
+  if (cost >= 1_000_000_000) return `${(cost / 1_000_000_000).toFixed(1)}B`;
+  if (cost >= 1_000_000) return `${(cost / 1_000_000).toFixed(1)}M`;
+  if (cost >= 1_000) return `${(cost / 1_000).toFixed(1)}K`;
+  return cost.toString();
+};
+
+// const formatValue = (value) => (value || 0).toLocaleString("en-US");

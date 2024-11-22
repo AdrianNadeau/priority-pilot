@@ -4,8 +4,8 @@ const Person = db.persons;
 const Op = db.Sequelize.Op;
 
 exports.create = async (req, res) => {
-  const company_budget = 100000;
-  console.log("company_budget:", company_budget);
+  const portfoilio_budget = req.body.portfoilio_budget;
+
   try {
     const {
       company_name,
@@ -25,7 +25,6 @@ exports.create = async (req, res) => {
       company_logo,
       portfoilio_budget,
     });
-    console.log("company:", company);
     if (company) {
       const session = req.session;
       session.company = company;
@@ -41,46 +40,6 @@ exports.create = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-// exports.create = (req, res) => {
-//   console.log("in controller")
-//   if (!req.body.company_name) {
-//     return res.status(400).send({
-//       message: "Company Name cannot be empty!"
-//     });
-//   }
-//   console.log("create backend");
-//   // Access the data from the request body
-//   const { company_name, company_description, company_headline, company_logo } = req.body;
-
-//   // Create a Company object
-//   const company = {
-//     company_name: company_name,
-//     company_description: company_description,
-//     company_headline: company_headline,
-//     company_logo: company_logo
-//   };
-
-//   Company.create(company)
-//     .then(data => {
-//       if (!data || !data.id) {
-//         res.send("Company data or ID is missing after creation");
-
-//       }
-//       else{
-
-//       }
-//     })
-//     .catch(err => {
-//       console.log("Error Object is here")
-//       console.log(err)
-//       res.status(500).send({
-//         message: err.message || "Some error occurred while creating the Company."
-
-//       });
-//     });
-
-// };
 
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
