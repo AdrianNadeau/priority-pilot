@@ -11,7 +11,7 @@ const sequelize = require("sequelize");
 const Op = db.Sequelize.Op;
 const currentDate = new Date();
 const moment = require("moment");
-const moment_zone = require("moment-timezone");
+// const moment_zone = require("moment-timezone");
 
 // Create and Save a new Project
 
@@ -852,6 +852,7 @@ exports.radar = async (req, res) => {
       deliveryCount,
       deliveryCost: deliveryTotalCost,
       discoveryCost: deliveryTotalCost,
+      currentDate: new Date().toLocaleDateString(),
     });
   } catch (error) {
     console.log("Query error:", error);
@@ -929,7 +930,7 @@ ORDER BY
     // Pass the result to the EJS template
     res.render("Pages/pages-flight-plan", {
       start_date: startDateTest,
-      health_data: data,
+      projects: data,
     });
   } catch (error) {
     console.log("Query error:", error);

@@ -11,6 +11,7 @@
         </button>
     </li>
     <li class="hide-phone list-inline-item app-search">
+        
         <h3 class="page-title">In-Flight Health</h3>
     </li>
 </ul>
@@ -31,35 +32,44 @@
                                         <th>NMS</th>
                                         <th>Prime</th>
                                         <th>Sponsor</th>
+                                        <th>Cost</th>
+                                        <th>PH</th>
+                                       
                                        
                                     </tr>
                                 </thead>
                                 <tbody>
-                                  
-                                    <% health_data.forEach(function(health) { %>
-                                        <% let bgColor; %>
-                                        <% if (health.health && health.health.trim() === "Green") { %>
-                                          <% bgColor = 'green'; %>
-                                        <% } else if (health.health && health.health.trim() === "Yellow") { %>
-                                          <% bgColor = 'yellow'; %>
-                                        <% } else if (health.health && health.health.trim() === "Red") { %>
-                                          <% bgColor = 'red'; %>
+                                    <% let currentPhase = ''; %>
+                                    <% projects.forEach(project => { %>
+                                        <% if (project.phase_name === 'Delivery' || project.phase_name === 'Discovery') { %>
+                                        <% if (project.phase_name !== currentPhase) { %>
+                                            <% currentPhase = project.phase_name; %>
+                                            <tr>
+                                            <td colspan="9" style="background-color:#ccc;font-weight: bold; text-align: center;"><%= currentPhase %></td>
+                                            </tr>
                                         <% } %>
-                                        <% if (health.phase_name === 'Discovery') { %>
-                                            <tr><td style="background-color:#D0D0D0;color:black;font-size:1.5em;" class="text-center" colspan="8">Discovery</td></tr>
+                                       
+                                        <% let backgroundColor = '#CCC'; %>
+                                        <% if (project.health && project.health.toLowerCase().trim() === 'yellow') { %>
+                                          <% backgroundColor = '#FFFF00'; %> <!-- Yellow color -->
+                                        <% } else if (project.health && project.health.toLowerCase().trim() === 'green') { %>
+                                          <% backgroundColor = '#00FF00'; %> <!-- Green color -->
+                                        <% } else if (project.health && project.health.toLowerCase().trim() === 'red') { %>
+                                          <% backgroundColor = '#FF0000'; %> <!-- Red color -->
                                         <% } %>
-                                        <% if (health.phase_name === 'Delivery') { %>
-                                            <tr><td style="background-color:#D0D0D0;color:black;font-size:1.5em;" class="text-center" colspan="8">Delivery</td></tr>
-                                        <% } %>
-                                        
-                                        <td style='background-color:<%=bgColor%>;'><%= health.project_name %></td>
-                                            <td><%= new Date(health.start_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
-                                            <td><%= new Date(health.end_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
-                                            <td><%= new Date(health.next_milestone_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }) %></td>
-                                            <td><%= health.prime_last_name %>, <%= health.prime_first_name %></td>
-                                            <td><%= health.sponsor_last_name %>, <%= health.sponsor_first_name %></td>
-                                      
+                                        <tr>
+
+                                            <td style="background-color:<%= backgroundColor %>;color:white;"><%= project.project_name %></td>
+                                            <td><% if (project.start_date) { %><%= new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
+                                            <td><% if (project.end_date) { %><%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
+                                            <td><% if (project.next_milestone_date) { %><%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
+                                            <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
+                                            <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
+                                            <td><%= project.project_cost %></td>
+                                            <td><%= project.effort %></td>
+                                            
                                         </tr>
+                                        <% } %>
                                     <% }); %>
                                 </tbody>
                             </table>
