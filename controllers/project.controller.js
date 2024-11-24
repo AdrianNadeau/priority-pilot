@@ -873,48 +873,67 @@ exports.flight = async (req, res) => {
   }
 
   const query = `
-      SELECT 
-    proj.start_date,
-    proj.end_date, 
-    proj.next_milestone_date,
-    proj.company_id_fk, 
-    proj.id, 
-    proj.impact,
-    proj.effort,
-    proj.benefit, 
-    proj.prime_id_fk, 
-    proj.health,
-    statuses.issue, 
-    statuses.actions, 
-    proj.project_name,
-    proj.tags,
-    prime_person.first_name AS prime_first_name, 
-    prime_person.last_name AS prime_last_name, 
-    sponsor_person.first_name AS sponsor_first_name, 
-    sponsor_person.last_name AS sponsor_last_name, 
-    proj.project_cost, 
-    phases.phase_name, 
-    proj.pitch_message, 
-    proj.phase_id_fk, 
-    proj.priority_id_fk, 
-    proj.sponsor_id_fk, 
-    proj.prime_id_fk
-FROM 
-    projects proj 
-LEFT JOIN 
-    persons prime_person ON prime_person.id = proj.prime_id_fk 
-LEFT JOIN 
-    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
-LEFT JOIN 
-    phases ON phases.id = proj.phase_id_fk
-LEFT JOIN 
-    statuses ON statuses.project_id_fk = proj.id
-WHERE 
-    proj.company_id_fk = ?
-ORDER BY 
-    proj.phase_id_fk;
-
+    SELECT 
+      proj.start_date,
+      proj.end_date, 
+      proj.next_milestone_date,
+      proj.company_id_fk, 
+      proj.id, 
+      proj.impact,
+      proj.effort,
+      proj.benefit, 
+      proj.prime_id_fk, 
+      proj.health,
+      latest_status.issue, 
+      latest_status.actions, 
+      proj.project_name,
+      proj.tags,
+      prime_person.first_name AS prime_first_name, 
+      prime_person.last_name AS prime_last_name, 
+      sponsor_person.first_name AS sponsor_first_name, 
+      sponsor_person.last_name AS sponsor_last_name, 
+      proj.project_cost, 
+      phases.phase_name, 
+      proj.pitch_message, 
+      proj.phase_id_fk, 
+      proj.priority_id_fk, 
+      proj.sponsor_id_fk, 
+      proj.prime_id_fk
+    FROM 
+      projects proj 
+    LEFT JOIN 
+      persons prime_person ON prime_person.id = proj.prime_id_fk 
+    LEFT JOIN 
+      persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
+    LEFT JOIN 
+      phases ON phases.id = proj.phase_id_fk
+    LEFT JOIN 
+      (SELECT 
+         s.project_id_fk, 
+         s.issue, 
+         s.actions 
+       FROM 
+         statuses s 
+       WHERE 
+         s.status_date = (SELECT MAX(status_date) FROM statuses WHERE project_id_fk = s.project_id_fk)
+      ) AS latest_status ON latest_status.project_id_fk = proj.id
+    WHERE 
+      proj.company_id_fk = ?
+    ORDER BY 
+      proj.phase_id_fk;
   `;
+
+  const data = await db.sequelize.query(query, {
+    replacements: [company_id_fk],
+    type: db.sequelize.QueryTypes.SELECT,
+  });
+
+  // // Render the page with the query results
+  // res.render("Pages/pages-flight-plan", {
+  //   projects: data,
+  //   currentDate: moment().format("MMMM Do YYYY"),
+  //   // other data you need to pass to the template
+  // });
 
   try {
     // Execute the query
