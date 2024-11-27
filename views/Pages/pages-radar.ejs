@@ -1,84 +1,43 @@
 <%- contentFor('HeaderCss') %>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script src="frappe-gantt.min.js"></script>
-<link rel="stylesheet" href="frappe-gantt.css">
+<script></script>
 
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
-    <li class="list-inline-item">
-        <button type="button" class="button-menu-mobile open-left waves-effect">
-            <i class="ion-navicon"></i>
-        </button>
-    </li>
-    <li class="hide-phone list-inline-item app-search">
-        
-        <div><h3 class="page-title">In-Flight Health</h3>
-        <span style="padding-left:40px;"><%= new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span></div>
-        
-    </li>
+  <li class="list-inline-item">
+    <button type="button" class="button-menu-mobile open-left waves-effect">
+      <i class="ion-navicon"></i>
+    </button>
+  </li>
+  <li class="hide-phone list-inline-item app-search">
+    <h3 class="page-title">Radar</h3>
+  </li>
 </ul>
 
 <%- contentFor('body') %>
 <div class="page-content-wrapper">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-              <div class="card-body" style="border:0px !important;">
-                        <div class="table-responsive">
-                            <table class="table mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Project</th>
-                                        <th>Start</th>
-                                        <th>End</th>
-                                        <th>NMS</th>
-                                        <th>Prime</th>
-                                        <th>Sponsor</th>
-                                        <th>Issue(s)</th>
-                                        <th>Actions</th>
-                                       
-                                       
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% let currentPhase = ''; %>
-                                    <% projects.forEach(project => { %>
-                                        <% if (project.phase_name === 'Delivery' || project.phase_name === 'Discovery') { %>
-                                        <% if (project.phase_name !== currentPhase) { %>
-                                            <% currentPhase = project.phase_name; %>
-                                            <tr>
-                                            <td colspan="9" style="background-color:#ececec;font-weight: bold; text-align: center;"><%= currentPhase %></td>
-                                            </tr>
-                                        <% } %>
-                                       
-                                        <% let backgroundColor = '#CCC'; %>
-                                        <% if (project.health && project.health.toLowerCase().trim() === 'yellow') { %>
-                                          <% backgroundColor = '#FFFF00'; %> <!-- Yellow color -->
-                                        <% } else if (project.health && project.health.toLowerCase().trim() === 'green') { %>
-                                          <% backgroundColor = '#00FF00'; %> <!-- Green color -->
-                                        <% } else if (project.health && project.health.toLowerCase().trim() === 'red') { %>
-                                          <% backgroundColor = '#FF0000'; %> <!-- Red color -->
-                                        <% } %>
-                                        <tr>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12">
+        <!--                 
+                <div class="card-body text-center">
+                    <canvas id="humpChart" width="500" height="100"></canvas>
+                </div>
+                
+                 -->
+      </div>
+    </div>
+    <div class="row">
+      <!-- <div class="col-lg-3">
+                
+                <div class="card-body">
+                    ACT:		12.5 Weeks<br/>
+                    APS:		$350K<br/>
+                    D2D:		15%<br/>
+                    POI:		30%<br/>
+                    CRs:		8 (22%)<br/>
 
-                                            <td style="background-color:<%= backgroundColor %>;color:black;font-weight: bold;"><%= project.project_name %></td>
-                                            <td><% if (project.start_date) { %><%= new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                            <td><% if (project.end_date) { %><%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                            <td><% if (project.next_milestone_date) { %><%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                            <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
-                                            <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
-                                            <td><%= project.issue %></td>
-                                            <td><%= project.actions %></td>
-                                            
-                                        </tr>
-                                        <% } %>
-                                    <% }); %>
-                                </tbody>
-                            </table>
-                        </div>
-                      </div>
-                    </div>
                 </div>
             </div> -->
       <!-- <div class="col-lg-3">
@@ -89,11 +48,29 @@
 
                 </div>
             </div>-->
+      <div class="col-lg-3">
+        <div class="card-body">
+          <div style="display: flex; justify-content: space-between">
+            <div style="text-align: center; flex: 1; padding-right: 10px">
+              <strong>$$</strong><br />
+              Full: $1.5M<br />
+              Used: $1.1M<br />
+              Avail: $0.4M
+            </div>
+            <div style="text-align: center; flex: 1">
+              <strong>EFFORT</strong><br />
+              40K PH<br />
+              35K PH<br />
+              5K PH
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <!-- <div class="row">
+    <div class="row">
       <div class="col-lg-2 text-center">
         <div class="card-body p-2">
-          <strong class="h3">Funnel</strong>
+          <strong>Funnel</strong>
           <br />
           <button
             type="button"
@@ -126,7 +103,7 @@
       </div>
       <div class="col-lg-2 text-center">
         <div class="card-body p-2">
-          <strong class="h3">Priority</strong>
+          <strong>Priority</strong>
           <br />
           <button
             type="button"
@@ -159,7 +136,7 @@
       </div>
       <div class="col-lg-2 text-center">
         <div class="card-body p-2">
-          <strong class="h3">Discovery</strong>
+          <strong>Discovery</strong>
           <br />
           <button
             type="button"
@@ -192,7 +169,7 @@
       </div>
       <div class="col-lg-2 text-center">
         <div class="card-body p-2">
-          <strong class="h3">Delivery</strong>
+          <strong>Delivery</strong>
           <br />
           <button
             type="button"
@@ -225,7 +202,7 @@
       </div>
       <div class="col-lg-2 text-center">
         <div class="card-body p-2">
-          <strong class="h3">Complete</strong>
+          <strong>Complete</strong>
           <br />
           <button
             type="button"
@@ -256,7 +233,7 @@
           </button>
         </div>
       </div>
-    </div> -->
+    </div>
   </div>
 
   <%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
