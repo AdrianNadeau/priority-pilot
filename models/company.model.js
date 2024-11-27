@@ -23,6 +23,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: true,
     },
+    effort: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
   });
 
   return Company;

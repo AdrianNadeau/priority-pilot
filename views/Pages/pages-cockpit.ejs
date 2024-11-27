@@ -159,7 +159,7 @@
                 <% } else if (healthStatus === 'red') { %>
                   <span class="red-circle"></span>
                 <% } %>
-                [<%= status.progress %>]
+                [%<%= status.progress %>]
                 <% if (status.status_date) { %>
                   <a href="#" onClick="getStatus(<%= status.id %>)" data-target="#viewStatusModal" id="viewStatusLink">
                     <%= new Date(status.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>

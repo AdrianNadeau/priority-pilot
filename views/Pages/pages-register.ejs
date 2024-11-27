@@ -55,13 +55,23 @@
             />
           </div>
           <div class="form-group">
-            <label for="portfoilio_budget">Portfolio Budget</label>
+            <label for="portfolio_budget">Portfolio Budget</label>
             <input
               type="text"
               class="form-control"
-              id="portfoilio_budget"
-              name="portfoilio_budget"
-              placeholder="Company Portfoilio Budget..."
+              id="portfolio_budget"
+              name="portfolio_budget"
+              placeholder="Company Portfolio Budget..."
+            />
+          </div>
+          <div class="form-group">
+            <label for="effort">Portfolio Effort</label>
+            <input
+              type="text"
+              class="form-control"
+              id="effort"
+              name="effort"
+              placeholder="Company Portfoilio Effort..."
             />
           </div>
 
@@ -128,8 +138,22 @@
   })();
   // Numeric input validation for specific fields
   const budget = ["portfoilio_budget"];
+  const effort = ["portfoilio_effort"];
 
   document.getElementById(budget).addEventListener("keydown", function (event) {
+    if (
+      ![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
+      !(
+        (event.keyCode >= 48 && event.keyCode <= 57) ||
+        (event.keyCode >= 96 && event.keyCode <= 105)
+      ) &&
+      !(event.ctrlKey || event.metaKey)
+    ) {
+      alert("Only numbers are allowed.");
+      event.preventDefault();
+    }
+  });
+  document.getElementById(effort).addEventListener("keydown", function (event) {
     if (
       ![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
       !(

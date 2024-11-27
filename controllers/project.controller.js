@@ -650,12 +650,6 @@ exports.findOneForPrime = async (req, res) => {
 exports.findFunnel = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
-
-    // Retrieve phases
-    // const phases = await Phase.findAll({
-    //   order: [["id", "ASC"]],
-    // });
-
     // Retrieve projects related to the company
     const projects = await Project.findAll({
       where: { company_id_fk: company_id_fk, phase_id_fk: 1 },
@@ -684,89 +678,6 @@ exports.findFunnel = async (req, res) => {
     res.status(500).json({ message: "Error finding funnel" });
   }
 };
-// exports.findFunnel = async (req, res) => {
-//   try {
-//     let company_id_fk;
-//     const person_id = req.params.id;
-
-//     try {
-//       if (!req.session) {
-//         res.redirect("/pages-500");
-//       } else {
-//         console.log("we have a session");
-//         company_id_fk = req.session.company.id;
-//       }
-//     } catch (error) {
-//       console.log("error:", error);
-//     }
-
-//     const [phasesData, prioritiesData, projectsData] = await Promise.all([
-//       Phase.findAll(),
-//       Priority.findAll(),
-//       // Results will be an empty array and metadata will contain the number of affected rows.
-
-//       Project.findAll(), // Assuming Project.findAll() returns a Promise
-//     ]);
-//     const personsData = await Person.findAll({
-//       where: {
-//         company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
-//       },
-//     });
-
-//     const query = `
-//     SELECT
-//         proj.company_id_fk,
-//         proj.id,
-//         proj.project_name,
-//         proj.start_date,
-//         proj.end_date,
-//         proj.prime_id_fk,
-//         prime_person.first_name AS prime_first_name,
-//         prime_person.last_name AS prime_last_name,
-//         sponsor_person.first_name AS sponsor_first_name,
-//         sponsor_person.last_name AS sponsor_last_name,
-//         proj.project_cost,
-//         phases.phase_name
-//     FROM
-//         projects proj
-//     LEFT JOIN
-//         persons prime_person ON prime_person.id = proj.prime_id_fk
-//     LEFT JOIN
-//         persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-//     LEFT JOIN
-//         phases ON phases.id = proj.phase_id_fk
-//     WHERE
-//         proj.company_id_fk = ?
-//         AND proj.person_id_fk = ?
-//         AND prime_person.id = proj.prime_id_fk OR sponsor_person.id = proj.sponsor_id_fk
-// `;
-
-//     await db.sequelize
-//       .query(query, {
-//         replacements: [company_id_fk, person_id],
-//         type: db.sequelize.QueryTypes.SELECT,
-//       })
-//       .then((data) => {
-//         // console.log("***************************************************:",data)
-//         // Render the page when all data retrieval operations are complete
-//         //dah
-//         res.render("Pages/pages-projects", {
-//           projects: data,
-//           phases: phasesData,
-//           priorities: prioritiesData,
-//           sponsors: personsData,
-//           primes: personsData,
-//         });
-//       })
-//       .catch((err) => {
-//         res.status(500).send({
-//           message: err.message || "Some error occurred while retrieving data.",
-//         });
-//       });
-//   } catch (error) {
-//     console.log("error:", error);
-//   }
-// };
 exports.radar = async (req, res) => {
   let company_id_fk;
 
@@ -779,6 +690,7 @@ exports.radar = async (req, res) => {
   } catch (error) {
     console.log("Error:", error);
   }
+  console.log();
   const query = `
   SELECT
     SUM(CASE WHEN phase_id_fk = 1 THEN 1 ELSE 0 END) AS phase_1_count,
@@ -808,7 +720,7 @@ exports.radar = async (req, res) => {
     if (!data || data.length === 0) {
       return res.status(404).send({ message: "Project Health not found" });
     }
-
+    console.log("Data:", data);
     // Pass the result to the EJS template
     const pitchCount = Number(data[0].phase_1_count);
     const priorityCount = Number(data[0].phase_2_count);
@@ -834,6 +746,7 @@ exports.radar = async (req, res) => {
     // console.log("flight count:",Number(in_flight_count) || 0);
 
     res.render("Pages/pages-radar", {
+      projects: data,
       pitchCount,
       priorityCount,
       discoveryCount,
@@ -853,6 +766,8 @@ exports.radar = async (req, res) => {
       deliveryCost: deliveryTotalCost,
       discoveryCost: deliveryTotalCost,
       currentDate: new Date().toLocaleDateString(),
+      company_id: company_id_fk,
+      async: true,
     });
   } catch (error) {
     console.log("Query error:", error);
@@ -1064,8 +979,15 @@ exports.findFunnel = async (req, res) => {
   }
 };
 exports.health = async (req, res) => {
-  //
-  res.render("Pages/pages-health");
+  //get all company projects
+  const companyProjects = await Project.findAll({
+    where: { company_id_fk: company_id_fk },
+  });
+  console.log("PROJECTS:", companyProjects);
+  res.render("Pages/pages-health", {
+    projects: companyProjects,
+    currentDate: moment().format("MMMM Do YYYY"),
+  });
 };
 
 // Update a Project by the id in the request

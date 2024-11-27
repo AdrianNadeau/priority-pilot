@@ -3,6 +3,7 @@ const router = express.Router();
 
 const db = require("./models");
 const Project = db.projects;
+const Company = db.companies;
 const Op = db.Sequelize.Op;
 
 const isAdminMiddleware = require("./middleware/isAdminMiddleware");
@@ -30,8 +31,16 @@ router.get("/", isAdminMiddleware, async function (req, res) {
   const isAdmin = person.isAdmin;
 
   try {
-    // Fetch projects related to the company
-    const projects = await Project.findAll({ where: { company_id_fk } });
+    // Get company by ID
+    const company = await Company.findByPk(company_id_fk);
+    if (!company) {
+      throw new Error("Company not found");
+    }
+
+    console.log("WE HAVE COMPANYv2:", company);
+
+    const portfolio_budget = convertToNumber(company?.portfolio_budget || 0);
+    const portfolio_effort = convertToNumber(company?.effort || 0);
 
     // Custom SQL query to retrieve detailed project info
     const query = `
@@ -48,8 +57,7 @@ router.get("/", isAdminMiddleware, async function (req, res) {
         sponsor_person.first_name AS sponsor_first_name,
         sponsor_person.last_name AS sponsor_last_name, 
         proj.project_cost, 
-        phases.phase_name, 
-        companies.portfolio_budget
+        phases.phase_name 
       FROM 
         projects proj
       LEFT JOIN 
@@ -72,10 +80,6 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       type: db.sequelize.QueryTypes.SELECT,
     });
 
-    // Initialize portfolio budget and totals
-    let portfolio_budget = convertToNumber(data[0]?.portfolio_budget || 0);
-    let totalPH = 0;
-
     // Initialize phase data with default values
     const phaseData = {
       pitch: { count: 0, cost: 0, ph: 0 },
@@ -84,7 +88,10 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       delivery: { count: 0, cost: 0, ph: 0 },
       done: { count: 0, cost: 0, ph: 0 },
     };
+
+    let totalPH = 0;
     let usedCost = 0;
+
     // Process data and calculate totals
     data.forEach((project) => {
       const projectCost =
@@ -104,6 +111,8 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       }
     });
 
+    console.log("EFFORT:", portfolio_effort);
+
     // Calculate usedCost and availableCost
     usedCost =
       phaseData.priority.cost +
@@ -111,7 +120,16 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       phaseData.delivery.cost +
       phaseData.done.cost;
 
-    availableCost = portfolio_budget - usedCost;
+    usedEffort =
+      phaseData.priority.ph +
+      phaseData.discovery.ph +
+      phaseData.delivery.ph +
+      phaseData.done.ph;
+    console.log("PORT:", portfolio_budget);
+    console.log("USED:", usedCost);
+    const availableCost = portfolio_budget - usedCost;
+
+    const availableEffort = portfolio_effort - usedEffort;
 
     res.render("Dashboard/dashboard1", {
       projects: data,
@@ -119,7 +137,6 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       totalAvailPH: formatCost(phaseData.done.ph),
       totalUsedPH: formatCost(totalPH - phaseData.done.ph),
       priorityCount: phaseData.priority.count,
-      // Phase details
       pitch: {
         count: formatValue(phaseData.pitch.count),
         cost: formatCost(phaseData.pitch.cost),
@@ -146,14 +163,10 @@ router.get("/", isAdminMiddleware, async function (req, res) {
         ph: formatValue(phaseData.done.ph),
       },
       portfolio_budget: formatCost(portfolio_budget),
-      // Calculate usedCost and availableCost
-      usedCost: formatCost(
-        phaseData.priority.cost +
-          phaseData.discovery.cost +
-          phaseData.delivery.cost +
-          phaseData.done.cost,
-      ),
-      availableCost: formatCost(portfolio_budget - usedCost),
+      portfolio_effort: formatCost(portfolio_effort),
+      usedCost: formatCost(usedCost),
+      availableCost: formatCost(availableCost),
+      totalAvailPH: formatCost(availableEffort),
     });
   } catch (error) {
     console.error("Error while fetching data:", error.message, error.stack);
