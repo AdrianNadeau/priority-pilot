@@ -767,7 +767,6 @@ exports.radar = async (req, res) => {
       discoveryCost: deliveryTotalCost,
       currentDate: new Date().toLocaleDateString(),
       company_id: company_id_fk,
-      async: true,
     });
   } catch (error) {
     console.log("Query error:", error);
