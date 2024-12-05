@@ -24,7 +24,7 @@
                      <div class="col-md-12">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter">Priority (<%= priority.count %>, $<%= priority.cost %>, <%=priority.ph %> PH)</span>
+                                <span class="counter"><strong>Planning</strong> (<%= priority.count %>, $<%= priority.cost %>, <%=priority.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -46,7 +46,7 @@
                     <div class="col-md-12">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter">Discovery (<%= discovery.count %>, $<%= discovery.cost %>, <%=discovery.ph %> PH)</span>
+                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %>, $<%= discovery.cost %>, <%=discovery.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -68,7 +68,7 @@
                     <div class="col-md-12">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter">Delivery (<%= delivery.count %>, $<%= delivery.cost %>, <%=delivery.ph %> PH)</span>
+                                <span class="counter"><strong>Delivery</strong> (<%= delivery.count %>, $<%= delivery.cost %>, <%=delivery.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -89,7 +89,7 @@
                     <div class="col-12">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter">Done (<%= operations.count %>, $<%= operations.cost %>, <%=operations.ph %> PH)</span>
+                                <span class="counter"><strong>Done</strong> (<%= operations.count %>, $<%= operations.cost %>, <%=operations.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -123,7 +123,7 @@
                     </div>
                     <div>
                         <button type="button" class="btn btn-light" style="width: 75%; margin-bottom: 5px; border-width: 2px; border-color: black;" onClick="loadFlightPlan();">
-                            Flight Plan
+                            Health Check
                         </button>
                     </div>
                     <div class="row text-center" style="padding-top: 20px;">

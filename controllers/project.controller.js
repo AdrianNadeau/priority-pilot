@@ -172,7 +172,18 @@ exports.findAllRadar = async (req, res) => {
 exports.findAll = async (req, res) => {
   try {
     console.log("findAll");
-    let company_id_fk;
+    try {
+      if (!req.session) {
+        return res.redirect("/pages-500");
+      } else {
+        company_id_fk = req.session.company.id;
+      }
+    } catch (error) {
+      console.log("error:", error);
+      return res
+        .status(500)
+        .json({ message: "Error retrieving session data." });
+    }
 
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
@@ -236,10 +247,7 @@ exports.findFunnel = async (req, res) => {
         company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
       },
     });
-    console.log(
-      "personsData::::::::::::::::::::::::::::::::::::::",
-      personsData,
-    );
+
     const query = `
   SELECT 
     proj.company_id_fk, 

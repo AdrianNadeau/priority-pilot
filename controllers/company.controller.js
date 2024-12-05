@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const db = require("../models");
 const Company = db.companies;
 const Person = db.persons;
@@ -141,6 +142,32 @@ exports.deleteAll = (req, res) => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while removing all companies.",
+      });
+    });
+};
+exports.findDefaults = (req, res) => {
+  console.log("findDefaults************");
+  try {
+    if (!req.session) {
+      return res.redirect("/pages-500");
+    } else {
+      company_id_fk = req.session.company.id;
+    }
+  } catch (error) {
+    console.log("error:", error);
+    return res.status(500).json({ message: "Error retrieving session data." });
+  }
+
+  Company.findAll({ where: { id: company_id_fk } })
+    .then((company) => {
+      //render page
+      console.log("data:", company);
+      res.render("pages-projects", { company });
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving companies.",
       });
     });
 };

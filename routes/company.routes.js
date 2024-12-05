@@ -8,6 +8,9 @@ module.exports = (app) => {
 
   // Retrieve all Companies
   router.get("/", companies.findAll);
+  // Retrieve all Companies
+  // router.get("/get/defaults/", companies.findDefaults);
+  router.get("/get/defaults", companies.findDefaults);
 
   // Retrieve a single Company with id
   router.get("/:id", companies.findOne);
