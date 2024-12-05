@@ -885,7 +885,7 @@ exports.findFunnel = async (req, res) => {
     LEFT JOIN
       phases ON phases.id = proj.phase_id_fk
     WHERE
-      proj.company_id_fk = ? AND (proj.prime_id_fk = ? OR proj.sponsor_id_fk = ?) AND proj.phase_id_fk = 1
+      proj.company_id_fk = ? AND proj.phase_id_fk = 1
     GROUP BY
       proj.company_id_fk,
       proj.id,
