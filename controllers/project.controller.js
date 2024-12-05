@@ -3,7 +3,7 @@ const Project = db.projects;
 const Phase = db.phases;
 const Priority = db.priorities;
 const Person = db.persons;
-const ChangeLog = db.changeLogs;
+const ChangeLog = db.change_logs;
 const ChangeReason = db.change_reasons;
 const ChangeProject = db.changed_projects;
 const Status = db.statuses;
@@ -11,10 +11,8 @@ const sequelize = require("sequelize");
 const Op = db.Sequelize.Op;
 const currentDate = new Date();
 const moment = require("moment");
-// const moment_zone = require("moment-timezone");
 
 // Create and Save a new Project
-
 exports.create = (req, res) => {
   try {
     if (!req.session) {
@@ -27,7 +25,6 @@ exports.create = (req, res) => {
   }
 
   //convert dates
-
   const startDateTest = insertValidDate(req.body.start_date);
   console.log("startDateTest:", startDateTest);
   const endDateTest = insertValidDate(req.body.end_date);
@@ -109,20 +106,73 @@ exports.create = (req, res) => {
   });
 };
 
+exports.findAllRadar = async (req, res) => {
+  const type = req.params.type;
+
+  // Get company id from session
+  let company_id_fk;
+  try {
+    if (!req.session) {
+      return res.redirect("/pages-500");
+    } else {
+      company_id_fk = req.session.company.id;
+    }
+  } catch (error) {
+    console.log("error:", error);
+    return res.status(500).json({ message: "Error retrieving session data." });
+  }
+  // Get all company projects with the latest status health
+  try {
+    const projects = await Project.findAll({
+      where: { company_id_fk: company_id_fk },
+    });
+
+    // Get the most recent status for each project
+    const statuses = await db.sequelize.query(
+      `
+      SELECT 
+        s.project_id_fk, 
+        s.health, 
+        s.status_date,
+        s.progress
+      FROM 
+        statuses s
+      WHERE 
+        s.status_date = (SELECT MAX(status_date) FROM statuses WHERE project_id_fk = s.project_id_fk)
+    `,
+      {
+        type: db.sequelize.QueryTypes.SELECT,
+      },
+    );
+
+    // Create a map of project_id to status
+    const statusMap = {};
+    statuses.forEach((status) => {
+      statusMap[status.project_id_fk] = status;
+    });
+
+    // Add the most recent status to each project
+    const projectsWithStatus = projects.map((project) => {
+      const projectData = project.toJSON();
+      projectData.latest_status = statusMap[project.id] || null;
+
+      projectData.health = statusMap[project.id] || null;
+      // console.log("PROJECT DATA", projectData);
+      return projectData;
+    });
+
+    console.log("PROJECTS WITH STATUS", projectsWithStatus);
+    res.status(200).json(projectsWithStatus);
+  } catch (error) {
+    console.log("Error retrieving projects:", error);
+    res.status(500).json({ message: "Error retrieving projects." });
+  }
+};
 // Retrieve all  from the database.
 exports.findAll = async (req, res) => {
   try {
+    console.log("findAll");
     let company_id_fk;
-    try {
-      if (!req.session) {
-        res.redirect("/pages-500");
-      } else {
-        company_id_fk = req.session.company.id;
-      }
-    } catch (error) {
-      console.log("error:", error);
-    }
-    console.log("ONE FOR COMPANY_ID", company_id_fk);
 
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
@@ -469,89 +519,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
     });
   }
 };
-// exports.findAllPrimeProjects = async (req, res) => {
-//   try {
-//     let company_id_fk;
 
-//     const person_id = req.params.id;
-
-//     try {
-//       if (!req.session) {
-//         res.redirect("/pages-500");
-//       } else {
-//         company_id_fk = req.session.company.id;
-//       }
-//     } catch (error) {
-//       console.log("error:", error);
-//     }
-
-//     const [phasesData, prioritiesData] = await Promise.all([
-//       Phase.findAll(),
-//       Priority.findAll(),
-//       // Results will be an empty array and metadata will contain the number of affected rows.
-
-//       Project.findAll(), // Assuming Project.findAll() returns a Promise
-//     ]);
-//     const personsData = await Person.findAll({
-//       where: {
-//         company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
-//       },
-//     });
-
-//     const query = `
-//     SELECT
-//         proj.company_id_fk,
-//         proj.id,
-//         proj.project_name,
-//         proj.start_date,
-//         proj.end_date,
-//         proj.prime_id_fk,
-//         prime_person.first_name AS prime_first_name,
-//         prime_person.last_name AS prime_last_name,
-//         sponsor_person.first_name AS sponsor_first_name,
-//         sponsor_person.last_name AS sponsor_last_name,
-//         proj.project_cost,
-//         phases.phase_name
-//     FROM
-//         projects proj
-//     LEFT JOIN
-//         persons prime_person ON prime_person.id = proj.prime_id_fk
-//     LEFT JOIN
-//         persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-//     LEFT JOIN
-//         phases ON phases.id = proj.phase_id_fk
-//     WHERE
-//         proj.company_id_fk = ?
-//         AND proj.person_id_fk = ?
-//         AND prime_person.id = proj.prime_id_fk OR sponsor_person.id = proj.sponsor_id_fk
-// `;
-
-//     await db.sequelize
-//       .query(query, {
-//         replacements: [company_id_fk, person_id],
-//         type: db.sequelize.QueryTypes.SELECT,
-//       })
-//       .then((data) => {
-//         // console.log("***************************************************:",data)
-//         // Render the page when all data retrieval operations are complete
-//         //dah
-//         res.render("Pages/pages-projects", {
-//           projects: data,
-//           phases: phasesData,
-//           priorities: prioritiesData,
-//           sponsors: personsData,
-//           primes: personsData,
-//         });
-//       })
-//       .catch((err) => {
-//         res.status(500).send({
-//           message: err.message || "Some error occurred while retrieving data.",
-//         });
-//       });
-//   } catch (error) {
-//     console.log("error:", error);
-//   }
-// };
 exports.findOneForPrime = async (req, res) => {
   try {
     const project_id = req.params.id;
@@ -767,7 +735,6 @@ exports.radar = async (req, res) => {
       discoveryCost: deliveryTotalCost,
       currentDate: new Date().toLocaleDateString(),
       company_id: company_id_fk,
-      async: true,
     });
   } catch (error) {
     console.log("Query error:", error);
@@ -957,9 +924,9 @@ exports.findFunnel = async (req, res) => {
 
     const sponsors = persons.filter((person) => person.role === "sponsor");
     const primes = persons.filter((person) => person.role === "prime");
-    console.log("Pitch Count:", pitchCount);
-    console.log("Total Cost:", pitchTotalCost);
-    console.log("Total Effort:", pitchTotalPH);
+    // console.log("Pitch Count:", pitchCount);
+    // console.log("Total Cost:", pitchTotalCost);
+    // console.log("Total Effort:", pitchTotalPH);
     pitchTotalCost = formatCost(pitchTotalCost);
     pitchTotalPH = formatCost(pitchTotalPH);
     // Render the funnel page with the retrieved data

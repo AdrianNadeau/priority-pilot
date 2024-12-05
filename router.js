@@ -37,8 +37,6 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       throw new Error("Company not found");
     }
 
-    console.log("WE HAVE COMPANYv2:", company);
-
     const portfolio_budget = convertToNumber(company?.portfolio_budget || 0);
     const portfolio_effort = convertToNumber(company?.effort || 0);
 
@@ -111,8 +109,6 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       }
     });
 
-    console.log("EFFORT:", portfolio_effort);
-
     // Calculate usedCost and availableCost
     usedCost =
       phaseData.priority.cost +
@@ -125,8 +121,6 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       phaseData.discovery.ph +
       phaseData.delivery.ph +
       phaseData.done.ph;
-    console.log("PORT:", portfolio_budget);
-    console.log("USED:", usedCost);
     const availableCost = portfolio_budget - usedCost;
 
     const availableEffort = portfolio_effort - usedEffort;

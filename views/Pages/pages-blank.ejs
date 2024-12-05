@@ -1,27 +1,54 @@
-<%- contentFor('HeaderCss') %>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chart.js Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
+  </head>
+  <body>
+    <canvas id="bar-chart" width="800" height="450"></canvas>
+    <script>
+      console.log("Chart.js loaded:", typeof Chart !== "undefined");
 
-
-<%- contentFor('breadcrumb') %>
-<ul class="list-inline menu-left mb-0">
-    <li class="list-inline-item">
-        <button type="button" class="button-menu-mobile open-left waves-effect">
-            <i class="ion-navicon"></i>
-        </button>
-    </li>
-    <li class="hide-phone list-inline-item app-search">
-        <h3 class="page-title">Starter</h3>
-    </li>
-</ul>
-
-
-
-<%- contentFor('body') %>
-<div class="page-content-wrapper">
-    <div class="container-fluid">
-
-    </div>
-</div>
-
-<%- contentFor('FooterJs') %>
-
-<%- contentFor('BottomJs') %>
+      if (typeof Chart !== "undefined") {
+        new Chart(document.getElementById("bar-chart"), {
+          type: "bar",
+          data: {
+            labels: [
+              "Africa",
+              "Asia",
+              "Europe",
+              "Latin America",
+              "North America",
+            ],
+            datasets: [
+              {
+                label: "Population (millions)",
+                backgroundColor: [
+                  "#3e95cd",
+                  "#8e5ea2",
+                  "#3cba9f",
+                  "#e8c3b9",
+                  "#c45850",
+                ],
+                data: [2478, 5267, 734, 784, 433],
+              },
+            ],
+          },
+          options: {
+            plugins: {
+              legend: { display: false },
+              title: {
+                display: true,
+                text: "Predicted world population (millions) in 2050",
+              },
+            },
+          },
+        });
+      } else {
+        console.error("Chart.js is not loaded!");
+      }
+    </script>
+  </body>
+</html>
