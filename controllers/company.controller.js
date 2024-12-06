@@ -162,7 +162,7 @@ exports.findDefaults = (req, res) => {
     .then((company) => {
       //render page
       console.log("data:", company);
-      res.render("pages-defaults", { company });
+      res.render("Pages/pages-defaults", { company });
     })
     .catch((err) => {
       res.status(500).send({
