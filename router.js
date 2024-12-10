@@ -126,6 +126,7 @@ router.get("/", isAdminMiddleware, async function (req, res) {
     const availableEffort = portfolio_effort - usedEffort;
 
     res.render("Dashboard/dashboard1", {
+      company_id: company_id_fk,
       projects: data,
       totalPH: formatCost(totalPH),
       totalAvailPH: formatCost(phaseData.done.ph),

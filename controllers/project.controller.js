@@ -108,7 +108,7 @@ exports.create = (req, res) => {
 
 exports.findAllRadar = async (req, res) => {
   const type = req.params.type;
-
+  console.log("GET ALL RADAR PROJECTS", type);
   // Get company id from session
   let company_id_fk;
   try {
@@ -157,7 +157,6 @@ exports.findAllRadar = async (req, res) => {
       projectData.latest_status = statusMap[project.id] || null;
 
       projectData.health = statusMap[project.id] || null;
-      // console.log("PROJECT DATA", projectData);
       return projectData;
     });
 
@@ -204,6 +203,7 @@ exports.findAll = async (req, res) => {
         replacements: [company_id_fk],
         type: db.sequelize.QueryTypes.SELECT,
       })
+
       .then((data) => {
         res.render("Pages/pages-projects", {
           projects: data,
@@ -703,13 +703,21 @@ exports.radar = async (req, res) => {
     const discoveryCount = Number(data[0].phase_3_count);
     const deliveryCount = Number(data[0].phase_3_count);
     const operationsCount = Number(data[0].phase_4_count);
-    const pitchTotalCost = Number(data[0].phase_1_total_cost) || 0;
-    const priorityTotalCost = Number(data[0].phase_2_total_cost) || 0;
-    const discoveryCost = Number(data[0].phase_3_total_cost) || 0;
-    const deliveryTotalCost = Number(data[0].phase_4_total_cost) || 0;
-    const operationsTotalCost = Number(data[0].phase_5_total_cost) || 0;
+    const pitchTotalCost = formatCost(Number(data[0].phase_1_total_cost) || 0);
+    const priorityTotalCost = formatCost(
+      Number(data[0].phase_2_total_cost) || 0,
+    );
+    const discoveryCost = formatCost(Number(data[0].phase_3_total_cost) || 0);
+    const deliveryTotalCost = formatCost(
+      Number(data[0].phase_4_total_cost) || 0,
+    );
+    const operationsTotalCost = formatCost(
+      Number(data[0].phase_5_total_cost) || 0,
+    );
     const totalCost =
       pitchTotalCost +
+      discoveryCost +
+      priorityTotalCost +
       priorityTotalCost +
       discoveryCost +
       deliveryTotalCost +
@@ -720,7 +728,7 @@ exports.radar = async (req, res) => {
     const in_flight_cost =
       priorityTotalCost + discoveryCost + deliveryTotalCost;
     // console.log("flight count:",Number(in_flight_count) || 0);
-
+    console.log("totalCost:", totalCost);
     res.render("Pages/pages-radar", {
       projects: data,
       pitchCount,
@@ -734,13 +742,13 @@ exports.radar = async (req, res) => {
       // phase_2_total_cost: data[0].phase_2_total_cost,
       in_flight_cost: in_flight_cost,
       operationsCount,
-      operationsTotalCost,
+      operationsTotalCost: formatCost(operationsTotalCost),
       totalCost,
       usedCost,
       avalCost,
       deliveryCount,
-      deliveryCost: deliveryTotalCost,
-      discoveryCost: deliveryTotalCost,
+      deliveryCost: formatCost(deliveryTotalCost),
+      discoveryCost: formatCost(deliveryTotalCost),
       currentDate: new Date().toLocaleDateString(),
       company_id: company_id_fk,
     });
@@ -1013,7 +1021,7 @@ exports.update = async (req, res) => {
         complexity: req.body.complexity,
         effort: req.body.effort,
         benefit: req.body.benefit,
-        project_cost: req.body.project_cost,
+        project_cost: formatCost(req.body.project_cost),
         tags: req.body.tags,
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
