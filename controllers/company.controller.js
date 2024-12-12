@@ -2,6 +2,7 @@ const { where } = require("sequelize");
 const db = require("../models");
 const Company = db.companies;
 const Person = db.persons;
+const Tag = db.tags;
 const Op = db.Sequelize.Op;
 
 exports.create = async (req, res) => {
@@ -33,7 +34,6 @@ exports.create = async (req, res) => {
       const session = req.session;
       session.company = company;
       try {
-        console.log("create session.company:", session.company.id);
         res.redirect("/confirm");
       } catch (err) {
         console.log("err:", err);
@@ -157,17 +157,73 @@ exports.findDefaults = (req, res) => {
     console.log("error:", error);
     return res.status(500).json({ message: "Error retrieving session data." });
   }
-
-  Company.findAll({ where: { id: company_id_fk } })
+  console.log("company_id_fk:", company_id_fk);
+  Company.findOne({ where: { id: company_id_fk } })
     .then((company) => {
-      //render page
-      console.log("data:", company);
-      res.render("Pages/pages-defaults", { company });
+      if (!company) {
+        return res.status(404).send("Company not found");
+      }
+      // Handle the result
+      //get all tags
+      Tag.findAll({ where: { company_id_fk: company_id_fk } })
+        .then((tags) => {
+          if (!tags) {
+            // return res.status(404).send("Tag not found");
+          }
+          // Handle the result
+          //get all tags
+          console.log("Tag:", tags);
+          res.render("Pages/pages-defaults", { company, tags });
+        })
+        .catch((error) => {
+          console.error(error);
+          res.status(500).send("Internal Server Error");
+        });
     })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving companies.",
-      });
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Internal Server Error");
     });
+};
+exports.setDefaults = async (req, res, next) => {
+  console.log("************ SET DEFAULTS ************");
+
+  // Ensure session exists and extract company ID
+  let company_id_fk;
+  try {
+    if (!req.session || !req.session.company) {
+      return res.redirect("/pages-500");
+    }
+    company_id_fk = req.session.company.id;
+  } catch (error) {
+    console.error("Error retrieving session data:", error);
+    return res.status(500).json({ message: "Error retrieving session data." });
+  }
+
+  // Update company portfolio budget and effort
+  try {
+    const [rowsUpdated, [updatedCompany]] = await Company.update(
+      {
+        portfolio_budget: req.body.portfolio_budget,
+        effort: req.body.portfolio_effort,
+      },
+      {
+        returning: true,
+        where: { id: company_id_fk }, // Use the correct company ID
+      },
+    );
+
+    if (rowsUpdated === 0) {
+      return res
+        .status(404)
+        .json({ message: "Company not found or no updates were made." });
+    }
+
+    // /companies/set/defaults
+    res.redirect("/companies/get/defaults");
+    // res.json(updatedCompany);
+  } catch (error) {
+    console.error("Error updating company data:", error);
+    next(error); // Pass the error to the Express error handler
+  }
 };

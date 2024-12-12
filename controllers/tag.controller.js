@@ -6,7 +6,7 @@ const Op = db.Sequelize.Op;
 exports.create = (req, res) => {
   // Validate request
   console.log("create tag");
-  if (!req.body.tag_name) {
+  if (!req.body.company_tag) {
     res.status(400).send({
       message: "Tag Name can not be empty!",
     });
@@ -15,14 +15,13 @@ exports.create = (req, res) => {
 
   // Create a Tag
   const tag = {
-    tag_name: req.body.tag_name,
-    company_id_fk: req.body.company_id_fk,
-    //   tag_description: req.body.tag_description,
+    tag_name: req.body.company_tag,
+    company_id_fk: req.body.company_id,
   };
   // Save Tag in the database
   Tag.create(tag)
     .then((data) => {
-      res.send(data);
+      res.redirect("/companies/get/defaults");
     })
     .catch((err) => {
       res.status(500).send({
@@ -33,19 +32,14 @@ exports.create = (req, res) => {
 
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
-  const tag_name = req.query.tag_name;
-  var condition = tag_name
-    ? { tag_name: { [Op.iLike]: `%${tag_name}%` } }
-    : null;
-
-  Tag.findAll({ where: condition })
+  // const tag_name = req.query.tag_name;
+  Tag.findAll({})
     .then((data) => {
       res.send(data);
     })
     .catch((err) => {
       res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving companies.",
+        message: err.message || "Some error occurred while retrieving tags.",
       });
     });
 };
