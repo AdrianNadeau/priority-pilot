@@ -761,6 +761,65 @@ exports.radar = async (req, res) => {
   }
 };
 
+exports.progress = async (req, res) => {
+  let companyId;
+
+  // Ensure session exists and extract company information
+  try {
+    if (!req.session || !req.session.company) {
+      return res.redirect("/pages-500");
+    } else {
+      companyId = req.session.company.id;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
+
+  try {
+    // Get all projects for the company
+    const projects = await db.projects.findAll({
+      where: { company_id_fk: companyId },
+      attributes: ["id", "project_name"],
+    });
+
+    if (!projects || projects.length === 0) {
+      return res
+        .status(404)
+        .send({ message: "No projects found for this company." });
+    }
+
+    // Get the most recent status for each project
+    const projectNames = [];
+    const progress = [];
+    const colors = [];
+    for (const project of projects) {
+      projectNames.push(project.project_name);
+
+      // Fetch the most recent status for this project
+      const status = await db.statuses.findOne({
+        where: { project_id_fk: project.id },
+        order: [["status_date", "DESC"]],
+        attributes: ["progress", "health"],
+      });
+
+      progress.push(status ? status.progress : "No status available");
+      colors.push(status ? status.health : "No status available");
+    }
+
+    // Send the response
+    res.json({
+      company_name: req.session.company.company_name,
+      project_names: projectNames,
+      progress: progress,
+      colors: colors,
+    });
+  } catch (error) {
+    console.log("Query error:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
+};
+
 exports.flight = async (req, res) => {
   let company_id_fk;
   try {

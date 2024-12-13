@@ -169,9 +169,7 @@
         </div>
       </div>
       
-      <div style="width: 1100px; margin: auto;">
-        <canvas id="barChart"></canvas>
-      </div><div style="width: 1100px; margin: auto;">
+      <div class="row" style="width: 800px;">
         <canvas id="barChart"></canvas>
       </div>
     </div>
@@ -182,40 +180,55 @@
   <script>
     document.addEventListener("DOMContentLoaded", function () {
 
-    // Select the canvas element
-    if (typeof Chart !== 'undefined') {
-            const ctx = document.getElementById('barChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Project 1', 'Project 2', 'Project 3', 'Project 4', 'Project 5', 'Project 5'],
-                    datasets: [{
-                        label: 'Company Name',
-                        data: [12, 19, 3, 5, 2, 3],
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.6)',
-                            'rgba(54, 162, 235, 0.6)',
-                            'rgba(255, 206, 86, 0.6)',
-                            'rgba(75, 192, 192, 0.6)',
-                            'rgba(153, 102, 255, 0.6)',
-                            'rgba(255, 159, 64, 0.6)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
+      fetch(`/projects/radar/progress`)
+          .then(response => response.json())
+          .then(data => {
+            // Select the canvas element
+            if (typeof Chart !== 'undefined') {
+                const ctx = document.getElementById('barChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.project_names,
+                        datasets: [{
+                            label: data.company_name,
+                            data: data.progress,
+                            backgroundColor: data.colors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                              beginAtZero: true,
+                              max: 100, // Fix vertical scale at 100
+                              stepSize: 10, // Set interval to 10
+                              title: {
+                                display: true,
+                                text: 'Progress (%)', // Vertical axis label
+                              }
+                            }
+                        },
+                        plugins: {
+                          tooltip: {
+                            callbacks: {
+                              // Custom tooltip for hover
+                              label: function (tooltipItem) {
+                                const progress = data.progress[tooltipItem.dataIndex];
+                                return `Progress: ${progress}%`;
+                              }
+                            }
+                          }
                         }
                     }
-                }
-                
-            });
-        } else {
-            console.error('Chart.js library NOT loaded');
-            document.body.innerHTML = '<p>Error: Chart.js library failed to load</p>';
-        }
+                });
+            } else {
+                console.error('Chart.js library NOT loaded');
+                document.body.innerHTML = '<p>Error: Chart.js library failed to load</p>';
+            }
+          })
+          .catch(err => console.error(err));
+    
       });
       
     
