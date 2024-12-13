@@ -6,6 +6,7 @@ const Person = db.persons;
 const ChangeLog = db.change_logs;
 const ChangeReason = db.change_reasons;
 const ChangeProject = db.changed_projects;
+const Tag = db.tags;
 const Status = db.statuses;
 const sequelize = require("sequelize");
 const Op = db.Sequelize.Op;
@@ -36,7 +37,6 @@ exports.create = (req, res) => {
   if (req.body.phase_id_fk == 1) {
     pitch_message = req.body.pitch_message;
   }
-  console.log("create project");
   // Create a Project
   const project = {
     company_id_fk: company_id_fk,
@@ -59,6 +59,9 @@ exports.create = (req, res) => {
     complexity: req.body.complexity,
     tags: req.body.project_tags,
     pitch_message: pitch_message,
+    tag1: req.body.project_tag1_id_fk,
+    tag2: req.body.project_tag2_id_fk,
+    tag3: req.body.project_tag3_id_fk,
   };
   // Save Project in the database
   Project.create(project).then(async (data) => {
@@ -108,7 +111,7 @@ exports.create = (req, res) => {
 
 exports.findAllRadar = async (req, res) => {
   const type = req.params.type;
-  console.log("GET ALL RADAR PROJECTS", type);
+
   // Get company id from session
   let company_id_fk;
   try {
@@ -393,17 +396,18 @@ exports.cockpit = async (req, res) => {
     let lastStatusDate = null;
     let statusColor = null;
     if (statuses) {
-      console.log("we have statuses");
       if (statuses.length > 0) {
         lastStatusDate = statuses[0].status_date;
         statusColor = statuses[0].health;
       } else {
-        console.log("no status");
         lastStatusDate = "";
         statusColor = "green";
       }
     }
-
+    const tags = await Status.findAll({
+      where: { project_id_fk: project_id },
+      order: [["createdAt", "DESC"]],
+    });
     res.render("Pages/pages-cockpit", {
       project: data,
       current_date: currentDate,
@@ -728,7 +732,6 @@ exports.radar = async (req, res) => {
     const in_flight_cost =
       priorityTotalCost + discoveryCost + deliveryTotalCost;
     // console.log("flight count:",Number(in_flight_count) || 0);
-    console.log("totalCost:", totalCost);
     res.render("Pages/pages-radar", {
       projects: data,
       pitchCount,

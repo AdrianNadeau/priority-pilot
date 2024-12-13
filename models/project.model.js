@@ -85,6 +85,15 @@ module.exports = (sequelize, Sequelize) => {
     pitch_message: {
       type: Sequelize.STRING,
     },
+    tag1: {
+      type: Sequelize.STRING,
+    },
+    tag2: {
+      type: Sequelize.STRING,
+    },
+    tag3: {
+      type: Sequelize.STRING,
+    },
   });
 
   return Project;

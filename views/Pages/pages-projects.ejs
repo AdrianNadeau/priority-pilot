@@ -229,33 +229,47 @@
                                       </div>
                                       </div>
                                       <div id="otherPhaseFields">
-                                        <div class="row">
-                                          <div class="col-md-6">
-                                            <div class="form-group">
-                                              <label for="project_cost">Estimated Cost</label>
-                                              <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
-                                            </div>
-                                          </div>
-                                          
-                                        </div>
+                                        <select name="project_tag1_id_fk" id="project_tag2_id_fk" class="form-control">
+                                          <%=if(tags.length > 0){ %>
+
+                                          <% tags.forEach(function(tag){ %>
+                                            <% if (tag.id == tag.name) { %>
+                                              <option selected value="<%= phase.id %>"><%= phase.phase_name %></option>
+                                            <% } else { %>
+                                              <option value="<%= phase.id %>"><%= phase.phase_name %></option>
+                                            <% } %>
+                                          <% }) %>
+                                        %>
+                                        </select>
+                                      </div>
                                       </div>
                                       <div class="row">
                                         <div class="col-md-12">
                                           <div class="form-group">
-                                            <label for="project_cost">Tag 1</label>
-                                            <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
+                                            <label for="project_tag2_id_fk">Tag 1</label>
+                                              <select name="project_tag2_id_fk" id="project_tag2_id_fk" class="form-control">
+                                            <% for (var i = 1; i <= 10; i++) { %>
+                                              <option value="<%= i %>"><%= i %></option>
+                                            <% } %>
                                           </div>
                                         </div>
                                         <div class="col-md-12">
                                           <div class="form-group">
-                                            <label for="project_cost">Tag 1</label>
-                                            <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
+                                            <select name="project_tag2_id_fk" id="project_tag2_id_fk" class="form-control">
+                                              <% for (var i = 1; i <= 10; i++) { %>
+                                                <option value="<%= i %>"><%= i %></option>
+                                              <% } %>
+                                            </select>
                                           </div>
                                         </div>
                                         <div class="col-md-12">
                                           <div class="form-group">
-                                            <label for="project_cost">Tag 1</label>
-                                            <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
+                                            <label for="project_cost">Tag 3</label>
+                                            <select name="project_tag2_id_fk" id="project_tag2_id_fk" class="form-control">
+                                              <% for (var i = 1; i <= 10; i++) { %>
+                                                <option value="<%= i %>"><%= i %></option>
+                                              <% } %>
+                                            </select>
                                           </div>
                                         </div>
                                        
