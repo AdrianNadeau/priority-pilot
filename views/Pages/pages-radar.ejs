@@ -1,237 +1,393 @@
-<%- contentFor('HeaderCss') %>
-
-
-
-<%- contentFor('breadcrumb') %>
+<%- contentFor('HeaderCss') %> <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
-    <li class="list-inline-item">
-        <button type="button" class="button-menu-mobile open-left waves-effect">
-            <i class="ion-navicon"></i>
-        </button>
-    </li>
-    <li class="hide-phone list-inline-item app-search">
-        <h3 class="page-title">Radar</h3>
-    </li>
+  <li class="list-inline-item">
+    <button type="button" class="button-menu-mobile open-left waves-effect">
+      <i class="ion-navicon"></i>
+    </button>
+  </li>
+  <li class="hide-phone list-inline-item app-search">
+    <h3 class="page-title">Radar</h3>
+  </li>
 </ul>
 
-
 <%- contentFor('body') %>
-
-  </head>
-  <body>
-    <%- contentFor('HeaderCss') %>
-
-    <%- contentFor('breadcrumb') %>
-    <ul class="list-inline menu-left mb-0">
-      <li class="list-inline-item">
-        <button type="button" class="button-menu-mobile open-left waves-effect">
-          <i class="ion-navicon"></i>
-        </button>
-      </li>
-      <li class="hide-phone list-inline-item app-search">
-        <div><h3 class="page-title">Radar</h3></div>
-      </li>
-    </ul>
-    <div class="container" style="margin-left: .5em;">
-      <div class="row">
-        
-        <div class="col-lg-2 text-center">
-          <div class="card-body p-2">
-            <strong class="h3">Priority</strong>
-            <br />
-            <button
-              type="button"
-              class="btn btn-light"
-              style="
-                background-color: #e2e6ea;
-                border-color: #e2e6ea;
-                margin-bottom: 5px;
-                width: 120px;
-                height: 50px;
-              "
-            >
-              <%= priorityCount %>
-            </button>
-            <br />
-            <button
-              type="button"
-              class="btn btn-light"
-              style="
-                background-color: #e2e6ea;
-                border-color: #e2e6ea;
-                margin-bottom: 5px;
-                width: 120px;
-                height: 50px;
-              "
-            >
-              $<%= priorityCost %>
-            </button>
+<div class="page-content-wrapper">
+  <div class="container" style="margin-left: 0.5em">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="row">
+          <div class="col-lg-2 text-center">
+            <div class="card-body p-2">
+              <strong class="h3">Funnel</strong>
+              <br />
+              <button
+                type="button"
+                class="btn btn-light"
+                style="
+                  background-color: #e2e6ea;
+                  border-color: #e2e6ea;
+                  margin-bottom: 5px;
+                  width: 120px;
+                  height: 50px;
+                "
+              >
+                <%= discoveryCount + deliveryCount%>
+              </button>
+              <br />
+              <button
+                type="button"
+                class="btn btn-light"
+                style="
+                  background-color: #e2e6ea;
+                  border-color: #e2e6ea;
+                  margin-bottom: 5px;
+                  width: 120px;
+                  height: 50px;
+                "
+              >
+                $<%= discoveryCost %>
+              </button>
+            </div>
+          </div>
+          <div class="col-lg-2 text-center">
+            <div class="card-body p-2">
+              <strong class="h3">Priority</strong>
+              <br />
+              <button
+                type="button"
+                class="btn btn-light"
+                style="
+                  background-color: #e2e6ea;
+                  border-color: #e2e6ea;
+                  margin-bottom: 5px;
+                  width: 120px;
+                  height: 50px;
+                "
+              >
+                <%= priorityCount %>
+              </button>
+              <br />
+              <button
+                type="button"
+                class="btn btn-light"
+                style="
+                  background-color: #e2e6ea;
+                  border-color: #e2e6ea;
+                  margin-bottom: 5px;
+                  width: 120px;
+                  height: 50px;
+                "
+              >
+                $<%= priorityCost %>
+              </button>
+            </div>
+          </div>
+          <div class="col-lg-2 text-center">
+            <div class="card-body p-2">
+              <strong class="h3">Discovery</strong>
+              <br />
+              <button
+                type="button"
+                class="btn btn-light"
+                style="
+                  background-color: #e2e6ea;
+                  border-color: #e2e6ea;
+                  margin-bottom: 5px;
+                  width: 120px;
+                  height: 50px;
+                "
+              >
+                <%= operationsCount %>
+              </button>
+              <br />
+              <button
+                type="button"
+                class="btn btn-light"
+                style="
+                  background-color: #e2e6ea;
+                  border-color: #e2e6ea;
+                  margin-bottom: 5px;
+                  width: 120px;
+                  height: 50px;
+                "
+              >
+                $<%= operationsCost %>
+              </button>
+            </div>
+          </div>
+          <div class="col-lg-2 text-center">
+            <div class="card-body p-2">
+              <strong class="h3">Delivery</strong>
+              <br />
+              <button
+                type="button"
+                class="btn btn-light"
+                style="
+                  background-color: #e2e6ea;
+                  border-color: #e2e6ea;
+                  margin-bottom: 5px;
+                  width: 120px;
+                  height: 50px;
+                "
+              >
+                <%= deliveryCount %>
+              </button>
+              <br />
+              <button
+                type="button"
+                class="btn btn-light"
+                style="
+                  background-color: #e2e6ea;
+                  border-color: #e2e6ea;
+                  margin-bottom: 5px;
+                  width: 120px;
+                  height: 50px;
+                "
+              >
+                $<%= deliveryCost %>
+              </button>
+            </div>
+          </div>
+          <div class="col-lg-2 text-center">
+            <div class="card-body p-2">
+              <strong class="h3">Done</strong>
+              <br />
+              <button
+                type="button"
+                class="btn btn-light"
+                style="
+                  background-color: #e2e6ea;
+                  border-color: #e2e6ea;
+                  margin-bottom: 5px;
+                  width: 120px;
+                  height: 50px;
+                "
+              >
+                <%= operationsCount %>
+              </button>
+              <br />
+              <button
+                type="button"
+                class="btn btn-light"
+                style="
+                  background-color: #e2e6ea;
+                  border-color: #e2e6ea;
+                  margin-bottom: 5px;
+                  width: 120px;
+                  height: 50px;
+                "
+              >
+                $<%= operationsCost %>
+              </button>
+            </div>
           </div>
         </div>
-        <div class="col-lg-2 text-center">
-          <div class="card-body p-2">
-            <strong class="h3">In-Flight</strong>
-            <br />
-            <button
-              type="button"
-              class="btn btn-light"
-              style="
-                background-color: #e2e6ea;
-                border-color: #e2e6ea;
-                margin-bottom: 5px;
-                width: 120px;
-                height: 50px;
-              "
-            >
-              <%= discoveryCount + deliveryCount%>
-            </button>
-            <br />
-            <button
-              type="button"
-              class="btn btn-light"
-              style="
-                background-color: #e2e6ea;
-                border-color: #e2e6ea;
-                margin-bottom: 5px;
-                width: 120px;
-                height: 50px;
-              "
-            >
-              $<%= discoveryCost %>
-            </button>
-          </div>
-        </div>
-        <!-- <div class="col-lg-2 text-center">
-          <div class="card-body p-2">
-            <strong class="h3">Delivery</strong>
-            <br />
-            <button
-              type="button"
-              class="btn btn-light"
-              style="
-                background-color: #e2e6ea;
-                border-color: #e2e6ea;
-                margin-bottom: 5px;
-                width: 120px;
-                height: 50px;
-              "
-            >
-              <%= deliveryCount %>
-            </button>
-            <br />
-            <button
-              type="button"
-              class="btn btn-light"
-              style="
-                background-color: #e2e6ea;
-                border-color: #e2e6ea;
-                margin-bottom: 5px;
-                width: 120px;
-                height: 50px;
-              "
-            >
-              $<%= deliveryCost %>
-            </button>
-          </div>
-        </div> -->
-        <div class="col-lg-2 text-center">
-          <div class="card-body p-2">
-            <strong class="h3">Done</strong>
-            <br />
-            <button
-              type="button"
-              class="btn btn-light"
-              style="
-                background-color: #e2e6ea;
-                border-color: #e2e6ea;
-                margin-bottom: 5px;
-                width: 120px;
-                height: 50px;
-              "
-            >
-              <%= operationsCount %>
-            </button>
-            <br />
-            <button
-              type="button"
-              class="btn btn-light"
-              style="
-                background-color: #e2e6ea;
-                border-color: #e2e6ea;
-                margin-bottom: 5px;
-                width: 120px;
-                height: 50px;
-              "
-            >
-              $<%= operationsCost %>
-            </button>
+        <div class="row mt-5">
+          <div class="col-lg-10 text-center">
+            <canvas id="barChart"></canvas>
           </div>
         </div>
       </div>
-      
-      <div class="row" style="width: 800px;">
-        <canvas id="barChart"></canvas>
+
+      <div class="col-lg-3">
+        <div class="row">
+          <canvas id="pieChart1"></canvas>
+        </div>
+        <div class="row mt-5">
+          <canvas id="pieChart2"></canvas>
+        </div>
       </div>
     </div>
+  </div>
+</div>
 
-    
-  </body>
-  <%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
+<%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch(`/projects/radar/progress`)
+      .then((response) => response.json())
+      .then((data) => {
+        // Select the canvas element
+        if (typeof Chart !== "undefined") {
+          const colorMapping = {
+            Green: "#28a745",
+            Yellow: "#ffc107",
+            Red: "#dc3545",
+          };
 
-      fetch(`/projects/radar/progress`)
-          .then(response => response.json())
-          .then(data => {
-            // Select the canvas element
-            if (typeof Chart !== 'undefined') {
-                const ctx = document.getElementById('barChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.project_names,
-                        datasets: [{
-                            label: data.company_name,
-                            data: data.progress,
-                            backgroundColor: data.colors,
-                            borderWidth: 1
-                        }]
+          // Convert API colors to hex codes
+          const mappedColors = data.colors.map(
+            (color) => colorMapping[color] || "#000000",
+          );
+          const barCtx = document.getElementById("barChart").getContext("2d");
+          new Chart(barCtx, {
+            type: "bar",
+            data: {
+              labels: data.project_names,
+              datasets: [
+                {
+                  label: data.company_name,
+                  data: data.progress,
+                  backgroundColor: mappedColors,
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  max: 100, // Fix vertical scale at 100
+                  stepSize: 10, // Set interval to 10
+                  title: {
+                    display: true,
+                    text: "Progress (%)", // Vertical axis label
+                  },
+                },
+              },
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    // Custom tooltip for hover
+                    label: function (tooltipItem) {
+                      const progress = data.progress[tooltipItem.dataIndex];
+                      return `Progress: ${progress}%`;
                     },
-                    options: {
-                        scales: {
-                            y: {
-                              beginAtZero: true,
-                              max: 100, // Fix vertical scale at 100
-                              stepSize: 10, // Set interval to 10
-                              title: {
-                                display: true,
-                                text: 'Progress (%)', // Vertical axis label
-                              }
-                            }
-                        },
-                        plugins: {
-                          tooltip: {
-                            callbacks: {
-                              // Custom tooltip for hover
-                              label: function (tooltipItem) {
-                                const progress = data.progress[tooltipItem.dataIndex];
-                                return `Progress: ${progress}%`;
-                              }
-                            }
-                          }
-                        }
-                    }
-                });
-            } else {
-                console.error('Chart.js library NOT loaded');
-                document.body.innerHTML = '<p>Error: Chart.js library failed to load</p>';
+                  },
+                },
+              },
+            },
+          });
+
+          // Define static colors and initialize counts
+          const colorCounts = {
+            Green: 0,
+            Yellow: 0,
+            Red: 0,
+          };
+
+          // Count occurrences of each color
+          data.colors.forEach((color) => {
+            if (colorCounts[color] !== undefined) {
+              colorCounts[color] += 1;
             }
-          })
-          .catch(err => console.error(err));
-    
-      });
-      
-    
-         
+          });
+
+          // Extract data for the chart
+          const labels = Object.keys(colorCounts); // ["Green", "Yellow", "Red"]
+          const counts = Object.values(colorCounts); // [3, 2, 1]
+          const chartColors = ["#28a745", "#ffc107", "#dc3545"]; // Static colors for Green, Yellow, Red
+
+          // Calculate percentages
+          const total = counts.reduce((sum, count) => sum + count, 0);
+          const percentages = counts.map((count) =>
+            ((count / total) * 100).toFixed(1),
+          ); // Percentages with 1 decimal point
+
+          // Custom legend labels
+          const customLabels = ["Healthy", "Caution", "In Trouble"];
+
+          const pieCtx = document.getElementById("pieChart1").getContext("2d");
+          new Chart(pieCtx, {
+            type: "doughnut",
+            data: {
+              labels: labels, // Status labels
+              datasets: [
+                {
+                  data: counts, // Count of projects in each category
+                  backgroundColor: chartColors, // Status colors
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              plugins: {
+                legend: {
+                  display: true,
+                  position: "top",
+                  labels: {
+                    generateLabels: function (chart) {
+                      return chart.data.labels.map((label, index) => {
+                        return {
+                          text: `${customLabels[index]} (${percentages[index]}%)`,
+                          fillStyle: chartColors[index], // Set the color for the label's box
+                          strokeStyle: chartColors[index],
+                          lineWidth: 1,
+                        };
+                      });
+                    },
+                    color: "#333", // Text color for legend
+                    font: {
+                      size: 14, // Font size for legend
+                    },
+                  },
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function (tooltipItem) {
+                      const status = customLabels[tooltipItem.dataIndex];
+                      const count = counts[tooltipItem.dataIndex];
+                      return `${status}: ${count} project(s)`;
+                    },
+                  },
+                },
+              },
+            },
+          });
+
+          const pie2Ctx = document.getElementById("pieChart2").getContext("2d");
+          new Chart(pie2Ctx, {
+            type: "doughnut",
+            data: {
+              labels: labels, // Status labels
+              datasets: [
+                {
+                  data: counts, // Count of projects in each category
+                  backgroundColor: chartColors, // Status colors
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              plugins: {
+                legend: {
+                  display: true,
+                  position: "top",
+                  labels: {
+                    generateLabels: function (chart) {
+                      return chart.data.labels.map((label, index) => {
+                        return {
+                          text: `${customLabels[index]} (${percentages[index]}%)`,
+                          fillStyle: chartColors[index], // Set the color for the label's box
+                          strokeStyle: chartColors[index],
+                          lineWidth: 1,
+                        };
+                      });
+                    },
+                    color: "#333", // Text color for legend
+                    font: {
+                      size: 14, // Font size for legend
+                    },
+                  },
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function (tooltipItem) {
+                      const status = customLabels[tooltipItem.dataIndex];
+                      const count = counts[tooltipItem.dataIndex];
+                      return `${status}: ${count} project(s)`;
+                    },
+                  },
+                },
+              },
+            },
+          });
+        } else {
+          console.error("Chart.js library NOT loaded");
+          document.body.innerHTML =
+            "<p>Error: Chart.js library failed to load</p>";
+        }
+      })
+      .catch((err) => console.error(err));
+  });
 </script>
-</html>
