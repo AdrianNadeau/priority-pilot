@@ -46,40 +46,39 @@
                                 <% projects.forEach(function(project) { %>
                                   <tbody>
                                       <tr style="cursor: pointer;">
-                                        <input type="hidden" name="project_id" value = "<%= project.id %>"/>
-                                        <td><%= project.id %></td>
-                                        <td><%= project.project_name %></td>
-
-                                        <% if(project.prime_last_name){ %>
-                                            <td><%= project.prime_last_name %>, <%= project.prime_first_name %> </td>
-                                        <% } else { %>
-                                            <td>N/A</td>
-                                        <% } %>
-
-                                        <% if(project.sponsor_last_name){ %>
-                                          <td><%= project.sponsor_last_name %>, <%= project.sponsor_first_name %> </td>
-                                        <% } else { %>
-                                          <td>N/A</td>
-                                        <% } %>
-                                       
-                                        
-                                        <td>
-                                          <% if(project.start_date){ %>
-                                              <%= project.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                                            <%}%>
-                                       </td>
-                                       <td>
-                                        <% if(project.end_date){ %>
-                                            <%= project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                                          <%}%>
-                                     </td>
-                                        
-                                        <td><%= project.phase_name %></td>
-                                        <td><%= project.project_cost %></td>
-                                        
+                                          <input type="hidden" name="project_id" value="<%= project.id %>"/>
+                                          <td><%= project.id %></td>
+                                          <td><%= project.project_name %></td>
+                              
+                                          <% if (project.prime_last_name) { %>
+                                              <td><%= project.prime_last_name %>, <%= project.prime_first_name %></td>
+                                          <% } else { %>
+                                              <td>N/A</td>
+                                          <% } %>
+                              
+                                          <% if (project.sponsor_last_name) { %>
+                                              <td><%= project.sponsor_last_name %>, <%= project.sponsor_first_name %></td>
+                                          <% } else { %>
+                                              <td>N/A</td>
+                                          <% } %>
+                              
+                                          <td>
+                                              <% if (project.start_date) { %>
+                                                  <%= new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                                              <% } %>
+                                          </td>
+                                          <td>
+                                              <% if (project.end_date) { %>
+                                                  <%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                                              <% } %>
+                                          </td>
+                              
+                                          <td><%= project.phase_name %></td>
+                                          <td><%= project.project_cost %></td>
                                       </tr>
                                   </tbody>
                               <% }); %>
+                              
                               
                              
                             </table>
@@ -229,53 +228,62 @@
                                       </div>
                                       </div>
                                       <div id="otherPhaseFields">
-                                        <select name="project_tag1_id_fk" id="project_tag2_id_fk" class="form-control">
-                                          <%=if(tags.length > 0){ %>
+                                        <div class="col-md-12">
+                                          <div class="form-group">
+                                            <label for="complexity">Tag 1:</label>
 
-                                          <% tags.forEach(function(tag){ %>
-                                            <% if (tag.id == tag.name) { %>
-                                              <option selected value="<%= phase.id %>"><%= phase.phase_name %></option>
-                                            <% } else { %>
-                                              <option value="<%= phase.id %>"><%= phase.phase_name %></option>
-                                            <% } %>
-                                          <% }) %>
-                                        %>
-                                        </select>
-                                      </div>
-                                      </div>
-                                      <div class="row">
-                                        <div class="col-md-12">
-                                          <div class="form-group">
-                                            <label for="project_tag2_id_fk">Tag 1</label>
-                                              <select name="project_tag2_id_fk" id="project_tag2_id_fk" class="form-control">
-                                            <% for (var i = 1; i <= 10; i++) { %>
-                                              <option value="<%= i %>"><%= i %></option>
-                                            <% } %>
+                                            <select name="project_tag1" id="project_tag1" class="form-control">
+                                              <option value="0">Select...</option>
+                                              <% if (tags && tags.length > 0) { %>
+                                                <% tags.forEach(function(tag){ %>
+                                                  <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                <% }) %>
+                                              <% } else { %>
+                                                  <option value="">No tags available</option>
+                                              <% } %>
+                                            </select>
+
+                                           
                                           </div>
                                         </div>
                                         <div class="col-md-12">
                                           <div class="form-group">
-                                            <select name="project_tag2_id_fk" id="project_tag2_id_fk" class="form-control">
-                                              <% for (var i = 1; i <= 10; i++) { %>
-                                                <option value="<%= i %>"><%= i %></option>
+                                            <label for="complexity">Tag 2:</label>
+                                            <select name="project_tag2" id="project_tag2" class="form-control">
+                                              <option value="0">Select...</option>
+                                              <% if (tags && tags.length > 0) { %>
+                                                <% tags.forEach(function(tag){ %>
+                                                  <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                <% }) %>
+                                              <% } else { %>
+                                                  <option value="">No tags available</option>
                                               <% } %>
                                             </select>
+
+                                           
                                           </div>
                                         </div>
                                         <div class="col-md-12">
                                           <div class="form-group">
-                                            <label for="project_cost">Tag 3</label>
-                                            <select name="project_tag2_id_fk" id="project_tag2_id_fk" class="form-control">
-                                              <% for (var i = 1; i <= 10; i++) { %>
-                                                <option value="<%= i %>"><%= i %></option>
+                                            <label for="complexity">Tag 3:</label>
+                                            <select name="project_tag3" id="project_tag3" class="form-control">
+                                              <option value="0">Select...</option>
+                                              <% if (tags && tags.length > 0) { %>
+                                                <% tags.forEach(function(tag){ %>
+                                                  <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                <% }) %>
+                                              <% } else { %>
+                                                  <option value="">No tags available</option>
                                               <% } %>
                                             </select>
+
+                                           
                                           </div>
                                         </div>
                                        
+                                      </div>
                                     </div>
-                                    </div>
-                                  </div>
+                                     
                                 </div>
                                 <div class="modal-footer">
                                   <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>

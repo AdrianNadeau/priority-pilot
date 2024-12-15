@@ -37,6 +37,7 @@ exports.create = (req, res) => {
   if (req.body.phase_id_fk == 1) {
     pitch_message = req.body.pitch_message;
   }
+  console.log("req.body:", req.body);
   // Create a Project
   const project = {
     company_id_fk: company_id_fk,
@@ -59,9 +60,9 @@ exports.create = (req, res) => {
     complexity: req.body.complexity,
     tags: req.body.project_tags,
     pitch_message: pitch_message,
-    tag1: req.body.project_tag1_id_fk,
-    tag2: req.body.project_tag2_id_fk,
-    tag3: req.body.project_tag3_id_fk,
+    tag_1: req.body.project_tag1_id_fk,
+    tag_2: req.body.project_tag2_id_fk,
+    tag_3: req.body.project_tag3_id_fk,
   };
   // Save Project in the database
   Project.create(project).then(async (data) => {
@@ -69,6 +70,10 @@ exports.create = (req, res) => {
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     });
+    const tagsData = await Tag.findAll({
+      order: [["id", "ASC"]],
+    });
+    console.log("tagsData:", tagsData);
     const [prioritiesData, personsData, projectsData] = await Promise.all([
       Priority.findAll(),
 
@@ -99,6 +104,7 @@ exports.create = (req, res) => {
           sponsors: personsData,
           primes: personsData,
           session: req.session,
+          tags: tagsData,
         });
       })
       .catch((err) => {
@@ -186,7 +192,10 @@ exports.findAll = async (req, res) => {
         .status(500)
         .json({ message: "Error retrieving session data." });
     }
-
+    const tagsData = await Tag.findAll({
+      order: [["id", "ASC"]],
+    });
+    console.log("tagsData:", tagsData);
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     });
@@ -214,6 +223,7 @@ exports.findAll = async (req, res) => {
           priorities: priorities,
           sponsors: personsData,
           primes: personsData,
+          tags: tagsData,
         });
       })
       .catch((err) => {
@@ -280,7 +290,7 @@ exports.findFunnel = async (req, res) => {
   ORDER BY 
     proj.phase_id_fk;
 `;
-    console.log("personsData:::::::::::::::", personsData);
+
     await db.sequelize
       .query(query, {
         replacements: [company_id_fk],
