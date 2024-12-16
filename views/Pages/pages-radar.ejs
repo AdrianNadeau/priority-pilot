@@ -207,6 +207,7 @@
     fetch(`/projects/radar/progress`)
       .then((response) => response.json())
       .then((data) => {
+        console.log("Data received:", data);
         // Select the canvas element
         if (typeof Chart !== "undefined") {
           const colorMapping = {

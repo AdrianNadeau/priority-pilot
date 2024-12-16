@@ -201,12 +201,61 @@
       <input type="text" class="form-control" id="project_cost" name="project_cost" value="<%= project.project_cost %>">
     </div>
   </div>
-  <!-- <div class="col-md-6">
-    <div class="form-group">
-      <label for="project_tags">Tags (comma separated):</label>
-      <input type="text" class="form-control" id="project_tags" name="project_tags" value="<%= project.tags %>">
+  <div id="otherPhaseFields">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label for="complexity">Tag 1:</label>
+
+        <select name="project_tag1" id="project_tag1" class="form-control">
+          <option value="0">Select...</option>
+          <% if (tags && tags.length > 0) { %>
+            <% tags.forEach(function(tag){ %>
+              <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+            <% }) %>
+          <% } else { %>
+              <option value="">No tags available</option>
+          <% } %>
+        </select>
+
+       
+      </div>
     </div>
-  </div> -->
+    <div class="col-md-12">
+      <div class="form-group">
+        <label for="complexity">Tag 2:</label>
+        <select name="project_tag2" id="project_tag2" class="form-control">
+          <option value="0">Select...</option>
+          <% if (tags && tags.length > 0) { %>
+            <% tags.forEach(function(tag){ %>
+              <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+            <% }) %>
+          <% } else { %>
+              <option value="">No tags available</option>
+          <% } %>
+        </select>
+
+       
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="form-group">
+        <label for="complexity">Tag 3:</label>
+        <select name="project_tag3" id="project_tag3" class="form-control">
+          <option value="0">Select...</option>
+          <% if (tags && tags.length > 0) { %>
+            <% tags.forEach(function(tag){ %>
+              <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+            <% }) %>
+          <% } else { %>
+              <option value="">No tags available</option>
+          <% } %>
+        </select>
+
+       
+      </div>
+    </div>
+   
+  </div>
 </div>
     
 </div>                

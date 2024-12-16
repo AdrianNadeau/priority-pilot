@@ -58,7 +58,6 @@ exports.create = (req, res) => {
     benefit: req.body.benefit,
     impact: req.body.impact,
     complexity: req.body.complexity,
-    // tags: req.body.project_tags,
     pitch_message: pitch_message,
     tag_1: req.body.project_tag1_id_fk,
     tag_2: req.body.project_tag2_id_fk,
@@ -441,7 +440,7 @@ exports.findOneForEdit = async (req, res) => {
 
     // Ensure session exists and fetch company ID
     if (!req.session || !req.session.company) {
-      res.redirect("/pages-500");
+      res.redirect("Pages/pages-500");
     }
 
     company_id_fk = req.session.company.id;
@@ -466,9 +465,9 @@ exports.findOneForEdit = async (req, res) => {
       proj.complexity,
       proj.effort,
       proj.benefit,
-      proj.project_cost,
+      proj.project_cost
       FROM 
-    projects proj
+      projects proj
 LEFT JOIN 
     persons prime_person ON prime_person.id = proj.prime_id_fk
 LEFT JOIN 
@@ -1093,7 +1092,6 @@ exports.update = async (req, res) => {
         effort: req.body.effort,
         benefit: req.body.benefit,
         project_cost: formatCost(req.body.project_cost),
-        tags: req.body.tags,
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
       },

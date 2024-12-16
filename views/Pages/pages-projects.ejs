@@ -304,92 +304,60 @@
 
 <%- contentFor('BottomJs') %>
 <script>
- document.addEventListener("DOMContentLoaded", function() {
-    'use strict';
+  document.addEventListener('DOMContentLoaded', function() {
+      const form = document.querySelector('form');
+      if (form) {
+          form.addEventListener('submit', function(event) {
+              if (!form.checkValidity()) {
+                  event.preventDefault();
+                  event.stopPropagation();
+              }
+              form.classList.add('was-validated');
+          }, false);
+      }
 
-    // Form validation using Bootstrap's custom styles
-    var forms = document.querySelectorAll('.needs-validation');
-    Array.prototype.slice.call(forms).forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        }, false);
-    });
+      // Numeric input validation for specific fields
+      const numericFields = ['project_cost', 'effort', 'benefit'];
+      numericFields.forEach(function(fieldId) {
+          const field = document.getElementById(fieldId);
+          if (field) {
+              field.addEventListener('keydown', function(event) {
+                  if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
+                      !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
+                      !(event.ctrlKey || event.metaKey)) {
+                      alert("Only numbers are allowed.");
+                      event.preventDefault();
+                  }
+              });
+          }
+      });
 
-    // Numeric input validation for specific fields
-    const numericFields = ['project_cost', 'effort', 'benefit'];
-    numericFields.forEach(function(fieldId) {
-        document.getElementById(fieldId).addEventListener('keydown', function(event) {
-            if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
-                !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
-                !(event.ctrlKey || event.metaKey)) {
-                alert("Only numbers are allowed.")
-                event.preventDefault();
-            }
-        });
-    });
+      // Clear modal fields on "Add Project" button click
+      const btnAddProject = document.getElementById('btnAddProject');
+      if (btnAddProject) {
+          btnAddProject.addEventListener('click', function() {
+              document.querySelectorAll('#addProject input, #addProject textarea, #addProject select').forEach(function(input) {
+                  input.value = input.id === 'project_cost' ? '0' : '';
+              });
+          });
+      }
 
-    // Clear modal fields on "Add Project" button click
-    document.getElementById('btnAddProject').addEventListener('click', function() {
-        document.querySelectorAll('#addProject input, #addProject textarea, #addProject select').forEach(function(input) {
-            input.value = input.id === 'project_cost' ? '0' : '';
-        });
-    });
+      // Table row click navigation to edit page
+      document.querySelectorAll(".table tbody tr").forEach(function(row) {
+          row.addEventListener('click', function() {
+              var id = row.cells[0].textContent;
+              window.location.replace('/projects/edit/' + id);
+          });
+      });
 
-    // Table row click navigation to edit page
-    document.querySelectorAll(".table tbody tr").forEach(function(row) {
-        row.addEventListener('click', function() {
-            var id = row.cells[0].textContent;
-            window.location.replace('/projects/edit/' + id);
-        });
-    });
-
-    // Input formatting with commas for project cost and benefit
-    ['project_cost', 'benefit'].forEach(function(fieldId) {
-       
-        document.getElementById(fieldId).addEventListener('input', function () {
-          console.log("fieldId:",fieldId)
-            let input = this.value.replace(/[^0-9.]/g, '');
-            if (input.includes('.')) {
-                const parts = input.split('.');
-                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                input = parts.join('.');
-            } else {
-                input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            }
-            this.value = input;
-        });
-    });
-
-    // Dynamic field display based on phase selection
-    document.getElementById('phase_id_fk').addEventListener('change', function() {
-        var impactElements = document.getElementById("impact_elements");
-        var leftElements = document.getElementById("leftElements");
-        var effort_option = document.getElementById("effort_option");
-        var benefit_option = document.getElementById("benefit_option");
-        var impact_option = document.getElementById("impact_option");
-        var complexity_option = document.getElementById("complexity_option");
-        var tags_option = document.getElementById("tags_option");
-
-        if (this.value == '1') {
-            impactElements.style.display = 'none';
-            leftElements.style.display = 'none';
-            // effort_option.style.display = 'block';
-            // benefit_option.style.display = 'none';
-            // impact_option.style.display = 'none';
-            // complexity_option.style.display = 'none';
-            // tags_option.style.display = 'none';
-        } else {
-            impactElements.style.display = 'block';
-            leftElements.style.display = 'block';
-            // benefit_option.style.display = 'block';
-            // impact_option.style.display = 'block';
-            // complexity_option.style.display = 'block';
-            // tags_option.style.display = 'block';
-        }
-    });
-});
+      // Input formatting with commas for project cost and benefit
+      ['project_cost', 'benefit'].forEach(function(fieldId) {
+          const field = document.getElementById(fieldId);
+          if (field) {
+              field.addEventListener('input', function(event) {
+                  // Your formatting logic here
+              });
+          }
+      });
+  });
 </script>
