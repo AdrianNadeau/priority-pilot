@@ -58,7 +58,7 @@ exports.create = (req, res) => {
     benefit: req.body.benefit,
     impact: req.body.impact,
     complexity: req.body.complexity,
-    tags: req.body.project_tags,
+    // tags: req.body.project_tags,
     pitch_message: pitch_message,
     tag_1: req.body.project_tag1_id_fk,
     tag_2: req.body.project_tag2_id_fk,
@@ -369,7 +369,7 @@ exports.cockpit = async (req, res) => {
             sponsor_person.first_name AS sponsor_first_name, 
             sponsor_person.last_name AS sponsor_last_name, 
             proj.project_cost, 
-            proj.tags,
+            
             phases.phase_name,
             proj.prime_id_fk
         FROM projects proj 
@@ -467,8 +467,7 @@ exports.findOneForEdit = async (req, res) => {
       proj.effort,
       proj.benefit,
       proj.project_cost,
-      proj.tags
-FROM 
+      FROM 
     projects proj
 LEFT JOIN 
     persons prime_person ON prime_person.id = proj.prime_id_fk
@@ -560,7 +559,7 @@ exports.findOneForPrime = async (req, res) => {
      SELECT proj.company_id_fk, proj.id, proj.effort,proj.benefit, proj.prime_id_fk, 
              proj.project_headline, proj.project_name, proj.project_description,proj.start_date, 
              proj.end_date, proj.next_milestone_date, proj.project_why, 
-             proj.project_what,proj.tags,proj.effort, proj.impact, proj.complexity, prime_person.first_name AS prime_first_name, 
+             proj.project_what,proj.effort, proj.impact, proj.complexity, prime_person.first_name AS prime_first_name, 
              prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, 
              sponsor_person.last_name AS sponsor_last_name, proj.project_cost, 
              phases.phase_name, proj.pitch_message, proj.phase_id_fk, proj.priority_id_fk, proj.sponsor_id_fk, proj.prime_id_fk
@@ -798,7 +797,7 @@ exports.flight = async (req, res) => {
       latest_status.issue, 
       latest_status.actions, 
       proj.project_name,
-      proj.tags,
+      
       prime_person.first_name AS prime_first_name, 
       prime_person.last_name AS prime_last_name, 
       sponsor_person.first_name AS sponsor_first_name, 
