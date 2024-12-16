@@ -37,6 +37,7 @@ exports.create = (req, res) => {
   if (req.body.phase_id_fk == 1) {
     pitch_message = req.body.pitch_message;
   }
+  console.log("req.body:", req.body);
   // Create a Project
   const project = {
     company_id_fk: company_id_fk,
@@ -57,11 +58,11 @@ exports.create = (req, res) => {
     benefit: req.body.benefit,
     impact: req.body.impact,
     complexity: req.body.complexity,
-    tags: req.body.project_tags,
+    // tags: req.body.project_tags,
     pitch_message: pitch_message,
-    tag1: req.body.project_tag1_id_fk,
-    tag2: req.body.project_tag2_id_fk,
-    tag3: req.body.project_tag3_id_fk,
+    tag_1: req.body.project_tag1_id_fk,
+    tag_2: req.body.project_tag2_id_fk,
+    tag_3: req.body.project_tag3_id_fk,
   };
   // Save Project in the database
   Project.create(project).then(async (data) => {
@@ -69,6 +70,10 @@ exports.create = (req, res) => {
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     });
+    const tagsData = await Tag.findAll({
+      order: [["id", "ASC"]],
+    });
+    console.log("tagsData:", tagsData);
     const [prioritiesData, personsData, projectsData] = await Promise.all([
       Priority.findAll(),
 
@@ -99,6 +104,7 @@ exports.create = (req, res) => {
           sponsors: personsData,
           primes: personsData,
           session: req.session,
+          tags: tagsData,
         });
       })
       .catch((err) => {
@@ -186,7 +192,10 @@ exports.findAll = async (req, res) => {
         .status(500)
         .json({ message: "Error retrieving session data." });
     }
-
+    const tagsData = await Tag.findAll({
+      order: [["id", "ASC"]],
+    });
+    console.log("tagsData:", tagsData);
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     });
@@ -214,6 +223,7 @@ exports.findAll = async (req, res) => {
           priorities: priorities,
           sponsors: personsData,
           primes: personsData,
+          tags: tagsData,
         });
       })
       .catch((err) => {
@@ -280,7 +290,7 @@ exports.findFunnel = async (req, res) => {
   ORDER BY 
     proj.phase_id_fk;
 `;
-    console.log("personsData:::::::::::::::", personsData);
+
     await db.sequelize
       .query(query, {
         replacements: [company_id_fk],
@@ -359,7 +369,7 @@ exports.cockpit = async (req, res) => {
             sponsor_person.first_name AS sponsor_first_name, 
             sponsor_person.last_name AS sponsor_last_name, 
             proj.project_cost, 
-            proj.tags,
+            
             phases.phase_name,
             proj.prime_id_fk
         FROM projects proj 
@@ -457,8 +467,7 @@ exports.findOneForEdit = async (req, res) => {
       proj.effort,
       proj.benefit,
       proj.project_cost,
-      proj.tags
-FROM 
+      FROM 
     projects proj
 LEFT JOIN 
     persons prime_person ON prime_person.id = proj.prime_id_fk
@@ -550,7 +559,7 @@ exports.findOneForPrime = async (req, res) => {
      SELECT proj.company_id_fk, proj.id, proj.effort,proj.benefit, proj.prime_id_fk, 
              proj.project_headline, proj.project_name, proj.project_description,proj.start_date, 
              proj.end_date, proj.next_milestone_date, proj.project_why, 
-             proj.project_what,proj.tags,proj.effort, proj.impact, proj.complexity, prime_person.first_name AS prime_first_name, 
+             proj.project_what,proj.effort, proj.impact, proj.complexity, prime_person.first_name AS prime_first_name, 
              prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, 
              sponsor_person.last_name AS sponsor_last_name, proj.project_cost, 
              phases.phase_name, proj.pitch_message, proj.phase_id_fk, proj.priority_id_fk, proj.sponsor_id_fk, proj.prime_id_fk
@@ -761,6 +770,65 @@ exports.radar = async (req, res) => {
   }
 };
 
+exports.progress = async (req, res) => {
+  let companyId;
+
+  // Ensure session exists and extract company information
+  try {
+    if (!req.session || !req.session.company) {
+      return res.redirect("/pages-500");
+    } else {
+      companyId = req.session.company.id;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
+
+  try {
+    // Get all projects for the company
+    const projects = await db.projects.findAll({
+      where: { company_id_fk: companyId },
+      attributes: ["id", "project_name"],
+    });
+
+    if (!projects || projects.length === 0) {
+      return res
+        .status(404)
+        .send({ message: "No projects found for this company." });
+    }
+
+    // Get the most recent status for each project
+    const projectNames = [];
+    const progress = [];
+    const colors = [];
+    for (const project of projects) {
+      projectNames.push(project.project_name);
+
+      // Fetch the most recent status for this project
+      const status = await db.statuses.findOne({
+        where: { project_id_fk: project.id },
+        order: [["status_date", "DESC"]],
+        attributes: ["progress", "health"],
+      });
+
+      progress.push(status ? status.progress : "No status available");
+      colors.push(status ? status.health : "No status available");
+    }
+
+    // Send the response
+    res.json({
+      company_name: req.session.company.company_name,
+      project_names: projectNames,
+      progress: progress,
+      colors: colors,
+    });
+  } catch (error) {
+    console.log("Query error:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
+};
+
 exports.flight = async (req, res) => {
   let company_id_fk;
   try {
@@ -788,7 +856,7 @@ exports.flight = async (req, res) => {
       latest_status.issue, 
       latest_status.actions, 
       proj.project_name,
-      proj.tags,
+      
       prime_person.first_name AS prime_first_name, 
       prime_person.last_name AS prime_last_name, 
       sponsor_person.first_name AS sponsor_first_name, 

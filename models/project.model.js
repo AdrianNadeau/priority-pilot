@@ -10,7 +10,6 @@ module.exports = (sequelize, Sequelize) => {
     company_id_fk: {
       type: Sequelize.INTEGER,
       required: true,
-      unique: true,
     },
     project_name: {
       type: Sequelize.STRING,
@@ -69,9 +68,7 @@ module.exports = (sequelize, Sequelize) => {
     complexity: {
       type: Sequelize.INTEGER,
     },
-    tags: {
-      type: Sequelize.STRING,
-    },
+
     deleted_date: {
       type: Sequelize.DATE,
     },
@@ -85,13 +82,13 @@ module.exports = (sequelize, Sequelize) => {
     pitch_message: {
       type: Sequelize.STRING,
     },
-    tag1: {
+    tag_1: {
       type: Sequelize.STRING,
     },
-    tag2: {
+    tag_2: {
       type: Sequelize.STRING,
     },
-    tag3: {
+    tag_3: {
       type: Sequelize.STRING,
     },
   });
