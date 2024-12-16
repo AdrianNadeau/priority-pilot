@@ -69,9 +69,6 @@ module.exports = (sequelize, Sequelize) => {
     complexity: {
       type: Sequelize.INTEGER,
     },
-    tags: {
-      type: Sequelize.STRING,
-    },
     deleted_date: {
       type: Sequelize.DATE,
     },

@@ -70,9 +70,7 @@ module.exports = (sequelize, Sequelize) => {
     complexity: {
       type: Sequelize.INTEGER,
     },
-    tags: {
-      type: Sequelize.STRING,
-    },
+
     deleted_date: {
       type: Sequelize.DATE,
     },
@@ -90,6 +88,15 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
     },
     change_explanation: {
+      type: Sequelize.STRING,
+    },
+    tag1: {
+      type: Sequelize.STRING,
+    },
+    tag2: {
+      type: Sequelize.STRING,
+    },
+    tag3: {
       type: Sequelize.STRING,
     },
   });

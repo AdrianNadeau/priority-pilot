@@ -57,7 +57,6 @@ exports.create = (req, res) => {
     benefit: req.body.benefit,
     impact: req.body.impact,
     complexity: req.body.complexity,
-    tags: req.body.project_tags,
     pitch_message: pitch_message,
     tag1: req.body.project_tag1_id_fk,
     tag2: req.body.project_tag2_id_fk,
@@ -280,7 +279,7 @@ exports.findFunnel = async (req, res) => {
   ORDER BY 
     proj.phase_id_fk;
 `;
-    console.log("personsData:::::::::::::::", personsData);
+
     await db.sequelize
       .query(query, {
         replacements: [company_id_fk],
@@ -359,7 +358,6 @@ exports.cockpit = async (req, res) => {
             sponsor_person.first_name AS sponsor_first_name, 
             sponsor_person.last_name AS sponsor_last_name, 
             proj.project_cost, 
-            proj.tags,
             phases.phase_name,
             proj.prime_id_fk
         FROM projects proj 
@@ -404,10 +402,7 @@ exports.cockpit = async (req, res) => {
         statusColor = "green";
       }
     }
-    const tags = await Status.findAll({
-      where: { project_id_fk: project_id },
-      order: [["createdAt", "DESC"]],
-    });
+    //get comopany tags
     res.render("Pages/pages-cockpit", {
       project: data,
       current_date: currentDate,
@@ -457,7 +452,6 @@ exports.findOneForEdit = async (req, res) => {
       proj.effort,
       proj.benefit,
       proj.project_cost,
-      proj.tags
 FROM 
     projects proj
 LEFT JOIN 
@@ -550,7 +544,7 @@ exports.findOneForPrime = async (req, res) => {
      SELECT proj.company_id_fk, proj.id, proj.effort,proj.benefit, proj.prime_id_fk, 
              proj.project_headline, proj.project_name, proj.project_description,proj.start_date, 
              proj.end_date, proj.next_milestone_date, proj.project_why, 
-             proj.project_what,proj.tags,proj.effort, proj.impact, proj.complexity, prime_person.first_name AS prime_first_name, 
+             proj.project_what,proj.effort, proj.impact, proj.complexity, prime_person.first_name AS prime_first_name, 
              prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, 
              sponsor_person.last_name AS sponsor_last_name, proj.project_cost, 
              phases.phase_name, proj.pitch_message, proj.phase_id_fk, proj.priority_id_fk, proj.sponsor_id_fk, proj.prime_id_fk
@@ -731,7 +725,11 @@ exports.radar = async (req, res) => {
     const in_flight_count = priorityTotalCost + discoveryCount + deliveryCount;
     const in_flight_cost =
       priorityTotalCost + discoveryCost + deliveryTotalCost;
-    // console.log("flight count:",Number(in_flight_count) || 0);
+
+    // Fetch the tags data
+    const tags = await Tag.findAll({
+      order: [["createdAt", "DESC"]],
+    });
     res.render("Pages/pages-radar", {
       projects: data,
       pitchCount,
@@ -754,6 +752,7 @@ exports.radar = async (req, res) => {
       discoveryCost: formatCost(deliveryTotalCost),
       currentDate: new Date().toLocaleDateString(),
       company_id: company_id_fk,
+      tags,
     });
   } catch (error) {
     console.log("Query error:", error);
@@ -788,7 +787,6 @@ exports.flight = async (req, res) => {
       latest_status.issue, 
       latest_status.actions, 
       proj.project_name,
-      proj.tags,
       prime_person.first_name AS prime_first_name, 
       prime_person.last_name AS prime_last_name, 
       sponsor_person.first_name AS sponsor_first_name, 
@@ -1025,7 +1023,6 @@ exports.update = async (req, res) => {
         effort: req.body.effort,
         benefit: req.body.benefit,
         project_cost: formatCost(req.body.project_cost),
-        tags: req.body.tags,
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
       },
@@ -1054,7 +1051,6 @@ exports.update = async (req, res) => {
         effort: req.body.effort,
         benefit: req.body.benefit,
         project_cost: req.body.project_cost,
-        tags: req.body.tags,
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
       };

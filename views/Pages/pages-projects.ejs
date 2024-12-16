@@ -230,16 +230,16 @@
                                       </div>
                                       <div id="otherPhaseFields">
                                         <select name="project_tag1_id_fk" id="project_tag2_id_fk" class="form-control">
-                                          <%=if(tags.length > 0){ %>
-
-                                          <% tags.forEach(function(tag){ %>
-                                            <% if (tag.id == tag.name) { %>
-                                              <option selected value="<%= phase.id %>"><%= phase.phase_name %></option>
-                                            <% } else { %>
-                                              <option value="<%= phase.id %>"><%= phase.phase_name %></option>
-                                            <% } %>
-                                          <% }) %>
-                                        %>
+                                          <% if (tags.length > 0) { %>
+                                            <% tags.forEach(function(tag) { %>
+                                                <% if (tag.id == tag.name) { %>
+                                                    <option selected value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                <% } else { %>
+                                                    <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                <% } %>
+                                            <% }); %>
+                                        <% } %>
+                                        
                                         </select>
                                       </div>
                                       </div>
