@@ -13,6 +13,7 @@ module.exports = (app) => {
   router.get("/cockpit/:id", projects.findAllRadar);
   router.get("/funnel/view/", projects.findFunnel);
   router.get("/radar/view/", projects.radar);
+  router.get("/radar/progress/", projects.progress);
   router.get("/flight/view/", projects.flight);
   router.get("/health/view/", projects.health);
   router.delete("/", projects.deleteAll);
