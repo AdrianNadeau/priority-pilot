@@ -233,7 +233,7 @@
                                         </div>
                                       </div>
                                       </div>
-                                      <div id="otherPhaseFields">
+                                      <div id="tagFields">
                                         <div class="col-md-12">
                                           <div class="form-group">
                                             <label for="tag_1">Tag 1:</label>
@@ -365,5 +365,32 @@
               });
           }
       });
+      // Dynamic field display based on phase selection
+    document.getElementById('phase_id_fk').addEventListener('change', function() {
+        var impactElements = document.getElementById("impact_elements");
+        var leftElements = document.getElementById("leftElements");
+        var effort_option = document.getElementById("effort_option");
+        var benefit_option = document.getElementById("benefit_option");
+        var impact_option = document.getElementById("impact_option");
+        var complexity_option = document.getElementById("complexity_option");
+        var tags_option = document.getElementById("tags_option");
+
+        if (this.value == '1') {
+            impactElements.style.display = 'none';
+            leftElements.style.display = 'none';
+            // effort_option.style.display = 'block';
+            // benefit_option.style.display = 'none';
+            // impact_option.style.display = 'none';
+            // complexity_option.style.display = 'none';
+            // tags_option.style.display = 'none';
+        } else {
+            impactElements.style.display = 'block';
+            leftElements.style.display = 'block';
+            // benefit_option.style.display = 'block';
+            // impact_option.style.display = 'block';
+            // complexity_option.style.display = 'block';
+            // tags_option.style.display = 'block';
+        }
+    });
   });
 </script>

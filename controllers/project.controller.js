@@ -26,13 +26,9 @@ exports.create = (req, res) => {
   }
 
   //convert dates
-  console.log("Dates:", req.body.start_date, req.body.end_date);
   const startDateTest = insertValidDate(req.body.start_date);
-  console.log("startDateTest:", startDateTest);
   const endDateTest = insertValidDate(req.body.end_date);
-  console.log("endDateTest:", endDateTest);
   const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
-  console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
 
   let pitch_message = "";
   if (req.body.phase_id_fk == 1) {
