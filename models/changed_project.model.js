@@ -92,6 +92,15 @@ module.exports = (sequelize, Sequelize) => {
     change_explanation: {
       type: Sequelize.STRING,
     },
+    tag_1: {
+      type: Sequelize.INTEGER,
+    },
+    tag_2: {
+      type: Sequelize.INTEGER,
+    },
+    tag_3: {
+      type: Sequelize.INTEGER,
+    },
   });
 
   return ChangedProject;

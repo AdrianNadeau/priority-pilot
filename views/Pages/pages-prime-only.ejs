@@ -68,8 +68,8 @@
                                     <td><%= project.phase_name %></td>
                                     <td><%= project.project_cost %></td>
                                     <% if (project.prime_id_fk === person.id) { %>
-                                    <td data-toggle="modal" data-target="#myModal_<%= project.id %>">
-                                        <i class="mdi mdi-note-plus"></i>
+                                    <td >
+                                        <i data-toggle="modal" data-target="#myModal_<%= project.id %>" class="mdi mdi-note-plus"></i> <i data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal" class="mdi mdi-eye"></i>
                                     </td>
                                     <% } else { %>
                                     <td data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
@@ -91,11 +91,12 @@
                                                 <div class="modal-body">
                                                     <input type="hidden" name="project_id" value="<%= project.id %>">
                                                     <input type="hidden" name="prime_id_fk" value="<%= project.prime_id_fk %>">
-                                                    <input type="hidden" name="status_date" value="<%= new Date() %>">
+                                                    
                                                     <div class="row">
                                                         <div class="col-md-12">
                                                             <div class="form-group">
-                                                                <strong>Date:</strong> <%= new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><br/>
+                                                              <strong>Status Date (YYYY-MM-DD): </strong><span id="status_date"></span><br/>
+                                                              <input type="text" class="form-control" id="status_date" name="status_date" placeholder="yyyy-mm-dd">
                                                                 <strong>Prime:</strong> <%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %>
                                                             </div>
                                                             <div class="form-group">
@@ -204,41 +205,45 @@
 
 <script>
     function getStatusUpdates(project_id_fk){
-    var modalBody = document.getElementById("statusUpdates");
-    fetch(`/statuses/projects/${project_id_fk}`)
-    .then(response => response.json())
-    .then(data => {
-      console.log("status data: ", data);
-        if (data && data.length > 0) {
-            data.forEach(function(status) {
-            let healthStatus = status.health ? status.health.trim().toLowerCase() : '';
-            if (healthStatus === 'green') { 
-                modalBody.innerHTML += `<span class="green-circle"></span>`;
-            } else if (healthStatus === 'yellow') { 
-                modalBody.innerHTML += `<span class="yellow-circle"></span>`;
-            } else if (healthStatus === 'red') { 
-                modalBody.innerHTML += `<span class="red-circle"></span>`;
-            }
-            
-            modalBody.innerHTML += `[${status.progress}]`;
+      var modalBody = document.getElementById("statusUpdates");
+      // Clear previous content
+      modalBody.innerHTML = '';
+      fetch(`/statuses/projects/${project_id_fk}`)
+      .then(response => response.json())
+      .then(data => {
+      
+          if (data && data.length > 0) {
+              data.forEach(function(status) {
+                console.log("STATUS: ", status);
+                let healthStatus = status.health ? status.health.trim().toLowerCase() : '';
+                if (healthStatus === 'green') { 
+                    modalBody.innerHTML += `<span class="green-circle"></span>`;
+                } else if (healthStatus === 'yellow') { 
+                    modalBody.innerHTML += `<span class="yellow-circle"></span>`;
+                } else if (healthStatus === 'red') { 
+                    modalBody.innerHTML += `<span class="red-circle"></span>`;
+                }
+                
+                modalBody.innerHTML += `[${status.progress}]`;
 
-            if (status.status_date) {
-                modalBody.innerHTML += `<a href="#" onClick="getStatus(${status.id})" data-target="#viewStatusModal" id="viewStatusLink">
-                    ${new Date(status.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </a>`;
-            }
-
-            modalBody.innerHTML += `<div style="width:100% !important;"><hr/></div>`;
-        });
-        } else {
-            modalBody.innerHTML += `<p>No status updates available</p>`;
-        }
-       // Open the modal
-       $('#StatusUpdatesModal').modal('show');
-     
-    })
-    .catch(err => console.error(err));
-}
+                if (status.status_date) {
+                
+                    modalBody.innerHTML += `<a href="#" onClick="getStatus(${status.id})" data-target="#viewStatusModal" id="viewStatusLink">
+                        ${new Date(status.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </a>`;
+                }
+              
+              modalBody.innerHTML += `<div style="width:100% !important;"><hr/></div>`;
+          });
+          } else {
+              modalBody.innerHTML = `<p>No status updates available</p>`;
+          }
+        // Open the modal
+        $('#StatusUpdatesModal').modal('show');
+      
+      })
+      .catch(err => console.error(err));
+  }
 
     function getStatus(id) {
     fetch(`/statuses/${id}`)

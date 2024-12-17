@@ -190,19 +190,25 @@
                                         </div>
                                       </div>
                                       <div class="row">
-                                        <div class="col-md-6">
-                                          <div class="form-group">
-                                            <label for="effort">Effort (PH)</label>
-                                            <input type="text" class="form-control" id="effort" name="effort" style="width:100px;">
-                                          </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="effort">Effort (PH)</label>
+                                                <input type="text" class="form-control" id="effort" name="effort" style="width:100px;">
+                                            </div>
                                         </div>
-                                        <div class="col-md-6">
-                                          <div class="form-group">
-                                            <label for="benefit">Benefit (ROI or $)</label>
-                                            <input type="text" class="form-control" id="benefit" name="benefit" style="width:100px;">
-                                          </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="project_cost">Cost ($)</label>
+                                                <input type="text" class="form-control" id="project_cost" name="project_cost" style="width:100px;">
+                                            </div>
                                         </div>
-                                      </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="benefit">Benefit (ROI or $)</label>
+                                                <input type="text" class="form-control" id="benefit" name="benefit" style="width:100px;">
+                                            </div>
+                                        </div>
+                                    </div>
                                      <div id="impact_elements">
                                       <div class="row">
                                         <div class="col-md-6">
@@ -230,9 +236,26 @@
                                       <div id="otherPhaseFields">
                                         <div class="col-md-12">
                                           <div class="form-group">
-                                            <label for="complexity">Tag 1:</label>
+                                            <label for="tag_1">Tag 1:</label>
 
-                                            <select name="project_tag1" id="project_tag1" class="form-control">
+                                            <select name="tag_1" id="tag_1" class="form-control">
+                                              <option selected value="0">Select...</option>
+                                              <% if (tags && tags.length > 0) { %>
+                                                <% tags.forEach(function(tag){ %>
+                                                  <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                <% }) %>
+                                              <% } else { %>
+                                                  <option value="">No tags available</option>
+                                              <% } %>
+                                            </select>
+
+                                           
+                                          </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                          <div class="form-group">
+                                            <label for="tag_2">Tag 2:</label>
+                                            <select name="tag_2" id="project_tag2" class="form-control">
                                               <option value="0">Select...</option>
                                               <% if (tags && tags.length > 0) { %>
                                                 <% tags.forEach(function(tag){ %>
@@ -248,25 +271,8 @@
                                         </div>
                                         <div class="col-md-12">
                                           <div class="form-group">
-                                            <label for="complexity">Tag 2:</label>
-                                            <select name="project_tag2" id="project_tag2" class="form-control">
-                                              <option value="0">Select...</option>
-                                              <% if (tags && tags.length > 0) { %>
-                                                <% tags.forEach(function(tag){ %>
-                                                  <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                                                <% }) %>
-                                              <% } else { %>
-                                                  <option value="">No tags available</option>
-                                              <% } %>
-                                            </select>
-
-                                           
-                                          </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                          <div class="form-group">
-                                            <label for="complexity">Tag 3:</label>
-                                            <select name="project_tag3" id="project_tag3" class="form-control">
+                                            <label for="tag_3">Tag 3:</label>
+                                            <select name="tag_3" id="tag_3" class="form-control">
                                               <option value="0">Select...</option>
                                               <% if (tags && tags.length > 0) { %>
                                                 <% tags.forEach(function(tag){ %>

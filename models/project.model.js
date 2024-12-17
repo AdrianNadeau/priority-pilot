@@ -83,13 +83,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     tag_1: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
     },
     tag_2: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
     },
     tag_3: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
     },
   });
 

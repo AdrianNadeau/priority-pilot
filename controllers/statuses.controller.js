@@ -57,6 +57,7 @@ exports.create = async (req, res) => {
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
   Status.findAll({})
+    .orderBy("createdAt", "DESC")
     .then((data) => {
       res.send(data);
     })

@@ -80,7 +80,7 @@ exports.create = async (req, res) => {
 
     res.redirect(register_yn === "y" ? "/" : "/persons");
   } catch (error) {
-    console.error("Error creating person:", error);
+    console.error("!!!Error creating person:", error);
     res.status(500).json({ message: "Error creating person." });
   }
 };

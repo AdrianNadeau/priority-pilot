@@ -26,6 +26,7 @@ exports.create = (req, res) => {
   }
 
   //convert dates
+  console.log("Dates:", req.body.start_date, req.body.end_date);
   const startDateTest = insertValidDate(req.body.start_date);
   console.log("startDateTest:", startDateTest);
   const endDateTest = insertValidDate(req.body.end_date);
@@ -37,7 +38,6 @@ exports.create = (req, res) => {
   if (req.body.phase_id_fk == 1) {
     pitch_message = req.body.pitch_message;
   }
-  console.log("req.body:", req.body);
   // Create a Project
   const project = {
     company_id_fk: company_id_fk,
@@ -59,20 +59,23 @@ exports.create = (req, res) => {
     impact: req.body.impact,
     complexity: req.body.complexity,
     pitch_message: pitch_message,
-    tag_1: req.body.project_tag1_id_fk,
-    tag_2: req.body.project_tag2_id_fk,
-    tag_3: req.body.project_tag3_id_fk,
+    tag_1: req.body.tag_1,
+    tag_2: req.body.tag_2,
+    tag_3: req.body.tag_3,
   };
   // Save Project in the database
   Project.create(project).then(async (data) => {
     //call get all function for project /projects
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
+    }).catch((error) => {
+      console.log("Error fetching phasesData:", error);
     });
     const tagsData = await Tag.findAll({
+      where: { company_id_fk: company_id_fk },
       order: [["id", "ASC"]],
     });
-    console.log("tagsData:", tagsData);
+
     const [prioritiesData, personsData, projectsData] = await Promise.all([
       Priority.findAll(),
 
@@ -191,10 +194,12 @@ exports.findAll = async (req, res) => {
         .status(500)
         .json({ message: "Error retrieving session data." });
     }
+
     const tagsData = await Tag.findAll({
+      where: { company_id_fk: company_id_fk },
       order: [["id", "ASC"]],
     });
-    console.log("tagsData:", tagsData);
+
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     });
@@ -400,7 +405,7 @@ exports.cockpit = async (req, res) => {
     // Retrieve statuses related to the project
     const statuses = await Status.findAll({
       where: { project_id_fk: project_id },
-      order: [["createdAt", "DESC"]],
+      order: [["status_date", "DESC"]],
     });
     let lastStatusDate = null;
     let statusColor = null;
@@ -1064,11 +1069,6 @@ exports.update = async (req, res) => {
     endDateTest = insertValidDate(req.body.end_date);
     nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
 
-    // Update the project in the database
-    console.log(
-      "******************************** req.body *****************************",
-      req.body,
-    );
     const [updated] = await Project.update(
       {
         start_date: startDateTest ? startDateTest.toDate() : null,
@@ -1094,6 +1094,9 @@ exports.update = async (req, res) => {
         project_cost: formatCost(req.body.project_cost),
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
+        tag_1: req.body.tag_1,
+        tag_2: req.body.tag_2,
+        tag_3: req.body.tag_3,
       },
       {
         where: { id: id, company_id_fk: company_id_fk },
@@ -1120,9 +1123,11 @@ exports.update = async (req, res) => {
         effort: req.body.effort,
         benefit: req.body.benefit,
         project_cost: req.body.project_cost,
-        tags: req.body.tags,
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
+        tag_1: req.body.tag_1,
+        tag_2: req.body.tag_2,
+        tag_3: req.body.tag_3,
       };
 
       const changedProject = await ChangeProject.create(newChangedProject);
