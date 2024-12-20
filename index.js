@@ -12,6 +12,8 @@ var DashboardRouter = require("./routes/DashboardRouter.js");
 
 var authMiddleware = require("./middleware/authMiddleware.js");
 
+const port = process.env.PORT || 4000;
+
 app.use(express.urlencoded({ extended: true }));
 
 // Access public folder from root
