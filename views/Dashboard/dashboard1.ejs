@@ -8,7 +8,7 @@
         </button>
     </li>
     <li class="hide-phone list-inline-item app-search">
-        <h3 class="page-title">Tower</h3>
+        <h3 class="page-title">Dashboard</h3>
     </li>
 </ul>
 
@@ -132,7 +132,11 @@
                             <ul class="list-unstyled">
                                 <li>Full: $<%= portfolio_budget %></li>
                                 <li>Used: $<%= usedCost %></li>
-                                <li>Avail: $<%= availableCost %></li>
+                                <% if (availableCost < 0) { %>
+                                    <li>Avail: <span style="color: red;">$<%= availableCost %></span></li>
+                                <% } else { %>
+                                    <li>Avail: $<%= availableCost %></li>
+                                <% } %>
                             </ul>
                             <strong>Effort</strong>
                             <ul class="list-unstyled">
