@@ -18,7 +18,7 @@ const connectionString = process.env.DB_URL;
 console.log("connectionString: ", connectionString);
 
 // Initialize Sequelize with the connection URL
-const sequelize = new Sequelize(connectionString);
+// const sequelize = new Sequelize(connectionString);
 app.use(express.urlencoded({ extended: true }));
 
 // Access public folder from root
@@ -68,33 +68,16 @@ app.use(expressLayouts);
 app.use("/", router);
 
 const db = require("./models");
-// Test the connection
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log("DB Connected...");
-  })
-  .catch((err) => {
-    console.log("Failed to connect to the DB: " + err.message);
-  });
 
-// Sync the models
-sequelize
-  .sync({ alter: true })
-  .then(() => {
-    console.log("DB Synced...");
-  })
-  .catch((err) => {
-    console.log("Failed to sync db: " + err.message);
-  });
-// db.sequelize
-//   .sync({ alter: true })
-//   .then(() => {
-//     console.log("DB Connected...");
-//   })
-//   .catch((err) => {
-//     console.log("Failed to sync db: " + err.message);
-//   });
+// Initialize Sequelize with the connection URL and SSL/TLS options
+const sequelize = new Sequelize(connectionString, {
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false, // You may need to set this to false if using a self-signed certificate
+    },
+  },
+});
 
 require("./routes/company.routes")(app);
 require("./routes/person.routes")(app);
