@@ -40,6 +40,7 @@
                                     </tr>
                                     
                                 </thead>
+                               
                                 <% persons.forEach(function(person){ %>
                                     <tbody>
                                         <tr style="cursor: pointer;">
@@ -47,7 +48,14 @@
                                             <td><%= person.last_name %>, <%= person.first_name %></td>
                                             <td><%= person.email %></td>
                                             <td><%= person.initials %></td>
-                                            <td><%= person.isAdmin %></td>
+                                            <td>
+                                                <% if (person.isAdmin){%>
+                                                    <span style="color:green;"><i class="mdi mdi-checkbox-marked"></i></span>
+                                                   
+                                                <% } else { %>
+                                                   </td>
+                                                <% } %>
+                                                
                                             
                                             
                                         </tr>

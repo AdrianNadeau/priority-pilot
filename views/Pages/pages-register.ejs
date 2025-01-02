@@ -55,7 +55,9 @@
             />
           </div>
           <div class="form-group">
-            <label for="portfolio_budget">Portfolio Budget</label>
+            <label for="portfolio_budget"
+              >Portfolio Budget (numbers only)</label
+            >
             <input
               type="text"
               class="form-control"
@@ -65,7 +67,7 @@
             />
           </div>
           <div class="form-group">
-            <label for="effort">Portfolio Effort</label>
+            <label for="effort">Portfolio Effort (numbers only)</label>
             <input
               type="text"
               class="form-control"
@@ -136,49 +138,30 @@
       );
     });
   })();
-  // Numeric input validation for specific fields
-  const budget = ["portfoilio_budget"];
-  const effort = ["portfoilio_effort"];
+  document.addEventListener("DOMContentLoaded", function () {
+    const portfolioBudgetInput = document.getElementById("portfolio_budget");
+    const projectEffortInput = document.getElementById("project_effort");
 
-  document.getElementById(budget).addEventListener("keydown", function (event) {
-    if (
-      ![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
-      !(
-        (event.keyCode >= 48 && event.keyCode <= 57) ||
-        (event.keyCode >= 96 && event.keyCode <= 105)
-      ) &&
-      !(event.ctrlKey || event.metaKey)
-    ) {
-      alert("Only numbers are allowed.");
-      event.preventDefault();
-    }
-  });
-  document.getElementById(effort).addEventListener("keydown", function (event) {
-    if (
-      ![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
-      !(
-        (event.keyCode >= 48 && event.keyCode <= 57) ||
-        (event.keyCode >= 96 && event.keyCode <= 105)
-      ) &&
-      !(event.ctrlKey || event.metaKey)
-    ) {
-      alert("Only numbers are allowed.");
-      event.preventDefault();
-    }
-  });
-  // Input formatting with commas for project cost and benefit
+    function handleInput(event) {
+      let value = event.target.value;
 
-  document
-    .getElementById("portfoilio_budget")
-    .addEventListener("input", function () {
-      let input = this.value.replace(/[^0-9.]/g, "");
-      if (input.includes(".")) {
-        const parts = input.split(".");
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        input = parts.join(".");
-      } else {
-        input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      }
-      this.value = input;
-    });
+      // Remove all non-digit characters except for the decimal point
+      value = value.replace(/[^\d.]/g, "");
+
+      // Format the number with commas
+      const formattedValue = formatNumberWithCommas(value);
+
+      // Set the formatted value back to the input field
+      event.target.value = formattedValue;
+    }
+
+    function formatNumberWithCommas(value) {
+      const parts = value.split(".");
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return parts.join(".");
+    }
+
+    portfolioBudgetInput.addEventListener("input", handleInput);
+    projectEffortInput.addEventListener("input", handleInput);
+  });
 </script>

@@ -168,12 +168,6 @@ router.get("/", isAdminMiddleware, async function (req, res) {
     res.status(500).send("Internal Server Error");
   }
 });
-router.get("/terms", function (req, res) {
-  res.render("Pages/pages-terms");
-});
-// Authrouter.get("/login", function (req, res) {
-//   res.render("Pages/pages-login");
-// });
 
 // Helper functions
 const formatCost = (cost) => {

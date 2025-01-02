@@ -1,0 +1,64 @@
+<% include ../Partials/HeaderRoot %>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+/>
+<style>
+  .password-container {
+    position: relative;
+    width: 300px;
+  }
+
+  .password-container input {
+    width: 100%;
+    padding-right: 40px;
+  }
+
+  .password-container .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+</style>
+<div id="preloader">
+  <div id="status"><div class="spinner"></div></div>
+</div>
+
+<!-- Begin page -->
+<div class="accountbg"></div>
+<div class="wrapper-page">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="text-center m-0">
+        <!-- Priority Pilot -->
+        <a href="/" class="logo logo-admin"
+          ><img
+            style="width: 400px"
+            src="public/assets/images/logo.png"
+            alt="logo"
+        /></a>
+      </h3>
+
+      <div class="p-3">
+        <h4 class="font-18 m-b-5 text-center">Help</h4>
+        <p class="text-muted text-center">
+          <i class="mdi mdi-book "></i><a href="https://books.digitalindependent.life/5/priority-pilot-help" target="_blank">Help Manual</a>
+        </p>
+
+        <p class="text-muted text-center">
+          <i class="mdi mdi-email"></i>
+          help@prioritypilot.ca
+        </p>
+        <p class="text-muted text-center">
+          <p>Please not we will respond to the following serverity of your issue:</p>
+         <p> Severity 1: 2-4 hours<br/>
+          Severity 2: 24-48 hours<br/>
+          Severity 3: Upcoming releases</p>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<% include ../Partials/FooterRoot %>

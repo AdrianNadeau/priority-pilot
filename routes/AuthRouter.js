@@ -28,7 +28,13 @@ Authrouter.get("/confirm", function (req, res) {
 Authrouter.get("Pages/session-expired", function (req, res) {
   res.render("Pages/pages-session-timeout");
 });
+Authrouter.get("/terms", function (req, res) {
+  res.render("Pages/pages-terms");
+});
 
+Authrouter.get("/help", function (req, res) {
+  res.render("Pages/pages-help");
+});
 Authrouter.post("/register", companies.create);
 Authrouter.post("/auth/login", persons.login);
 

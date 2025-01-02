@@ -467,7 +467,10 @@ exports.findOneForEdit = async (req, res) => {
       proj.complexity,
       proj.effort,
       proj.benefit,
-      proj.project_cost
+      proj.project_cost,
+      proj.tag_1,
+      proj.tag_2,
+      proj.tag_3
       FROM 
       projects proj
 LEFT JOIN 
@@ -494,6 +497,10 @@ proj.company_id_fk = ? AND proj.id = ?`;
       const change_reasons = await ChangeReason.findAll({
         company_id_fk: company_id_fk,
       });
+      const tagsData = await Tag.findAll({
+        where: { company_id_fk: company_id_fk },
+        order: [["id", "ASC"]],
+      });
       let lastStartDate = null;
       // Get statuses for the project
       const statuses = await Status.findAll({
@@ -518,6 +525,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
           company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
         },
       });
+      console.log("TAG1:", data[0]);
       res.render("Pages/pages-edit-project", {
         project: data[0], // Pass the first element of the data array
         current_date: currentDate,
@@ -527,6 +535,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
         sponsors: personsData,
         primes: personsData,
         change_reasons,
+        tags: tagsData,
       });
     } catch (err) {
       console.error("Error retrieving data:", err);
@@ -1113,7 +1122,7 @@ exports.update = async (req, res) => {
         complexity: req.body.complexity,
         effort: req.body.effort,
         benefit: req.body.benefit,
-        project_cost: formatCost(req.body.project_cost),
+        project_cost: projectCost, // Assign the parsed project cost
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
         tag_1: req.body.tag_1,
