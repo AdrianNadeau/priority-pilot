@@ -31,7 +31,7 @@
                             <table class="table mb-0">
                                 <thead>
                                     <tr>
-                                        
+                                        <!-- <th>ID</th> -->
                                         <th>Name</th>
                                         <th>Prime</th>
                                         <th>Sponsor</th>
@@ -44,11 +44,10 @@
                                 </thead>
                                
                                 <% projects.forEach(function(project) { %>
-                                  
                                   <tbody>
                                       <tr style="cursor: pointer;">
-                                          <input type="hidden" name="project_id" value="<%= project.id %>"/>
-                                          <td style="display: none;"><%= project.id %></td>
+                                        <td style="display: none;"><%= project.id %></td>
+                                          
                                           <td><%= project.project_name %></td>
                               
                                           <% if (project.prime_last_name) { %>
@@ -194,19 +193,19 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="effort">Effort (PH)</label>
-                                                <input type="text" class="form-control" id="effort" name="effort" style="width:100px;">
+                                                <input type="text" class="form-control" id="effort" name="effort" style="width:100px;" value="0">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="project_cost">Cost ($)</label>
-                                                <input type="number" class="form-control" id="project_cost" name="project_cost" style="width:100px;" >
+                                                <input type="text" class="form-control" id="project_cost" name="project_cost" style="width:100px;" value="0">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="benefit">Benefit (ROI or $)</label>
-                                                <input type="text" class="form-control" id="benefit" name="benefit" style="width:100px;" >
+                                                <input type="text" class="form-control" id="benefit" name="benefit" style="width:100px;" value="0">
                                             </div>
                                         </div>
                                     </div>
