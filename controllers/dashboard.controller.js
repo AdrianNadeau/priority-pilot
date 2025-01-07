@@ -4,7 +4,6 @@ const sequelize = require("sequelize");
 const Op = db.Sequelize.Op;
 
 //load all projects by stage
-console.log("get all projects");
 const query =
   "SELECT projects.project_id, phases.phase_id, phases.phase_name FROM projects JOIN phases ON projects.project_id = phases.phase_id_fk ORDER BY projects.project_id, phases.phase_id;";
 

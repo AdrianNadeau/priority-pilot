@@ -801,6 +801,7 @@ body.fixed-left .side-menu.left {
   margin-right: 10px;
   text-align: center;
   vertical-align: middle;
+  color: rgba(255, 255, 255, 0.8);
   width: 20px;
 }
 

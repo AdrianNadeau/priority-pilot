@@ -10,8 +10,9 @@ const isAdminMiddleware = require("./middleware/isAdminMiddleware");
 
 // Dashboard
 router.get("/", isAdminMiddleware, async function (req, res) {
+  console.log("check session for user to register or send to dashboard");
   let company_id_fk;
-
+  console.log("SESSION", req.session);
   // Validate session and retrieve company_id_fk
   try {
     if (!req.session.company || !req.session.company.id) {
@@ -20,13 +21,13 @@ router.get("/", isAdminMiddleware, async function (req, res) {
     company_id_fk = req.session.company.id;
   } catch (error) {
     console.error("SESSION INVALID");
-    return res.redirect("/login");
+    return res.redirect("/register");
   }
 
   // Validate person and check if admin
   const person = req.session.person;
   if (!person) {
-    return res.redirect("/login");
+    return res.redirect("/register");
   }
   const isAdmin = person.isAdmin;
 
