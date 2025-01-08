@@ -20,11 +20,11 @@
             <!-- Main content -->
             <div class="col-md-10">
                 <div class="row">
-                     <!-- Priority Section -->
-                     <div class="col-md-12">
+                    <!-- Priority and Discovery Section Side by Side -->
+                    <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Planning</strong> (<%= priority.count %>, $<%= priority.cost %>, <%=priority.ph %> PH)</span>
+                                <span class="counter"><strong>Planning</strong> (<%= priority.count %>, $<%= priority.cost %>, <%= priority.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -40,92 +40,87 @@
                         </div>
                     </div>
                     
-
-                   
-                    <!-- Discovery Section -->
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %>, $<%= discovery.cost %>, <%=discovery.ph %> PH)</span>
+                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %>, $<%= discovery.cost %>, <%= discovery.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
-
-                                  <% if (project.phase_name.trim() === 'Discovery') { %>
-                                    <span>
-                                        <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;; border-width: 2px;border-radius:10px;">
-                                            <%= project.project_name %>
-                                        </button>
-                                    </span>&nbsp;&nbsp;&nbsp;
-                                <% } %>
+                                    <% if (project.phase_name.trim() === 'Discovery') { %>
+                                        <span>
+                                            <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
+                                                <%= project.project_name %>
+                                            </button>
+                                        </span>&nbsp;&nbsp;&nbsp;
+                                    <% } %>
                                 <% }); %>
-                                   
                             </div>
                         </div>
                     </div>
-
-                    <!-- Delivery Section -->
-                    <div class="col-md-12">
+                </div>
+                
+                <div class="row">
+                    <!-- Discovery Section on Left, Done Section on Right -->
+                    <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Delivery</strong> (<%= delivery.count %>, $<%= delivery.cost %>, <%=delivery.ph %> PH)</span>
+                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %>, $<%= discovery.cost %>, <%= discovery.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
-                                  <% if (project.phase_name.trim() === 'Delivery') { %>
-                                    <span>
-                                        <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
-                                            <%= project.project_name %>
-                                        </button>
-                                    </span>&nbsp;&nbsp;&nbsp;
-                                <% } %>
+                                    <% if (project.phase_name.trim() === 'Discovery') { %>
+                                        <span>
+                                            <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
+                                                <%= project.project_name %>
+                                            </button>
+                                        </span>&nbsp;&nbsp;&nbsp;
+                                    <% } %>
                                 <% }); %>
-                                    
                             </div>
                         </div>
                     </div>
-
-                    <!-- Operations Section -->
-                    <div class="col-12">
+    
+                    <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Done</strong> (<%= operations.count %>, $<%= operations.cost %>, <%=operations.ph %> PH)</span>
+                                <span class="counter"><strong>Done</strong> (<%= operations.count %>, $<%= operations.cost %>, <%= operations.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
-                                  <% if (project.phase_name.trim() === 'Done') { %>
-                                    <span>
-                                        <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
-                                            <%= project.project_name %>
-                                        </button>
-                                    </span>&nbsp;&nbsp;&nbsp;
-                                <% } %>
+                                    <% if (project.phase_name.trim() === 'Done') { %>
+                                        <span>
+                                            <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
+                                                <%= project.project_name %>
+                                            </button>
+                                        </span>&nbsp;&nbsp;&nbsp;
+                                    <% } %>
                                 <% }); %>
-                                   
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
+    
             <!-- Radar and Flight Plan Buttons -->
             <div class="col-md-2">
                 <div class="mini-stat bg-white text-center clearfix">
                     <div>
-                        <button type="button" class="btn btn-light" style="width: 75%; margin-bottom: 5px; border-width: 2px; border-color: black;" onClick="loadFunnel();">
-                            Funnel (<%= pitch.count %>, $<%= pitch.cost %>, <%=pitch.ph %> PH)
+                        <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 200px;" onClick="loadFunnel();">
+                            Funnel (<%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)
                         </button>
                     </div>
                     <div>
-                        <button type="button" class="btn btn-light" style="width: 75%; margin-bottom: 5px; border-width: 2px; border-color: black;" onClick="loadRadar();">
+                        <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px;min-width: 200px;" onClick="loadRadar();">
                             Radar
                         </button>
                     </div>
                     <div>
-                        <button type="button" class="btn btn-light" style="width: 75%; margin-bottom: 5px; border-width: 2px; border-color: black;" onClick="loadFlightPlan();">
+                        <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 200px;" onClick="loadFlightPlan();">
                             Health Check
                         </button>
                     </div>
+                    
                     <div class="row text-center" style="padding-top: 20px;">
                         <div class="col-md-12">
                             <strong>$$</strong>
@@ -146,14 +141,18 @@
                             </ul>
                         </div>
                     </div>
+                    <div>
+                        <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 200px;" onClick="loadFlightPlan();">
+                            Add Project
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <canvas id="moneyChart"></canvas>
-                </div>
+               
             </div>
         </div>
     </div>
 </div>
+
 
 
 <%- contentFor('FooterJs') %>

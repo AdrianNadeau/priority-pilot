@@ -44,7 +44,15 @@
       <div class="p-3">
         <h4 class="font-18 m-b-5 text-center">Welcome Back !</h4>
         <p class="text-muted text-center">
-          Sign in to continue to Priority Pilot.
+         
+            <p class="text-center">
+              Don't have an account ?
+              <a href="/register" class="font-500 font-14 font-secondary">
+                Signup Now
+              </a>
+            </p>
+            
+          </div>
         </p>
 
         <form
@@ -110,16 +118,7 @@
     </div>
   </div>
 
-  <div class="m-t-40 text-center">
-    <p>
-      Don't have an account ?
-      <a href="/register" class="font-500 font-14 font-secondary">
-        Signup Now
-      </a>
-    </p>
-    <p>© <%= new Date().getFullYear(); %> Priority Pilot.</p>
-  </div>
-</div>
+
 <script>
   const togglePassword = document.querySelector("#togglePassword");
   const password = document.querySelector("#password");

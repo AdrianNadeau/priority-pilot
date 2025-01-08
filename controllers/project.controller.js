@@ -351,7 +351,10 @@ exports.cockpit = async (req, res) => {
     console.log("error:", error);
     return res.redirect("/pages-500");
   }
-
+  const tagsData = await Tag.findAll({
+    where: { company_id_fk: company_id_fk },
+    order: [["id", "ASC"]],
+  });
   //COCKPIT QUERY
   try {
     const query = `
@@ -415,10 +418,12 @@ exports.cockpit = async (req, res) => {
         statusColor = "green";
       }
     }
-    const tags = await Status.findAll({
+
+    const tagsData = await Status.findAll({
       where: { project_id_fk: project_id },
       order: [["createdAt", "DESC"]],
     });
+
     res.render("Pages/pages-cockpit", {
       project: data,
       current_date: currentDate,
@@ -426,6 +431,7 @@ exports.cockpit = async (req, res) => {
       statuses: statuses,
       statusColor: statusColor,
       changed_projects,
+      tags: tagsData,
     });
   } catch (error) {
     console.log("Database Query Error: ", error);

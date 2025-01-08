@@ -171,17 +171,76 @@
                
             </form>
         </div>
-              </div>
-          </div>
-
-          <div class="modal-footer">
-              <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
-              <button class="btn btn-primary w-md waves-effect waves-light" onclick="submitForm()" type="submit">Confirm</button>
-          </div>
-      </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
+    </div>
+    <!-- Add more rows and columns if needed -->
+        <div class="modal-footer">
+         <button type="button" class="btn btn-secondary waves-effect" onclick=cancelForm() data-dismiss="modal">Cancel</button>
+         <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#openConfirm" id="btnOpenConfirm">Submit</button>
+   
+         <!-- if edit, add delete button -->
+         <!-- <button class="btn btn-danger w-md waves-effect waves-light" onClick='openDeleteModal()' type="button">Delete</button> -->
+         <!-- if edit, add delete button -->
+     </div>
+   
+   <div id="openConfirm" class="modal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+     <div class="modal-dialog">
+         <div class="modal-content" style="width: 500px;">
+             <div class="modal-header">
+                 <h5 class="modal-title mt-0" id="personTitle">Are you sure you want to confirm changes?</h5>
+                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+             </div>
+   
+             <div class="modal-body">
+                 <div class="container mt-4">
+                     <h5>Change Log</h5> <!-- This is your heading -->
+   
+                     <form action="/projects/<%= project.id %>" method="POST" class="needs-validation" novalidate id="editProjectForm"></form>
+                         <input type="hidden" name="project_id" id="project_id" value="<%=project.id %>"/>
+   
+                         <div class="row">
+                             <div class="col-md-12">
+                                 <!-- Current Date Display -->
+                                 <div class="form-group">
+                                     <p><%= current_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+                                 </div>
+   
+                                 <!-- Change Reason -->
+                                 <div class="form-group">
+                                     <label for="change_reason">Change Reason</label>
+                                     
+                                     <select class="form-control" id="change_reason" name="change_reason" required>
+                                       
+                                       <% change_reasons.forEach(function(change_reason){ %>
+                                         <option value= "<%= change_reason.id %>"><%= change_reason.change_reason %></option>
+                                       <% }) %>
+                                     </select>
+                                     <div class="invalid-feedback">
+                                         Please enter change reason.
+                                     </div>
+                                 </div>
+   
+                                 <!-- Change Explanation -->
+                                 <div class="form-group">
+                                     <label for="change_explanation">Change Details</label>
+                                     <textarea class="form-control" id="change_explanation" name="change_explanation" rows="3" required></textarea>
+                                     <div class="invalid-feedback">
+                                         Please provide change details.
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary w-md waves-effect waves-light" onclick="submitForm()" type="submit">Confirm</button>
+                        </div>
+                     </form>
+                 </div>
+             </div>
+   
+            
+         </div><!-- /.modal-content -->
+     </div><!-- /.modal-dialog -->
+   </div><!-- /.modal -->
 <%- contentFor('FooterJs') %>
 
 <%- contentFor('BottomJs') %>
@@ -235,40 +294,41 @@
             } else {
                 input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             }
+            console.log("input", input);
             this.value = input;
         });
     });
 
     // Dynamic field display based on phase selection
-    document.getElementById('phase_id_fk').addEventListener('change', function() {
-        var textarea = document.getElementById('pitch_message');
-        var hideElements = document.getElementById("otherPhaseFields");
-        var leftElements = document.getElementById("leftElements");
-        var effort_option = document.getElementById("effort_option");
-        var benefit_option = document.getElementById("benefit_option");
-        var impact_option = document.getElementById("impact_option");
-        var complexity_option = document.getElementById("complexity_option");
-        var tags_option = document.getElementById("tags_option");
+    // document.getElementById('phase_id_fk').addEventListener('change', function() {
+    //     var textarea = document.getElementById('pitch_message');
+    //     var hideElements = document.getElementById("otherPhaseFields");
+    //     var leftElements = document.getElementById("leftElements");
+    //     var effort_option = document.getElementById("effort_option");
+    //     var benefit_option = document.getElementById("benefit_option");
+    //     var impact_option = document.getElementById("impact_option");
+    //     var complexity_option = document.getElementById("complexity_option");
+    //     var tags_option = document.getElementById("tags_option");
 
-        if (this.value == '1') {
-            textarea.style.display = 'block';
-            hideElements.style.display = 'none';
-            leftElements.style.display = 'none';
-            effort_option.style.display = 'block';
-            benefit_option.style.display = 'none';
-            impact_option.style.display = 'none';
-            complexity_option.style.display = 'none';
-            tags_option.style.display = 'none';
-        } else {
-            textarea.style.display = 'none';
-            hideElements.style.display = 'block';
-            leftElements.style.display = 'block';
-            benefit_option.style.display = 'block';
-            impact_option.style.display = 'block';
-            complexity_option.style.display = 'block';
-            tags_option.style.display = 'block';
-        }
-    });
+    //     if (this.value == '1') {
+    //         // textarea.style.display = 'block';
+    //         hideElements.style.display = 'none';
+    //         leftElements.style.display = 'none';
+    //         effort_option.style.display = 'block';
+    //         benefit_option.style.display = 'none';
+    //         impact_option.style.display = 'none';
+    //         complexity_option.style.display = 'none';
+    //         tags_option.style.display = 'none';
+    //     } else {
+    //         // textarea.style.display = 'none';
+    //         hideElements.style.display = 'block';
+    //         leftElements.style.display = 'block';
+    //         benefit_option.style.display = 'block';
+    //         impact_option.style.display = 'block';
+    //         complexity_option.style.display = 'block';
+    //         tags_option.style.display = 'block';
+    //     }
+    // });
 });
 function submitForm() {
     document.getElementById('editProjectForm').submit();
