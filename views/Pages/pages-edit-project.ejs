@@ -172,14 +172,11 @@
             </form>
         </div>
     </div>
-    <!-- Add more rows and columns if needed -->
+    
         <div class="modal-footer">
-         <button type="button" class="btn btn-secondary waves-effect" onclick=cancelForm() data-dismiss="modal">Cancel</button>
+         <button type="button" class="btn btn-secondary waves-effect" onclick="cancelForm()" data-dismiss="modal">Cancel</button>
          <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#openConfirm" id="btnOpenConfirm">Submit</button>
-   
-         <!-- if edit, add delete button -->
-         <!-- <button class="btn btn-danger w-md waves-effect waves-light" onClick='openDeleteModal()' type="button">Delete</button> -->
-         <!-- if edit, add delete button -->
+
      </div>
    
    <div id="openConfirm" class="modal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -231,7 +228,7 @@
                          </div>
                          <div class="modal-footer">
                             <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
-                            <button class="btn btn-primary w-md waves-effect waves-light" onclick="submitForm()" type="submit">Confirm</button>
+                            <button class="btn btn-primary w-md waves-effect waves-light" onclick="submitForm();" type="submit">Confirm</button>
                         </div>
                      </form>
                  </div>
@@ -331,6 +328,7 @@
     // });
 });
 function submitForm() {
+    console.log("Submit form");
     document.getElementById('editProjectForm').submit();
 }
 function cancelForm(){

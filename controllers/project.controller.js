@@ -1080,14 +1080,16 @@ exports.health = async (req, res) => {
 // Update a Project by the id in the request
 exports.update = async (req, res) => {
   try {
+    console.log(req.body);
     // Parse and assign the project cost
     const projectCost = parseFloat(req.body.project_cost);
+    console.log("PROJECT COST1:", req.body.project_cost);
     if (isNaN(projectCost)) {
       return res.status(400).send({
         message: "Invalid project cost. Please enter a valid number.",
       });
     }
-    console.log("PROJECT COST:", projectCost);
+    console.log("PROJECT COST2:", projectCost);
     // Ensure session exists and fetch company ID
     const id = req.params.id;
     if (!req.session || !req.session.company) {
