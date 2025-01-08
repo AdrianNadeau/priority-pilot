@@ -1081,16 +1081,6 @@ exports.health = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     console.log(req.body);
-    // Parse and assign the project cost
-    const projectCost = parseFloat(req.body.project_cost);
-    console.log("PROJECT COST1:", req.body.project_cost);
-    if (isNaN(projectCost)) {
-      return res.status(400).send({
-        message: "Invalid project cost. Please enter a valid number.",
-      });
-    }
-    console.log("PROJECT COST2:", projectCost);
-    // Ensure session exists and fetch company ID
     const id = req.params.id;
     if (!req.session || !req.session.company) {
       return res.redirect("/pages-500");
@@ -1130,12 +1120,12 @@ exports.update = async (req, res) => {
         complexity: req.body.complexity,
         effort: req.body.effort,
         benefit: req.body.benefit,
-        project_cost: projectCost, // Assign the parsed project cost
+        project_cost: req.body.project_cost, // Assign the parsed project cost
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
-        tag_1: req.body.tag_1,
-        tag_2: req.body.tag_2,
-        tag_3: req.body.tag_3,
+        tag_1: req.body.tag_1 || 1,
+        tag_2: req.body.tag_2 || 1,
+        tag_3: req.body.tag_3 || 1,
       },
       {
         where: { id: id, company_id_fk: company_id_fk },
@@ -1164,9 +1154,9 @@ exports.update = async (req, res) => {
         project_cost: req.body.project_cost,
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
-        tag_1: req.body.tag_1,
-        tag_2: req.body.tag_2,
-        tag_3: req.body.tag_3,
+        tag_1: req.body.tag_1 || 1,
+        tag_2: req.body.tag_2 || 1,
+        tag_3: req.body.tag_3 || 1,
       };
 
       const changedProject = await ChangeProject.create(newChangedProject);

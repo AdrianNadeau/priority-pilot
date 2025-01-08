@@ -71,4 +71,14 @@ db.changed_projects = require("./changed_project.model.js")(
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+// Sync database schema with models
+(async () => {
+  try {
+    await sequelize.sync({ alter: true }); // Update tables to match models
+    console.log("Database schema synced successfully.");
+  } catch (error) {
+    console.error("Error updating database schema:", error);
+  }
+})();
+
 module.exports = db;
