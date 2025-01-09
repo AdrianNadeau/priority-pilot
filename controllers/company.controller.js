@@ -170,9 +170,6 @@ exports.findDefaults = (req, res) => {
           if (!tags) {
             // return res.status(404).send("Tag not found");
           }
-          // Handle the result
-          //get all tags
-          console.log("Tag:", tags);
           res.render("Pages/pages-defaults", { company, tags });
         })
         .catch((error) => {
