@@ -128,19 +128,8 @@
             <div class="col-md-12">
               <a href="/projects/edit/<%= project[0].id%>" style="margin-top:20px;">Change Project</a>
               <br/>
-              <strong> Tags :</strong>
-              <% if (tags) { %>
-                <br/>
-                <% tags.forEach(function(tag) { %>
-                  
-                  <% if (tag.id) { %>
-                    <%=tag.tag_name %> ,
-                   
-                    
-                    
-                  <% } %>
-                <% }); %>
-              <% } %>
+              <strong> Tags :</strong> <%= formattedTags %>
+              
               <br/>
               <strong>Change Log:</strong>
               <% if (changed_projects) { %>

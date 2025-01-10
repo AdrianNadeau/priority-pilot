@@ -81,7 +81,7 @@ router.get("/", isAdminMiddleware, async function (req, res) {
     // Initialize phase data with default values
     const phaseData = {
       pitch: { count: 0, cost: 0, ph: 0 },
-      priority: { count: 0, cost: 0, ph: 0 },
+      planning: { count: 0, cost: 0, ph: 0 },
       discovery: { count: 0, cost: 0, ph: 0 },
       delivery: { count: 0, cost: 0, ph: 0 },
       done: { count: 0, cost: 0, ph: 0 },
@@ -111,13 +111,13 @@ router.get("/", isAdminMiddleware, async function (req, res) {
 
     // Calculate usedCost and availableCost
     usedCost =
-      phaseData.priority.cost +
+      phaseData.planning.cost +
       phaseData.discovery.cost +
       phaseData.delivery.cost +
       phaseData.done.cost;
 
     usedEffort =
-      phaseData.priority.ph +
+      phaseData.planning.ph +
       phaseData.discovery.ph +
       phaseData.delivery.ph +
       phaseData.done.ph;
@@ -131,16 +131,16 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       totalPH: formatCost(totalPH),
       totalAvailPH: formatCost(phaseData.done.ph),
       totalUsedPH: formatCost(totalPH - phaseData.done.ph),
-      priorityCount: phaseData.priority.count,
+      planningCount: phaseData.planning.count,
       pitch: {
         count: formatValue(phaseData.pitch.count),
         cost: formatCost(phaseData.pitch.cost),
         ph: formatCost(phaseData.pitch.ph),
       },
-      priority: {
-        count: formatValue(phaseData.priority.count),
-        cost: formatCost(phaseData.priority.cost),
-        ph: formatCost(phaseData.priority.ph),
+      planning: {
+        count: formatValue(phaseData.planning.count),
+        cost: formatCost(phaseData.planning.cost),
+        ph: formatCost(phaseData.planning.ph),
       },
       discovery: {
         count: formatValue(phaseData.discovery.count),

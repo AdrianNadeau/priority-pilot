@@ -24,7 +24,7 @@
                     <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Planning</strong> (<%= priority.count %>, $<%= priority.cost %>, <%= priority.ph %> PH)</span>
+                                <span class="counter"><strong>Planning</strong> (<%= planning.count %>, $<%= planning.cost %>, <%= planning.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -65,11 +65,11 @@
                     <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %>, $<%= discovery.cost %>, <%= discovery.ph %> PH)</span>
+                                <span class="counter"><strong>Deliver</strong> (<%= delivery.count %>, $<%= delivery.cost %>, <%= delivery.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
-                                    <% if (project.phase_name.trim() === 'Discovery') { %>
+                                    <% if (project.phase_name.trim() === 'Delivery') { %>
                                         <span>
                                             <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
                                                 <%= project.project_name %>
@@ -88,7 +88,7 @@
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
-                                    <% if (project.phase_name.trim() === 'Done') { %>
+                                    <% if (project.phase_name.trim() === 'Operations') { %>
                                         <span>
                                             <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
                                                 <%= project.project_name %>
@@ -137,16 +137,21 @@
                                 <li>Full: $<%= portfolio_budget %></li>
                                 <li>Used: $<%= usedCost %></li>
                                 <% if (availableCost < 0) { %>
-                                    <li>Avail: <span style="color: red;">$<%= availableCost %></span></li>
+                                    <li>Avail: <span style="color: red; font-weight:900px;"><strong>$<%= availableCost %></strong></span></li>
                                 <% } else { %>
-                                    <li>Avail: $<%= availableCost %></li>
+                                    <li>Avail: <span style="color: green;font-weight:900px;"><strong>$<%= availableCost %></strong></span></li>
                                 <% } %>
                             </ul>
                             <strong>Effort</strong>
                             <ul class="list-unstyled">
                                 <li>Full: <%= portfolio_effort %> PH</li>
                                 <li>Used: <%= totalUsedPH %> PH</li>
-                                <li>Avail: <%= totalAvailPH %> PH</li>
+                                <% if (totalAvailPH < 0) { %>
+                                    <li>Avail: <span style="color: red; font-weight:900px;"><strong>$<%= totalAvailPH %></strong></span></li>
+                                <% } else { %>
+                                    <li>Avail: <span style="color: green;font-weight:900px;"><strong>$<%= totalAvailPH %></strong></span></li>
+                                <% } %>
+                               
                             </ul>
                         </div>
                     </div>

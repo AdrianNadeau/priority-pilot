@@ -220,7 +220,7 @@ exports.findAll = async (req, res) => {
 
     const query =
       "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
-
+    console.log("TAGGGSSSSSSSSSSSSSSSSS:", tagsData);
     await db.sequelize
       .query(query, {
         replacements: [company_id_fk],
@@ -238,6 +238,7 @@ exports.findAll = async (req, res) => {
           tags: tagsData,
         });
       })
+
       .catch((err) => {
         res.status(500).send({
           message: err.message || "Some error occurred while retrieving data.",
@@ -370,35 +371,44 @@ exports.cockpit = async (req, res) => {
   //COCKPIT QUERY
   try {
     const query = `
-        SELECT 
-            proj.company_id_fk,
-            proj.id, 
-            proj.project_name, 
-            proj.project_headline,
-            proj.start_date, 
-            proj.end_date,
-            proj.effort,
-            proj.project_why,
-            proj.project_what,
-            prime_person.first_name AS prime_first_name, 
-            prime_person.last_name AS prime_last_name, 
-            sponsor_person.first_name AS sponsor_first_name, 
-            sponsor_person.last_name AS sponsor_last_name, 
-            proj.project_cost, 
-            
-            phases.phase_name,
-            proj.prime_id_fk
-        FROM projects proj 
-        LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk 
-        LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
-        LEFT JOIN phases ON phases.id = proj.phase_id_fk 
-        WHERE proj.company_id_fk = ? AND proj.id = ?`;
+      SELECT 
+    proj.tag_1,
+    tag1.tag_name AS tag_1_name,
+    proj.tag_2,
+    tag2.tag_name AS tag_2_name,
+    proj.tag_3,
+    tag3.tag_name AS tag_3_name,
+    proj.company_id_fk,
+    proj.id, 
+    proj.project_name, 
+    proj.project_headline,
+    proj.start_date, 
+    proj.end_date,
+    proj.effort,
+    proj.project_why,
+    proj.project_what,
+    prime_person.first_name AS prime_first_name, 
+    prime_person.last_name AS prime_last_name, 
+    sponsor_person.first_name AS sponsor_first_name, 
+    sponsor_person.last_name AS sponsor_last_name, 
+    proj.project_cost, 
+    phases.phase_name,
+    proj.prime_id_fk
+    FROM projects proj 
+    LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk 
+    LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
+    LEFT JOIN phases ON phases.id = proj.phase_id_fk 
+    LEFT JOIN tags tag1 ON tag1.id = proj.tag_1
+    LEFT JOIN tags tag2 ON tag2.id = proj.tag_2
+    LEFT JOIN tags tag3 ON tag3.id = proj.tag_3
+    WHERE proj.company_id_fk = ? AND proj.id = ?
+`;
 
     const data = await db.sequelize.query(query, {
       replacements: [company_id_fk, project_id],
       type: db.sequelize.QueryTypes.SELECT,
     });
-
+    console.log("data:", data);
     let changed_projects;
     try {
       changed_projects = await db.changed_projects.findAll({
@@ -413,8 +423,14 @@ exports.cockpit = async (req, res) => {
     } catch (error) {
       console.log("Cockpit Changed Projects error:", error);
     }
-
-    // Retrieve statuses related to the project
+    // Fetch tags for each project
+    const formattedTags =
+      data[0].tag_1_name +
+      ", " +
+      data[0].tag_2_name +
+      ", " +
+      data[0].tag_3_name;
+    console.log("formattedTags:", data.tag_1_name);
     const statuses = await Status.findAll({
       where: { project_id_fk: project_id },
       order: [["status_date", "DESC"]],
@@ -444,6 +460,7 @@ exports.cockpit = async (req, res) => {
       statusColor: statusColor,
       changed_projects,
       tags: tagsData,
+      formattedTags,
     });
   } catch (error) {
     console.log("Database Query Error: ", error);
@@ -547,7 +564,9 @@ proj.company_id_fk = ? AND proj.id = ?`;
           company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
         },
       });
-      console.log("TAG1:", data[0]);
+
+      const formattedTags = `${data[0].tag_1}, ${data[0].tag_2}, ${data[0].tag_3}`;
+      console.log("formattedTags:", formattedTags);
       res.render("Pages/pages-edit-project", {
         project: data[0], // Pass the first element of the data array
         current_date: currentDate,
@@ -558,6 +577,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
         primes: personsData,
         change_reasons,
         tags: tagsData,
+        formattedTags: formattedTags,
       });
     } catch (err) {
       console.error("Error retrieving data:", err);
@@ -565,6 +585,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
         message: err.message || "Error occurred while retrieving data.",
       });
     }
+    let formattedTag;
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send({
@@ -1180,7 +1201,7 @@ exports.update = async (req, res) => {
 
       const changedProject = await ChangeProject.create(newChangedProject);
 
-      if (changedProject) res.redirect("/projects/");
+      if (changedProject) res.redirect("/");
     } else {
       res.status(404).send({
         message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,

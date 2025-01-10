@@ -28,6 +28,7 @@
             <div class="col-lg-12">
               <div class="card-body" style="border:0px !important;">
                         <div class="table-responsive">
+                          
                             <table class="table mb-0">
                                 <thead>
                                     <tr>
@@ -128,8 +129,9 @@
                                           <div class="form-group">
                                             
                                             
-                                            <label for="start_date">Start Date (YYYY-MM-DD):</label>
-                                            <input type="text" id="datepicker">
+                                            <label for="start_date">Start Date:</label>
+                                            <input type="text" id="start_date" name="start_date" >
+                                          
                                             <!-- <input type="text" class="form-control" id="start_date" name="start_date" placeholder="yyyy-mm-dd"> -->
                                           </div>
                                           <div class="form-group">
@@ -256,8 +258,8 @@
                                         <div class="col-md-12">
                                           <div class="form-group">
                                             <label for="tag_2">Tag 2:</label>
-                                            <select name="tag_2" id="project_tag2" class="form-control">
-                                              <option value="0">Select...</option>
+                                            <select selectedname="tag_2" id="project_tag2" class="form-control">
+                                              <option selected value="0">Select...</option>
                                               <% if (tags && tags.length > 0) { %>
                                                 <% tags.forEach(function(tag){ %>
                                                   <option value="<%= tag.id %>"><%= tag.tag_name %></option>
@@ -274,7 +276,7 @@
                                           <div class="form-group">
                                             <label for="tag_3">Tag 3:</label>
                                             <select name="tag_3" id="tag_3" class="form-control">
-                                              <option value="0">Select...</option>
+                                              <option selected value="0">Select...</option>
                                               <% if (tags && tags.length > 0) { %>
                                                 <% tags.forEach(function(tag){ %>
                                                   <option value="<%= tag.id %>"><%= tag.tag_name %></option>
@@ -321,6 +323,7 @@
               }
               form.classList.add('was-validated');
           }, false);
+          
       }
 
       // Numeric input validation for specific fields
@@ -392,6 +395,14 @@
             // complexity_option.style.display = 'block';
             // tags_option.style.display = 'block';
         }
+        
+        
+    
+        
+      
     });
   });
+  const startDate = {'start_date': {anyDate: true}};
+  new DeskyCalendar(startDate);
+  
 </script>
