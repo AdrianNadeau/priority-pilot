@@ -59,18 +59,28 @@ exports.create = (req, res) => {
     tag_2: req.body.tag_2,
     tag_3: req.body.tag_3,
   };
+  const tags = {
+    tag_1: req.body.tag_1 || 0,
+    tag_2: req.body.tag_2 || 0,
+    tag_3: req.body.tag_3 || 0,
+    // other project fields
+  };
   // Save Project in the database
   Project.create(project).then(async (data) => {
-    //call get all function for project /projects
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     }).catch((error) => {
       console.log("Error fetching phasesData:", error);
     });
-    const tagsData = await Tag.findAll({
-      where: { company_id_fk: company_id_fk },
+    let tagsData = await Tag.findAll({
+      where: {
+        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      },
       order: [["id", "ASC"]],
     });
+
+    // Add "None" option at the top of the tags list
+    tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
 
     const [prioritiesData, personsData, projectsData] = await Promise.all([
       Priority.findAll(),
@@ -102,7 +112,7 @@ exports.create = (req, res) => {
           sponsors: personsData,
           primes: personsData,
           session: req.session,
-          // tags: tags,
+          tags: tagsData,
         });
       })
       .catch((err) => {
@@ -191,21 +201,6 @@ exports.findAll = async (req, res) => {
         .json({ message: "Error retrieving session data." });
     }
     console.log("getting tags for company");
-    const tagsData = Tag.findAll({
-      where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
-      },
-    })
-      .then((tags) => {
-        console.log("TAGS:", tags.length);
-        if (!tags) {
-          // Handle case where no tags are found
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        res.status(500).send("Internal Server Error - No tags for company.");
-      });
 
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
@@ -217,10 +212,20 @@ exports.findAll = async (req, res) => {
         company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
       },
     });
+    // Fetch tags
+    let tagsData = await Tag.findAll({
+      where: {
+        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      },
+      order: [["id", "ASC"]],
+    });
+
+    // Add "None" option at the top of the tags list
+    tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
 
     const query =
       "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
-    console.log("TAGGGSSSSSSSSSSSSSSSSS:", tagsData);
+
     await db.sequelize
       .query(query, {
         replacements: [company_id_fk],
@@ -364,8 +369,10 @@ exports.cockpit = async (req, res) => {
     console.log("error:", error);
     return res.redirect("/pages-500");
   }
-  const tagsData = await Tag.findAll({
-    where: { company_id_fk: company_id_fk },
+  let tagsData = await Tag.findAll({
+    where: {
+      [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+    },
     order: [["id", "ASC"]],
   });
   //COCKPIT QUERY
@@ -447,9 +454,11 @@ exports.cockpit = async (req, res) => {
       }
     }
 
-    const tagsData = await Status.findAll({
-      where: { project_id_fk: project_id },
-      order: [["createdAt", "DESC"]],
+    let tagsData = await Tag.findAll({
+      where: {
+        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      },
+      order: [["id", "ASC"]],
     });
 
     res.render("Pages/pages-cockpit", {
@@ -535,10 +544,11 @@ proj.company_id_fk = ? AND proj.id = ?`;
       const change_reasons = await ChangeReason.findAll({
         company_id_fk: company_id_fk,
       });
-      const tagsData = await Tag.findAll({
+      let tagsData = await Tag.findAll({
         where: {
           [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
         },
+        order: [["id", "ASC"]],
       });
       let lastStartDate = null;
       // Get statuses for the project
@@ -654,10 +664,11 @@ exports.findOneForPrime = async (req, res) => {
 
     const prioritiesData = await Priority.findAll();
 
-    const tagsData = await Tag.findAll({
+    let tagsData = await Tag.findAll({
       where: {
         [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
       },
+      order: [["id", "ASC"]],
     });
 
     const personsData = await Person.findAll({
@@ -996,8 +1007,10 @@ exports.findFunnel = async (req, res) => {
       },
     });
 
-    const tagsData = await Tag.findAll({
-      where: { company_id_fk: company_id_fk },
+    let tagsData = await Tag.findAll({
+      where: {
+        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      },
       order: [["id", "ASC"]],
     });
     // Custom SQL query to retrieve project data

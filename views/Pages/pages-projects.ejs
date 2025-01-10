@@ -242,7 +242,6 @@
                                             <label for="tag_1">Tag 1:</label>
 
                                             <select name="tag_1" id="tag_1" class="form-control">
-                                              <option selected value="0">Select...</option>
                                               <% if (tags && tags.length > 0) { %>
                                                 <% tags.forEach(function(tag){ %>
                                                   <option value="<%= tag.id %>"><%= tag.tag_name %></option>
@@ -259,7 +258,7 @@
                                           <div class="form-group">
                                             <label for="tag_2">Tag 2:</label>
                                             <select selectedname="tag_2" id="project_tag2" class="form-control">
-                                              <option selected value="0">Select...</option>
+                                             
                                               <% if (tags && tags.length > 0) { %>
                                                 <% tags.forEach(function(tag){ %>
                                                   <option value="<%= tag.id %>"><%= tag.tag_name %></option>
@@ -276,7 +275,7 @@
                                           <div class="form-group">
                                             <label for="tag_3">Tag 3:</label>
                                             <select name="tag_3" id="tag_3" class="form-control">
-                                              <option selected value="0">Select...</option>
+                                            
                                               <% if (tags && tags.length > 0) { %>
                                                 <% tags.forEach(function(tag){ %>
                                                   <option value="<%= tag.id %>"><%= tag.tag_name %></option>
