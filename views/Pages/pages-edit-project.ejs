@@ -22,7 +22,7 @@
       <div class="row">
           <div class="col-lg-12">
             <div class="card-body" style="border:0px !important;">
-              <form action="/projects/<%= project.id %>" method="POST" class="needs-validation" novalidate>
+              <form action="/projects/<%= project.id %>" method="POST" class="needs-validation" novalidate id="editProjectForm">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -191,8 +191,7 @@
                  <div class="container mt-4">
                      <h5>Change Log</h5> <!-- This is your heading -->
    
-                     <form action="/projects/<%= project.id %>" method="POST" class="needs-validation" novalidate id="editProjectForm"></form>
-                         <input type="hidden" name="project_id" id="project_id" value="<%=project.id %>"/>
+                         <input type="hidden" form="editProjectForm" name="project_id" id="project_id" value="<%=project.id %>"/>
    
                          <div class="row">
                              <div class="col-md-12">
@@ -205,7 +204,7 @@
                                  <div class="form-group">
                                      <label for="change_reason">Change Reason</label>
                                      
-                                     <select class="form-control" id="change_reason" name="change_reason" required>
+                                     <select class="form-control" id="change_reason" name="change_reason" form="editProjectForm" required>
                                        
                                        <% change_reasons.forEach(function(change_reason){ %>
                                          <option value= "<%= change_reason.id %>"><%= change_reason.change_reason %></option>
@@ -219,7 +218,7 @@
                                  <!-- Change Explanation -->
                                  <div class="form-group">
                                      <label for="change_explanation">Change Details</label>
-                                     <textarea class="form-control" id="change_explanation" name="change_explanation" rows="3" required></textarea>
+                                     <textarea class="form-control" id="change_explanation" name="change_explanation" rows="3" form="editProjectForm" required></textarea>
                                      <div class="invalid-feedback">
                                          Please provide change details.
                                      </div>

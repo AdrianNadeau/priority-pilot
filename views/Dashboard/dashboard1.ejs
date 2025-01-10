@@ -28,7 +28,7 @@
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
-                                    <% if (project.phase_name.trim() === 'Priority') { %>
+                                    <% if (project.phase_name.trim() === 'Planning') { %>
                                         <span>
                                             <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
                                                 <%= project.project_name %>

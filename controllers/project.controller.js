@@ -67,6 +67,10 @@ exports.create = (req, res) => {
     }).catch((error) => {
       console.log("Error fetching phasesData:", error);
     });
+    const tagsData = await Tag.findAll({
+      where: { company_id_fk: company_id_fk },
+      order: [["id", "ASC"]],
+    });
 
     const [prioritiesData, personsData, projectsData] = await Promise.all([
       Priority.findAll(),
@@ -78,6 +82,7 @@ exports.create = (req, res) => {
         },
       }),
       Project.findAll(),
+      // ChangeReason.findAll()
     ]);
 
     const query =
@@ -161,16 +166,13 @@ exports.findAllRadar = async (req, res) => {
       projectData.health = statusMap[project.id] || null;
       return projectData;
     });
-
-    console.log("PROJECTS WITH STATUS", projectsWithStatus);
     res.status(200).json(projectsWithStatus);
   } catch (error) {
     console.log("Error retrieving projects:", error);
     res.status(500).json({ message: "Error retrieving projects." });
   }
 };
-//Retrieve all  from the database.
-
+// Retrieve all  from the database.
 exports.findAll = async (req, res) => {
   console.log("find all");
   try {
@@ -188,15 +190,23 @@ exports.findAll = async (req, res) => {
         .status(500)
         .json({ message: "Error retrieving session data." });
     }
-    console.log("company_id_fk:", company_id_fk);
-    //
-    const tags = Tag.findAll({
+    console.log("getting tags for company");
+    const tagsData = Tag.findAll({
       where: {
         [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
       },
-    });
+    })
+      .then((tags) => {
+        console.log("TAGS:", tags.length);
+        if (!tags) {
+          // Handle case where no tags are found
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send("Internal Server Error - No tags for company.");
+      });
 
-    console.log("tags:", tags.length);
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     });
@@ -204,7 +214,7 @@ exports.findAll = async (req, res) => {
 
     const personsData = await Person.findAll({
       where: {
-        company_id_fk: company_id_fk,
+        company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
       },
     });
 
@@ -225,8 +235,7 @@ exports.findAll = async (req, res) => {
           priorities: priorities,
           sponsors: personsData,
           primes: personsData,
-          company,
-          tags,
+          tags: tagsData,
         });
       })
       .catch((err) => {
@@ -422,6 +431,11 @@ exports.cockpit = async (req, res) => {
       }
     }
 
+    const tagsData = await Status.findAll({
+      where: { project_id_fk: project_id },
+      order: [["createdAt", "DESC"]],
+    });
+
     res.render("Pages/pages-cockpit", {
       project: data,
       current_date: currentDate,
@@ -454,6 +468,9 @@ exports.findOneForEdit = async (req, res) => {
     // Query to fetch project details
     const query = `
      SELECT 
+      proj.tag_1, 
+      proj.tag_2, 
+      proj.tag_3,
       proj.company_id_fk,
       proj.id,
       proj.project_name,
@@ -502,8 +519,9 @@ proj.company_id_fk = ? AND proj.id = ?`;
         company_id_fk: company_id_fk,
       });
       const tagsData = await Tag.findAll({
-        where: { company_id_fk: company_id_fk },
-        order: [["id", "ASC"]],
+        where: {
+          [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+        },
       });
       let lastStartDate = null;
       // Get statuses for the project
@@ -559,21 +577,19 @@ exports.findOneForPrime = async (req, res) => {
   try {
     const project_id = req.params.id;
 
-    let company_id_fk;
-
     // Ensure session exists and fetch company ID
     if (!req.session || !req.session.company) {
-      res.redirect("/pages-500");
+      return res.redirect("/pages-500");
     }
 
-    company_id_fk = req.session.company.id;
+    const company_id_fk = req.session.company.id;
 
     // Query to fetch project details
     const query = `
-     SELECT proj.company_id_fk, proj.id, proj.effort,proj.benefit, proj.prime_id_fk, 
-             proj.project_headline, proj.project_name, proj.project_description,proj.start_date, 
+     SELECT proj.company_id_fk, proj.id, proj.effort, proj.benefit, proj.prime_id_fk, 
+             proj.project_headline, proj.project_name, proj.project_description, proj.start_date, 
              proj.end_date, proj.next_milestone_date, proj.project_why, 
-             proj.project_what,proj.effort, proj.impact, proj.complexity, prime_person.first_name AS prime_first_name, 
+             proj.project_what, proj.effort, proj.impact, proj.complexity, prime_person.first_name AS prime_first_name, 
              prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, 
              sponsor_person.last_name AS sponsor_last_name, proj.project_cost, 
              phases.phase_name, proj.pitch_message, proj.phase_id_fk, proj.priority_id_fk, proj.sponsor_id_fk, proj.prime_id_fk
@@ -583,66 +599,61 @@ exports.findOneForPrime = async (req, res) => {
       LEFT JOIN phases ON phases.id = proj.phase_id_fk
       WHERE proj.company_id_fk = ? AND proj.id = ?`;
 
-    try {
-      // Execute the query
-      const data = await db.sequelize.query(query, {
-        replacements: [company_id_fk, project_id],
-        type: db.sequelize.QueryTypes.SELECT,
-      });
+    const data = await db.sequelize.query(query, {
+      replacements: [company_id_fk, project_id],
+      type: db.sequelize.QueryTypes.SELECT,
+    });
 
-      if (!data || data.length === 0) {
-        return res.status(404).send({ message: "Project not found" });
-      }
-
-      // Get reasons for change for the project
-      const change_reasons = await ChangeReason.findAll({
-        company_id_fk: company_id_fk,
-      });
-      // let lastStartDate = null;
-      // let lastEndDate = null;
-      // let milestoneDate = null;
-      let lastStatusDate = null;
-      // let statusColor = null;
-
-      // Get statuses for the project
-      const statuses = await Status.findAll({
-        where: { project_id_fk: project_id },
-        order: [["status_date", "DESC"]],
-      });
-      if (statuses.length > 0) {
-        lastStatusDate = statuses[0].status_date;
-        statusColor = statuses[0].health;
-      }
-      const phasesData = await Phase.findAll({
-        order: [["id", "ASC"]],
-      });
-      const [prioritiesData] = await Promise.all([
-        Priority.findAll(),
-        Project.findAll(),
-      ]);
-
-      // Render the cockpit page with the retrieved data
-      const personsData = await Person.findAll({
-        where: {
-          company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
-        },
-      });
-      res.render("Pages/pages-edit-project", {
-        project: data[0], // Pass the first element of the data array
-        current_date: currentDate,
-        formattedCost: data[0].project_cost,
-        phases: phasesData,
-        priorities: prioritiesData,
-        sponsors: personsData,
-        primes: personsData,
-        change_reasons,
-      });
-    } catch (err) {
-      console.error("Error retrieving data:", err);
-      res.status(500).send({
-        message: err.message || "Error occurred while retrieving data.",
-      });
+    if (!data || data.length === 0) {
+      return res.status(404).send({ message: "Project not found" });
     }
+
+    // Get reasons for change for the project
+    const change_reasons = await ChangeReason.findAll({
+      where: { company_id_fk: company_id_fk },
+    });
+
+    let lastStatusDate = null;
+    let statusColor = null;
+
+    // Get statuses for the project
+    const statuses = await Status.findAll({
+      where: { project_id_fk: project_id },
+      order: [["status_date", "DESC"]],
+    });
+
+    if (statuses.length > 0) {
+      lastStatusDate = statuses[0].status_date;
+      statusColor = statuses[0].health;
+    }
+
+    const phasesData = await Phase.findAll({
+      order: [["id", "ASC"]],
+    });
+
+    const prioritiesData = await Priority.findAll();
+
+    const tagsData = await Tag.findAll({
+      where: {
+        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      },
+    });
+
+    const personsData = await Person.findAll({
+      where: { company_id_fk: company_id_fk },
+    });
+
+    res.render("Pages/pages-edit-project", {
+      project: data[0],
+      current_date: new Date(), // Ensure current date is passed correctly
+      formattedCost: data[0].project_cost,
+      phases: phasesData,
+      priorities: prioritiesData,
+      sponsors: personsData,
+      primes: personsData,
+      change_reasons,
+      tags: tagsData,
+    });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send({
@@ -650,6 +661,7 @@ exports.findOneForPrime = async (req, res) => {
     });
   }
 };
+
 // exports.findFunnel = async (req, res) => {
 //   console.log("IN THIS 2");
 //   try {
@@ -1127,12 +1139,12 @@ exports.update = async (req, res) => {
         complexity: req.body.complexity,
         effort: req.body.effort,
         benefit: req.body.benefit,
-        project_cost: projectCost, // Assign the parsed project cost
+        project_cost: req.body.project_cost, // Assign the parsed project cost
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
-        tag_1: req.body.tag_1,
-        tag_2: req.body.tag_2,
-        tag_3: req.body.tag_3,
+        tag_1: req.body.tag_1 || 1,
+        tag_2: req.body.tag_2 || 1,
+        tag_3: req.body.tag_3 || 1,
       },
       {
         where: { id: id, company_id_fk: company_id_fk },
@@ -1161,9 +1173,9 @@ exports.update = async (req, res) => {
         project_cost: req.body.project_cost,
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
-        tag_1: req.body.tag_1,
-        tag_2: req.body.tag_2,
-        tag_3: req.body.tag_3,
+        tag_1: req.body.tag_1 || 1,
+        tag_2: req.body.tag_2 || 1,
+        tag_3: req.body.tag_3 || 1,
       };
 
       const changedProject = await ChangeProject.create(newChangedProject);
