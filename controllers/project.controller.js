@@ -67,10 +67,6 @@ exports.create = (req, res) => {
     }).catch((error) => {
       console.log("Error fetching phasesData:", error);
     });
-    const tagsData = await Tag.findAll({
-      where: { company_id_fk: company_id_fk },
-      order: [["id", "ASC"]],
-    });
 
     const [prioritiesData, personsData, projectsData] = await Promise.all([
       Priority.findAll(),
@@ -82,7 +78,6 @@ exports.create = (req, res) => {
         },
       }),
       Project.findAll(),
-      // ChangeReason.findAll()
     ]);
 
     const query =
@@ -102,7 +97,7 @@ exports.create = (req, res) => {
           sponsors: personsData,
           primes: personsData,
           session: req.session,
-          tags: tagsData,
+          // tags: tags,
         });
       })
       .catch((err) => {
@@ -174,15 +169,18 @@ exports.findAllRadar = async (req, res) => {
     res.status(500).json({ message: "Error retrieving projects." });
   }
 };
-// Retrieve all  from the database.
+//Retrieve all  from the database.
+
 exports.findAll = async (req, res) => {
+  console.log("find all");
   try {
-    console.log("findAll");
     try {
       if (!req.session) {
         return res.redirect("/pages-500");
       } else {
+        console.log("req.session.company.id", req.session.company.id);
         company_id_fk = req.session.company.id;
+        company = req.session.company;
       }
     } catch (error) {
       console.log("error:", error);
@@ -190,12 +188,15 @@ exports.findAll = async (req, res) => {
         .status(500)
         .json({ message: "Error retrieving session data." });
     }
-
-    const tagsData = await Tag.findAll({
-      where: { company_id_fk: company_id_fk },
-      order: [["id", "ASC"]],
+    console.log("company_id_fk:", company_id_fk);
+    //
+    const tags = Tag.findAll({
+      where: {
+        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      },
     });
 
+    console.log("tags:", tags.length);
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     });
@@ -203,7 +204,7 @@ exports.findAll = async (req, res) => {
 
     const personsData = await Person.findAll({
       where: {
-        company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
+        company_id_fk: company_id_fk,
       },
     });
 
@@ -217,13 +218,15 @@ exports.findAll = async (req, res) => {
       })
 
       .then((data) => {
+        console.log("data:", data);
         res.render("Pages/pages-projects", {
           projects: data,
           phases: phasesData,
           priorities: priorities,
           sponsors: personsData,
           primes: personsData,
-          tags: tagsData,
+          company,
+          tags,
         });
       })
       .catch((err) => {
@@ -418,11 +421,6 @@ exports.cockpit = async (req, res) => {
         statusColor = "green";
       }
     }
-
-    const tagsData = await Status.findAll({
-      where: { project_id_fk: project_id },
-      order: [["createdAt", "DESC"]],
-    });
 
     res.render("Pages/pages-cockpit", {
       project: data,
@@ -752,7 +750,6 @@ exports.radar = async (req, res) => {
     const totalCost =
       pitchTotalCost +
       discoveryCost +
-      priorityTotalCost +
       priorityTotalCost +
       discoveryCost +
       deliveryTotalCost +

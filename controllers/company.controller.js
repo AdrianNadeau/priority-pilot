@@ -165,7 +165,11 @@ exports.findDefaults = (req, res) => {
       }
       // Handle the result
       //get all tags
-      Tag.findAll({ where: { company_id_fk: company_id_fk } })
+      Tag.findAll({
+        where: {
+          [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+        },
+      })
         .then((tags) => {
           if (!tags) {
             // return res.status(404).send("Tag not found");

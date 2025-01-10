@@ -78,11 +78,17 @@
                           ><i class="mdi mdi-account-location"></i><span> People </span></a
                         >
                       </li>
+                      <li class="has_sub">
+                        <a a href="/help" class="waves-effect" onclick="forwardToHelp();"
+                          ><i class="mdi mdi-help"></i> <span> Help </span>
+                        </a>
+                      </li>
                       <li>
                         <a href="/companies/get/defaults" class="waves-effect"
                           ><i class="dripicons-gear text-muted"></i><span> Defaults </span></a
                         >
                       </li>
+                      
                   <% }else if (person && !person.isAdmin) { %>
                     <li class="has_sub">
                         <a href="/" class="waves-effect"
@@ -91,10 +97,11 @@
                       </li>
                   <% } %>
                   <li class="has_sub">
-                    <a a href="/" class="waves-effect" onclick="forwardToHelp();"
+                    <a a href="/help" class="waves-effect" onclick="forwardToHelp();"
                       ><i class="mdi mdi-help"></i> <span> Help </span>
                     </a>
                   </li>
+                 
         </ul>
                   
         

@@ -67,7 +67,7 @@ app.use(expressLayouts);
 app.use("/", router);
 
 const db = require("./models");
-
+console.log("LOGGING:", process.env.DB_LOGGING);
 // Initialize Sequelize with the connection URL and SSL/TLS options
 const sequelize = new Sequelize(connectionString, {
   dialectOptions: {
@@ -75,6 +75,7 @@ const sequelize = new Sequelize(connectionString, {
       require: true,
       rejectUnauthorized: false, // You may need to set this to false if using a self-signed certificate
     },
+    logging: process.env.DB_LOGGING,
   },
 });
 

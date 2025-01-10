@@ -12,7 +12,6 @@ const isAdminMiddleware = require("./middleware/isAdminMiddleware");
 router.get("/", isAdminMiddleware, async function (req, res) {
   console.log("check session for user to register or send to dashboard");
   let company_id_fk;
-  console.log("SESSION", req.session);
   // Validate session and retrieve company_id_fk
   try {
     if (!req.session.company || !req.session.company.id) {
