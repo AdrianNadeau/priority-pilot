@@ -38,13 +38,14 @@
                                 
                               <div class="form-group needs-validation" novalidate>
                                   <label for="portfolio_effort">Portfolio Effort</label>
-                                  <input type="text" class="form-control" id="portfolio_effort"  name="portfolio_effort" value="<%= company.effort %>" required>
+                                  <input type="text" class="form-control" id="portfolio_effort"  name="portfolio_effort" value="<%= company.effort %>">
                                   <div class="invalid-feedback">
                                       Please Porfolio Effort.
                                   </div>
                               </div>
                               
                             </div>
+                            
                               
                           
                            
@@ -109,8 +110,8 @@
                            
                         <!-- Add more rows and columns if needed -->
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary waves-effect" onclick="window.location.replace('/')">Cancel</button>
-                            <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Add</button>
+                          <button type="button" class="btn btn-secondary waves-effect" onclick="window.location.replace('/')">Cancel</button>
+                          <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Add</button>
                         </div>
                     </form>
                   
