@@ -146,7 +146,6 @@ exports.deleteAll = (req, res) => {
     });
 };
 exports.findDefaults = (req, res) => {
-  console.log("findDefaults************");
   try {
     if (!req.session) {
       return res.redirect("/pages-500");
@@ -157,7 +156,7 @@ exports.findDefaults = (req, res) => {
     console.log("error:", error);
     return res.status(500).json({ message: "Error retrieving session data." });
   }
-  console.log("company_id_fk:", company_id_fk);
+
   Company.findOne({ where: { id: company_id_fk } })
     .then((company) => {
       if (!company) {
@@ -169,6 +168,7 @@ exports.findDefaults = (req, res) => {
         where: {
           [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
         },
+        order: [["tag_name", "ASC"]],
       })
         .then((tags) => {
           if (!tags) {

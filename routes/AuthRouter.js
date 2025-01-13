@@ -25,7 +25,7 @@ Authrouter.get("/register", function (req, res) {
 Authrouter.get("/confirm", function (req, res) {
   res.render("Pages/pages-register-confirm");
 });
-Authrouter.get("Pages/session-expired", function (req, res) {
+Authrouter.get("c", function (req, res) {
   res.render("Pages/pages-session-timeout");
 });
 Authrouter.get("/terms", function (req, res) {
@@ -35,6 +35,10 @@ Authrouter.get("/terms", function (req, res) {
 Authrouter.get("/help", function (req, res) {
   res.render("Pages/pages-help");
 });
+Authrouter.get("/pages-maintenance", function (req, res) {
+  res.render("Pages/pages-maintenance");
+});
+
 Authrouter.post("/register", companies.create);
 Authrouter.post("/auth/login", persons.login);
 
