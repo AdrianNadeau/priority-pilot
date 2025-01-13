@@ -61,7 +61,7 @@
                                         <% } %>
                                         <tr>
 
-                                            <td style="background-color:<%= backgroundColor %>;color:black;font-weight: bold;"><%= project.project_name %></td>
+                                            <td style="background-color:<%= backgroundColor %>;color:black;font-weight: bold;"><%= project.project_name %>&nbsp;<a href="/projects/edit/<%= project.id %>"><i class="mdi mdi-border-color"></i></a></td>
                                             <td><% if (project.start_date) { %><%= new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
                                             <td><% if (project.end_date) { %><%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
                                             <td><% if (project.next_milestone_date) { %><%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
