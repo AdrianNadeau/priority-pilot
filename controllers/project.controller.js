@@ -919,9 +919,6 @@ exports.findFunnel = async (req, res) => {
     const company_id_fk = req.session.company.id;
     const person_id_fk = req.session.person.id;
 
-    console.log("COMPANY::", company_id_fk);
-    console.log("PERSON::", person_id_fk);
-
     const personsData = await Person.findAll({
       where: {
         company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
@@ -1196,5 +1193,3 @@ const formatCost = (cost) => {
   if (cost >= 1_000) return `${(cost / 1_000).toFixed(1)}K`;
   return cost.toString();
 };
-
-// const formatValue = (value) => (value || 0).toLocaleString("en-US");

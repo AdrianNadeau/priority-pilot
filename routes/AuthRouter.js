@@ -33,7 +33,19 @@ Authrouter.get("/terms", function (req, res) {
 });
 
 Authrouter.get("/help", function (req, res) {
-  res.render("Pages/pages-help");
+  //get company id
+  if (!req.session || !req.session.company || !req.session.person) {
+    return res.redirect("/pages-500");
+  }
+
+  const company_id_fk = req.session.company.id;
+  const person_id_fk = req.session.person.id;
+  console.log("company_id_fk", company_id_fk);
+  console.log("company_id_fk", company_id_fk);
+  res.render("Pages/pages-help", {
+    person_id_fk: person_id_fk,
+    company_id_fk: company_id_fk,
+  });
 });
 Authrouter.get("/pages-maintenance", function (req, res) {
   res.render("Pages/pages-maintenance");

@@ -88,9 +88,9 @@
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
-                                    <% if (project.phase_name.trim() === 'Operations') { %>
+                                    <% if (project.phase_name.trim() === 'Done') { %>
                                         <span>
-                                            <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
+                                            <button type="button" onclick="loadProject('<%= project.id %>')" target="blank_" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
                                                 <%= project.project_name %>
                                             </button>
                                         </span>&nbsp;&nbsp;&nbsp;

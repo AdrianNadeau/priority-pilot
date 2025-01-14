@@ -49,16 +49,24 @@
 
         <p class="text-muted text-center">
           <i class="mdi mdi-email"></i>
-          help@prioritypilot.ca
+          <a href=mailto:help@prioritypilot.ca>help@prioritypilot.ca</a>
         </p>
         <p class="text-muted text-center">
-          <p>Please not we will respond to the following serverity of your issue:</p>
+          <p>Please note we will respond to the following serverity of your issue:</p>
          <p> Severity 1: 2-4 hours<br/>
           Severity 2: 24-48 hours<br/>
           Severity 3: Upcoming releases</p>
         </p>
-      </div>
+      </div class="text-center">
+      <div class="text-center"><button type="button" onclick="loadProject('<%=project.id%>')" class="btn btn-light text-center" style="margin-bottom: 10px; border-color: #000000; border-width: 2px;border-radius:10px;">
+        Dashboard
+    </button>
+  </div>
     </div>
   </div>
 </div>
+<script>function loadProject(projectId) {
+  const url = `/project/${projectId}`;
+  window.open(url, '_blank');
+}</script>
 <% include ../Partials/FooterRoot %>
