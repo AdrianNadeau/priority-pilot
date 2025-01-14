@@ -35,13 +35,11 @@ const sessionMiddleware = session({
   saveUninitialized: true,
   rolling: true, // Force regeneration of session ID for each request
 });
-
 app.use(sessionMiddleware);
 
 // Add Authentication Route file with app
 app.use("/", Authrouter);
 app.use("/control", DashboardRouter);
-
 app.use(authMiddleware);
 
 // Set up storage engine
@@ -95,23 +93,6 @@ require("./routes/priority.routes")(app);
 require("./routes/change_reason.routes.js")(app);
 require("./routes/changed_project.routes.js")(app);
 
-// 404 Middleware
-// app.use((req, res, next) => {
-//   // res.send("NO 404");
-//   res.status(404).render("Pages/pages-404", {
-//     error: "Resource not found",
-//     message: `The requested URL ${req.originalUrl} was not found on this server.`,
-//   });
-// });
-
-// 500 Error Handler
-// app.use((err, req, res, next) => {
-//   console.error(err.stack);
-//   res.status(500).render("Pages/session", {
-//     title: "Internal Server Error",
-//     message: "Something went wrong on our end. Please try again later.",
-//   });
-// });
 http.listen(8080, function () {
   console.log("listening on *:8080");
 });
