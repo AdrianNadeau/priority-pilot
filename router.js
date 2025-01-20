@@ -31,12 +31,16 @@ function removeCommasAndConvert(numStr) {
 
 router.get("/", async (req, res) => {
   try {
-    if (req.session.company.id && req.session.company.id > 0) {
+    if (
+      !req.session.company ||
+      !req.session.company.id ||
+      req.session.company.id <= 0
+    ) {
       return res.redirect("/register");
     }
   } catch (error) {
     console.error("Error while fetching data:", error.message, error.stack);
-    // res.status(500).send("Internal Server Error");
+    return res.redirect("/register");
   }
 
   let totalPH = 0;
@@ -52,7 +56,7 @@ router.get("/", async (req, res) => {
   let availablePHColor = "black";
 
   try {
-    // const company_id_fk = req.session.company.id;
+    const company_id_fk = req.session.company.id;
 
     const query = `
       SELECT 
@@ -93,6 +97,28 @@ router.get("/", async (req, res) => {
       type: db.sequelize.QueryTypes.SELECT,
     });
 
+    if (!data || data.length === 0) {
+      console.log("no data, figure out what to do");
+      // const planningPH = phaseData.planning.ph;
+      // phaseData.planning.ph +
+      //   phaseData.discovery.ph +
+      //   phaseData.delivery.ph +
+      //   phaseData.done.ph;
+
+      // return res.render("Dashboard/dashboard1", {
+      //   company_id: company_id_fk,
+      //   projects: [],
+      //   company_id: company_id_fk,
+      //   availableCostColor: "black",
+      //   availablePHColor: "black",
+      //   usedCost: 0,
+      //   usedEffort: 0,
+      //   availableCost: 0,
+      //   totalPH: 0,
+      //   totalAvailPH: 0,
+      //   totalUsedPH: 0,
+      // });
+    }
     // Initialize phase data with default values
     const phaseData = {
       pitch: { count: 0, cost: 0, ph: 0 },

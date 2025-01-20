@@ -101,6 +101,7 @@ exports.findAll = async (req, res) => {
 
 // Login user
 exports.login = async (req, res) => {
+  console.log("Logging in user...");
   try {
     const { email, password } = req.body;
 
@@ -110,18 +111,10 @@ exports.login = async (req, res) => {
 
     const company = await Company.findByPk(person.company_id_fk);
     if (!company) return res.redirect("/login");
-
-    req.session.regenerate((err) => {
-      if (err) {
-        console.error("Error regenerating session:", err);
-        return res.status(500).send("Internal Server Error");
-      }
-
-      req.session.company = company;
-      req.session.person = person;
-      console.log("Redirecting to Dashboard...");
-      res.redirect("/");
-    });
+    req.session.company = company;
+    req.session.person = person;
+    console.log("Redirecting to Dashboard...");
+    res.redirect("/");
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).send({
