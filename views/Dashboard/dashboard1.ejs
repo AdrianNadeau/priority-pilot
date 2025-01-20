@@ -65,7 +65,7 @@
                     <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Deliver</strong> (<%= delivery.count %>, $<%= delivery.cost %>, <%= delivery.ph %> PH)</span>
+                                <span class="counter"><strong>Delivery</strong> (<%= delivery.count %>, $<%= delivery.cost %>, <%= delivery.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -74,7 +74,7 @@
                                             <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
                                                 <%= project.project_name %>
                                             </button>
-                                        </span>&nbsp;&nbsp;&nbsp;
+                                        </span>
                                     <% } %>
                                 <% }); %>
                             </div>
@@ -84,7 +84,7 @@
                     <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Done</strong> (<%= operations.count %>, $<%= operations.cost %>, <%= operations.ph %> PH)</span>
+                                <span class="counter"><strong>Done</strong> (<%= operations.count %>, $<%=  %>, <%= operations.ph %> PH)</span>
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
@@ -134,24 +134,18 @@
                         <div class="col-md-12">
                             <strong>$$</strong>
                             <ul class="list-unstyled">
-                                <li>Full: $<%= portfolio_budget %></li>
+                                <li>Full: $<%= totalCost %></li>
                                 <li>Used: $<%= usedCost %></li>
-                                <% if (availableCost < 0) { %>
-                                    <li>Avail: <span style="color: red; font-weight:900px;"><strong>$<%= availableCost %></strong></span></li>
-                                <% } else { %>
-                                    <li>Avail: <span style="color: green;font-weight:900px;"><strong>$<%= availableCost %></strong></span></li>
-                                <% } %>
+                                <li>Avail: <span style="color: <%= availableCostColor %>; font-weight:900px;"><strong>$<%= availableCost %></strong></span></li>
+                                
                             </ul>
                             <strong>Effort</strong>
                             <ul class="list-unstyled">
-                                <li>Full: <%= portfolio_effort %> PH</li>
+                                <li>Full: <%= totalPH %> PH</li>
                                 <li>Used: <%= totalUsedPH %> PH</li>
-                                <% if (totalAvailPH < 0) { %>
-                                    <li>Avail: <span style="color: red; font-weight:900px;"><strong>$<%= totalAvailPH %></strong></span></li>
-                                <% } else { %>
-                                    <li>Avail: <span style="color: green;font-weight:900px;"><strong>$<%= totalAvailPH %></strong></span></li>
-                                <% } %>
-                               
+                                
+                                    <li>Avail: <span style="color: <%= availablePHColor %>;; font-weight:900px;"><strong><%= totalAvailPH %></strong></span></li>
+                                
                             </ul>
                         </div>
                     </div>

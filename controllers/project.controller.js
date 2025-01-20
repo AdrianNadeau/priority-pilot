@@ -351,14 +351,19 @@ exports.cockpit = async (req, res) => {
     } catch (error) {
       console.log("Cockpit Changed Projects error:", error);
     }
+
     // Fetch tags for each project
-    const formattedTags =
-      data[0].tag_1_name +
-      ", " +
-      data[0].tag_2_name +
-      ", " +
-      data[0].tag_3_name;
-    console.log("formattedTags:", data.tag_1_name);
+    let formattedTags = "";
+
+    if (data.tag_1_name) {
+      formattedTags = data.tag_1_name;
+    }
+    if (data.tag_2_name) {
+      formattedTags += data.tag_2_name;
+    }
+    if (data.tag_3_name) {
+      formattedTags += data.tag_3_name;
+    }
     const statuses = await Status.findAll({
       where: { project_id_fk: project_id },
       order: [["status_date", "DESC"]],
@@ -496,8 +501,6 @@ proj.company_id_fk = ? AND proj.id = ?`;
         },
       });
 
-      const formattedTags = `${data[0].tag_1}, ${data[0].tag_2}, ${data[0].tag_3}`;
-      console.log("formattedTags:", formattedTags);
       res.render("Pages/pages-edit-project", {
         project: data[0], // Pass the first element of the data array
         current_date: currentDate,
@@ -508,7 +511,6 @@ proj.company_id_fk = ? AND proj.id = ?`;
         primes: personsData,
         change_reasons,
         tags: tagsData,
-        formattedTags: formattedTags,
       });
     } catch (err) {
       console.error("Error retrieving data:", err);
@@ -701,6 +703,7 @@ exports.radar = async (req, res) => {
     const discoveryCount = Number(data[0].phase_3_count);
     const deliveryCount = Number(data[0].phase_3_count);
     const operationsCount = Number(data[0].phase_4_count);
+    console.log("operationsCount:", operationsCount);
     const pitchTotalCost = formatCost(Number(data[0].phase_1_total_cost) || 0);
     const priorityTotalCost = formatCost(
       Number(data[0].phase_2_total_cost) || 0,
@@ -730,7 +733,7 @@ exports.radar = async (req, res) => {
       pitchCount,
       priorityCount,
       discoveryCount,
-      operationsCount: in_flight_count,
+      // operationsCount: in_flight_count,
       pitchCost: pitchTotalCost,
       priorityCost: priorityTotalCost,
       in_flight_count: in_flight_count,
@@ -880,14 +883,6 @@ exports.flight = async (req, res) => {
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
   });
-
-  // // Render the page with the query results
-  // res.render("Pages/pages-flight-plan", {
-  //   projects: data,
-  //   currentDate: moment().format("MMMM Do YYYY"),
-  //   // other data you need to pass to the template
-  // });
-
   try {
     // Execute the query
     const data = await db.sequelize.query(query, {
@@ -1031,7 +1026,7 @@ exports.health = async (req, res) => {
   const companyProjects = await Project.findAll({
     where: { company_id_fk: company_id_fk },
   });
-  console.log("PROJECTS:", companyProjects);
+
   res.render("Pages/pages-health", {
     projects: companyProjects,
     currentDate: moment().format("MMMM Do YYYY"),
@@ -1044,13 +1039,11 @@ exports.update = async (req, res) => {
     console.log(req.body);
     // Parse and assign the project cost
     const projectCost = parseFloat(req.body.project_cost);
-    console.log("PROJECT COST1:", req.body.project_cost);
     if (isNaN(projectCost)) {
       return res.status(400).send({
         message: "Invalid project cost. Please enter a valid number.",
       });
     }
-    console.log("PROJECT COST2:", projectCost);
     // Ensure session exists and fetch company ID
     const id = req.params.id;
     if (!req.session || !req.session.company) {
@@ -1094,9 +1087,9 @@ exports.update = async (req, res) => {
         project_cost: req.body.project_cost, // Assign the parsed project cost
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,
-        tag_1: req.body.tag_1 || 1,
-        tag_2: req.body.tag_2 || 1,
-        tag_3: req.body.tag_3 || 1,
+        tag_1: req.body.tag_1 || 0,
+        tag_2: req.body.tag_2 || 0,
+        tag_3: req.body.tag_3 || 0,
       },
       {
         where: { id: id, company_id_fk: company_id_fk },
@@ -1120,8 +1113,8 @@ exports.update = async (req, res) => {
         phase_id_fk: req.body.phase_id_fk,
         impact: req.body.impact,
         complexity: req.body.complexity,
-        effort: req.body.effort ?? 0,
-        benefit: req.body.benefit ?? 0,
+        effort: req.body.effort || 0,
+        benefit: req.body.benefit || 0,
         project_cost: req.body.project_cost,
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,

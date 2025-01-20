@@ -44,6 +44,7 @@
                             <label for="project_what">What?</label>
                             <textarea rows="4" class="form-control" id="project_what" name="project_what"><%= project.project_what %></textarea>
                         </div>
+                        
                         <div class="form-group">
                             <label for="start_date">Start Date (YYYY-MM-DD):</label>
                             <input type="date" class="form-control" id="start_date" name="start_date" value="<%= project.start_date ? project.start_date.toISOString().split('T')[0] : '' %>">
@@ -121,6 +122,7 @@
                         <div class="form-group">
                             <label for="tag_1">Tag 1:</label>
                             <select name="tag_1" id="tag_1" class="form-control">
+                                <option value="0" selected>None</option>
                                 <% if (tags && tags.length > 0) { %>
                                     <% tags.forEach(function(tag) { %>
                                         <% if (project.tag_1 == tag.id) { %>
@@ -137,6 +139,7 @@
                         <div class="form-group">
                             <label for="tag_2">Tag 2:</label>
                             <select name="tag_2" id="project_tag2" class="form-control">
+                                <option value="0" selected>None</option>
                                 <% if (tags && tags.length > 0) { %>
                                     <% tags.forEach(function(tag) { %>
                                         <% if (project.tag_2 == tag.id) { %>
@@ -153,6 +156,7 @@
                         <div class="form-group">
                             <label for="tag_3">Tag 3:</label>
                             <select name="tag_3" id="tag_3" class="form-control">
+                                <option value="0" selected>None</option>
                                 <% if (tags && tags.length > 0) { %>
                                     <% tags.forEach(function(tag) { %>
                                         <% if (project.tag_3 == tag.id) { %>
@@ -334,4 +338,10 @@ function cancelForm(){
   
   window.location.replace("/projects");
 }
+const startDate = {'start_date': {anyDate: true}};
+  new DeskyCalendar(startDate);
+  const endDate = {'end_date': {anyDate: true}};
+  new DeskyCalendar(endDate);
+  const milestoneDate = {'next_milestone_date': {anyDate: true}};
+  new DeskyCalendar(milestoneDate);
 </script>

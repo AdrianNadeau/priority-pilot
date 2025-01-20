@@ -4,43 +4,47 @@ const router = express.Router();
 const db = require("./models");
 const Project = db.projects;
 const Company = db.companies;
-const Op = db.Sequelize.Op;
+const { Op, fn, col, literal } = require("sequelize");
+const { format } = require("sequelize/lib/utils");
 
-const isAdminMiddleware = require("./middleware/isAdminMiddleware");
-
-// Dashboard
-router.get("/", isAdminMiddleware, async function (req, res) {
-  console.log("check session for user to register or send to dashboard");
-  let company_id_fk;
-  // Validate session and retrieve company_id_fk
-  try {
-    if (!req.session.company || !req.session.company.id) {
-      throw new Error("Invalid session");
-    }
-    company_id_fk = req.session.company.id;
-  } catch (error) {
-    console.error("SESSION INVALID");
-    return res.redirect("/register");
+// Function to format numbers with K, M, B
+function formatToKMB(num) {
+  if (typeof num !== "number") {
+    num = parseFloat(num) || 0;
   }
+  const isNegative = num < 0;
+  num = Math.abs(num);
 
-  // Validate person and check if admin
-  const person = req.session.person;
-  if (!person) {
-    return res.redirect("/register");
+  if (num >= 1e9) return (isNegative ? "-" : "") + (num / 1e9).toFixed(2) + "B";
+  if (num >= 1e6) return (isNegative ? "-" : "") + (num / 1e6).toFixed(2) + "M";
+  if (num >= 1e3) return (isNegative ? "-" : "") + (num / 1e3).toFixed(2) + "K"; // No decimal if whole number
+  return (isNegative ? "-" : "") + num.toFixed(2);
+}
+
+// Function to remove commas and convert to number
+function removeCommasAndConvert(numStr) {
+  if (typeof numStr !== "string") {
+    numStr = numStr.toString();
   }
-  const isAdmin = person.isAdmin;
+  return parseFloat(numStr.replace(/,/g, ""));
+}
+
+router.get("/", async (req, res) => {
+  let totalPH = 0;
+  let totalUsedPH = 0;
+  // let totalAvailPH = 0;
+  let availablePH = 0;
+
+  let totalCost = 0;
+  let usedCost = 0;
+  let availableCost = 0;
+
+  let availableCostColor = "black";
+  let availablePHColor = "black";
 
   try {
-    // Get company by ID
-    const company = await Company.findByPk(company_id_fk);
-    if (!company) {
-      throw new Error("Company not found");
-    }
+    const company_id_fk = req.session.company.id;
 
-    const portfolio_budget = convertToNumber(company?.portfolio_budget || 0);
-    const portfolio_effort = convertToNumber(company?.effort || 0);
-
-    // Custom SQL query to retrieve detailed project info
     const query = `
       SELECT 
         proj.company_id_fk, 
@@ -49,13 +53,15 @@ router.get("/", isAdminMiddleware, async function (req, res) {
         proj.start_date, 
         proj.end_date,
         proj.health, 
-        proj.effort AS effort, 
+        proj.effort, 
         prime_person.first_name AS prime_first_name,
         prime_person.last_name AS prime_last_name, 
         sponsor_person.first_name AS sponsor_first_name,
         sponsor_person.last_name AS sponsor_last_name, 
         proj.project_cost, 
-        phases.phase_name 
+        phases.phase_name,
+        companies.portfolio_budget AS company_budget,
+        companies.effort AS company_effort
       FROM 
         projects proj
       LEFT JOIN 
@@ -90,16 +96,30 @@ router.get("/", isAdminMiddleware, async function (req, res) {
     let totalPH = 0;
     let usedCost = 0;
 
+    // Retrieve portfolio_budget and portfolio_effort from the first record
+    const portfolio_budget = data[0].company_budget
+      ? removeCommasAndConvert(data[0].company_budget)
+      : 0;
+
+    const portfolio_effort = data[0].company_effort
+      ? removeCommasAndConvert(data[0].company_effort)
+      : 0;
+
+    console.log("portfolio_budget", portfolio_budget);
+    console.log("company_effort:", portfolio_effort);
+
     // Process data and calculate totals
     data.forEach((project) => {
-      const projectCost =
-        parseFloat(project.project_cost.replace(/,/g, "")) || 0;
+      const projectCost = project.project_cost
+        ? removeCommasAndConvert(project.project_cost) || 0
+        : 0;
       const projectEffortPH = parseInt(project.effort) || 0;
 
       totalPH += projectEffortPH;
 
       // Categorize by phase name and accumulate values
       const phase = project.phase_name?.toLowerCase() || "unknown";
+
       if (phaseData[phase]) {
         phaseData[phase].count++;
         phaseData[phase].cost += projectCost;
@@ -109,59 +129,118 @@ router.get("/", isAdminMiddleware, async function (req, res) {
       }
     });
 
-    // Calculate usedCost and availableCost
+    // Calculate usedCost and totalCost
     usedCost =
       phaseData.planning.cost +
       phaseData.discovery.cost +
       phaseData.delivery.cost +
       phaseData.done.cost;
 
+    totalCost = portfolio_budget;
+
     usedEffort =
       phaseData.planning.ph +
       phaseData.discovery.ph +
       phaseData.delivery.ph +
       phaseData.done.ph;
-    const availableCost = portfolio_budget - usedCost;
 
-    const availableEffort = portfolio_effort - usedEffort;
+    console.log("usedEffort:", usedEffort);
+    totalPH = portfolio_effort;
+    console.log("totalPH", totalPH);
 
+    let totalAvailPH = portfolio_effort - usedEffort;
+    console.log("totalAvailPH:", totalAvailPH);
+    // Calculate availableCost
+    let availableCost = totalCost - usedCost;
+    console.log("availableCost:", availableCost);
+
+    // Ensure availableCost is a valid number
+    if (isNaN(availableCost)) {
+      availableCostColor = "black";
+    }
+
+    if (availableCost < 0) {
+      availableCostColor = "red";
+    } else {
+      availableCostColor = "green";
+    }
+    if (isNaN(availablePHColor)) {
+      availablePHColor = "black";
+    }
+
+    if (totalAvailPH < 0) {
+      availablePHColor = "red";
+    } else {
+      availablePHColor = "green";
+    }
+    const formattedData = {
+      totalPH: formatToKMB(totalPH),
+      totalUsedPH: formatToKMB(usedEffort),
+      totalAvailPH: formatToKMB(totalAvailPH),
+      pitch: {
+        count: phaseData.pitch.count,
+        cost: formatToKMB(phaseData.pitch.cost),
+        ph: formatToKMB(phaseData.pitch.ph.toLocaleString()),
+      },
+      planning: {
+        count: phaseData.planning.count,
+        cost: formatToKMB(phaseData.planning.cost),
+        ph: phaseData.planning.ph.toLocaleString(),
+      },
+      discovery: {
+        count: phaseData.discovery.count,
+        cost: formatToKMB(phaseData.discovery.cost),
+        ph: phaseData.discovery.ph.toLocaleString(),
+      },
+      delivery: {
+        count: phaseData.delivery.count,
+        cost: formatToKMB(phaseData.delivery.cost),
+        ph: phaseData.delivery.ph.toLocaleString(),
+      },
+      operations: {
+        count: phaseData.done.count,
+        cost: formatToKMB(phaseData.done.cost),
+        ph: phaseData.done.ph.toLocaleString(),
+      },
+      totalCost: formatToKMB(totalCost),
+      totalPH: formatToKMB(totalPH),
+      // totalPH: portfolio_effort.toLocaleString(),
+      usedCost: formatToKMB(usedCost),
+      availablePH: formatToKMB(totalAvailPH),
+      availableCost: formatToKMB(availableCost),
+    };
+    console.log("availablePH:", availablePH);
+    // Ensure availableCost is a valid number
+    if (isNaN(availablePH)) {
+      availablePH = 0;
+    }
+
+    if (availablePH < 0) {
+      availableCostColor = "red";
+    } else {
+      availableCostColor = "green";
+    }
+    // console.log("totalCost:", formattedData.totalCost);
+    // console.log("usedCost:", formattedData.usedCost);
+    // console.log("availableCost:", formattedData.availableCost);
+
+    // console.log("totalEffort:", portfolio_effort);
+    // console.log("usedEffort:", usedEffort);
+    // console.log("totalAvailPH:", totalAvailPH);
+
+    // Send the response
     res.render("Dashboard/dashboard1", {
       company_id: company_id_fk,
       projects: data,
-      totalPH: formatCost(totalPH),
-      totalAvailPH: formatCost(phaseData.done.ph),
-      totalUsedPH: formatCost(totalPH - phaseData.done.ph),
-      planningCount: phaseData.planning.count,
-      pitch: {
-        count: formatValue(phaseData.pitch.count),
-        cost: formatCost(phaseData.pitch.cost),
-        ph: formatCost(phaseData.pitch.ph),
-      },
-      planning: {
-        count: formatValue(phaseData.planning.count),
-        cost: formatCost(phaseData.planning.cost),
-        ph: formatCost(phaseData.planning.ph),
-      },
-      discovery: {
-        count: formatValue(phaseData.discovery.count),
-        cost: formatCost(phaseData.discovery.cost),
-        ph: formatValue(phaseData.discovery.ph),
-      },
-      delivery: {
-        count: formatValue(phaseData.delivery.count),
-        cost: formatCost(phaseData.delivery.cost),
-        ph: formatValue(phaseData.delivery.ph),
-      },
-      operations: {
-        count: formatValue(phaseData.done.count),
-        cost: formatCost(phaseData.done.cost),
-        ph: formatValue(phaseData.done.ph),
-      },
-      portfolio_budget: formatCost(portfolio_budget),
-      portfolio_effort: formatCost(portfolio_effort),
-      usedCost: formatCost(usedCost),
-      availableCost: formatCost(availableCost),
-      totalAvailPH: formatCost(availableEffort),
+      ...formattedData,
+      availableCostColor,
+      availablePHColor,
+      usedCost: formatToKMB(usedCost),
+      usedEffort: formatToKMB(usedEffort),
+      availableCost: formatToKMB(availableCost),
+      totalPH: formatToKMB(totalPH),
+      totalAvailPH: formatToKMB(totalAvailPH),
+      totalUsedPH: formatToKMB(usedEffort),
     });
   } catch (error) {
     console.error("Error while fetching data:", error.message, error.stack);
@@ -169,22 +248,6 @@ router.get("/", isAdminMiddleware, async function (req, res) {
   }
 });
 
-// Helper functions
-const formatCost = (cost) => {
-  if (cost === null || cost === undefined) return "0";
-  if (cost >= 1_000_000_000) return `${(cost / 1_000_000_000).toFixed(1)}B`;
-  if (cost >= 1_000_000) return `${(cost / 1_000_000).toFixed(1)}M`;
-  if (cost >= 1_000) return `${(cost / 1_000).toFixed(1)}K`;
-  return cost.toString();
-};
-
-const convertToNumber = (value) => {
-  if (typeof value === "number") return value;
-  if (typeof value === "string")
-    return parseFloat(value.replace(/,/g, "")) || 0;
-  return 0;
-};
-
-const formatValue = (value) => (value || 0).toLocaleString("en-US");
+module.exports = router;
 
 module.exports = router;
