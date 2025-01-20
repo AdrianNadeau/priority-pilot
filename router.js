@@ -30,6 +30,15 @@ function removeCommasAndConvert(numStr) {
 }
 
 router.get("/", async (req, res) => {
+  try {
+    if (req.session.company.id && req.session.company.id > 0) {
+      return res.redirect("/register");
+    }
+  } catch (error) {
+    console.error("Error while fetching data:", error.message, error.stack);
+    // res.status(500).send("Internal Server Error");
+  }
+
   let totalPH = 0;
   let totalUsedPH = 0;
   // let totalAvailPH = 0;
@@ -43,7 +52,7 @@ router.get("/", async (req, res) => {
   let availablePHColor = "black";
 
   try {
-    const company_id_fk = req.session.company.id;
+    // const company_id_fk = req.session.company.id;
 
     const query = `
       SELECT 
