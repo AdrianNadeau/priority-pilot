@@ -98,26 +98,7 @@ router.get("/", async (req, res) => {
     });
 
     if (!data || data.length === 0) {
-      console.log("no data, figure out what to do");
-      // const planningPH = phaseData.planning.ph;
-      // phaseData.planning.ph +
-      //   phaseData.discovery.ph +
-      //   phaseData.delivery.ph +
-      //   phaseData.done.ph;
-
-      // return res.render("Dashboard/dashboard1", {
-      //   company_id: company_id_fk,
-      //   projects: [],
-      //   company_id: company_id_fk,
-      //   availableCostColor: "black",
-      //   availablePHColor: "black",
-      //   usedCost: 0,
-      //   usedEffort: 0,
-      //   availableCost: 0,
-      //   totalPH: 0,
-      //   totalAvailPH: 0,
-      //   totalUsedPH: 0,
-      // });
+      return res.redirect("/projects");
     }
     // Initialize phase data with default values
     const phaseData = {
@@ -193,8 +174,7 @@ router.get("/", async (req, res) => {
     if (isNaN(availableCost)) {
       availableCostColor = "black";
     }
-
-    if (availableCost < 0) {
+    if (availableCost <= 0) {
       availableCostColor = "red";
     } else {
       availableCostColor = "green";
@@ -202,7 +182,15 @@ router.get("/", async (req, res) => {
     if (isNaN(availablePHColor)) {
       availablePHColor = "black";
     }
+    if (totalAvailPH < 0) {
+      availablePHColor = "red";
+    } else {
+      availablePHColor = "green";
+    }
 
+    if (isNaN(availablePHColor)) {
+      availablePHColor = "black";
+    }
     if (totalAvailPH < 0) {
       availablePHColor = "red";
     } else {
@@ -244,12 +232,11 @@ router.get("/", async (req, res) => {
       availablePH: formatToKMB(totalAvailPH),
       availableCost: formatToKMB(availableCost),
     };
-    console.log("availablePH:", availablePH);
+
     // Ensure availableCost is a valid number
     if (isNaN(availablePH)) {
       availablePH = 0;
     }
-
     if (availablePH < 0) {
       availableCostColor = "red";
     } else {
@@ -262,7 +249,8 @@ router.get("/", async (req, res) => {
     // console.log("totalEffort:", portfolio_effort);
     // console.log("usedEffort:", usedEffort);
     // console.log("totalAvailPH:", totalAvailPH);
-
+    console.log("availableCostColor:", availableCostColor);
+    console.log("availablePHColor:", availablePHColor);
     // Send the response
     res.render("Dashboard/dashboard1", {
       company_id: company_id_fk,

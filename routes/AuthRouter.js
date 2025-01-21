@@ -34,8 +34,12 @@ Authrouter.get("/terms", function (req, res) {
 
 Authrouter.get("/help", function (req, res) {
   //get company id
+  let sessionValid = false;
   if (!req.session || !req.session.company || !req.session.person) {
     return res.redirect("/pages-500");
+  } else {
+    sessionValid = true;
+    console.log("SESSION IS VALID SHOW ROADMAP");
   }
 
   const company_id_fk = req.session.company.id;
@@ -44,6 +48,7 @@ Authrouter.get("/help", function (req, res) {
   res.render("Pages/pages-help", {
     person_id_fk: person_id_fk,
     company_id_fk: company_id_fk,
+    sessionValid,
   });
 });
 // Authrouter.get("/pages-maintenance", function (req, res) {

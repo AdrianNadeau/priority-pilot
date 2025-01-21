@@ -184,6 +184,7 @@
   </div>
 </div>
 </div>
+
 <div class="row"></div>
   <div class="col-md-6 m-t-30">
       <!-- project modal content -->
@@ -256,6 +257,7 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
   </div>
+ 
   <div class="row"></div>
   <div class="col-md-6 m-t-30">
       <!-- project modal content -->
@@ -286,6 +288,7 @@
         </div>
       </div>
     </div><!-- /.modal -->
+     
   </div>
   <div id="viewStatusModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="viewStatusModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -333,7 +336,6 @@
     fetch(`/statuses/${id}`)
     .then(response => response.json())
     .then(data => {
-      console.log("status data: ", data);
       // all working
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;

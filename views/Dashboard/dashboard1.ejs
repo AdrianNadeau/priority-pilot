@@ -118,7 +118,7 @@
                         </button>
                     </div>
                     <div>
-                        <button type="button" class="btn btn-light" style="min-height: 55px;margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 200px;" onClick="loadFlightPlan();">
+                        <button type="button" class="btn btn-light" style="min-height: 55px;margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 200px;" onClick="loadRadar();">
                             Health Check
                             
                         </button>
@@ -182,6 +182,11 @@
   }
   function loadRadar() {
     window.location.replace('/cockpitradar/<%= company_id %>/radar');
+    // window.location.replace('/cockpitradar/808/radar');
+    window.location.replace('/projects/radar/view/');
+  }
+  function loadHealth() {
+    // window.location.replace('/cockpitradar/<%= company_id %>/radar');
     // window.location.replace('/cockpitradar/808/radar');
     window.location.replace('/projects/radar/view/');
   }

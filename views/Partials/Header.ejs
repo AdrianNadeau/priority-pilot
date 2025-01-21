@@ -93,8 +93,8 @@
                       </li>
                   <% } %>
                   <li class="has_sub">
-                    <a a href="/help" class="waves-effect" onclick="forwardToHelp();"
-                      ><i class="mdi mdi-help"></i> <span> Help </span>
+                    <a href="/help" class="waves-effect" onclick="window.open('/help');return false;" target="_blank">
+                      <i class="mdi mdi-help"></i> <span> Help </span>
                     </a>
                   </li>
                  
@@ -112,7 +112,5 @@
   function forwardToDashboard() {
     window.location.replace("/");
   }
-  function forwardToHelp() {
-    window.location.replace("/help");
-  }
+
 </script>

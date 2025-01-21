@@ -63,8 +63,10 @@
     </button>
 
     <br/>
-    <strong><a href="https://public.3.basecamp.com/p/jPKkVRmbr1eLs8S1RUtJUCpq
-      " target="_blank">View the Priority Product Roadmap</a></strong>
+    <!-- check if value passed confirms logged in -->
+    <% if (sessionValid && sessionValid == true) { %>
+      <strong><a href="https://public.3.basecamp.com/p/jPKkVRmbr1eLs8S1RUtJUCpq" target="_blank">View the Priority Product Roadmap</a></strong>
+    <% } %>
   </div>
     </div>
   </div>
