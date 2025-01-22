@@ -46,15 +46,15 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="start_date">Start Date (YYYY-MM-DD):</label>
-                            <input type="date" class="form-control" id="start_date" name="start_date" value="<%= project.start_date ? project.start_date.toISOString().split('T')[0] : '' %>">
+                            <label for="start_date">Start Date:</label><%= project.start_date ? project.start_date.toISOString().split('T')[0] : '' %>
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="2025-01-01">
                         </div>
                         <div class="form-group">
-                            <label for="end_date">End Date (YYYY-MM-DD):</label>
+                            <label for="end_date">End Date:</label>
                             <input type="date" class="form-control" id="end_date" name="end_date" value="<%= project.end_date ? project.end_date.toISOString().split('T')[0] : '' %>">
                         </div>
                         <div class="form-group">
-                            <label for="next_milestone_date">Next Milestone Date (YYYY-MM-DD):</label>
+                            <label for="next_milestone_date">Next Milestone Date:</label>
                             <input type="date" class="form-control" id="next_milestone_date" name="next_milestone_date" value="<%= project.next_milestone_date ? project.next_milestone_date.toISOString().split('T')[0] : '' %>">
                         </div>
                     </div>

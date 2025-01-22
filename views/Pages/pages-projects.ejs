@@ -1,8 +1,15 @@
 <%- contentFor('HeaderCss') %>
-<!-- Bootstrap CSS -->
 <style>
-  #pitch_message {
-      display: none;
+  .form-group-inline {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  .form-group-inline label {
+    margin-right: 10px;
+  }
+  .form-group-inline select {
+    margin-right: 10px;
   }
 </style>
 
@@ -46,8 +53,8 @@
                                
                                 <% projects.forEach(function(project) { %>
                                   <tbody>
-                                      <tr style="cursor: pointer;">
-                                        <td style="display: none;"><%= project.id %></td>
+                                    <tr style="cursor: pointer;">
+                                      <td style="display: none;"><%= project.id %></td>
                                           
                                           <td><%= project.project_name %></td>
                               
@@ -100,65 +107,123 @@
                               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                           </div>
                           <div class="modal-body">
-                              <form action="/projects" class="needs-validation" novalidate method="POST">
-                                <div class="container">
+                            <div class="container">
+                              <div class="container">
+                                <form action="/projects" class="needs-validation" novalidate method="POST">
                                   <div class="row">
                                     <div class="col-md-6">
-                                      <!-- First column of form fields -->
+                                      <!-- Left Column -->
                                       <div class="form-group">
-                                        <label for="project_name">Name</label>
+                                        <label for="project_name">Project Name:</label>
                                         <input type="text" class="form-control" id="project_name" name="project_name" required>
-                                        <div class="invalid-feedback">
-                                          Please enter project name.
+                                        <div class="invalid-feedback">Please enter project name.</div>
+                                      </div>
+                                      <div class="form-group">
+                                        <label for="headline">Headline:</label>
+                                        <input type="text" class="form-control" id="headline" name="headline">
+                                      </div>
+                                      <div class="form-group">
+                                        <label for="why">Why:</label>
+                                        <textarea class="form-control" id="why" name="why"></textarea>
+                                      </div>
+                                      <div class="form-group">
+                                        <label for="what">What:</label>
+                                        <textarea class="form-control" id="what" name="what"></textarea>
+                                      </div>
+                                      <div class="form-group">
+                                        <label for="start_date_year">Start Date:</label>
+                                        <div class="form-row">
+                                          <div class="col">
+                                            <select id="start_date_year" name="start_date_year" class="form-control form-control-wide">
+                                              <option value="0" selected>Select...</option>
+                                              <% 
+                                                const currentYear = new Date().getFullYear();
+                                                const years = [];
+                                                for (let i = currentYear - 10; i <= currentYear + 5; i++) {
+                                                  years.push(i);
+                                                }
+                                              %>
+                                              <% years.forEach(year => { %>
+                                                <option value="<%= year %>"><%= year %></option>
+                                              <% }); %>
+                                            </select>
+                                          </div>
+                                          <div class="col">
+                                            <select id="start_date_month" name="start_date_month" class="form-control form-control-wide">
+                                              <option value="0" selected>Select...</option>
+                                              <% const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; %>
+                                              <% monthsOfYear.forEach(month => { %>
+                                                <option value="<%= month %>"><%= month %></option>
+                                              <% }); %>
+                                            </select>
+                                          </div>
+                                          <div class="col">
+                                            <select id="start_date_day" name="start_date_day" class="form-control form-control-wide">
+                                              <option value="0" selected>Select...</option>
+                                              <!-- Days will be populated by JavaScript -->
+                                            </select>
+                                          </div>
                                         </div>
                                       </div>
                                       <div class="form-group">
-                                        <label for="project_headline">Headline</label>
-                                        <input type="text" class="form-control" id="project_headline" name="project_headline">
-                                      </div>
-                                     
-                                        <div class="form-group">
-                                          <label for="project_why">Why?</label>
-                                          <textarea rows="4" class="form-control" id="project_why" name="project_why"></textarea>
-                                        </div>
-                                        <div class="form-group">
-                                          <label for="project_what">What?</label>
-                                          <textarea rows="4" class="form-control" id="project_what" name="project_what"></textarea>
-                                        </div>
-                                       <div id="leftElements">
-                                          <div class="form-group">
-                                            
-                                            
-                                            <label for="start_date">Start Date:</label>
-                                            <input type="text" id="start_date" name="start_date" >
-                                          
-                                            <!-- <input type="text" class="form-control" id="start_date" name="start_date" placeholder="yyyy-mm-dd"> -->
+                                        <label for="end_date_year">End Date:</label>
+                                        <div class="form-row">
+                                          <div class="col">
+                                            <select id="end_date_year" name="end_date_year" class="form-control form-control-wide">
+                                              <option value="0" selected>Select...</option>
+                                              <% years.forEach(year => { %>
+                                                <option value="<%= year %>"><%= year %></option>
+                                              <% }); %>
+                                            </select>
                                           </div>
-                                          <div class="form-group">
-                                            
-                                            
-                                            <label for="end_date">End Date:</label>
-                                            <input type="text" id="end_date" name="end_date" >
-                                          
-                                            <!-- <input type="text" class="form-control" id="start_date" name="start_date" placeholder="yyyy-mm-dd"> -->
+                                          <div class="col">
+                                            <select id="end_date_month" name="end_date_month" class="form-control form-control-wide">
+                                              <option value="0" selected>Select...</option>
+                                              <% monthsOfYear.forEach(month => { %>
+                                                <option value="<%= month %>"><%= month %></option>
+                                              <% }); %>
+                                            </select>
                                           </div>
-                                          <div class="form-group">
-                                            
-                                            
-                                            <label for="end_date">Next Milestone Date:</label>
-                                            <input type="text" id="next_milestone_date" name="next_milestone_date" >
-                                          
-                                            <!-- <input type="text" class="form-control" id="start_date" name="start_date" placeholder="yyyy-mm-dd"> -->
+                                          <div class="col">
+                                            <select id="end_date_day" name="end_date_day" class="form-control form-control-wide">
+                                              <option value="0" selected>Select...</option>
+                                              <!-- Days will be populated by JavaScript -->
+                                            </select>
                                           </div>
-                                          
                                         </div>
                                       </div>
-                                    
-                                
+                                      <div class="form-group">
+                                        <label for="next_milestone_year">Next Milestone Date:</label>
+                                        <div class="form-row">
+                                          <div class="col">
+                                            <select id="next_milestone_year" name="next_milestone_year" class="form-control form-control-wide">
+                                              <option value="0" selected>Select...</option>
+                                              <% years.forEach(year => { %>
+                                                <option value="<%= year %>"><%= year %></option>
+                                              <% }); %>
+                                            </select>
+                                          </div>
+                                          <div class="col">
+                                            <select id="next_milestone_month" name="next_milestone_month" class="form-control form-control-wide">
+                                              <option value="0" selected>Select...</option>
+                                              <% monthsOfYear.forEach(month => { %>
+                                                <option value="<%= month %>"><%= month %></option>
+                                              <% }); %>
+                                            </select>
+                                          </div>
+                                          <div class="col">
+                                            <select id="next_milestone_day" name="next_milestone_day" class="form-control form-control-wide">
+                                              <option value="0" selected>Select...</option>
+                                              <!-- Days will be populated by JavaScript -->
+                                            </select>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
                                     <div class="col-md-6">
-                                      <!-- Second column of form fields -->
-                                      <div class="row">
-                                        <div class="col-md-6">
+                                      <!-- Right Column -->
+                                      <div class="form-row">
+                                        <div class="col">
                                           <div class="form-group">
                                             <label for="phase">Phase:</label>
                                             <select name="phase_id_fk" id="phase_id_fk" class="form-control">
@@ -168,7 +233,7 @@
                                             </select>
                                           </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col">
                                           <div class="form-group">
                                             <label for="priority">Priority:</label>
                                             <select name="priority_id_fk" id="priority_id_fk" class="form-control">
@@ -179,8 +244,8 @@
                                           </div>
                                         </div>
                                       </div>
-                                      <div class="row">
-                                        <div class="col-md-6">
+                                      <div class="form-row">
+                                        <div class="col">
                                           <div class="form-group">
                                             <label for="sponsor">Sponsor:</label>
                                             <select name="sponsor_id_fk" id="sponsor_id_fk" class="form-control">
@@ -190,7 +255,7 @@
                                             </select>
                                           </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col">
                                           <div class="form-group">
                                             <label for="prime">Prime:</label>
                                             <select name="prime_id_fk" id="prime_id_fk" class="form-control">
@@ -201,115 +266,86 @@
                                           </div>
                                         </div>
                                       </div>
-                                      <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="effort">Effort (PH)</label>
-                                                <input type="text" class="form-control" id="effort" name="effort" style="width:100px;" value="0">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="project_cost">Cost ($)</label>
-                                                <input type="text" class="form-control" id="project_cost" name="project_cost" style="width:100px;" value="0">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="benefit">Benefit (ROI or $)</label>
-                                                <input type="text" class="form-control" id="benefit" name="benefit" style="width:100px;" value="0">
-                                            </div>
-                                        </div>
-                                    </div>
-                                     <div id="impact_elements">
-                                      <!-- <div class="row">
-                                        <div class="col-md-6">
+                                      <div class="form-row">
+                                        <div class="col">
                                           <div class="form-group">
-                                            <label for="impact">Impact:</label>
-                                            <select name="impact" id="impact" class="form-control">
-                                              <% for (var i = 1; i <= 10; i++) { %>
-                                                <option value="<%= i %>"><%= i %></option>
-                                              <% } %>
-                                            </select>
+                                            <label for="effort">Effort (PH)</label>
+                                            <input type="text" class="form-control" id="effort" name="effort" value="0">
                                           </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col">
                                           <div class="form-group">
-                                            <label for="complexity">Complexity:</label>
-                                            <select name="complexity" id="complexity" class="form-control">
-                                              <% for (var i = 1; i <= 10; i++) { %>
-                                                <option value="<%= i %>"><%= i %></option>
-                                              <% } %>
-                                            </select>
+                                            <label for="project_cost">Cost ($)</label>
+                                            <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
                                           </div>
                                         </div>
-                                      </div> -->
+                                        <div class="col">
+                                          <div class="form-group">
+                                            <label for="benefit">Benefit (ROI or $)</label>
+                                            <input type="text" class="form-control" id="benefit" name="benefit" value="0">
+                                          </div>
+                                        </div>
                                       </div>
-                                      <div id="tagFields">
-                                        <div class="col-md-12">
-                                          <div class="form-group">
-                                            <label for="tag_1">Tag 1:</label>
-
-                                            <select name="tag_1" id="tag_1" class="form-control">
-                                              <% if (tags && tags.length > 0) { %>
-                                                <% tags.forEach(function(tag){ %>
-                                                  <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                                                <% }) %>
-                                              <% } else { %>
+                                        <div class="form-row">
+                                          <div class="col">
+                                            <div class="form-group">
+                                              <label for="tag_1">Tag 1:</label>
+                                              <select name="tag_1" id="tag_1" class="form-control">
+                                                <% if (tags && tags.length > 0) { %>
+                                                  <% tags.forEach(function(tag){ %>
+                                                    <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                  <% }) %>
+                                                <% } else { %>
                                                   <option value="">No tags available</option>
-                                              <% } %>
-                                            </select>
-
-                                           
+                                                <% } %>
+                                              </select>
+                                            </div>
                                           </div>
                                         </div>
-                                        <div class="col-md-12">
-                                          <div class="form-group">
-                                            <label for="tag_2">Tag 2:</label>
-                                            <select selectedname="tag_2" id="project_tag2" class="form-control">
-                                             
-                                              <% if (tags && tags.length > 0) { %>
-                                                <% tags.forEach(function(tag){ %>
-                                                  <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                                                <% }) %>
-                                              <% } else { %>
+                                        <div class="form-row">
+                                          <div class="col">
+                                            <div class="form-group">
+                                              <label for="tag_2">Tag 2:</label>
+                                              <select name="tag_2" id="tag_2" class="form-control">
+                                                <% if (tags && tags.length > 0) { %>
+                                                  <% tags.forEach(function(tag){ %>
+                                                    <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                  <% }) %>
+                                                <% } else { %>
                                                   <option value="">No tags available</option>
-                                              <% } %>
-                                            </select>
-
-                                           
+                                                <% } %>
+                                              </select>
+                                            </div>
                                           </div>
                                         </div>
-                                        <div class="col-md-12">
-                                          <div class="form-group">
-                                            <label for="tag_3">Tag 3:</label>
-                                            <select name="tag_3" id="tag_3" class="form-control">
-                                            
-                                              <% if (tags && tags.length > 0) { %>
-                                                <% tags.forEach(function(tag){ %>
-                                                  <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                                                <% }) %>
-                                              <% } else { %>
+                                        <div class="form-row">
+                                          <div class="col">
+                                            <div class="form-group">
+                                              <label for="tag_3">Tag 3:</label>
+                                              <select name="tag_3" id="tag_3" class="form-control">
+                                                <% if (tags && tags.length > 0) { %>
+                                                  <% tags.forEach(function(tag){ %>
+                                                    <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                  <% }) %>
+                                                <% } else { %>
                                                   <option value="">No tags available</option>
-                                              <% } %>
-                                            </select>
-
-                                           
+                                                <% } %>
+                                              </select>
+                                            </div>
                                           </div>
                                         </div>
+                                        
                                        
-                                      </div>
-                                    </div>
-                                     
-                                </div>
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
-                                  <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
-                                </div>
-                              </form>
-                          </div>
-                      </div><!-- /.modal-content -->
-                  </div><!-- /.modal-dialog -->
+                                        </div>  
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+                                    <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                              
               </div><!-- /.modal -->
               
             </div>
@@ -321,93 +357,94 @@
 
 <%- contentFor('BottomJs') %>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-      const form = document.querySelector('form');
-      if (form) {
-          form.addEventListener('submit', function(event) {
-              if (!form.checkValidity()) {
-                  event.preventDefault();
-                  event.stopPropagation();
-              }
-              form.classList.add('was-validated');
-          }, false);
-          
-      }
+  const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-      // Numeric input validation for specific fields
-      const numericFields = ['project_cost', 'effort', 'benefit'];
-      numericFields.forEach(function(fieldId) {
-          const field = document.getElementById(fieldId);
-          if (field) {
-              field.addEventListener('keydown', function(event) {
-                  if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
-                      !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
-                      !(event.ctrlKey || event.metaKey)) {
-                      alert("Only numbers are allowed.");
-                      event.preventDefault();
-                  }
-              });
-          }
-      });
+  function isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+  }
 
-      // Clear modal fields on "Add Project" button click
-      const btnAddProject = document.getElementById('btnAddProject');
-      if (btnAddProject) {
-          btnAddProject.addEventListener('click', function() {
-              document.querySelectorAll('#addProject input, #addProject textarea, #addProject select').forEach(function(input) {
-                  input.value = input.id === 'project_cost' ? '0' : '';
-              });
-          });
-      }
+  function updateDaysDropdown(year, month, dayDropdown) {
+    const daysInMonth = month === 1 && isLeapYear(year) ? 29 : monthDays[month];
+    dayDropdown.innerHTML = '';
+    for (let i = 1; i <= daysInMonth; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = i;
+      dayDropdown.appendChild(option);
+    }
+  }
 
-      // Table row click navigation to edit page
-      document.querySelectorAll(".table tbody tr").forEach(function(row) {
-          row.addEventListener('click', function() {
-              var id = row.cells[0].textContent;
-              window.location.replace('/projects/edit/' + id);
-          });
-      });
+  document.addEventListener('DOMContentLoaded', () => {
+    const startYearDropdown = document.getElementById('start_date_year');
+    const startMonthDropdown = document.getElementById('start_date_month');
+    const startDayDropdown = document.getElementById('start_date_day');
+    const endYearDropdown = document.getElementById('end_date_year');
+    const endMonthDropdown = document.getElementById('end_date_month');
+    const endDayDropdown = document.getElementById('end_date_day');
+    const nextMilestoneYearDropdown = document.getElementById('next_milestone_year');
+    const nextMilestoneMonthDropdown = document.getElementById('next_milestone_month');
+    const nextMilestoneDayDropdown = document.getElementById('next_milestone_day');
 
-      // Input formatting with commas for project cost and benefit
-      ['project_cost', 'benefit'].forEach(function(fieldId) {
-          const field = document.getElementById(fieldId);
-          if (field) {
-              field.addEventListener('input', function(event) {
-                  // Your formatting logic here
-              });
-          }
-      });
-      // Dynamic field display based on phase selection
-    document.getElementById('phase_id_fk').addEventListener('change', function() {
-        var impactElements = document.getElementById("impact_elements");
-        var leftElements = document.getElementById("leftElements");
-        var effort_option = document.getElementById("effort_option");
-        var benefit_option = document.getElementById("benefit_option");
-        var impact_option = document.getElementById("impact_option");
-        var complexity_option = document.getElementById("complexity_option");
-        var tags_option = document.getElementById("tags_option");
+    function updateStartDays() {
+      const year = parseInt(startYearDropdown.value);
+      const month = startMonthDropdown.selectedIndex;
+      updateDaysDropdown(year, month, startDayDropdown);
+    }
 
-        if (this.value == '1') {
-            impactElements.style.display = 'none';
-            leftElements.style.display = 'none';
-           
-        } else {
-            impactElements.style.display = 'block';
-            leftElements.style.display = 'block';
-           
-        }
-        
-        
-    
-        
-      
+    function updateEndDays() {
+      const year = parseInt(endYearDropdown.value);
+      const month = endMonthDropdown.selectedIndex;
+      updateDaysDropdown(year, month, endDayDropdown);
+    }
+
+    function updateNextMilestoneDays() {
+      const year = parseInt(nextMilestoneYearDropdown.value);
+      const month = nextMilestoneMonthDropdown.selectedIndex;
+      updateDaysDropdown(year, month, nextMilestoneDayDropdown);
+    }
+
+    startYearDropdown.addEventListener('change', () => {
+      const selectedYear = startYearDropdown.value;
+      console.log(`Selected start year: ${selectedYear}`);
+      localStorage.setItem('selectedStartYear', selectedYear);
+      updateStartDays();
     });
+
+    startMonthDropdown.addEventListener('change', updateStartDays);
+    endMonthDropdown.addEventListener('change', updateEndDays);
+
+    // Initialize days dropdowns
+    updateStartDays();
+    updateEndDays();
+    updateNextMilestoneDays();
+
+    // Retrieve and set the selected start year from local storage
+    const storedStartYear = localStorage.getItem('selectedStartYear');
+    if (storedStartYear) {
+      startYearDropdown.value = storedStartYear;
+      updateStartDays();
+    }
   });
-  const startDate = {'start_date': {anyDate: true}};
-  new DeskyCalendar(startDate);
-  const endDate = {'end_date': {anyDate: true}};
-  new DeskyCalendar(endDate);
-  const milestoneDate = {'next_milestone_date': {anyDate: true}};
-  new DeskyCalendar(milestoneDate);
-  
+  document.addEventListener("DOMContentLoaded", function() {
+        // Get all table rows
+        var rows = document.querySelectorAll(".table tbody tr");
+
+        // Loop through each row
+        rows.forEach(function(row) {
+            console.log("row:",row)
+            // Add a click event listener to each row
+            row.addEventListener("click", function() {
+                var id = row.cells[0].textContent; // Assuming the ID is in the first cell
+        
+                // Now you have the ID, you can use it as needed
+                
+                // Show the modal when a row is clicked
+                window.location.replace('/projects/edit/'+id)
+
+                // $('#personForm').modal('show'); // Assuming you're using jQuery
+            });
+        });
+    });
+
 </script>

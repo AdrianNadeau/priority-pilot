@@ -97,12 +97,36 @@ exports.create = (req, res) => {
 
     const query =
       "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
+    // Add year range calculation
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = currentYear - 10; i <= currentYear + 5; i++) {
+      years.push(i);
+    }
 
+    // Add months array
+    const monthsOfYear = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    console.log("years:", years);
+    console.log("months:", monthsOfYear);
     await db.sequelize
       .query(query, {
         replacements: [company_id_fk],
         type: db.sequelize.QueryTypes.SELECT,
       })
+
       .then((data) => {
         // Render the page when all data retrieval operations are complete
         res.render("Pages/pages-projects", {
@@ -111,8 +135,12 @@ exports.create = (req, res) => {
           priorities: prioritiesData,
           sponsors: personsData,
           primes: personsData,
-          session: req.session,
+
           tags: tagsData,
+          company_id: company_id_fk,
+          projects: data,
+          years: years,
+          monthsOfYear: monthsOfYear,
         });
       })
       .catch((err) => {
@@ -696,14 +724,13 @@ exports.radar = async (req, res) => {
     if (!data || data.length === 0) {
       return res.status(404).send({ message: "Project Health not found" });
     }
-    console.log("Data:", data);
+
     // Pass the result to the EJS template
     const pitchCount = Number(data[0].phase_1_count);
     const priorityCount = Number(data[0].phase_2_count);
     const discoveryCount = Number(data[0].phase_3_count);
     const deliveryCount = Number(data[0].phase_3_count);
     const operationsCount = Number(data[0].phase_4_count);
-    console.log("operationsCount:", operationsCount);
     const pitchTotalCost = formatCost(Number(data[0].phase_1_total_cost) || 0);
     const priorityTotalCost = formatCost(
       Number(data[0].phase_2_total_cost) || 0,
@@ -1023,11 +1050,27 @@ exports.findFunnel = async (req, res) => {
 };
 exports.health = async (req, res) => {
   //get all company projects
+  const company_id_fk = req.session.company.id;
+  const person_id_fk = req.session.person.id;
   const companyProjects = await Project.findAll({
     where: { company_id_fk: company_id_fk },
   });
 
   res.render("Pages/pages-health", {
+    projects: companyProjects,
+    currentDate: moment().format("MMMM Do YYYY"),
+  });
+};
+exports.flightview = async (req, res) => {
+  //get all company projects
+
+  const company_id_fk = req.session.company.id;
+
+  const companyProjects = await Project.findAll({
+    where: { company_id_fk: company_id_fk },
+  });
+  console.log("RENDER PAGE");
+  res.render("Pages/pages-view_plan", {
     projects: companyProjects,
     currentDate: moment().format("MMMM Do YYYY"),
   });

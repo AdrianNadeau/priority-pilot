@@ -15,7 +15,7 @@ module.exports = (app) => {
   router.get("/radar/view/", projects.radar);
   router.get("/radar/progress/", projects.progress);
   router.get("/flight/view/", projects.flight);
-  router.get("/health/view/", projects.health);
+  router.get("/flightview/view", projects.flightview); //pages-view_planjs
   router.delete("/", projects.deleteAll);
 
   app.use("/projects", router);

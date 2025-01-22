@@ -6,7 +6,7 @@
     </button>
   </li>
   <li class="hide-phone list-inline-item app-search">
-    <h3 class="page-title">Health Check</h3>
+    <h3 class="page-title">Radar</h3>
   </li>
 </ul>
 
@@ -227,7 +227,7 @@
               labels: data.project_names,
               datasets: [
                 {
-                  label: data.company_name,
+                  label: "Progress",
                   data: data.progress,
                   backgroundColor: mappedColors,
                   borderWidth: 1,
@@ -340,7 +340,7 @@
           new Chart(pie2Ctx, {
             type: "doughnut",
             data: {
-              labels: labels, // Status labels
+              labels: labels, // tag names from projects
               datasets: [
                 {
                   data: counts, // Count of projects in each category
@@ -391,4 +391,12 @@
       })
       .catch((err) => console.error(err));
   });
+  function getRandomColorForTags() {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
 </script>

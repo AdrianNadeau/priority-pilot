@@ -12,7 +12,7 @@
     </li>
     <li class="hide-phone list-inline-item app-search">
         
-        <div><h3 class="page-title">In-Flight Health</h3>
+        <div><h3 class="page-title">Flight Plan</h3>
         <span style="padding-left:40px;"><%= new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span></div>
         
     </li>
@@ -69,9 +69,7 @@
                                             <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
                                             <td><%= project.issue %></td>
                                             <td><%= project.actions %></td>
-                                            <button type="button" onclick="/" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
-                                                Dashboard
-                                            </button>
+                                            
                                         </tr>
                                         <% } %>
                                     <% }); %>
