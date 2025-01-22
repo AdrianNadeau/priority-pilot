@@ -922,7 +922,7 @@ exports.flight = async (req, res) => {
     }
     const startDateTest = insertValidDate(data.start_date);
     // Pass the result to the EJS template
-    res.render("Pages/pages-flight-plan", {
+    res.render("Pages/pages_flight_plan", {
       start_date: startDateTest,
       projects: data,
     });
@@ -1070,7 +1070,7 @@ exports.flightview = async (req, res) => {
     where: { company_id_fk: company_id_fk },
   });
   console.log("RENDER PAGE");
-  res.render("Pages/pages-view_plan", {
+  res.render("Pages/pages_flight_plan", {
     projects: companyProjects,
     currentDate: moment().format("MMMM Do YYYY"),
   });

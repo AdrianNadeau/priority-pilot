@@ -1,6 +1,8 @@
 <%- contentFor('HeaderCss') %>
 
 <script src="frappe-gantt.min.js"></script>
+<link rel="stylesheet" href="frappe-gantt.css">
+
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
     <li class="list-inline-item">
@@ -67,9 +69,7 @@
                                             <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
                                             <td><%= project.issue %></td>
                                             <td><%= project.actions %></td>
-                                            <button type="button" onclick="/" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
-                                                Dashboard
-                                            </button>
+                                            
                                         </tr>
                                         <% } %>
                                     <% }); %>
