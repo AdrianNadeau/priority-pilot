@@ -1000,7 +1000,7 @@ exports.findFunnel = async (req, res) => {
       replacements: [company_id_fk, person_id_fk, person_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-
+    console.log("HERE:::::", data);
     // Calculate pitch count, total cost, and total effort
     const pitchCount = data.length;
     let pitchTotalCost = 0;
@@ -1026,9 +1026,6 @@ exports.findFunnel = async (req, res) => {
 
     const sponsors = persons.filter((person) => person.role === "sponsor");
     const primes = persons.filter((person) => person.role === "prime");
-    // console.log("Pitch Count:", pitchCount);
-    // console.log("Total Cost:", pitchTotalCost);
-    // console.log("Total Effort:", pitchTotalPH);
     pitchTotalCost = formatCost(pitchTotalCost);
     pitchTotalPH = formatCost(pitchTotalPH);
     // Render the funnel page with the retrieved data
@@ -1051,13 +1048,45 @@ exports.findFunnel = async (req, res) => {
 exports.health = async (req, res) => {
   //get all company projects
   const company_id_fk = req.session.company.id;
-  const person_id_fk = req.session.person.id;
-  const companyProjects = await Project.findAll({
-    where: { company_id_fk: company_id_fk },
+  const query = `SELECT 
+    proj.company_id_fk,
+    proj.id AS project_id,
+    proj.project_name,
+    proj.start_date,
+    proj.end_date,
+    proj.health,
+    proj.effort,
+    prime_person.first_name AS prime_first_name,
+    prime_person.last_name AS prime_last_name,
+    sponsor_person.first_name AS sponsor_first_name,
+    sponsor_person.last_name AS sponsor_last_name,
+    proj.project_cost,
+    phases.phase_name,
+    phases.id AS phase_id,
+    companies.portfolio_budget AS company_budget,
+    companies.effort AS company_effort
+FROM
+    projects proj
+LEFT JOIN
+    persons prime_person ON prime_person.id = proj.prime_id_fk
+LEFT JOIN
+    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+LEFT JOIN
+    phases ON phases.id = proj.phase_id_fk
+LEFT JOIN
+    companies ON companies.id = proj.company_id_fk
+WHERE
+    proj.company_id_fk = ?
+ORDER BY
+    proj.phase_id_fk, proj.id;
+`;
+  const data = await db.sequelize.query(query, {
+    replacements: [company_id_fk],
+    type: db.sequelize.QueryTypes.SELECT,
   });
-
+  console.log("HERE:::::", data);
   res.render("Pages/pages-health", {
-    projects: companyProjects,
+    projects: data,
     currentDate: moment().format("MMMM Do YYYY"),
   });
 };
