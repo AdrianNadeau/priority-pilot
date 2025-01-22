@@ -22,25 +22,10 @@
         <div class="row">
             <div class="col-lg-12">
               <div class="card-body" style="border:0px !important;">
-                        <div class="table-responsive">
-                            <table class="table mb-12">
-                                <thead>
-                                    <tr>
-                                        <th>Project</th>
-                                        <th>Start</th>
-                                        <th>End</th>
-                                        <th>NMS</th>
-                                        <th>Prime</th>
-                                        <th>Sponsor</th>
-                                        <th>Issue(s)</th>
-                                        <th>Actions</th>
-                                       
-                                       
-                                    </tr>
-                                </thead>
-                                <tbody>
+                       
                                     <% let currentPhase = ''; %>
-                                    <% projects.forEach(project => { %>
+                                    <% projects.forEach(project => { 
+                                        console.log("project",project)%>
                                         <% if (project.phase_name === 'Delivery' || project.phase_name === 'Discovery') { %>
                                         <% if (project.phase_name !== currentPhase) { %>
                                             <% currentPhase = project.phase_name; %>
@@ -74,10 +59,6 @@
                                         <% } %>
                                     <% }); %>
                                 </tbody>
-                            </table>
-                        </div>
-                      </div>
-                    </div>
                 </div>
             </div>
         </div>
