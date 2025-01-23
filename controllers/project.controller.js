@@ -26,7 +26,8 @@ exports.create = (req, res) => {
   }
 
   //convert dates
-  const startDateTest = insertValidDate(req.body.start_date);
+
+  const startDateTest = insertValidDate(req.body.start_date_);
   const endDateTest = insertValidDate(req.body.end_date);
   const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
 
@@ -328,43 +329,51 @@ exports.cockpit = async (req, res) => {
   try {
     const query = `
       SELECT 
-    proj.tag_1,
-    tag1.tag_name AS tag_1_name,
-    proj.tag_2,
-    tag2.tag_name AS tag_2_name,
-    proj.tag_3,
-    tag3.tag_name AS tag_3_name,
-    proj.company_id_fk,
-    proj.id, 
-    proj.project_name, 
-    proj.project_headline,
-    proj.start_date, 
-    proj.end_date,
-    proj.effort,
-    proj.project_why,
-    proj.project_what,
-    prime_person.first_name AS prime_first_name, 
-    prime_person.last_name AS prime_last_name, 
-    sponsor_person.first_name AS sponsor_first_name, 
-    sponsor_person.last_name AS sponsor_last_name, 
-    proj.project_cost, 
-    phases.phase_name,
-    proj.prime_id_fk
-    FROM projects proj 
-    LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk 
-    LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
-    LEFT JOIN phases ON phases.id = proj.phase_id_fk 
-    LEFT JOIN tags tag1 ON tag1.id = proj.tag_1
-    LEFT JOIN tags tag2 ON tag2.id = proj.tag_2
-    LEFT JOIN tags tag3 ON tag3.id = proj.tag_3
-    WHERE proj.company_id_fk = ? AND proj.id = ?
-`;
+        proj.company_id_fk,
+        proj.id AS project_id,
+        proj.project_name,
+        proj.start_date,
+        proj.end_date,
+        proj.health,
+        proj.effort,
+        prime_person.first_name AS prime_first_name,
+        prime_person.last_name AS prime_last_name,
+        sponsor_person.first_name AS sponsor_first_name,
+        sponsor_person.last_name AS sponsor_last_name,
+        proj.project_cost,
+        phases.phase_name,
+        phases.id AS phase_id,
+        companies.portfolio_budget AS company_budget,
+        companies.effort AS company_effort,
+        (SELECT status.progress
+         FROM statuses status
+         WHERE status.project_id_fk = proj.id
+         ORDER BY status.status_date DESC
+         LIMIT 1) AS last_status_progress,
+        (SELECT string_agg(tag_name, ', ')
+         FROM tags
+         WHERE tags.id IN (proj.tag_1, proj.tag_2, proj.tag_3)) AS combinedTags
+      FROM
+        projects proj
+      LEFT JOIN
+        persons prime_person ON prime_person.id = proj.prime_id_fk
+      LEFT JOIN
+        persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+      LEFT JOIN
+        phases ON phases.id = proj.phase_id_fk
+      LEFT JOIN
+        companies ON companies.id = proj.company_id_fk
+      WHERE
+        proj.company_id_fk = ?
+      ORDER BY
+        proj.phase_id_fk, proj.id;
+    `;
 
     const data = await db.sequelize.query(query, {
       replacements: [company_id_fk, project_id],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    console.log("data:", data);
+    console.log("************************ TAGS:", data[0].combinedtags);
     let changed_projects;
     try {
       changed_projects = await db.changed_projects.findAll({
@@ -380,18 +389,6 @@ exports.cockpit = async (req, res) => {
       console.log("Cockpit Changed Projects error:", error);
     }
 
-    // Fetch tags for each project
-    let formattedTags = "";
-
-    if (data.tag_1_name) {
-      formattedTags = data.tag_1_name;
-    }
-    if (data.tag_2_name) {
-      formattedTags += data.tag_2_name;
-    }
-    if (data.tag_3_name) {
-      formattedTags += data.tag_3_name;
-    }
     const statuses = await Status.findAll({
       where: { project_id_fk: project_id },
       order: [["status_date", "DESC"]],
@@ -422,8 +419,7 @@ exports.cockpit = async (req, res) => {
       statuses: statuses,
       statusColor: statusColor,
       changed_projects,
-      tags: tagsData,
-      formattedTags,
+      // tags: tagsData,
     });
   } catch (error) {
     console.log("Database Query Error: ", error);
@@ -1048,43 +1044,79 @@ exports.findFunnel = async (req, res) => {
 exports.health = async (req, res) => {
   //get all company projects
   const company_id_fk = req.session.company.id;
-  const query = `SELECT 
-    proj.company_id_fk,
-    proj.id AS project_id,
-    proj.project_name,
-    proj.start_date,
-    proj.end_date,
-    proj.health,
-    proj.effort,
-    prime_person.first_name AS prime_first_name,
-    prime_person.last_name AS prime_last_name,
-    sponsor_person.first_name AS sponsor_first_name,
-    sponsor_person.last_name AS sponsor_last_name,
-    proj.project_cost,
-    phases.phase_name,
-    phases.id AS phase_id,
-    companies.portfolio_budget AS company_budget,
-    companies.effort AS company_effort
-FROM
-    projects proj
-LEFT JOIN
-    persons prime_person ON prime_person.id = proj.prime_id_fk
-LEFT JOIN
-    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-LEFT JOIN
-    phases ON phases.id = proj.phase_id_fk
-LEFT JOIN
-    companies ON companies.id = proj.company_id_fk
-WHERE
-    proj.company_id_fk = ?
-ORDER BY
-    proj.phase_id_fk, proj.id;
+
+  const query = `     SELECT 
+        proj.company_id_fk,
+        proj.id AS project_id,
+        proj.project_name,
+        proj.start_date,
+        proj.end_date,
+        proj.health,
+        proj.effort,
+        prime_person.first_name AS prime_first_name,
+        prime_person.last_name AS prime_last_name,
+        sponsor_person.first_name AS sponsor_first_name,
+        sponsor_person.last_name AS sponsor_last_name,
+        proj.project_cost,
+        phases.phase_name,
+        phases.id AS phase_id,
+        companies.portfolio_budget AS company_budget,
+        companies.effort AS company_effort,
+        (SELECT status.progress
+         FROM statuses status
+         WHERE status.project_id_fk = proj.id
+         ORDER BY status.status_date DESC
+         LIMIT 1) AS last_status_progress
+      FROM
+        projects proj
+      LEFT JOIN
+        persons prime_person ON prime_person.id = proj.prime_id_fk
+      LEFT JOIN
+        persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+      LEFT JOIN
+        phases ON phases.id = proj.phase_id_fk
+      LEFT JOIN
+        companies ON companies.id = proj.company_id_fk
+      WHERE
+        proj.company_id_fk = ?
+      ORDER BY
+        proj.phase_id_fk, proj.id;;
 `;
   const data = await db.sequelize.query(query, {
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
   });
-  console.log("HERE:::::", data);
+
+  // Get statuses for the project
+  // const statuses = await Status.findAll({
+  //   where: { project_id_fk: project_id_fk },
+  //   order: [["status_date", "DESC"]],
+  // });
+  // let progressColor = "black";
+  // if (statuses.length > 0) {
+  //   lastStatusDate = statuses[0].status_date;
+  //   statusColor = statuses[0].health;
+  //   progressColor = statuses[0].progress;
+  // }
+  // if (statuses[0].progress <= 0) {
+  //   progressColor = "red";
+  // } else {
+  //   progressColor = "green";
+  // }
+  // Loop through data and get the most recent progress for each project
+  data.forEach((project) => {
+    console.log(console.log("project", project));
+    if (project.statuses && project.statuses.length > 0) {
+      console.log("we have a project", project.project_name);
+      console.log("progress:", project.statuses.progress);
+      project.mostRecentProgress = project.statuses.reduce((latest, status) => {
+        return new Date(status.date) > new Date(latest.date) ? status : latest;
+      });
+    } else {
+      project.mostRecentProgress = null;
+    }
+  });
+
   res.render("Pages/pages-health", {
     projects: data,
     currentDate: moment().format("MMMM Do YYYY"),
@@ -1098,7 +1130,7 @@ exports.flightview = async (req, res) => {
   const companyProjects = await Project.findAll({
     where: { company_id_fk: company_id_fk },
   });
-  console.log("RENDER PAGE");
+
   res.render("Pages/pages_flight_plan", {
     projects: companyProjects,
     currentDate: moment().format("MMMM Do YYYY"),
