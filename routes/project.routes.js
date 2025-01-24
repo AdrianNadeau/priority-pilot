@@ -10,7 +10,7 @@ module.exports = (app) => {
   router.delete("/:id", projects.delete);
   router.get("/cockpit/:id", projects.cockpit);
   router.get("/edit/:id", projects.findOneForEdit);
-  router.get("/cockpit/:id", projects.findAllRadar);
+  router.get("/cockpit/:id", projects.cockpit);
   router.get("/funnel/view/", projects.findFunnel);
   router.get("/radar/view/", projects.radar);
   router.get("/radar/progress/", projects.progress);
