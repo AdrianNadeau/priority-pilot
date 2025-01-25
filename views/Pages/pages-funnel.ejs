@@ -143,19 +143,19 @@
                           <div class="col-md-4">
                             <div class="form-group">
                               <label for="effort">Effort (PH)</label>
-                              <input type="text" class="form-control" id="effort" name="effort" style="width:100px;">
+                              <input type="text" class="form-control" id="effort" name="effort" oninput="formatNumberWithCommas(this);" style="width:100px;">
                             </div>
                           </div>
                           <div class="col-md-4">
                             <div class="form-group">
                               <label for="project_cost">Cost ($)</label>
-                              <input type="text" class="form-control" id="project_cost" name="project_cost" style="width:100px;">
+                              <input type="text" class="form-control" id="project_cost"   oninput="formatNumberWithCommas(this);"name="project_cost" style="width:100px;">
                             </div>
                           </div>
                           <div class="col-md-4">
                             <div class="form-group">
                               <label for="benefit">Benefit (ROI or $)</label>
-                              <input type="text" class="form-control" id="benefit" name="benefit" style="width:100px;">
+                              <input type="text" class="form-control" id="benefit" oninput="formatNumberWithCommas(this);" name="benefit" style="width:100px;">
                             </div>
                           </div>
                         </div>

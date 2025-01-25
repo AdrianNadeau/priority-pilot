@@ -11,12 +11,5 @@ module.exports = (app) => {
   router.get("/changed/:id/:companyid", changed_projects.findAllByProjectId);
   router.get("/changedlog/:id/", changed_projects.findOne);
 
-  // router.get("/cockpit/:id", projects.cockpit);
-  // router.get("/edit/:id", projects.findOneForEdit);
-  // router.get("/radar/view/", projects.radar);
-  // router.get("/flight/view/", projects.flight);
-  // router.get("/health/view/", projects.health);
-  // router.delete("/", projects.deleteAll);
-
   app.use("/changed_projects", router);
 };

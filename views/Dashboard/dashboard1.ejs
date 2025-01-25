@@ -20,6 +20,7 @@
             <!-- Main content -->
             <div class="col-md-10">
                 <div class="row">
+                   
                     <!-- Priority and Discovery Section Side by Side -->
                     <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
@@ -135,8 +136,8 @@
                             <ul class="list-unstyled">
                                 <li>Full: $<%= totalCost %></li>
                                 <li>Used: $<%= usedCost %></li>
-                                <li>Avail: <span style="color: <%= availableCostColor %>; font-weight:900px;"><strong>$<%= availableCost %></strong></span></li>
-                                
+                               <li>Avail: <span style="<%= availableCostColor %>;font-weight:900px;"><strong>$<%= availableCost %></strong></span></li>
+
                             </ul>
                             <strong>Effort</strong>
                             <ul class="list-unstyled">
@@ -180,8 +181,7 @@
     window.location.replace('/projects/funnel/view/');
   }
   function loadRadar() {
-    window.location.replace('/cockpitradar/<%= company_id %>/radar');
-    // window.location.replace('/cockpitradar/808/radar');
+   
     window.location.replace('/projects/radar/view/');
   }
   function loadHealth() {

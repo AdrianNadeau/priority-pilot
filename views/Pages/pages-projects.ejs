@@ -98,259 +98,256 @@
         </div>
         <div class="row">
             <div class="col-md-6 m-t-30">
-                <!-- project modal content -->
-                <div id="addProject" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                  <div class="modal-dialog">
-                      <div class="modal-content" style="width: 900px;">
-                          <div class="modal-header">
-                              <h5 class="modal-title mt-0">Add Project</h5>
-                              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                          </div>
-                          <div class="modal-body">
+               
+              <!-- project modal content -->
+              <div id="addProject" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content" style="width: 900px;">
+                        <div class="modal-header">
+                            <h5 class="modal-title mt-0">Add Project</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="container">
                             <div class="container">
-                              <div class="container">
-                                <form action="/projects" class="needs-validation" novalidate method="POST">
-                                  <div class="row">
-                                    <div class="col-md-6">
-                                      <!-- Left Column -->
-                                      <div class="form-group">
-                                        <label for="project_name">Project Name:</label>
-                                        <input type="text" class="form-control" id="project_name" maxlength="25" name="project_name" required>
-                                        <div class="invalid-feedback">Please enter project name.</div>
-                                      </div>
-                                      <div class="form-group">
-                                        <label for="headline">Headline:</label>
-                                        <input type="text" class="form-control" id="headline" name="headline"  maxlength="250">
-                                      </div>
-                                      <div class="form-group">
-                                        <label for="why">Why:</label>
-                                        <textarea class="form-control" id="why" name="why"></textarea>
-                                      </div>
-                                      <div class="form-group">
-                                        <label for="what">What:</label>
-                                        <textarea class="form-control" id="what" name="what"></textarea>
-                                      </div>
-                                      <div class="form-group">
-                                        <label for="start_date_year">Start Date:</label>
-                                        <div class="form-row">
-                                          <div class="col">
-                                            <select id="start_date_year" name="start_date_year" class="form-control form-control-wide">
-                                              <option value="0" selected>Select...</option>
-                                              <% 
-                                                const currentYear = new Date().getFullYear();
-                                                const years = [];
-                                                for (let i = currentYear - 10; i <= currentYear + 5; i++) {
-                                                  years.push(i);
-                                                }
-                                              %>
-                                              <% years.forEach(year => { %>
-                                                <option value="<%= year %>"><%= year %></option>
-                                              <% }); %>
-                                            </select>
-                                          </div>
-                                          <div class="col">
-                                            <select id="start_date_month" name="start_date_month" class="form-control form-control-wide">
-                                              <option value="0" selected>Select...</option>
-                                              <% const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; %>
-                                              <% monthsOfYear.forEach(month => { %>
-                                                <option value="<%= month %>"><%= month %></option>
-                                              <% }); %>
-                                            </select>
-                                          </div>
-                                          <div class="col">
-                                            <select id="start_date_day" name="start_date_day" class="form-control form-control-wide">
-                                              <option value="0" selected>Select...</option>
-                                              <!-- Days will be populated by JavaScript -->
-                                            </select>
-                                          </div>
+                              <form action="/projects" class="needs-validation" novalidate method="POST">
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <!-- Left Column -->
+                                    <div class="form-group">
+                                      <label for="project_name">Project Name:</label>
+                                      <input type="text" class="form-control" id="project_name" maxlength="25" name="project_name" required>
+                                      <div class="invalid-feedback">Please enter project name.</div>
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="headline">Headline:</label>
+                                      <input type="text" class="form-control" id="headline" name="headline"  maxlength="250">
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="why">Why:</label>
+                                      <textarea class="form-control" id="why" name="why"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="what">What:</label>
+                                      <textarea class="form-control" id="what" name="what"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="start_date_year">Start Date:</label>
+                                      <div class="form-row">
+                                        <div class="col">
+                                          <select id="start_date_year" name="start_date_year" class="form-control form-control-wide">
+                                            <option value="0" selected>Select...</option>
+                                            <% 
+                                              const currentYear = new Date().getFullYear();
+                                              const years = [];
+                                              for (let i = currentYear - 10; i <= currentYear + 5; i++) {
+                                                years.push(i);
+                                              }
+                                            %>
+                                            <% years.forEach(year => { %>
+                                              <option value="<%= year %>"><%= year %></option>
+                                            <% }); %>
+                                          </select>
                                         </div>
-                                      </div>
-                                      <div class="form-group">
-                                        <label for="end_date_year">End Date:</label>
-                                        <div class="form-row">
-                                          <div class="col">
-                                            <select id="end_date_year" name="end_date_year" class="form-control form-control-wide">
-                                              <option value="0" selected>Select...</option>
-                                              <% years.forEach(year => { %>
-                                                <option value="<%= year %>"><%= year %></option>
-                                              <% }); %>
-                                            </select>
-                                          </div>
-                                          <div class="col">
-                                            <select id="end_date_month" name="end_date_month" class="form-control form-control-wide">
-                                              <option value="0" selected>Select...</option>
-                                              <% monthsOfYear.forEach(month => { %>
-                                                <option value="<%= month %>"><%= month %></option>
-                                              <% }); %>
-                                            </select>
-                                          </div>
-                                          <div class="col">
-                                            <select id="end_date_day" name="end_date_day" class="form-control form-control-wide">
-                                              <option value="0" selected>Select...</option>
-                                              <!-- Days will be populated by JavaScript -->
-                                            </select>
-                                          </div>
+                                        <div class="col">
+                                          <select id="start_date_month" name="start_date_month" class="form-control form-control-wide">
+                                            <option value="0" selected>Select...</option>
+                                            <% const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; %>
+                                            <% monthsOfYear.forEach(month => { %>
+                                              <option value="<%= month %>"><%= month %></option>
+                                            <% }); %>
+                                          </select>
                                         </div>
-                                      </div>
-                                      <div class="form-group">
-                                        <label for="next_milestone_year">Next Milestone Date:</label>
-                                        <div class="form-row">
-                                          <div class="col">
-                                            <select id="next_milestone_year" name="next_milestone_year" class="form-control form-control-wide">
-                                              <option value="0" selected>Select...</option>
-                                              <% years.forEach(year => { %>
-                                                <option value="<%= year %>"><%= year %></option>
-                                              <% }); %>
-                                            </select>
-                                          </div>
-                                          <div class="col">
-                                            <select id="next_milestone_month" name="next_milestone_month" class="form-control form-control-wide">
-                                              <option value="0" selected>Select...</option>
-                                              <% monthsOfYear.forEach(month => { %>
-                                                <option value="<%= month %>"><%= month %></option>
-                                              <% }); %>
-                                            </select>
-                                          </div>
-                                          <div class="col">
-                                            <select id="next_milestone_day" name="next_milestone_day" class="form-control form-control-wide">
-                                              <option value="0" selected>Select...</option>
-                                              <!-- Days will be populated by JavaScript -->
-                                            </select>
-                                          </div>
+                                        <div class="col">
+                                          <select id="start_date_day" name="start_date_day" class="form-control form-control-wide">
+                                            <option value="0" selected>Select...</option>
+                                            <!-- Days will be populated by JavaScript -->
+                                          </select>
                                         </div>
                                       </div>
                                     </div>
-                                    <div class="col-md-6">
-                                      <!-- Right Column -->
+                                    <div class="form-group">
+                                      <label for="end_date_year">End Date:</label>
                                       <div class="form-row">
                                         <div class="col">
-                                          <div class="form-group">
-                                            <label for="phase">Phase:</label>
-                                            <select name="phase_id_fk" id="phase_id_fk" class="form-control">
-                                              <% phases.forEach(function(phase){ %>
-                                                <option value="<%= phase.id %>"><%= phase.phase_name %></option>
-                                              <% }) %>
-                                            </select>
-                                          </div>
+                                          <select id="end_date_year" name="end_date_year" class="form-control form-control-wide">
+                                            <option value="0" selected>Select...</option>
+                                            <% years.forEach(year => { %>
+                                              <option value="<%= year %>"><%= year %></option>
+                                            <% }); %>
+                                          </select>
                                         </div>
                                         <div class="col">
-                                          <div class="form-group">
-                                            <label for="priority">Priority:</label>
-                                            <select name="priority_id_fk" id="priority_id_fk" class="form-control">
-                                              <% priorities.forEach(function(priority){ %>
-                                                <option value="<%= priority.id %>"><%= priority.priority_name %></option>
-                                              <% }) %>
-                                            </select>
-                                          </div>
+                                          <select id="end_date_month" name="end_date_month" class="form-control form-control-wide">
+                                            <option value="0" selected>Select...</option>
+                                            <% monthsOfYear.forEach(month => { %>
+                                              <option value="<%= month %>"><%= month %></option>
+                                            <% }); %>
+                                          </select>
+                                        </div>
+                                        <div class="col">
+                                          <select id="end_date_day" name="end_date_day" class="form-control form-control-wide">
+                                            <option value="0" selected>Select...</option>
+                                            <!-- Days will be populated by JavaScript -->
+                                          </select>
                                         </div>
                                       </div>
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="next_milestone_year">Next Milestone Date:</label>
                                       <div class="form-row">
                                         <div class="col">
-                                          <div class="form-group">
-                                            <label for="sponsor">Sponsor:</label>
-                                            <select name="sponsor_id_fk" id="sponsor_id_fk" class="form-control">
-                                              <% sponsors.forEach(function(sponsor){ %>
-                                                <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
-                                              <% }) %>
-                                            </select>
-                                          </div>
+                                          <select id="next_milestone_year" name="next_milestone_year" class="form-control form-control-wide">
+                                            <option value="0" selected>Select...</option>
+                                            <% years.forEach(year => { %>
+                                              <option value="<%= year %>"><%= year %></option>
+                                            <% }); %>
+                                          </select>
                                         </div>
                                         <div class="col">
-                                          <div class="form-group">
-                                            <label for="prime">Prime:</label>
-                                            <select name="prime_id_fk" id="prime_id_fk" class="form-control">
-                                              <% primes.forEach(function(prime){ %>
-                                                <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
-                                              <% }) %>
-                                            </select>
-                                          </div>
+                                          <select id="next_milestone_month" name="next_milestone_month" class="form-control form-control-wide">
+                                            <option value="0" selected>Select...</option>
+                                            <% monthsOfYear.forEach(month => { %>
+                                              <option value="<%= month %>"><%= month %></option>
+                                            <% }); %>
+                                          </select>
+                                        </div>
+                                        <div class="col">
+                                          <select id="next_milestone_day" name="next_milestone_day" class="form-control form-control-wide">
+                                            <option value="0" selected>Select...</option>
+                                            <!-- Days will be populated by JavaScript -->
+                                          </select>
                                         </div>
                                       </div>
-                                      <div class="form-row">
-                                        <div class="col">
-                                          <div class="form-group">
-                                            <label for="effort">Effort (PH)</label>
-                                            <input type="text" class="form-control" id="effort" name="effort" value="0">
-                                          </div>
-                                        </div>
-                                        <div class="col">
-                                          <div class="form-group">
-                                            <label for="project_cost">Cost ($)</label>
-                                            <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
-                                          </div>
-                                        </div>
-                                        <div class="col">
-                                          <div class="form-group">
-                                            <label for="benefit">Benefit (ROI or $)</label>
-                                            <input type="text" class="form-control" id="benefit" name="benefit" value="0">
-                                          </div>
-                                        </div>
-                                      </div>
-                                        <div class="form-row">
-                                          <div class="col">
-                                            <div class="form-group">
-                                              <label for="tag_1">Tag 1:</label>
-                                              <select name="tag_1" id="tag_1" class="form-control">
-                                                <% if (tags && tags.length > 0) { %>
-                                                  <% tags.forEach(function(tag){ %>
-                                                    <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                                                  <% }) %>
-                                                <% } else { %>
-                                                  <option value="">No tags available</option>
-                                                <% } %>
-                                              </select>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div class="form-row">
-                                          <div class="col">
-                                            <div class="form-group">
-                                              <label for="tag_2">Tag 2:</label>
-                                              <select name="tag_2" id="tag_2" class="form-control">
-                                                <% if (tags && tags.length > 0) { %>
-                                                  <% tags.forEach(function(tag){ %>
-                                                    <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                                                  <% }) %>
-                                                <% } else { %>
-                                                  <option value="">No tags available</option>
-                                                <% } %>
-                                              </select>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div class="form-row">
-                                          <div class="col">
-                                            <div class="form-group">
-                                              <label for="tag_3">Tag 3:</label>
-                                              <select name="tag_3" id="tag_3" class="form-control">
-                                                <% if (tags && tags.length > 0) { %>
-                                                  <% tags.forEach(function(tag){ %>
-                                                    <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                                                  <% }) %>
-                                                <% } else { %>
-                                                  <option value="">No tags available</option>
-                                                <% } %>
-                                              </select>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        
-                                       
-                                        </div>  
+                                    </div>
                                   </div>
-                                  <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
-                                    <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
-                                  </div>
-                                </form>
-                              </div>
+                                  <div class="col-md-6">
+                                    <!-- Right Column -->
+                                    <div class="form-row">
+                                      <div class="col">
+                                        <div class="form-group">
+                                          <label for="phase">Phase:</label>
+                                          <select name="phase_id_fk" id="phase_id_fk" class="form-control">
+                                            <% phases.forEach(function(phase){ %>
+                                              <option value="<%= phase.id %>"><%= phase.phase_name %></option>
+                                            <% }) %>
+                                          </select>
+                                        </div>
+                                      </div>
+                                      <div class="col">
+                                        <div class="form-group">
+                                          <label for="priority">Priority:</label>
+                                          <select name="priority_id_fk" id="priority_id_fk" class="form-control">
+                                            <% priorities.forEach(function(priority){ %>
+                                              <option value="<%= priority.id %>"><%= priority.priority_name %></option>
+                                            <% }) %>
+                                          </select>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="form-row">
+                                      <div class="col">
+                                        <div class="form-group">
+                                          <label for="sponsor">Sponsor:</label>
+                                          <select name="sponsor_id_fk" id="sponsor_id_fk" class="form-control">
+                                            <% sponsors.forEach(function(sponsor){ %>
+                                              <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
+                                            <% }) %>
+                                          </select>
+                                        </div>
+                                      </div>
+                                      <div class="col">
+                                        <div class="form-group">
+                                          <label for="prime">Prime:</label>
+                                          <select name="prime_id_fk" id="prime_id_fk" class="form-control">
+                                            <% primes.forEach(function(prime){ %>
+                                              <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
+                                            <% }) %>
+                                          </select>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="form-row">
+                                      <div class="col">
+                                        <div class="form-group">
+                                          <label for="effort">Effort (PH)</label>
+                                          <input type="text" class="form-control" id="effort" name="effort" value="0">
+                                        </div>
+                                      </div>
+                                      <div class="col">
+                                        <div class="form-group">
+                                          <label for="project_cost">Cost ($)</label>
+                                          <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
+                                        </div>
+                                      </div>
+                                      <div class="col">
+                                        <div class="form-group">
+                                          <label for="benefit">Benefit (ROI or $)</label>
+                                          <input type="text" class="form-control" id="benefit" name="benefit" value="0">
+                                        </div>
+                                      </div>
+                                    </div>
+                                      <div class="form-row">
+                                        <div class="col">
+                                          <div class="form-group">
+                                            <label for="tag_1">Tag 1:</label>
+                                            <select name="tag_1" id="tag_1" class="form-control">
+                                              <% if (tags && tags.length > 0) { %>
+                                                <% tags.forEach(function(tag){ %>
+                                                  <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                <% }) %>
+                                              <% } else { %>
+                                                <option value="">No tags available</option>
+                                              <% } %>
+                                            </select>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="form-row">
+                                        <div class="col">
+                                          <div class="form-group">
+                                            <label for="tag_2">Tag 2:</label>
+                                            <select name="tag_2" id="tag_2" class="form-control">
+                                              <% if (tags && tags.length > 0) { %>
+                                                <% tags.forEach(function(tag){ %>
+                                                  <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                <% }) %>
+                                              <% } else { %>
+                                                <option value="">No tags available</option>
+                                              <% } %>
+                                            </select>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="form-row">
+                                        <div class="col">
+                                          <div class="form-group">
+                                            <label for="tag_3">Tag 3:</label>
+                                            <select name="tag_3" id="tag_3" class="form-control">
+                                              <% if (tags && tags.length > 0) { %>
+                                                <% tags.forEach(function(tag){ %>
+                                                  <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                                                <% }) %>
+                                              <% } else { %>
+                                                <option value="">No tags available</option>
+                                              <% } %>
+                                            </select>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      
+                                     
+                                      </div>  
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+                                  <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                                </div>
+                              </form>
                             </div>
-                              
-              </div><!-- /.modal -->
-              
-            </div>
-        </div> <!-- end row -->
-    </div>
+                          </div>
+                            
+            </div><!-- /.modal -->
 </div>
 
 <%- contentFor('FooterJs') %>
@@ -446,5 +443,12 @@
             });
         });
     });
+    addProject.addEventListener('click', function(event) {
+      $("#addProject").modal({
+        backdrop: "static",
+        keyboard: false,
+    });
+    });
 
+   
 </script>

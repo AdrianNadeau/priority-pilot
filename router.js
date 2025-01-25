@@ -14,7 +14,6 @@ function formatToKMB(num) {
   }
   const isNegative = num < 0;
   num = Math.abs(num);
-
   if (num >= 1e9) return (isNegative ? "-" : "") + (num / 1e9).toFixed(2) + "B";
   if (num >= 1e6) return (isNegative ? "-" : "") + (num / 1e6).toFixed(2) + "M";
   if (num >= 1e3) return (isNegative ? "-" : "") + (num / 1e3).toFixed(2) + "K"; // No decimal if whole number
@@ -30,19 +29,6 @@ function removeCommasAndConvert(numStr) {
 }
 
 router.get("/", async (req, res) => {
-  try {
-    if (
-      !req.session.company ||
-      !req.session.company.id ||
-      req.session.company.id <= 0
-    ) {
-      return res.redirect("/register");
-    }
-  } catch (error) {
-    console.error("Error while fetching data:", error.message, error.stack);
-    return res.redirect("/register");
-  }
-
   let totalPH = 0;
   let totalUsedPH = 0;
   // let totalAvailPH = 0;
@@ -52,8 +38,8 @@ router.get("/", async (req, res) => {
   let usedCost = 0;
   let availableCost = 0;
 
-  let availableCostColor = "black";
-  let availablePHColor = "black";
+  let availableCostColor = "green";
+  let availablePHColor = "green";
 
   try {
     const company_id_fk = req.session.company.id;
@@ -120,9 +106,6 @@ router.get("/", async (req, res) => {
     const portfolio_effort = data[0].company_effort
       ? removeCommasAndConvert(data[0].company_effort)
       : 0;
-
-    console.log("portfolio_budget", portfolio_budget);
-    console.log("company_effort:", portfolio_effort);
 
     // Process data and calculate totals
     data.forEach((project) => {
@@ -237,6 +220,7 @@ router.get("/", async (req, res) => {
     if (isNaN(availablePH)) {
       availablePH = 0;
     }
+    console.log("availableCost:", availableCost);
     if (availablePH < 0) {
       availableCostColor = "red";
     } else {

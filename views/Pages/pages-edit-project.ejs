@@ -109,15 +109,15 @@
                         </div>
                         <div class="form-group">
                             <label for="effort">Effort (PH):</label>
-                            <input type="text" class="form-control" id="effort" name="effort" value="<%= project.effort %>">
+                            <input type="text" class="form-control" id="effort" name="effort" oninput="formatNumberWithCommas(this);" value="<%= project.effort %>">
                         </div>
                         <div class="form-group">
                             <label for="project_cost">Cost ($):</label>
-                            <input type="text" class="form-control" id="project_cost" name="project_cost" value="<%= project.project_cost %>">
+                            <input type="text" class="form-control" id="project_cost" name="project_cost" oninput="formatNumberWithCommas(this);" value="<%= project.project_cost %>">
                         </div>
                         <div class="form-group">
                             <label for="benefit">Benefit (ROI or $):</label>
-                            <input type="text" class="form-control" id="benefit" name="benefit" value="<%= project.benefit %>">
+                            <input type="text" class="form-control" id="benefit" name="benefit" oninput="formatNumberWithCommas(this);" value="<%= project.benefit %>">
                         </div>
                         <div class="form-group">
                             <label for="tag_1">Tag 1:</label>

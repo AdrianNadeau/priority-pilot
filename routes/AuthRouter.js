@@ -25,7 +25,7 @@ Authrouter.get("/register", function (req, res) {
 Authrouter.get("/confirm", function (req, res) {
   res.render("Pages/pages-register-confirm");
 });
-Authrouter.get("c", function (req, res) {
+Authrouter.get("/session-expired", function (req, res) {
   res.render("Pages/pages-session-timeout");
 });
 Authrouter.get("/terms", function (req, res) {
