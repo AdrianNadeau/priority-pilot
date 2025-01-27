@@ -138,13 +138,13 @@
                                       <label for="dates">Dates:</label>
                                       <div class="form-row">
                                         <div class="col">
-                                          <input type="text" class="form-control" id="start_date" name="start_date" placeholder="Start date">
+                                          <input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start date">
                                         </div>
                                         <div class="col">
-                                          <input type="text" class="form-control" id="end_date" name="end_date" placeholder="End date">
+                                          <input type="text" class="form-control datepicker" id="end_date" name="end_date" placeholder="End date">
                                         </div>
                                         <div class="col">
-                                          <input type="text" class="form-control" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone date">
+                                          <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone date">
                                         </div>
                                       </div>
                                     </div>
@@ -379,7 +379,7 @@ const datePicker = document.querySelector('#start_date');
   //     startYearDropdown.value = storedStartYear;
   //     updateStartDays();
   //   }
-  // });
+  });
  
   document.addEventListener("DOMContentLoaded", function() {
         // Get all table rows
