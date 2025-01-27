@@ -117,7 +117,9 @@
                                     <div class="form-group">
                                       <label for="project_name">Project Name:</label>
                                       <input type="text" class="form-control" id="project_name" maxlength="25" name="project_name" required>
-                                      <div class="invalid-feedback">Please enter project name.</div>
+                                      <div class="invalid-feedback">
+                                        Please enter project name.
+                                    </div>
                                     </div>
                                     <div class="form-group">
                                       <label for="headline">Headline:</label>
@@ -132,95 +134,21 @@
                                       <textarea class="form-control" id="what" name="what"></textarea>
                                     </div>
                                     <div class="form-group">
-                                      <label for="start_date_year">Start Date:</label>
+                                      
+                                      <label for="dates">Dates:</label>
                                       <div class="form-row">
                                         <div class="col">
-                                          <select id="start_date_year" name="start_date_year" class="form-control form-control-wide">
-                                            <option value="0" selected>Select...</option>
-                                            <% 
-                                              const currentYear = new Date().getFullYear();
-                                              const years = [];
-                                              for (let i = currentYear - 10; i <= currentYear + 5; i++) {
-                                                years.push(i);
-                                              }
-                                            %>
-                                            <% years.forEach(year => { %>
-                                              <option value="<%= year %>"><%= year %></option>
-                                            <% }); %>
-                                          </select>
+                                          <input type="text" class="form-control" id="start_date" name="start_date" placeholder="Start date">
                                         </div>
                                         <div class="col">
-                                          <select id="start_date_month" name="start_date_month" class="form-control form-control-wide">
-                                            <option value="0" selected>Select...</option>
-                                            <% const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; %>
-                                            <% monthsOfYear.forEach(month => { %>
-                                              <option value="<%= month %>"><%= month %></option>
-                                            <% }); %>
-                                          </select>
+                                          <input type="text" class="form-control" id="end_date" name="end_date" placeholder="End date">
                                         </div>
                                         <div class="col">
-                                          <select id="start_date_day" name="start_date_day" class="form-control form-control-wide">
-                                            <option value="0" selected>Select...</option>
-                                            <!-- Days will be populated by JavaScript -->
-                                          </select>
+                                          <input type="text" class="form-control" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone date">
                                         </div>
                                       </div>
                                     </div>
-                                    <div class="form-group">
-                                      <label for="end_date_year">End Date:</label>
-                                      <div class="form-row">
-                                        <div class="col">
-                                          <select id="end_date_year" name="end_date_year" class="form-control form-control-wide">
-                                            <option value="0" selected>Select...</option>
-                                            <% years.forEach(year => { %>
-                                              <option value="<%= year %>"><%= year %></option>
-                                            <% }); %>
-                                          </select>
-                                        </div>
-                                        <div class="col">
-                                          <select id="end_date_month" name="end_date_month" class="form-control form-control-wide">
-                                            <option value="0" selected>Select...</option>
-                                            <% monthsOfYear.forEach(month => { %>
-                                              <option value="<%= month %>"><%= month %></option>
-                                            <% }); %>
-                                          </select>
-                                        </div>
-                                        <div class="col">
-                                          <select id="end_date_day" name="end_date_day" class="form-control form-control-wide">
-                                            <option value="0" selected>Select...</option>
-                                            <!-- Days will be populated by JavaScript -->
-                                          </select>
-                                        </div>
-                                      </div>
                                     </div>
-                                    <div class="form-group">
-                                      <label for="next_milestone_year">Next Milestone Date:</label>
-                                      <div class="form-row">
-                                        <div class="col">
-                                          <select id="next_milestone_year" name="next_milestone_year" class="form-control form-control-wide">
-                                            <option value="0" selected>Select...</option>
-                                            <% years.forEach(year => { %>
-                                              <option value="<%= year %>"><%= year %></option>
-                                            <% }); %>
-                                          </select>
-                                        </div>
-                                        <div class="col">
-                                          <select id="next_milestone_month" name="next_milestone_month" class="form-control form-control-wide">
-                                            <option value="0" selected>Select...</option>
-                                            <% monthsOfYear.forEach(month => { %>
-                                              <option value="<%= month %>"><%= month %></option>
-                                            <% }); %>
-                                          </select>
-                                        </div>
-                                        <div class="col">
-                                          <select id="next_milestone_day" name="next_milestone_day" class="form-control form-control-wide">
-                                            <option value="0" selected>Select...</option>
-                                            <!-- Days will be populated by JavaScript -->
-                                          </select>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
                                   <div class="col-md-6">
                                     <!-- Right Column -->
                                     <div class="form-row">
@@ -271,19 +199,19 @@
                                       <div class="col">
                                         <div class="form-group">
                                           <label for="effort">Effort (PH)</label>
-                                          <input type="text" class="form-control" id="effort" name="effort" value="0">
+                                          <input type="text" class="form-control" id="effort" oninput="formatNumberWithCommas(this);" name="effort" value="0">
                                         </div>
                                       </div>
                                       <div class="col">
                                         <div class="form-group">
                                           <label for="project_cost">Cost ($)</label>
-                                          <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
+                                          <input type="text" class="form-control" id="project_cost" oninput="formatNumberWithCommas(this);" name="project_cost" value="0">
                                         </div>
                                       </div>
                                       <div class="col">
                                         <div class="form-group">
                                           <label for="benefit">Benefit (ROI or $)</label>
-                                          <input type="text" class="form-control" id="benefit" name="benefit" value="0">
+                                          <input type="text" class="form-control" id="benefit" oninput="formatNumberWithCommas(this);" name="benefit" value="0">
                                         </div>
                                       </div>
                                     </div>
@@ -354,6 +282,26 @@
 
 <%- contentFor('BottomJs') %>
 <script>
+   (function () {
+    'use strict';
+
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation');
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+
+          form.classList.add('was-validated');
+        }, false);
+      });
+  })();
+  
   const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
@@ -371,65 +319,74 @@
       dayDropdown.appendChild(option);
     }
   }
-
+// Add an event listener for form submission or date change
+const datePicker = document.querySelector('#start_date');
+        datePicker.addEventListener('change', function(event) {
+            const selectedDate = event.target.value;
+            // Convert the date to UTC to ensure consistency
+            const utcDate = moment(selectedDate).utc().format('YYYY-MM-DD');
+            console.log('Selected Date (Local):', selectedDate);
+            console.log('Selected Date (UTC):', utcDate);
+            // Now you can send utcDate to your server
+        });
   document.addEventListener('DOMContentLoaded', () => {
-    const startYearDropdown = document.getElementById('start_date_year');
-    const startMonthDropdown = document.getElementById('start_date_month');
-    const startDayDropdown = document.getElementById('start_date_day');
-    const endYearDropdown = document.getElementById('end_date_year');
-    const endMonthDropdown = document.getElementById('end_date_month');
-    const endDayDropdown = document.getElementById('end_date_day');
-    const nextMilestoneYearDropdown = document.getElementById('next_milestone_year');
-    const nextMilestoneMonthDropdown = document.getElementById('next_milestone_month');
-    const nextMilestoneDayDropdown = document.getElementById('next_milestone_day');
+  //   const startYearDropdown = document.getElementById('start_date_year');
+  //   const startMonthDropdown = document.getElementById('start_date_month');
+  //   const startDayDropdown = document.getElementById('start_date_day');
+  //   const endYearDropdown = document.getElementById('end_date_year');
+  //   const endMonthDropdown = document.getElementById('end_date_month');
+  //   const endDayDropdown = document.getElementById('end_date_day');
+  //   const nextMilestoneYearDropdown = document.getElementById('next_milestone_year');
+  //   const nextMilestoneMonthDropdown = document.getElementById('next_milestone_month');
+  //   const nextMilestoneDayDropdown = document.getElementById('next_milestone_day');
 
-    function updateStartDays() {
-      const year = parseInt(startYearDropdown.value);
-      const month = startMonthDropdown.selectedIndex;
-      updateDaysDropdown(year, month, startDayDropdown);
-    }
+  //   function updateStartDays() {
+  //     const year = parseInt(startYearDropdown.value);
+  //     const month = startMonthDropdown.selectedIndex;
+  //     updateDaysDropdown(year, month, startDayDropdown);
+  //   }
 
-    function updateEndDays() {
-      const year = parseInt(endYearDropdown.value);
-      const month = endMonthDropdown.selectedIndex;
-      updateDaysDropdown(year, month, endDayDropdown);
-    }
+  //   function updateEndDays() {
+  //     const year = parseInt(endYearDropdown.value);
+  //     const month = endMonthDropdown.selectedIndex;
+  //     updateDaysDropdown(year, month, endDayDropdown);
+  //   }
 
-    function updateNextMilestoneDays() {
-      const year = parseInt(nextMilestoneYearDropdown.value);
-      const month = nextMilestoneMonthDropdown.selectedIndex;
-      updateDaysDropdown(year, month, nextMilestoneDayDropdown);
-    }
+  //   function updateNextMilestoneDays() {
+  //     const year = parseInt(nextMilestoneYearDropdown.value);
+  //     const month = nextMilestoneMonthDropdown.selectedIndex;
+  //     updateDaysDropdown(year, month, nextMilestoneDayDropdown);
+  //   }
 
-    startYearDropdown.addEventListener('change', () => {
-      const selectedYear = startYearDropdown.value;
-      console.log(`Selected start year: ${selectedYear}`);
-      localStorage.setItem('selectedStartYear', selectedYear);
-      updateStartDays();
-    });
+  //   startYearDropdown.addEventListener('change', () => {
+  //     const selectedYear = startYearDropdown.value;
+  //     console.log(`Selected start year: ${selectedYear}`);
+  //     localStorage.setItem('selectedStartYear', selectedYear);
+  //     updateStartDays();
+  //   });
 
-    startMonthDropdown.addEventListener('change', updateStartDays);
-    endMonthDropdown.addEventListener('change', updateEndDays);
+  //   startMonthDropdown.addEventListener('change', updateStartDays);
+  //   endMonthDropdown.addEventListener('change', updateEndDays);
 
-    // Initialize days dropdowns
-    updateStartDays();
-    updateEndDays();
-    updateNextMilestoneDays();
+  //   // Initialize days dropdowns
+  //   updateStartDays();
+  //   updateEndDays();
+  //   updateNextMilestoneDays();
 
-    // Retrieve and set the selected start year from local storage
-    const storedStartYear = localStorage.getItem('selectedStartYear');
-    if (storedStartYear) {
-      startYearDropdown.value = storedStartYear;
-      updateStartDays();
-    }
-  });
+  //   // Retrieve and set the selected start year from local storage
+  //   const storedStartYear = localStorage.getItem('selectedStartYear');
+  //   if (storedStartYear) {
+  //     startYearDropdown.value = storedStartYear;
+  //     updateStartDays();
+  //   }
+  // });
+ 
   document.addEventListener("DOMContentLoaded", function() {
         // Get all table rows
         var rows = document.querySelectorAll(".table tbody tr");
 
         // Loop through each row
         rows.forEach(function(row) {
-            console.log("row:",row)
             // Add a click event listener to each row
             row.addEventListener("click", function() {
                 var id = row.cells[0].textContent; // Assuming the ID is in the first cell
@@ -442,7 +399,28 @@
                 // $('#personForm').modal('show'); // Assuming you're using jQuery
             });
         });
+         // Initialize Flatpickr on the input field with id "datepicker"
+         flatpickr("#start_date", {
+            dateFormat: "Y-m-d",
+            defaultDate: new Date(), // Set the default date to today
+            onChange: function(selectedDates, dateStr, instance) {
+              // This function will be triggered when the user selects a date
+              console.log("Selected date:", dateStr);
+            }
+          });
+
+            flatpickr('#end_date', {
+                dateFormat: 'Y-m-d', // Format the date as YYYY-MM-DD
+                minDate: 'today',    // Set the minimum selectable date to today
+                maxDate: new Date().fp_incr(365) // Set the maximum selectable date to one year from now
+            });
+            flatpickr('#next_milestone_date', {
+                dateFormat: 'Y-m-d', // Format the date as YYYY-MM-DD
+                minDate: 'today',    // Set the minimum selectable date to today
+                maxDate: new Date().fp_incr(365) // Set the maximum selectable date to one year from now
+            });
     });
+    
     addProject.addEventListener('click', function(event) {
       $("#addProject").modal({
         backdrop: "static",

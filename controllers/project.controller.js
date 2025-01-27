@@ -27,7 +27,8 @@ exports.create = (req, res) => {
 
   //convert dates
 
-  const startDateTest = insertValidDate(req.body.start_date_);
+  const startDateTest = insertValidDate(req.body.start_date);
+  console.log("startDateTest:", startDateTest);
   const endDateTest = insertValidDate(req.body.end_date);
   const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
 
@@ -120,8 +121,7 @@ exports.create = (req, res) => {
       "Nov",
       "Dec",
     ];
-    console.log("years:", years);
-    console.log("months:", monthsOfYear);
+
     await db.sequelize
       .query(query, {
         replacements: [company_id_fk],
@@ -306,7 +306,6 @@ exports.findOne = (req, res) => {
   }
 };
 exports.cockpit = async (req, res) => {
-  console.log("-------------------------------------------- IN THIS 1");
   const project_id = req.params.id;
   console.log("project_id:", project_id);
   let company_id_fk;
@@ -366,7 +365,7 @@ exports.cockpit = async (req, res) => {
       replacements: [company_id_fk, project_id],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    console.log("************************ TAGS:", data[0].combinedtags);
+    console.log("data:", data);
     let changed_projects;
     try {
       changed_projects = await db.changed_projects.findAll({
@@ -1141,8 +1140,11 @@ exports.update = async (req, res) => {
     // Convert dates
 
     startDateTest = insertValidDate(req.body.start_date);
+    console.log("EDIT:", startDateTest);
     endDateTest = insertValidDate(req.body.end_date);
+    console.log("EDIT:", endDateTest);
     nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
+    console.log("EDIT:", nextMilestoneDateTest);
 
     const [updated] = await Project.update(
       {
@@ -1164,8 +1166,8 @@ exports.update = async (req, res) => {
         phase_id_fk: req.body.phase_id_fk,
         impact: req.body.impact,
         complexity: req.body.complexity,
-        effort: req.body.effort,
-        benefit: req.body.benefit,
+        effort: formatNumberWithCommas(req.body.effort),
+        benefit: formatNumberWithCommas(req.body.benefit),
         project_cost: req.body.project_cost, // Assign the parsed project cost
         change_reason_id_fk: req.body.change_reason,
         change_explanation: req.body.change_explanation,

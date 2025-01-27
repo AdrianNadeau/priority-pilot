@@ -15,6 +15,9 @@ module.exports = (app) => {
   // Update a Tag with id
   router.put("/:id", tags.update);
 
+  // Update a Tag with id
+  router.put("/:id/:tag_name", tags.updateFromDefaultsPage);
+
   // Delete a Tag with id
   router.delete("/:id", tags.delete);
 

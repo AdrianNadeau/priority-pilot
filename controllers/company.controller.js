@@ -187,8 +187,6 @@ exports.findDefaults = (req, res) => {
     });
 };
 exports.setDefaults = async (req, res, next) => {
-  console.log("************ SET DEFAULTS ************");
-
   // Ensure session exists and extract company ID
   let company_id_fk;
   try {

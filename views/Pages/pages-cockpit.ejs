@@ -130,8 +130,20 @@
               <a href="/projects/edit/<%= project[0].id%>" style="margin-top:20px;">Change Project</a>
               <br/>
               
-              <strong>Tags:</strong> <%= project[0].combinedTags %>
-              
+              <% 
+              let tags = [];
+              if (project[0].tag_1_name && project[0].tag_1_name !== "done") {
+                tags.push(project[0].tag_1_name);
+              }
+              if (project[0].tag_2_name && project[0].tag_2_name !== "done") {
+                tags.push(project[0].tag_2_name);
+              }
+              if (project[0].tag_3_name && project[0].tag_3_name !== "done") {
+                tags.push(project[0].tag_3_name);
+              }
+            %>
+            <strong>Tags:</strong> 
+            <%= tags.join(', ') %>
               <br/>
               <strong>Change Log:</strong>
               <% if (changed_projects) { %>

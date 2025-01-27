@@ -5,7 +5,7 @@ const Op = db.Sequelize.Op;
 // Create and Save a new Tag
 exports.create = (req, res) => {
   // Validate request
-  console.log("create tag");
+
   if (!req.body.company_tag) {
     res.status(400).send({
       message: "Tag Name can not be empty!",
@@ -89,7 +89,33 @@ exports.update = (req, res) => {
       });
     });
 };
-
+exports.updateFromDefaultsPage = (req, res) => {
+  // Ensure tag_name is included in the request body
+  const updatedTag = {
+    tag_name: req.body.tag_name,
+    company_id_fk: req.body.company_id_fk,
+  };
+  console.log("updatedTag:", updatedTag);
+  Tag.update(req.body, {
+    where: { id: id },
+  })
+    .then((num) => {
+      if (num == 1) {
+        res.send({
+          message: "Tag was updated successfully.",
+        });
+      } else {
+        res.send({
+          message: `Cannot update Tag with id=${id}. Maybe Tag was not found or req.body is empty!`,
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Error updating Tag with id=" + id,
+      });
+    });
+};
 // Delete a Tag with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
