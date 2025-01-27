@@ -46,17 +46,17 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="start_date">Start Date:</label><%= project.start_date ? project.start_date.toISOString().split('T')[0] : '' %>
-                            <input type="date" class="form-control" id="start_date" name="start_date" value="2025-01-01">
-                        </div>
-                        <div class="form-group">
+                            <label for="start_date">Start Date:</label>
+                            <input type="text" class="form-control datepicker" id="start_date" name="start_date" value="<%= project.start_date ? project.start_date.toISOString().split('T')[0] : '' %>">
+                          </div>
+                          <div class="form-group">
                             <label for="end_date">End Date:</label>
-                            <input type="date" class="form-control" id="end_date" name="end_date" value="<%= project.end_date ? project.end_date.toISOString().split('T')[0] : '' %>">
-                        </div>
-                        <div class="form-group">
+                            <input type="text" class="form-control datepicker" id="end_date" name="end_date" value="<%= project.end_date ? project.end_date.toISOString().split('T')[0] : '' %>">
+                          </div>
+                          <div class="form-group">
                             <label for="next_milestone_date">Next Milestone Date:</label>
-                            <input type="date" class="form-control" id="next_milestone_date" name="next_milestone_date" value="<%= project.next_milestone_date ? project.next_milestone_date.toISOString().split('T')[0] : '' %>">
-                        </div>
+                            <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" value="<%= project.next_milestone_date ? project.next_milestone_date.toISOString().split('T')[0] : '' %>">
+                          </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
@@ -338,10 +338,19 @@ function cancelForm(){
   
   window.location.replace("/projects");
 }
-const startDate = {'start_date': {anyDate: true}};
-  new DeskyCalendar(startDate);
-  const endDate = {'end_date': {anyDate: true}};
-  new DeskyCalendar(endDate);
-  const milestoneDate = {'next_milestone_date': {anyDate: true}};
-  new DeskyCalendar(milestoneDate);
+// const startDate = {'start_date': {anyDate: true}};
+//   new DeskyCalendar(startDate);
+//   const endDate = {'end_date': {anyDate: true}};
+//   new DeskyCalendar(endDate);
+//   const milestoneDate = {'next_milestone_date': {anyDate: true}};
+//   new DeskyCalendar(milestoneDate);
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Initialize Flatpickr for all datepicker inputs
+    flatpickr(".datepicker", {
+      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+    //   minDate: "today",    // Example: Restrict past dates
+      allowInput: true     // Allow manual input if needed
+    });
+  });
 </script>
