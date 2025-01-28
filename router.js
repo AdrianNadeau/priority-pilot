@@ -30,23 +30,8 @@ function removeCommasAndConvert(numStr) {
 
 router.get("/", async (req, res) => {
   try {
-    try {
-      if (!req.session.company || !req.session.company.id) {
-        throw new Error("Invalid session");
-      }
-      company_id_fk = req.session.company.id;
-    } catch (error) {
-      console.log("SESSION INVALID");
-      return res.redirect("/register");
-    }
-
-    // Validate person and check if admin
-    const person = req.session.person;
-    if (!person) {
-      return res.redirect("/register");
-    }
-    const isAdmin = person.isAdmin;
-    if (!person) {
+    const company_id_fk = req.session.company?.id;
+    if (!company_id_fk) {
       return res.redirect("/register");
     }
 
@@ -89,110 +74,115 @@ router.get("/", async (req, res) => {
       type: db.sequelize.QueryTypes.SELECT,
     });
 
-    if (company_id_fk) {
-      // we know there is a session if we are this far down. They don't have projects when the register
-      const company = await Company.findByPk(company_id_fk);
-      const phaseData = {
-        pitch: { count: 0, cost: 0, ph: 0 },
-        planning: { count: 0, cost: 0, ph: 0 },
-        discovery: { count: 0, cost: 0, ph: 0 },
-        delivery: { count: 0, cost: 0, ph: 0 },
-        done: { count: 0, cost: 0, ph: 0 },
-      };
-
-      // Retrieve portfolio_budget and portfolio_effort from the first record
-      const portfolio_budget = company.company_budget
-        ? removeCommasAndConvert(company.company_budget)
-        : 0;
-
-      const portfolio_effort = company.company_effort
-        ? removeCommasAndConvert(company.company_effort)
-        : 0;
-
-      // Process data and calculate totals
-      data.forEach((project) => {
-        const projectCost = project.project_cost
-          ? removeCommasAndConvert(project.project_cost)
-          : 0;
-        const projectEffortPH = parseInt(project.effort) || 0;
-
-        // Categorize by phase name and accumulate values
-        const phase = project.phase_name?.toLowerCase() || "unknown";
-        if (phaseData[phase]) {
-          phaseData[phase].count++;
-          phaseData[phase].cost += projectCost;
-          phaseData[phase].ph += projectEffortPH;
-        } else {
-          console.warn("Unknown phase:", project.phase_name);
-        }
-      });
-
-      // Calculate used and available values
-      const usedCost =
-        phaseData.planning.cost +
-        phaseData.discovery.cost +
-        phaseData.delivery.cost +
-        phaseData.done.cost;
-
-      const usedEffort =
-        phaseData.planning.ph +
-        phaseData.discovery.ph +
-        phaseData.delivery.ph +
-        phaseData.done.ph;
-
-      const totalAvailPH = portfolio_effort - usedEffort;
-      const availableCost = portfolio_budget - usedCost;
-
-      // Determine colors based on availability
-      const availablePHColor =
-        isNaN(totalAvailPH) || totalAvailPH < 0 ? "red" : "green";
-      const availableCostColor =
-        isNaN(availableCost) || availableCost < 0 ? "red" : "green";
-
-      // Format data for response
-      const formattedData = {
-        totalPH: formatToKMB(portfolio_effort),
-        totalUsedPH: formatToKMB(usedEffort),
-        totalAvailPH: formatToKMB(totalAvailPH),
-        pitch: {
-          count: phaseData.pitch.count,
-          cost: formatToKMB(phaseData.pitch.cost),
-          ph: formatToKMB(phaseData.pitch.ph),
-        },
-        planning: {
-          count: phaseData.planning.count,
-          cost: formatToKMB(phaseData.planning.cost),
-          ph: phaseData.planning.ph.toLocaleString(),
-        },
-        discovery: {
-          count: phaseData.discovery.count,
-          cost: formatToKMB(phaseData.discovery.cost),
-          ph: phaseData.discovery.ph.toLocaleString(),
-        },
-        delivery: {
-          count: phaseData.delivery.count,
-          cost: formatToKMB(phaseData.delivery.cost),
-          ph: phaseData.delivery.ph.toLocaleString(),
-        },
-        operations: {
-          count: phaseData.done.count,
-          cost: formatToKMB(phaseData.done.cost),
-          ph: phaseData.done.ph.toLocaleString(),
-        },
-        totalCost: formatToKMB(portfolio_budget),
-        usedCost: formatToKMB(usedCost),
-        availableCost: formatToKMB(availableCost),
-      };
-
-      // Render dashboard with all calculated values
-      res.render("Dashboard/dashboard1", {
-        company_id: company_id_fk,
-        projects: data,
-        ...formattedData,
-        availableCostColor,
-        availablePHColor,
-      });
+    if (!data || data.length === 0) {
+      console.log("No data found for company_id_fk:", company_id_fk);
+      return res.redirect("/projects");
     }
+
+    // Initialize phase data with default values
+    const phaseData = {
+      pitch: { count: 0, cost: 0, ph: 0 },
+      planning: { count: 0, cost: 0, ph: 0 },
+      discovery: { count: 0, cost: 0, ph: 0 },
+      delivery: { count: 0, cost: 0, ph: 0 },
+      done: { count: 0, cost: 0, ph: 0 },
+    };
+
+    // Retrieve portfolio_budget and portfolio_effort from the first record
+    const portfolio_budget = data[0].company_budget
+      ? removeCommasAndConvert(data[0].company_budget)
+      : 0;
+
+    const portfolio_effort = data[0].company_effort
+      ? removeCommasAndConvert(data[0].company_effort)
+      : 0;
+    console.log("company_effort:", portfolio_effort);
+    // Process data and calculate totals
+    data.forEach((project) => {
+      const projectCost = project.project_cost
+        ? removeCommasAndConvert(project.project_cost) || 0
+        : 0;
+      const projectEffortPH = parseInt(project.effort) || 0;
+
+      // Categorize by phase name and accumulate values
+      const phase = project.phase_name?.toLowerCase() || "unknown";
+
+      if (phaseData[phase]) {
+        phaseData[phase].count++;
+        phaseData[phase].cost += projectCost;
+        phaseData[phase].ph += projectEffortPH;
+      } else {
+        console.warn("Unknown phase:", project.phase_name);
+      }
+    });
+
+    // Calculate used values
+    const usedCost =
+      phaseData.planning.cost +
+      phaseData.discovery.cost +
+      phaseData.delivery.cost +
+      phaseData.done.cost;
+
+    const usedEffort =
+      phaseData.planning.ph +
+      phaseData.discovery.ph +
+      phaseData.delivery.ph +
+      phaseData.done.ph;
+
+    // Calculate available values
+    const totalAvailPH = portfolio_effort - usedEffort;
+    const availableCost = portfolio_budget - usedCost;
+
+    // Determine colors based on availability
+    const availablePHColor =
+      isNaN(totalAvailPH) || totalAvailPH < 0 ? "red" : "green";
+    const availableCostColor =
+      isNaN(availableCost) || availableCost < 0 ? "red" : "green";
+
+    // Format data for response
+    const formattedData = {
+      totalPH: formatToKMB(portfolio_effort),
+      totalUsedPH: formatToKMB(usedEffort),
+      totalAvailPH: formatToKMB(totalAvailPH),
+      pitch: {
+        count: phaseData.pitch.count,
+        cost: formatToKMB(phaseData.pitch.cost),
+        ph: formatToKMB(phaseData.pitch.ph),
+      },
+      planning: {
+        count: phaseData.planning.count,
+        cost: formatToKMB(phaseData.planning.cost),
+        ph: phaseData.planning.ph.toLocaleString(),
+      },
+      discovery: {
+        count: phaseData.discovery.count,
+        cost: formatToKMB(phaseData.discovery.cost),
+        ph: phaseData.discovery.ph.toLocaleString(),
+      },
+      delivery: {
+        count: phaseData.delivery.count,
+        cost: formatToKMB(phaseData.delivery.cost),
+        ph: phaseData.delivery.ph.toLocaleString(),
+      },
+      operations: {
+        count: phaseData.done.count,
+        cost: formatToKMB(phaseData.done.cost),
+        ph: phaseData.done.ph.toLocaleString(),
+      },
+      totalCost: formatToKMB(portfolio_budget),
+      usedCost: formatToKMB(usedCost),
+      availableCost: formatToKMB(availableCost),
+      usedEffort: formatToKMB(usedEffort),
+    };
+
+    // Render dashboard with all calculated values
+    res.render("Dashboard/dashboard1", {
+      company_id: company_id_fk,
+      projects: data,
+      ...formattedData,
+      availableCostColor,
+      availablePHColor,
+    });
   } catch (error) {
     console.error("Error while fetching data:", error.message, error.stack);
     res.status(500).send("Internal Server Error");
