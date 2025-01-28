@@ -136,7 +136,7 @@
                             <ul class="list-unstyled">
                                 <li>Full: $<%= totalCost %></li>
                                 <li>Used: $<%= usedCost %></li>
-                               <li>Avail: <span style="font-weight:900px;"><strong>$<%= availableCost %></strong></span></li>
+                               <li>Avail: <span style="color: <%= availableCostColor %>; font-weight:900;"><strong>$<%= availableCost %></strong></span></li>
 
                             </ul>
                             <strong>Effort</strong>
@@ -144,7 +144,7 @@
                                 <li>Full: <%= totalPH %> PH</li>
                                 <li>Used: <%= totalUsedPH %> PH</li>
                                 
-                                    <li>Avail: <span style="color: <%= availablePHColor %>;; font-weight:900px;"><strong><%= totalAvailPH %></strong></span></li>
+                                    <li>Avail: <span style="color: <%= availablePHColor %>; font-weight:900;"><strong><%= totalAvailPH %></strong></span></li>
                                 
                             </ul>
                         </div>

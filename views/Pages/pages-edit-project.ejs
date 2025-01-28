@@ -46,9 +46,15 @@
                         </div>
                         
                         <div class="form-group">
+                           
                             <label for="start_date">Start Date:</label>
+                            <a class="input-button" title="toggle" data-toggle>
+                                <i class="icon-calendar"></i>
+                            </a>
                             <input type="text" class="form-control datepicker" id="start_date" name="start_date" value="<%= project.start_date ? project.start_date.toISOString().split('T')[0] : '' %>">
-                          </div>
+                            
+                            
+                        </div>
                           <div class="form-group">
                             <label for="end_date">End Date:</label>
                             <input type="text" class="form-control datepicker" id="end_date" name="end_date" value="<%= project.end_date ? project.end_date.toISOString().split('T')[0] : '' %>">

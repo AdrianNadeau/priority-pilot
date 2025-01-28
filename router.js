@@ -154,31 +154,7 @@ router.get("/", async (req, res) => {
     console.log("availableCost:", availableCost);
 
     // Ensure availableCost is a valid number
-    if (isNaN(availableCost)) {
-      availableCostColor = "black";
-    }
-    if (availableCost <= 0) {
-      availableCostColor = "red";
-    } else {
-      availableCostColor = "green";
-    }
-    if (isNaN(availablePHColor)) {
-      availablePHColor = "black";
-    }
-    if (totalAvailPH < 0) {
-      availablePHColor = "red";
-    } else {
-      availablePHColor = "green";
-    }
 
-    if (isNaN(availablePHColor)) {
-      availablePHColor = "black";
-    }
-    if (totalAvailPH < 0) {
-      availablePHColor = "red";
-    } else {
-      availablePHColor = "green";
-    }
     const formattedData = {
       totalPH: formatToKMB(totalPH),
       totalUsedPH: formatToKMB(usedEffort),
@@ -216,34 +192,35 @@ router.get("/", async (req, res) => {
       availableCost: formatToKMB(availableCost),
     };
 
-    // Ensure availableCost is a valid number
-    if (isNaN(availablePH)) {
-      availablePH = 0;
+    // Ensure availablePH is a valid number
+    if (isNaN(totalAvailPH)) {
+      console.log("NaN");
+      availablePHColor = "red";
     }
-    console.log("availableCost:", availableCost);
-    if (availablePH < 0) {
+    console.log("availablePH:", totalAvailPH);
+    if (totalAvailPH < 0) {
+      availablePHColor = "red";
+    } else {
+      availablePHColor = "green";
+    }
+
+    if (isNaN(availableCost)) {
+      availableCostColor = "red";
+    }
+    // console.log("availableCost:", availableCostColor);
+    if (availableCost < 0) {
       availableCostColor = "red";
     } else {
       availableCostColor = "green";
     }
 
-    if (isNaN(availableCost)) {
-      availableCost = 0;
-    }
-    console.log("availableCost:", availableCost);
-    if (availablePH < 0) {
-      availableCost = "red";
-    } else {
-      availableCost = "green";
-    }
+    console.log("totalCost:", formattedData.totalCost);
+    console.log("usedCost:", formattedData.usedCost);
+    console.log("availableCost:", formattedData.availableCost);
 
-    // console.log("totalCost:", formattedData.totalCost);
-    // console.log("usedCost:", formattedData.usedCost);
-    // console.log("availableCost:", formattedData.availableCost);
-
-    // console.log("totalEffort:", portfolio_effort);
-    // console.log("usedEffort:", usedEffort);
-    // console.log("totalAvailPH:", totalAvailPH);
+    console.log("totalEffort:", portfolio_effort);
+    console.log("usedEffort:", usedEffort);
+    console.log("totalAvailPH:", totalAvailPH);
     console.log("availableCostColor:", availableCostColor);
     console.log("availablePHColor:", availablePHColor);
     // Send the response

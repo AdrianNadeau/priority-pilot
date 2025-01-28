@@ -28,7 +28,6 @@ exports.create = (req, res) => {
   //convert dates
 
   const startDateTest = insertValidDate(req.body.start_date);
-  console.log("startDateTest:", startDateTest);
   const endDateTest = insertValidDate(req.body.end_date);
   const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
 
