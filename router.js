@@ -226,6 +226,17 @@ router.get("/", async (req, res) => {
     } else {
       availableCostColor = "green";
     }
+
+    if (isNaN(availableCost)) {
+      availableCost = 0;
+    }
+    console.log("availableCost:", availableCost);
+    if (availablePH < 0) {
+      availableCost = "red";
+    } else {
+      availableCost = "green";
+    }
+
     // console.log("totalCost:", formattedData.totalCost);
     // console.log("usedCost:", formattedData.usedCost);
     // console.log("availableCost:", formattedData.availableCost);

@@ -168,7 +168,7 @@ exports.findDefaults = (req, res) => {
         where: {
           [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
         },
-        order: [["tag_name", "ASC"]],
+        order: [["id", "DESC"]],
       })
         .then((tags) => {
           if (!tags) {

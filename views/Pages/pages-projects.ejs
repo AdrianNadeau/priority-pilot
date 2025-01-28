@@ -82,7 +82,7 @@
                                           </td>
                               
                                           <td><%= project.phase_name %></td>
-                                          <td><%= project.project_cost %></td>
+                                          <td>$<%= project.project_cost %></td>
                                       </tr>
                                   </tbody>
                               <% }); %>
@@ -302,85 +302,6 @@
       });
   })();
   
-  const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-  function isLeapYear(year) {
-    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-  }
-
-  function updateDaysDropdown(year, month, dayDropdown) {
-    const daysInMonth = month === 1 && isLeapYear(year) ? 29 : monthDays[month];
-    dayDropdown.innerHTML = '';
-    for (let i = 1; i <= daysInMonth; i++) {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = i;
-      dayDropdown.appendChild(option);
-    }
-  }
-// Add an event listener for form submission or date change
-const datePicker = document.querySelector('#start_date');
-        datePicker.addEventListener('change', function(event) {
-            const selectedDate = event.target.value;
-            // Convert the date to UTC to ensure consistency
-            const utcDate = moment(selectedDate).utc().format('YYYY-MM-DD');
-            console.log('Selected Date (Local):', selectedDate);
-            console.log('Selected Date (UTC):', utcDate);
-            // Now you can send utcDate to your server
-        });
-  document.addEventListener('DOMContentLoaded', () => {
-  //   const startYearDropdown = document.getElementById('start_date_year');
-  //   const startMonthDropdown = document.getElementById('start_date_month');
-  //   const startDayDropdown = document.getElementById('start_date_day');
-  //   const endYearDropdown = document.getElementById('end_date_year');
-  //   const endMonthDropdown = document.getElementById('end_date_month');
-  //   const endDayDropdown = document.getElementById('end_date_day');
-  //   const nextMilestoneYearDropdown = document.getElementById('next_milestone_year');
-  //   const nextMilestoneMonthDropdown = document.getElementById('next_milestone_month');
-  //   const nextMilestoneDayDropdown = document.getElementById('next_milestone_day');
-
-  //   function updateStartDays() {
-  //     const year = parseInt(startYearDropdown.value);
-  //     const month = startMonthDropdown.selectedIndex;
-  //     updateDaysDropdown(year, month, startDayDropdown);
-  //   }
-
-  //   function updateEndDays() {
-  //     const year = parseInt(endYearDropdown.value);
-  //     const month = endMonthDropdown.selectedIndex;
-  //     updateDaysDropdown(year, month, endDayDropdown);
-  //   }
-
-  //   function updateNextMilestoneDays() {
-  //     const year = parseInt(nextMilestoneYearDropdown.value);
-  //     const month = nextMilestoneMonthDropdown.selectedIndex;
-  //     updateDaysDropdown(year, month, nextMilestoneDayDropdown);
-  //   }
-
-  //   startYearDropdown.addEventListener('change', () => {
-  //     const selectedYear = startYearDropdown.value;
-  //     console.log(`Selected start year: ${selectedYear}`);
-  //     localStorage.setItem('selectedStartYear', selectedYear);
-  //     updateStartDays();
-  //   });
-
-  //   startMonthDropdown.addEventListener('change', updateStartDays);
-  //   endMonthDropdown.addEventListener('change', updateEndDays);
-
-  //   // Initialize days dropdowns
-  //   updateStartDays();
-  //   updateEndDays();
-  //   updateNextMilestoneDays();
-
-  //   // Retrieve and set the selected start year from local storage
-  //   const storedStartYear = localStorage.getItem('selectedStartYear');
-  //   if (storedStartYear) {
-  //     startYearDropdown.value = storedStartYear;
-  //     updateStartDays();
-  //   }
-  });
- 
   document.addEventListener("DOMContentLoaded", function() {
         // Get all table rows
         var rows = document.querySelectorAll(".table tbody tr");

@@ -68,19 +68,13 @@ exports.findOne = (req, res) => {
 // Update a Tag by the id in the request
 exports.update = (req, res) => {
   const id = req.params.id;
-
+  console.log("req.body:", req.body);
   Tag.update(req.body, {
     where: { id: id },
   })
     .then((num) => {
       if (num == 1) {
-        res.send({
-          message: "Tag was updated successfully.",
-        });
-      } else {
-        res.send({
-          message: `Cannot update Tag with id=${id}. Maybe Tag was not found or req.body is empty!`,
-        });
+        res.redirect("/companies/get/defaults");
       }
     })
     .catch((err) => {
@@ -91,7 +85,9 @@ exports.update = (req, res) => {
 };
 exports.updateFromDefaultsPage = (req, res) => {
   // Ensure tag_name is included in the request body
+  console.log("req.body:", req.body);
   const updatedTag = {
+    tag_id: req.body.tag_id,
     tag_name: req.body.tag_name,
     company_id_fk: req.body.company_id_fk,
   };
@@ -119,7 +115,7 @@ exports.updateFromDefaultsPage = (req, res) => {
 // Delete a Tag with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
-
+  console.log("ID", id);
   Tag.destroy({
     where: { id: id },
   })

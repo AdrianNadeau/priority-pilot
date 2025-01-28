@@ -36,14 +36,19 @@ exports.create = (req, res) => {
   if (req.body.phase_id_fk == 1) {
     pitch_message = req.body.pitch_message;
   }
+  const projectCost = removeCommasAndConvertToNumber(req.body.project_cost);
+  if (isNaN(projectCost)) {
+    return 0;
+  }
   // Create a Project
+
   const project = {
     company_id_fk: company_id_fk,
     project_name: req.body.project_name,
-    project_headline: req.body.project_headline,
+    project_headline: req.body.headline,
     project_description: req.body.project_description,
-    project_why: req.body.project_why,
-    project_what: req.body.project_what,
+    project_why: req.body.why,
+    project_what: req.body.what,
     start_date: startDateTest,
     end_date: endDateTest,
     next_milestone_date: nextMilestoneDateTest,
@@ -67,6 +72,7 @@ exports.create = (req, res) => {
     tag_3: req.body.tag_3 || 0,
     // other project fields
   };
+  console.log("project:", project);
   // Save Project in the database
   Project.create(project).then(async (data) => {
     const phasesData = await Phase.findAll({
@@ -100,27 +106,6 @@ exports.create = (req, res) => {
     const query =
       "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
     // Add year range calculation
-    const currentYear = new Date().getFullYear();
-    const years = [];
-    for (let i = currentYear - 10; i <= currentYear + 5; i++) {
-      years.push(i);
-    }
-
-    // Add months array
-    const monthsOfYear = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
 
     await db.sequelize
       .query(query, {
@@ -136,12 +121,9 @@ exports.create = (req, res) => {
           priorities: prioritiesData,
           sponsors: personsData,
           primes: personsData,
-
           tags: tagsData,
           company_id: company_id_fk,
           projects: data,
-          years: years,
-          monthsOfYear: monthsOfYear,
         });
       })
       .catch((err) => {
@@ -477,7 +459,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
         replacements: [company_id_fk, project_id],
         type: db.sequelize.QueryTypes.SELECT,
       });
-
+      console.log("*************************************** data", data);
       if (!data || data.length === 0) {
         return res.status(404).send({ message: "Project not found" });
       }
@@ -516,7 +498,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
           company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
         },
       });
-
+      console.log("GET DATA", data);
       res.render("Pages/pages-edit-project", {
         project: data[0], // Pass the first element of the data array
         current_date: currentDate,
@@ -1119,11 +1101,9 @@ exports.update = async (req, res) => {
   try {
     console.log(req.body);
     // Parse and assign the project cost
-    const projectCost = parseFloat(req.body.project_cost);
+    let projectCost = parseFloat(req.body.project_cost);
     if (isNaN(projectCost)) {
-      return res.status(400).send({
-        message: "Invalid project cost. Please enter a valid number.",
-      });
+      projectCost = 0;
     }
     // Ensure session exists and fetch company ID
     const id = req.params.id;
@@ -1140,11 +1120,8 @@ exports.update = async (req, res) => {
     // Convert dates
 
     startDateTest = insertValidDate(req.body.start_date);
-    console.log("EDIT:", startDateTest);
     endDateTest = insertValidDate(req.body.end_date);
-    console.log("EDIT:", endDateTest);
     nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
-    console.log("EDIT:", nextMilestoneDateTest);
 
     const [updated] = await Project.update(
       {
@@ -1263,10 +1240,24 @@ exports.deleteAll = (req, res) => {
 function insertValidDate(date) {
   return date ? moment.tz(date, "YYYY-MM-DD", "UTC") : null;
 }
-const formatCost = (cost) => {
-  if (cost === null || cost === undefined) return "0";
-  if (cost >= 1_000_000_000) return `${(cost / 1_000_000_000).toFixed(1)}B`;
-  if (cost >= 1_000_000) return `${(cost / 1_000_000).toFixed(1)}M`;
-  if (cost >= 1_000) return `${(cost / 1_000).toFixed(1)}K`;
-  return cost.toString();
-};
+function formatNumberWithCommas(input) {
+  if (input && typeof input.value === "string") {
+    // Remove non-numeric characters
+    let value = input.value.replace(/\D/g, "");
+
+    // Format the number with commas
+    value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    // Set the formatted value back to the input
+    input.value = value;
+  } else {
+    console.error("Invalid input or input value:", input);
+  }
+}
+function removeCommasAndConvertToNumber(value) {
+  if (typeof value === "string") {
+    value = value.toString();
+    return parseInt(value.replace(/,/g, ""), 10);
+  }
+  return value;
+}
