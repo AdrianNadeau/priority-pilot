@@ -23,10 +23,110 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
-                    <img src="/public/assets/images/gannt.png" alt="Flight Plan" class="img-fluid" style="width:80%;height:90%;">
-                </div>
-            </div>
+              <div style="width: 1200px; margin: 20px auto;">
+                <canvas id="ganttChart"></canvas>
+              </div>
+          </div>
         </div>
+    </div>
+</div>
 
 <%- contentFor('FooterJs') %>
+<script>
+  fetch('/projects/flightview/ganttChart/')
+  .then(response => response.json())
+  .then(data => {
+    const projects = data.companyProjects;
+    const colors = data.colors;
+
+    const colorMapping = {
+      Green: "#28a745",
+      Yellow: "#ffc107",
+      Red: "#dc3545",
+    };
+
+    const phaseMapping = {
+      1: "Pitch",
+      2: "Priority",
+      3: "Discovery",
+      4: "Delivery",
+      5: "Done",
+    };
+
+    // Convert API colors to hex codes
+    const mappedColors = colors.map(color => colorMapping[color] || "#000000");
+    const mappedPhases = projects.map(project => phaseMapping[project.phase_id]);
+
+    // Prepare the data for Chart.js
+    const chartData = {
+      labels: projects.map(project => project.project_name),
+      datasets: [{
+        label: 'Timeline',
+        data: projects.map(project => ({
+          x: [new Date(project.start_date), new Date(project.end_date)],
+          y: project.project_name
+        })),
+        backgroundColor: mappedColors,
+        borderColor: mappedColors,
+        borderWidth: 1,
+        barPercentage: 0.7,
+        categoryPercentage: 0.7,
+        borderRadius: 10,
+        borderSkipped: false
+      }]
+    };
+
+    // Create the chart
+    const ctx = document.getElementById('ganttChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: chartData,
+      options: {
+        indexAxis: 'y',
+        scales: {
+          x: {
+            type: 'time',
+            position: 'top',
+            time: {
+              unit: 'month'
+            },
+            min: new Date(Math.min(...projects.map(project => new Date(project.start_date)))),
+            max: new Date(Math.max(...projects.map(project => new Date(project.end_date))))
+          },
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          datalabels: { 
+            anchor: 'center', 
+            align: 'center', 
+            color: '#000000', 
+            font: {
+              weight: 'bold',
+              size: 12
+            },
+            formatter: function(value, context) {
+              return `${projects[context.dataIndex].project_name} - $${projects[context.dataIndex].project_cost}`; 
+            }
+          },
+          tooltip: { // Keep tooltip on hover as well
+            callbacks: {
+              label: function(context) {
+                const project = projects[context.dataIndex];
+                return [
+                  `Phase: ${phaseMapping[project.phase_id_fk]}`,
+                  `Start: ${moment(project.start_date).format("DD MMM YY")}`,
+                  `End: ${moment(project.end_date).format("DD MMM YY")}`
+                ];
+              }
+            }
+          }
+        }
+      },
+      plugins: [ChartDataLabels]
+    });
+  });
+
+</script>
 <%- contentFor('BottomJs') %>
