@@ -1095,6 +1095,8 @@ exports.ganttChart = async (req, res) => {
       attributes: ["progress", "health"],
     });
 
+    console.log("status:", status);
+
     colors.push(status ? status.health : "No status available");
   }
 
