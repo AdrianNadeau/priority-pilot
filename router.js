@@ -96,7 +96,7 @@ router.get("/", async (req, res) => {
     const portfolio_effort = data[0].company_effort
       ? removeCommasAndConvert(data[0].company_effort)
       : 0;
-    console.log("company_effort:", portfolio_effort);
+
     // Process data and calculate totals
     data.forEach((project) => {
       const projectCost = project.project_cost

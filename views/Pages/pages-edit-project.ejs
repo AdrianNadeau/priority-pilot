@@ -24,7 +24,7 @@
             <div class="card-body" style="border:0px !important;">
               <form action="/projects/<%= project.id %>" method="POST" class="needs-validation" novalidate id="editProjectForm">
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label for="project_name">Project Name:</label>
                             <input type="text" class="form-control" id="project_name" name="project_name" value="<%= project.project_name %>" required>
@@ -64,7 +64,7 @@
                             <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" value="<%= project.next_milestone_date ? project.next_milestone_date.toISOString().split('T')[0] : '' %>">
                           </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-6">
                         <div class="row">
                             <div class="col-md-6">
                               <div class="form-group">
@@ -131,19 +131,19 @@
                                 <div class="col-md-4">
                                   <div class="form-group">
                                     <label for="effort">Effort (PH):</label>
-                                    <input type="text" class="form-control" id="effort" name="effort" oninput="formatNumberWithCommas(this);" value="<%= project.formattedEffort %>">
+                                    <input type="text" class="form-control" id="effort" name="effort" oninput="formatNumberWithCommas(this);" value="<%= project.effort %>">
                                   </div>
                                 </div>
                                 <div class="col-md-4">
                                   <div class="form-group">
                                     <label for="project_cost">Cost ($):</label>
-                                    <input type="text" class="form-control" id="project_cost" name="project_cost" oninput="formatNumberWithCommas(this);" value="<%= project.formattedCost %>">
+                                    <input type="text" class="form-control" id="project_cost" name="project_cost" oninput="formatNumberWithCommas(this);" value="<%= project.project_cost %>">
                                   </div>
                                 </div>
                                 <div class="col-md-4">
                                   <div class="form-group">
                                     <label for="benefit">Benefit (ROI or $):</label>
-                                    <input type="text" class="form-control" id="benefit" name="benefit" oninput="formatNumberWithCommas(this);" value="<%= project.formattedBenefit %>">
+                                    <input type="text" class="form-control" id="benefit" name="benefit" oninput="formatNumberWithCommas(this);" value="<%= project.benefit %>">
                                   </div>
                                 </div>
                               </div>

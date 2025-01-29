@@ -194,13 +194,11 @@ exports.findAllRadar = async (req, res) => {
 };
 // Retrieve all  from the database.
 exports.findAll = async (req, res) => {
-  console.log("find all");
   try {
     try {
       if (!req.session) {
         return res.redirect("/pages-500");
       } else {
-        console.log("req.session.company.id", req.session.company.id);
         company_id_fk = req.session.company.id;
         company = req.session.company;
       }
@@ -234,7 +232,7 @@ exports.findAll = async (req, res) => {
     tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
 
     const query =
-      "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
+      "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, proj.effort, proj.benefit, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
 
     await db.sequelize
       .query(query, {
@@ -458,7 +456,6 @@ proj.company_id_fk = ? AND proj.id = ?`;
         replacements: [company_id_fk, project_id],
         type: db.sequelize.QueryTypes.SELECT,
       });
-      console.log("*************************************** data", data);
       if (!data || data.length === 0) {
         return res.status(404).send({ message: "Project not found" });
       }
@@ -497,7 +494,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
           company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
         },
       });
-      console.log("GET DATA", data);
+
       res.render("Pages/pages-edit-project", {
         project: data[0], // Pass the first element of the data array
         current_date: currentDate,
@@ -1063,7 +1060,7 @@ ORDER BY
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
   });
-  console.log("data", data);
+
   // Loop through data and get the most recent progress for each project
   data.forEach((project) => {
     if (project.statuses && project.statuses.length > 0) {
@@ -1098,102 +1095,103 @@ exports.flightview = async (req, res) => {
 // Update a Project by the id in the request
 exports.update = async (req, res) => {
   try {
-    console.log(req.body);
-    // Parse and assign the project cost
-    let projectCost = parseFloat(req.body.project_cost);
-    if (isNaN(projectCost)) {
-      projectCost = 0;
-    }
     // Ensure session exists and fetch company ID
-    const id = req.params.id;
+
     if (!req.session || !req.session.company) {
       return res.redirect("/pages-500");
     }
-    const company_id_fk = req.session.company.id;
 
-    // Initialize startDate, endDate, and nextMilestoneDate
-    let startDateTest = null,
-      endDateTest = null,
-      nextMilestoneDateTest = null;
+    const { id } = req.params;
+    const {
+      project_name,
+      start_date,
+      end_date,
+      prime_id_fk,
+      sponsor_id_fk,
+      project_cost,
+      effort,
+      benefit,
+      phase_id_fk,
+      next_milestone_date,
+    } = req.body;
 
     // Convert dates
+    const startDateTest = insertValidDate(start_date);
+    const endDateTest = insertValidDate(end_date);
+    const nextMilestoneDateTest = insertValidDate(next_milestone_date);
 
-    startDateTest = insertValidDate(req.body.start_date);
-    endDateTest = insertValidDate(req.body.end_date);
-    nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
-
-    const [updated] = await Project.update(
+    // Update the project
+    const [num] = await Project.update(
       {
-        start_date: startDateTest ? startDateTest.toDate() : null,
-        end_date: endDateTest ? endDateTest.toDate() : null,
-        next_milestone_date: nextMilestoneDateTest
-          ? nextMilestoneDateTest.toDate()
-          : null,
-        company_id_fk: company_id_fk,
-        project_name: req.body.project_name,
-        project_headline: req.body.project_headline,
-        project_description: req.body.project_description,
-        project_why: req.body.project_why,
-        project_what: req.body.project_what,
-        phase_id_fk: req.body.phase_id_fk,
-        priority_id_fk: req.body.priority_id_fk,
-        sponsor_id_fk: req.body.sponsor_id_fk,
-        prime_id_fk: req.body.prime_id_fk,
-        phase_id_fk: req.body.phase_id_fk,
-        impact: req.body.impact,
-        complexity: req.body.complexity,
-        effort: formatNumberWithCommas(req.body.effort),
-        benefit: formatNumberWithCommas(req.body.benefit),
-        project_cost: req.body.project_cost, // Assign the parsed project cost
-        change_reason_id_fk: req.body.change_reason,
-        change_explanation: req.body.change_explanation,
-        tag_1: req.body.tag_1 || 0,
-        tag_2: req.body.tag_2 || 0,
-        tag_3: req.body.tag_3 || 0,
+        project_name,
+        start_date: startDateTest,
+        end_date: endDateTest,
+        prime_id_fk,
+        sponsor_id_fk,
+        project_cost,
+        effort,
+        benefit,
+        phase_id_fk,
+        next_milestone_date: nextMilestoneDateTest,
       },
       {
-        where: { id: id, company_id_fk: company_id_fk },
+        where: { id },
       },
     );
 
-    if (updated) {
-      // Create a new ChangedProject entry
+    if (num === 1) {
+      // Create a new ChangedProject entry after successful update
+      console.log("create changed project");
       const newChangedProject = {
         project_id_fk: id,
-        company_id_fk: company_id_fk,
+        company_id_fk: req.session.company?.id,
         change_date: new Date(),
-        project_name: req.body.project_name,
-        project_headline: req.body.project_headline,
-        project_description: req.body.project_description,
-        project_why: req.body.project_why,
-        project_what: req.body.project_what,
-        priority_id_fk: req.body.priority_id_fk,
-        sponsor_id_fk: req.body.sponsor_id_fk,
-        prime_id_fk: req.body.prime_id_fk,
-        phase_id_fk: req.body.phase_id_fk,
-        impact: req.body.impact,
-        complexity: req.body.complexity,
-        effort: req.body.effort || 0,
-        benefit: req.body.benefit || 0,
-        project_cost: req.body.project_cost,
-        change_reason_id_fk: req.body.change_reason,
-        change_explanation: req.body.change_explanation,
-        tag_1: req.body.tag_1 || 1,
-        tag_2: req.body.tag_2 || 1,
-        tag_3: req.body.tag_3 || 1,
+        project_name,
+        start_date: startDateTest,
+        end_date: endDateTest,
+        prime_id_fk,
+        sponsor_id_fk,
+        project_cost,
+        effort,
+        benefit,
+        phase_id_fk,
+        next_milestone_date: nextMilestoneDateTest,
       };
+      console.log("newChangedProject:", newChangedProject);
 
       const changedProject = await ChangeProject.create(newChangedProject);
+      console.log("ChangedProject entry created:", changedProject);
 
-      if (changedProject) res.redirect("/");
+      // Fetch updated project data
+      const updatedProject = await Project.findOne({
+        where: { id },
+        include: [
+          {
+            model: Person,
+            as: "prime_person",
+            attributes: ["first_name", "last_name"],
+          },
+          {
+            model: Person,
+            as: "sponsor_person",
+            attributes: ["first_name", "last_name"],
+          },
+          {
+            model: Phase,
+            attributes: ["phase_name"],
+          },
+        ],
+      });
+
+      res.json(updatedProject);
     } else {
       res.status(404).send({
         message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
       });
     }
   } catch (error) {
-    console.error("Error updating project:", error);
-    res.status(500).json({ message: "Error updating project" });
+    console.error("Error updating project:", error.message, error.stack);
+    res.status(500).send("Internal Server Error");
   }
 };
 
