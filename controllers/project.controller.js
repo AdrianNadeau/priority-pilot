@@ -1091,11 +1091,9 @@ exports.ganttChart = async (req, res) => {
     // Fetch the most recent status for this project
     const status = await db.statuses.findOne({
       where: { project_id_fk: project.id },
-      order: [["status_date", "DESC"]],
+      order: [["createdAt", "DESC"]],
       attributes: ["progress", "health"],
     });
-
-    console.log("status:", status);
 
     colors.push(status ? status.health : "No status available");
   }
