@@ -17,6 +17,7 @@ module.exports = (app) => {
   router.get("/flight/view/", projects.flight);
   router.get("/health/view", projects.health);
   router.get("/flightview/view/", projects.flightview);
+  router.get("/flightview/ganttChart/", projects.ganttChart);
   router.delete("/", projects.deleteAll);
 
   app.use("/projects", router);

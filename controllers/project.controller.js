@@ -1077,6 +1077,29 @@ ORDER BY
     currentDate: moment().format("MMMM Do YYYY"),
   });
 };
+exports.ganttChart = async (req, res) => {
+  //get all company projects
+
+  const company_id_fk = req.session.company.id;
+
+  const companyProjects = await Project.findAll({
+    where: { company_id_fk: company_id_fk },
+  });
+
+  const colors = [];
+  for (const project of companyProjects) {
+    // Fetch the most recent status for this project
+    const status = await db.statuses.findOne({
+      where: { project_id_fk: project.id },
+      order: [["status_date", "DESC"]],
+      attributes: ["progress", "health"],
+    });
+
+    colors.push(status ? status.health : "No status available");
+  }
+
+  res.json({ companyProjects: companyProjects, colors: colors });
+};
 exports.flightview = async (req, res) => {
   //get all company projects
 
