@@ -1119,7 +1119,6 @@ exports.flightview = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     // Ensure session exists and fetch company ID
-
     if (!req.session || !req.session.company) {
       return res.redirect("/pages-500");
     }
@@ -1127,6 +1126,9 @@ exports.update = async (req, res) => {
     const { id } = req.params;
     const {
       project_name,
+      project_headline, // Ensure this field is included in the request body
+      project_why,
+      project_what,
       start_date,
       end_date,
       prime_id_fk,
@@ -1147,6 +1149,9 @@ exports.update = async (req, res) => {
     const [num] = await Project.update(
       {
         project_name,
+        project_headline, // Include this field in the update
+        project_why,
+        project_what,
         start_date: startDateTest,
         end_date: endDateTest,
         prime_id_fk,
@@ -1164,12 +1169,12 @@ exports.update = async (req, res) => {
 
     if (num === 1) {
       // Create a new ChangedProject entry after successful update
-      console.log("create changed project");
       const newChangedProject = {
         project_id_fk: id,
         company_id_fk: req.session.company?.id,
         change_date: new Date(),
         project_name,
+        project_headline, // Include this field in the ChangedProject entry
         start_date: startDateTest,
         end_date: endDateTest,
         prime_id_fk,
@@ -1180,33 +1185,45 @@ exports.update = async (req, res) => {
         phase_id_fk,
         next_milestone_date: nextMilestoneDateTest,
       };
-      console.log("newChangedProject:", newChangedProject);
 
       const changedProject = await ChangeProject.create(newChangedProject);
       console.log("ChangedProject entry created:", changedProject);
 
-      // Fetch updated project data
-      const updatedProject = await Project.findOne({
-        where: { id },
-        include: [
-          {
-            model: Person,
-            as: "prime_person",
-            attributes: ["first_name", "last_name"],
-          },
-          {
-            model: Person,
-            as: "sponsor_person",
-            attributes: ["first_name", "last_name"],
-          },
-          {
-            model: Phase,
-            attributes: ["phase_name"],
-          },
-        ],
+      // Fetch updated project data using raw SQL query
+      const query = `
+        SELECT 
+          proj.id, 
+          proj.project_name, 
+          proj.project_headline, 
+          proj.start_date, 
+          proj.end_date, 
+          proj.project_cost, 
+          proj.effort, 
+          proj.benefit, 
+          proj.next_milestone_date,
+          prime_person.first_name AS prime_first_name, 
+          prime_person.last_name AS prime_last_name, 
+          sponsor_person.first_name AS sponsor_first_name, 
+          sponsor_person.last_name AS sponsor_last_name, 
+          phases.phase_name 
+        FROM 
+          projects proj
+        LEFT JOIN 
+          persons prime_person ON prime_person.id = proj.prime_id_fk
+        LEFT JOIN 
+          persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+        LEFT JOIN 
+          phases ON phases.id = proj.phase_id_fk
+        WHERE 
+          proj.id = ?;
+      `;
+
+      const updatedProject = await db.sequelize.query(query, {
+        replacements: [id],
+        type: db.sequelize.QueryTypes.SELECT,
       });
 
-      res.json(updatedProject);
+      res.redirect("/projects");
     } else {
       res.status(404).send({
         message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
