@@ -217,9 +217,11 @@
                             <div class="col-md-12">
                                 <!-- First column of form fields -->
                                 <div class="form-group needs-validation" novalidate>
-                                  <strong>Status Date (YYYY-MM-DD): </strong><span id="status_date"></span><br/>
+                                  <strong>Status Date: </strong>
+                                  <input type="text" class="form-control datepicker" id="status_date" name="status_date" placeholder="Status Date">
+                                  
                                  
-                                  <input type="text" class="form-control" id="status_date" name="status_date" placeholder="yyyy-mm-dd">
+                                  
                                   <strong>Prime:</strong><% if(project[0].prime_last_name) %>
                                   <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
                                   
@@ -312,7 +314,9 @@
         </div>
         <div class="modal-body">
           <!-- Modal content goes here -->
-          <strong>Date:</strong> <span id="view_status_date"></span><br/>
+          <strong>Date:</strong><%=project[0].status_date %>
+            <% if(project[0].status_date) %>
+            <%=project[0].status_date %>, <%=project[0].status_date %><br/>
           <strong>Prime:</strong><% if(project[0].prime_last_name) %>
           <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
           <div class="form-group">
@@ -346,9 +350,11 @@
 </div><!-- /.modal -->
 <script>
   function getStatus(id) {
+    console.log("get status for id: ", id);
     fetch(`/statuses/${id}`)
     .then(response => response.json())
     .then(data => {
+     
       // all working
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;
@@ -356,7 +362,7 @@
       if (data.progress) document.getElementById('view_status_progress').value = data.progress;
       if (data.health) document.getElementById('view_status_health').value = data.health;
       if (data.status_date) {
-          document.getElementById('view_status_date').innerText = 
+          document.getElementById('view_status_date').value = 
               new Date(data.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       }
         
@@ -391,7 +397,11 @@
 </script>
 </div>
  
-  
+<!-- Add the missing input elements -->
+<input type="text" id="view_status_accomplishments" class="form-control" disabled>
+<input type="text" id="view_status_issue" class="form-control" disabled>
+<input type="text" id="view_status_action" class="form-control" disabled>
+<input type="text" id="view_status_date" class="form-control" disabled>
 </div>
 <%- contentFor('FooterJs') %>
 <script src="/public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
@@ -400,5 +410,18 @@
 <script src="/public/assets/plugins/jquery-knob/excanvas.js"></script>
 <script src="/public/assets/plugins/jquery-knob/jquery.knob.js"></script>
 <script src="/public/assets/pages/dashboard.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+flatpickr("#status_date", {
+            dateFormat: "Y-m-d",
+            defaultDate: new Date(), // Set the default date to today
+            onChange: function(selectedDates, dateStr, instance) {
+              // This function will be triggered when the user selects a date
+              console.log("Status Selected date:", dateStr);
+            }
+          });
+        });
+</script>
+
 
 <%- contentFor('BottomJs') %>

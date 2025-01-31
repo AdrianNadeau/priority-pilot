@@ -73,7 +73,7 @@
 
           <div class="form-group">
             <label for="password">Password</label>
-            <i class="fas fa-eye toggle-password" id="togglePassword"></i
+            Password<i class="fas fa-eye toggle-password" id="togglePassword"></i
             ><input
               type="password"
               class="form-control"
@@ -120,17 +120,6 @@
 
 
 <script>
-  const togglePassword = document.querySelector("#togglePassword");
-  const password = document.querySelector("#password");
-
-  togglePassword.addEventListener("click", function (e) {
-    // Toggle the type attribute
-    const type =
-      password.getAttribute("type") === "password" ? "text" : "password";
-    password.setAttribute("type", type);
-
-    // Toggle the eye / eye slash icon
-    this.classList.toggle("fa-eye-slash");
-  });
+ 
 </script>
 <% include ../Partials/FooterRoot %>

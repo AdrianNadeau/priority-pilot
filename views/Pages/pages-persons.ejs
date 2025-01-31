@@ -3,23 +3,24 @@
 <!-- Bootstrap CSS -->
 
 <style>
-    .password-container {
-      position: relative;
-      width: 300px;
-    }
-  
-    .password-container input {
-      width: 100%;
-      padding-right: 40px;
-    }
-  
-    .password-container .toggle-password {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-    }
+   <style>
+  .password-container {
+    position: relative;
+    width: 300px;
+  }
+
+  .password-container input {
+    width: 100%;
+    padding-right: 40px;
+  }
+
+  .password-container .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
   </style>
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
@@ -130,6 +131,13 @@
                                             <label for="initials">Initials</label>
                                             <input type="text" class="form-control" id="initials"  name="initials">
                                         </div>
+                                       
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="password" value="" id="password" name="password">
+                                            <label class="form-check-label" for="password">
+                                            Password
+                                            </label>
+                                          </div>
                                         <i class="fas fa-eye toggle-password" id="togglePassword"></i
                                             ><input
                                               type="password"

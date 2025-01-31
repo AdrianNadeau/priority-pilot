@@ -19,12 +19,9 @@ exports.create = (req, res) => {
     console.log("error:", error);
   }
 
-  const currentDate = new Date();
-  console.log(currentDate);
   const change_log = {
-    change_date: currentDate,
+    change_date: new Date(),
     change_reason: req.body.change_reason,
-    change_headline: req.body.change_headline,
     change_explanation: req.body.change_explanation,
     project_id_fk: project_id,
     company_id_fk: company_id_fk,

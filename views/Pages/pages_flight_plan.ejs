@@ -1,7 +1,94 @@
 <%- contentFor('HeaderCss') %>
 
-<script src="frappe-gantt.min.js"></script>
-<link rel="stylesheet" href="frappe-gantt.css">
+<style>
+    .gantt-container {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      overflow-x: auto;
+      max-width: 100%;
+    }
+    
+    .gantt-wrapper {
+      display: flex;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+    }
+    
+    .track-labels {
+      width: 200px;
+      background-color: #f4f4f4;
+      border-right: 1px solid #e0e0e0;
+      padding: 10px;
+    }
+    
+    .track-label {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    
+    .timeline-container {
+      flex-grow: 1;
+      overflow-x: auto;
+      position: relative;
+    }
+    
+    .timeline-grid {
+      display: grid;
+      grid-auto-flow: row;
+      grid-auto-rows: 70px;
+    }
+    
+    .timeline-track {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #f0f0f0;
+      position: relative;
+    }
+    
+    .month-header {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(100px, 1fr);
+      background-color: #f9f9f9;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .month-marker {
+      text-align: center;
+      padding: 5px;
+      font-size: 0.8em;
+      color: #666;
+      border-right: 1px solid #e0e0e0;
+    }
+    
+    .task-bar {
+      position: absolute;
+      height: 40px;
+      background-color: #4a90e2;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.8em;
+      padding: 0 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background-color 0.3s;
+    }
+    
+    .task-bar:hover {
+      background-color: #357abd;
+    }
+</style>
 
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
@@ -23,8 +110,8 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
-              <div style="width: 1200px; margin: 20px auto;">
-                <canvas id="ganttChart"></canvas>
+              <div class="gantt-container">
+                <div id="gantt"></div>
               </div>
           </div>
         </div>
@@ -33,100 +120,233 @@
 
 <%- contentFor('FooterJs') %>
 <script>
-  fetch('/projects/flightview/ganttChart/')
-  .then(response => response.json())
-  .then(data => {
-    const projects = data.companyProjects;
-    const colors = data.colors;
+  // fetch('/projects/flightview/ganttChart/')
+  // .then(response => response.json())
+  // .then(data => {
+  //   const projects = data.companyProjects;
+  //   const colors = data.colors;
 
-    const colorMapping = {
-      Green: "#28a745",
-      Yellow: "#ffc107",
-      Red: "#dc3545",
-    };
+  //   const colorMapping = {
+  //     Green: "#28a745",
+  //     Yellow: "#ffc107",
+  //     Red: "#dc3545",
+  //   };
 
-    const phaseMapping = {
-      1: "Pitch",
-      2: "Priority",
-      3: "Discovery",
-      4: "Delivery",
-      5: "Done",
-    };
+  //   const phaseMapping = {
+  //     1: "Planning",
+  //     2: "Discovery",
+  //     3: "Delivery",
+     
+  //   };
 
-    // Convert API colors to hex codes
-    const mappedColors = colors.map(color => colorMapping[color] || "#000000");
-    const mappedPhases = projects.map(project => phaseMapping[project.phase_id]);
+  //   // Convert API colors to hex codes
+  //   const mappedColors = colors.map(color => colorMapping[color] || "#000000");
+  //   const mappedPhases = projects.map(project => phaseMapping[project.phase_id]);
 
-    // Prepare the data for Chart.js
-    const chartData = {
-      labels: projects.map(project => project.project_name),
-      datasets: [{
-        label: 'Timeline',
-        data: projects.map(project => ({
-          x: [new Date(project.start_date), new Date(project.end_date)],
-          y: project.project_name
-        })),
-        backgroundColor: mappedColors,
-        borderColor: mappedColors,
-        borderWidth: 1,
-        barPercentage: 0.7,
-        categoryPercentage: 0.7,
-        borderRadius: 10,
-        borderSkipped: false
-      }]
-    };
+  //   // Prepare the data for Chart.js
+  //   const chartData = {
+  //     labels: projects.map(project => project.project_name),
+  //     datasets: [{
+  //       label: 'Timeline',
+  //       data: projects.map(project => ({
+  //         x: [new Date(project.start_date), new Date(project.end_date)],
+  //         y: project.project_name
+  //       })),
+  //       backgroundColor: mappedColors,
+  //       borderColor: mappedColors,
+  //       borderWidth: 1,
+  //       barPercentage: 0.7,
+  //       categoryPercentage: 0.7,
+  //       borderRadius: 10,
+  //       borderSkipped: false
+  //     }]
+  //   };
 
-    // Create the chart
-    const ctx = document.getElementById('ganttChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: chartData,
-      options: {
-        indexAxis: 'y',
-        scales: {
-          x: {
-            type: 'time',
-            position: 'top',
-            time: {
-              unit: 'month'
-            },
-            min: new Date(Math.min(...projects.map(project => new Date(project.start_date)))),
-            max: new Date(Math.max(...projects.map(project => new Date(project.end_date))))
-          },
-          y: {
-            beginAtZero: true
-          }
-        },
-        plugins: {
-          datalabels: { 
-            anchor: 'center', 
-            align: 'center', 
-            color: '#000000', 
-            font: {
-              weight: 'bold',
-              size: 12
-            },
-            formatter: function(value, context) {
-              return `${projects[context.dataIndex].project_name} - $${projects[context.dataIndex].project_cost}`; 
-            }
-          },
-          tooltip: { // Keep tooltip on hover as well
-            callbacks: {
-              label: function(context) {
-                const project = projects[context.dataIndex];
-                return [
-                  `Phase: ${phaseMapping[project.phase_id_fk]}`,
-                  `Start: ${moment(project.start_date).format("DD MMM YY")}`,
-                  `End: ${moment(project.end_date).format("DD MMM YY")}`
-                ];
-              }
-            }
-          }
+  //   // Create the chart
+  //   const ctx = document.getElementById('ganttChart').getContext('2d');
+  //   new Chart(ctx, {
+  //     type: 'bar',
+  //     data: chartData,
+  //     options: {
+  //       indexAxis: 'y',
+  //       scales: {
+  //         x: {
+  //           type: 'time',
+  //           position: 'top',
+  //           time: {
+  //             unit: 'month'
+  //           },
+  //           min: new Date(Math.min(...projects.map(project => new Date(project.start_date)))),
+  //           max: new Date(Math.max(...projects.map(project => new Date(project.end_date))))
+  //         },
+  //         y: {
+  //           beginAtZero: true
+  //         }
+  //       },
+  //       plugins: {
+  //         datalabels: { 
+  //           anchor: 'center', 
+  //           align: 'center', 
+  //           color: '#000000', 
+  //           font: {
+  //             weight: 'bold',
+  //             size: 12
+  //           },
+  //           formatter: function(value, context) {
+  //             return `${projects[context.dataIndex].project_name} - $${projects[context.dataIndex].project_cost}`; 
+  //           }
+  //         },
+  //         tooltip: { // Keep tooltip on hover as well
+  //           callbacks: {
+  //             label: function(context) {
+  //               const project = projects[context.dataIndex];
+  //               return [
+  //                 `Phase: ${phaseMapping[project.phase_id_fk]}`,
+  //                 `Start: ${moment(project.start_date).format("DD MMM YY")}`,
+  //                 `End: ${moment(project.end_date).format("DD MMM YY")}`
+  //               ];
+  //             }
+  //           }
+  //         }
+  //       }
+  //     },
+  //     plugins: [ChartDataLabels]
+  //   });
+  // });
+  class StructuredGanttChart {
+      constructor(element, config) {
+        this.element = element;
+        this.config = config;
+        this.calculateDateRange();
+        this.render();
+      }
+      
+      calculateDateRange() {
+        const allTasks = this.config.tracks.flatMap(track => track.tasks);
+        const dates = allTasks.flatMap(task => [new Date(task.start), new Date(task.end)]);
+        
+        this.startDate = new Date(Math.min(...dates));
+        this.endDate = new Date(Math.max(...dates));
+      }
+      
+      generateMonthHeaders() {
+        const months = this.getMonthsBetween(this.startDate, this.endDate);
+        return months.map(date => 
+          `<div class="month-marker">${date.toLocaleString('default', { month: 'short' })}</div>`
+        ).join('');
+      }
+      
+      getMonthsBetween(start, end) {
+        const months = [];
+        const current = new Date(start);
+        
+        while (current <= end) {
+          months.push(new Date(current));
+          current.setMonth(current.getMonth() + 1);
         }
-      },
-      plugins: [ChartDataLabels]
-    });
-  });
+        
+        return months;
+      }
+      
+      calculateTaskPosition(task) {
+        const start = new Date(task.start);
+        const end = new Date(task.end);
+        
+        const left = ((start - this.startDate) / (this.endDate - this.startDate)) * 100;
+        const width = ((end - start) / (this.endDate - this.startDate)) * 100;
+        
+        return { left, width };
+      }
+      
+      render() {
+        // Create month headers
+        const monthHeaders = this.generateMonthHeaders();
+        
+        // Create track labels and timeline tracks
+        const trackLabels = [];
+        const timelineTracks = [];
+        
+        this.config.tracks.forEach(track => {
+          // Track label
+          trackLabels.push(`
+            <div class="track-label">
+              ${track.name}
+            </div>
+          `);
+          
+          // Timeline track with tasks
+          const trackTasksHtml = track.tasks.map(task => {
+            const { left, width } = this.calculateTaskPosition(task);
+            
+            return `
+              <div class="task-bar" 
+                   style="left: ${left}%; width: ${width}%"
+                   title="${task.name}: ${task.start} - ${task.end}">
+                ${task.name}
+              </div>
+            `;
+          }).join('');
+          
+          timelineTracks.push(`
+            <div class="timeline-track">
+              ${trackTasksHtml}
+            </div>
+          `);
+        });
+        
+        // Construct the full HTML
+        this.element.innerHTML = `
+          <div class="gantt-wrapper">
+            <div class="track-labels">
+              ${trackLabels.join('')}
+            </div>
+            <div class="timeline-container">
+              <div class="month-header">
+                ${monthHeaders}
+              </div>
+              <div class="timeline-grid">
+                ${timelineTracks.join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
 
+    // Example configuration with multiple tracks
+    const config = {
+      tracks: [
+        {
+          name: 'Planning',
+          tasks: [
+            { name: 'Project Initiation', start: '2024-02-01', end: '2024-02-15' },
+            { name: 'Stakeholder Alignment', start: '2024-02-10', end: '2024-03-01' },
+            { name: 'Resource Planning', start: '2024-03-01', end: '2024-03-15' }
+          ]
+        },
+        {
+          name: 'Discovery',
+          tasks: [
+            { name: 'Research', start: '2024-02-15', end: '2024-03-15' },
+            { name: 'User Interviews', start: '2024-03-01', end: '2024-03-30' },
+            { name: 'Requirements Gathering', start: '2024-03-15', end: '2024-04-15' }
+          ]
+        },
+       
+        {
+          name: 'Delivery',
+          tasks: [
+            { name: 'Development Sprint 1', start: '2024-04-15', end: '2024-05-15' },
+            { name: 'Development Sprint 2', start: '2024-05-15', end: '2024-06-15' },
+            { name: 'Testing', start: '2024-06-01', end: '2024-06-30' },
+            { name: 'Deployment', start: '2024-06-30', end: '2024-07-15' }
+          ]
+        }
+      ]
+    };
+
+    // Initialize the chart
+    const ganttElement = document.getElementById('gantt');
+    new StructuredGanttChart(ganttElement, config);
 </script>
 <%- contentFor('BottomJs') %>

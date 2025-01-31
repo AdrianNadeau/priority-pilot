@@ -966,7 +966,7 @@ exports.findFunnel = async (req, res) => {
       replacements: [company_id_fk, person_id_fk, person_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    console.log("HERE:::::", data);
+
     // Calculate pitch count, total cost, and total effort
     const pitchCount = data.length;
     let pitchTotalCost = 0;
@@ -975,7 +975,7 @@ exports.findFunnel = async (req, res) => {
     data.forEach((project) => {
       pitchTotalCost = parseFloat(project.project_cost.replace(/,/g, "")) || 0;
       // pitchTotalCost += parseFloat(project.project_cost) || 0;
-      console.log("project.cost:", pitchTotalCost);
+
       pitchTotalPH += parseFloat(project.effort) || 0;
     });
 
@@ -1126,7 +1126,7 @@ exports.update = async (req, res) => {
     const { id } = req.params;
     const {
       project_name,
-      project_headline, // Ensure this field is included in the request body
+      project_headline,
       project_why,
       project_what,
       start_date,
@@ -1166,13 +1166,32 @@ exports.update = async (req, res) => {
         where: { id },
       },
     );
+    //get reason for change
+    const changeReason = await Project.findByPk(req.body.change_reason)
+    if(changeReason){
+      console.log("changeReason:",changeReason);
 
+    }
+    // const changeReason = await changeReason.findByPk(req.body.change_reason).then((num) => {
+      if (num == 1) {
+      } else {
+        res.send({
+          message: `Cannot delete Project with id=${id}. Maybe Project was not found!`,
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Could not delete Project with id=" + id,
+      });
+    });;
+    
     if (num === 1) {
       // Create a new ChangedProject entry after successful update
       const newChangedProject = {
         project_id_fk: id,
         company_id_fk: req.session.company?.id,
-        change_date: new Date(),
+        change_date: req.body.change_date,
         project_name,
         project_headline, // Include this field in the ChangedProject entry
         start_date: startDateTest,
@@ -1183,11 +1202,11 @@ exports.update = async (req, res) => {
         effort,
         benefit,
         phase_id_fk,
-        next_milestone_date: nextMilestoneDateTest,
+        change_reason_id_fk: req.body.change_reason,
+        change_explanation: req.body.change_explanation,
       };
 
       const changedProject = await ChangeProject.create(newChangedProject);
-      console.log("ChangedProject entry created:", changedProject);
 
       // Fetch updated project data using raw SQL query
       const query = `
