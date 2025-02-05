@@ -314,6 +314,28 @@
     }
 
     // Example configuration with multiple tracks
+    //get project data by phase
+    fetch('/projects/flightview/ganttChart/')
+      .then(response => response.json())
+      .then(data => {
+        console.log("*************************************** :",data);
+       const projects = data.companyProjects;
+        const colors = data.colors;
+
+    const colorMapping = {
+      Green: "#28a745",
+      Yellow: "#ffc107",
+      Red: "#dc3545",
+    };
+
+    const phaseMapping = {
+      1: "Planning",
+      2: "Discovery",
+      3: "Delivery",
+     
+    };
+      });
+    
     const config = {
       tracks: [
         {

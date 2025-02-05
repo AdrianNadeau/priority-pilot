@@ -382,6 +382,7 @@
       fetch(`/change_reason/${data.change_reason_id_fk}/`)
         .then(reasonResponse => reasonResponse.json())
         .then(reasonData => {
+          console.log("Reason Data: ", reasonData);
           document.getElementById('change_reason').value = reasonData.change_reason;
           document.getElementById('change_explanation').value = data.change_explanation;
           document.getElementById('view_change_date').innerText = new Date(data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -393,7 +394,6 @@
     .catch(err => console.error(err));
   }
   const statusDate = {'status_date': {anyDate: true}};
-  new DeskyCalendar(statusDate);
 </script>
 </div>
  

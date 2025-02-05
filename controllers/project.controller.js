@@ -171,7 +171,7 @@ exports.findAllRadar = async (req, res) => {
         type: db.sequelize.QueryTypes.SELECT,
       },
     );
-
+    // get tags for reports
     // Create a map of project_id to status
     const statusMap = {};
     statuses.forEach((status) => {
@@ -769,7 +769,7 @@ exports.progress = async (req, res) => {
     // Get all projects for the company
     const projects = await db.projects.findAll({
       where: { company_id_fk: companyId },
-      attributes: ["id", "project_name"],
+      attributes: ["id", "project_name", "tag_1", "tag_2", "tag_3"],
     });
 
     if (!projects || projects.length === 0) {
@@ -781,8 +781,11 @@ exports.progress = async (req, res) => {
     // Get the most recent status for each project
     const projectNames = [];
     const progress = [];
+    const tags = { tag_1: [], tag_2: [], tag_3: [] };
     const colors = [];
+
     for (const project of projects) {
+      console.log("project_name:", project.project_name);
       projectNames.push(project.project_name);
 
       // Fetch the most recent status for this project
@@ -794,6 +797,29 @@ exports.progress = async (req, res) => {
 
       progress.push(status ? status.progress : "No status available");
       colors.push(status ? status.health : "No status available");
+
+      // Fetch tag names
+      if (project.tag_1) {
+        const tag1 = await db.tags.findOne({
+          where: { id: project.tag_1 },
+          attributes: ["tag_name"],
+        });
+        if (tag1) tags.tag_1.push(tag1.tag_name);
+      }
+      if (project.tag_2) {
+        const tag2 = await db.tags.findOne({
+          where: { id: project.tag_2 },
+          attributes: ["tag_name"],
+        });
+        if (tag2) tags.tag_2.push(tag2.tag_name);
+      }
+      if (project.tag_3) {
+        const tag3 = await db.tags.findOne({
+          where: { id: project.tag_3 },
+          attributes: ["tag_name"],
+        });
+        if (tag3) tags.tag_3.push(tag3.tag_name);
+      }
     }
 
     // Send the response
@@ -802,6 +828,7 @@ exports.progress = async (req, res) => {
       project_names: projectNames,
       progress: progress,
       colors: colors,
+      tags: tags,
     });
   } catch (error) {
     console.log("Query error:", error);
@@ -809,6 +836,216 @@ exports.progress = async (req, res) => {
   }
 };
 
+exports.countProjectsByTag1 = async (req, res) => {
+  let companyId;
+
+  // Ensure session exists and extract company information
+  try {
+    if (!req.session || !req.session.company) {
+      return res.redirect("/pages-500");
+    } else {
+      companyId = req.session.company.id;
+    }
+  } catch (error) {
+    console.log("Error extracting company information:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
+
+  try {
+    // Count projects grouped by tag_1 and ensure tag_1 is not 0
+    const tag1Counts = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        tag_1: {
+          [Op.ne]: 0, // Ensure tag_1 is not 0
+        },
+      },
+      attributes: [
+        "tag_1",
+        [
+          db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")),
+          "project_count",
+        ],
+      ],
+      group: ["tag_1"],
+      order: [
+        [db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")), "DESC"],
+      ],
+    });
+
+    console.log("tag1Counts:", tag1Counts);
+
+    // Fetch tag names for each tag_1
+    const tag1Names = await db.tags.findAll({
+      where: {
+        id: {
+          [Op.in]: tag1Counts.map((tag) => tag.tag_1),
+        },
+      },
+      attributes: ["id", "tag_name"],
+    });
+
+    console.log("tag1Names:", tag1Names);
+
+    // Map tag names to tag1Counts
+    const tag1CountsWithNames = tag1Counts.map((tag) => {
+      const tagName = tag1Names.find((t) => t.id === tag.tag_1);
+      return {
+        tag_1: tag.tag_1,
+        tag_name: tagName ? tagName.tag_name : null,
+        project_count: tag.get("project_count"),
+      };
+    });
+
+    console.log("tag1CountsWithNames:", tag1CountsWithNames);
+
+    // Send the response
+    res.json(tag1CountsWithNames);
+  } catch (error) {
+    console.log("Query error:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
+};
+exports.countProjectsByTag2 = async (req, res) => {
+  let companyId;
+
+  // Ensure session exists and extract company information
+  try {
+    if (!req.session || !req.session.company) {
+      return res.redirect("/pages-500");
+    } else {
+      companyId = req.session.company.id;
+    }
+  } catch (error) {
+    console.log("Error extracting company information:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
+
+  try {
+    // Count projects grouped by tag_1 and ensure tag_1 is not 0
+    const tag2Counts = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        tag_1: {
+          [Op.ne]: 0, // Ensure tag_1 is not 0
+        },
+      },
+      attributes: [
+        "tag_2",
+        [
+          db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")),
+          "project_count",
+        ],
+      ],
+      group: ["tag_2"],
+      order: [
+        [db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")), "DESC"],
+      ],
+    });
+
+    console.log("tag1Counts:", tag2Counts);
+
+    // Fetch tag names for each tag_1
+    const tag2Names = await db.tags.findAll({
+      where: {
+        id: {
+          [Op.in]: tag2Counts.map((tag) => tag.tag_2),
+        },
+      },
+      attributes: ["id", "tag_name"],
+    });
+
+    console.log("tag2Names:", tag2Names);
+
+    // Map tag names to tag1Counts
+    const tag1CountsWithNames = tag2Counts.map((tag) => {
+      const tagName = tag2Names.find((t) => t.id === tag.tag_2);
+      return {
+        tag_2: tag.tag_2,
+        tag_name: tagName ? tagName.tag_name : null,
+        project_count: tag.get("project_count"),
+      };
+    });
+
+    console.log("tag1CountsWithNames:", tag1CountsWithNames);
+
+    // Send the response
+    res.json(tag1CountsWithNames);
+  } catch (error) {
+    console.log("Query error:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
+};
+exports.countProjectsByTag3 = async (req, res) => {
+  let companyId;
+
+  // Ensure session exists and extract company information
+  try {
+    if (!req.session || !req.session.company) {
+      return res.redirect("/pages-500");
+    } else {
+      companyId = req.session.company.id;
+    }
+  } catch (error) {
+    console.log("Error extracting company information:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
+
+  try {
+    // Count projects grouped by tag_1 and ensure tag_1 is not 0
+    const tag1Counts = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        tag_3: {
+          [Op.ne]: 0, // Ensure tag_1 is not 0
+        },
+      },
+      attributes: [
+        "tag_3",
+        [
+          db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")),
+          "project_count",
+        ],
+      ],
+      group: ["tag_3"],
+      order: [
+        [db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")), "DESC"],
+      ],
+    });
+
+    console.log("tag3Counts:", tag1Counts);
+
+    // Fetch tag names for each tag_1
+    const tag1Names = await db.tags.findAll({
+      where: {
+        id: {
+          [Op.in]: tag1Counts.map((tag) => tag.tag_1),
+        },
+      },
+      attributes: ["id", "tag_name"],
+    });
+
+    console.log("tag1Names:", tag1Names);
+
+    // Map tag names to tag1Counts
+    const tag1CountsWithNames = tag1Counts.map((tag) => {
+      const tagName = tag1Names.find((t) => t.id === tag.tag_1);
+      return {
+        tag_3: tag.tag_3,
+        tag_name: tagName ? tagName.tag_name : null,
+        project_count: tag.get("project_count"),
+      };
+    });
+
+    console.log("tag1CountsWithNames:", tag1CountsWithNames);
+
+    // Send the response
+    res.json(tag1CountsWithNames);
+  } catch (error) {
+    console.log("Query error:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
+};
 exports.flight = async (req, res) => {
   let company_id_fk;
   try {
@@ -1138,6 +1375,8 @@ exports.update = async (req, res) => {
       benefit,
       phase_id_fk,
       next_milestone_date,
+      change_reason,
+      change_explanation,
     } = req.body;
 
     // Convert dates
@@ -1149,7 +1388,7 @@ exports.update = async (req, res) => {
     const [num] = await Project.update(
       {
         project_name,
-        project_headline, // Include this field in the update
+        project_headline,
         project_why,
         project_what,
         start_date: startDateTest,
@@ -1166,34 +1405,17 @@ exports.update = async (req, res) => {
         where: { id },
       },
     );
-    //get reason for change
-    const changeReason = await Project.findByPk(req.body.change_reason)
-    if(changeReason){
-      console.log("changeReason:",changeReason);
 
-    }
-    // const changeReason = await changeReason.findByPk(req.body.change_reason).then((num) => {
-      if (num == 1) {
-      } else {
-        res.send({
-          message: `Cannot delete Project with id=${id}. Maybe Project was not found!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete Project with id=" + id,
-      });
-    });;
-    
     if (num === 1) {
       // Create a new ChangedProject entry after successful update
       const newChangedProject = {
         project_id_fk: id,
         company_id_fk: req.session.company?.id,
-        change_date: req.body.change_date,
+        change_date: new Date(),
         project_name,
-        project_headline, // Include this field in the ChangedProject entry
+        project_headline,
+        project_why,
+        project_what,
         start_date: startDateTest,
         end_date: endDateTest,
         prime_id_fk,
@@ -1203,10 +1425,11 @@ exports.update = async (req, res) => {
         benefit,
         phase_id_fk,
         change_reason_id_fk: req.body.change_reason,
-        change_explanation: req.body.change_explanation,
+        change_explanation,
       };
 
       const changedProject = await ChangeProject.create(newChangedProject);
+      console.log("ChangedProject entry created:", changedProject);
 
       // Fetch updated project data using raw SQL query
       const query = `
@@ -1214,6 +1437,8 @@ exports.update = async (req, res) => {
           proj.id, 
           proj.project_name, 
           proj.project_headline, 
+          proj.project_why, 
+          proj.project_what, 
           proj.start_date, 
           proj.end_date, 
           proj.project_cost, 
@@ -1242,7 +1467,7 @@ exports.update = async (req, res) => {
         type: db.sequelize.QueryTypes.SELECT,
       });
 
-      res.redirect("/projects");
+      res.redirect("/projects/");
     } else {
       res.status(404).send({
         message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
