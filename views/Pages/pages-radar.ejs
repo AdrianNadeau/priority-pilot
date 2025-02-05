@@ -193,14 +193,15 @@
         <div class="row">
           <canvas id="pieChart1"></canvas>
         </div>
-        <div class="row mt-5">
-          <div id="tag1Chart" width="2000" height="100"></div>
+        <div class="row mt-5" class="text-center">
+          <div id="tag1Chart"></div>
+          <span class="text-center"></span>
         </div>
         <div class="row mt-5">
-          <div id="tag2Chart" width="1000" height="500"></div>
+          <div id="tag2Chart"></div>
         </div>
         <div class="row mt-5">
-          <div id="tag3Chart" width="1000" height="500"></div>
+          <div id="tag3Chart"></div>
         </div>
       </div>
     </div>
@@ -360,21 +361,18 @@
 </script>
 <script type="text/javascript">
   google.charts.load("current", { packages: ["corechart"] });
-  google.charts.setOnLoadCallback(drawChart);
+  google.charts.setOnLoadCallback(drawCharts);
 
-  //fetch tag_1, tag_2, tag_3 from projects
-  fetch(`/projects/radar/countProjectsByTag1`)
-    .then((response) => response.json())
-    .then((tags1) => {
-      console.log("Tag Data received:", tags1);
-    })
-    .catch((err) => console.error(err));
-
-  function drawChart() {
+  function drawCharts() {
     fetch(`/projects/radar/countProjectsByTag1`)
       .then((response) => response.json())
       .then((tagsData) => {
-        console.log("Tags Data received:", tagsData);
+        if (tagsData.length === 0 || tagsData[0].tag_name === null) {
+          console.log("No data found for tag 1");
+          document.getElementById("tag1NoTags").innerText =
+            "No data found for tag 1";
+          return;
+        }
 
         // Prepare data for the chart
         const chartData = [["Task", "Hours per Day"]];
@@ -388,6 +386,8 @@
           title: "Tag 1",
           pieHole: 0.4,
           backgroundColor: "transparent",
+          width: 600,
+          height: 500,
         };
 
         var chart = new google.visualization.PieChart(
@@ -402,6 +402,13 @@
       .then((tagsData) => {
         console.log("Tags 2 Data received:", tagsData);
 
+        if (tagsData.length === 0 || tagsData[0].tag_name === null) {
+          console.log("No data found for tag 2");
+          document.getElementById("tag2Chart").innerText =
+            "No data found for tag 2";
+          return;
+        }
+
         // Prepare data for the chart
         const chartData = [["Task", "Hours per Day"]];
         tagsData.forEach((tag) => {
@@ -414,6 +421,8 @@
           title: "Tag 2",
           pieHole: 0.4,
           backgroundColor: "transparent",
+          width: 600,
+          height: 500,
         };
 
         var chart = new google.visualization.PieChart(
@@ -428,6 +437,13 @@
       .then((tagsData) => {
         console.log("Tags 3 Data received:", tagsData);
 
+        if (tagsData.length === 0 || tagsData[0].tag_name === null) {
+          console.log("No data found for tag 3");
+          document.getElementById("tag3Chart").innerText =
+            "No data found for tag 3";
+          return;
+        }
+
         // Prepare data for the chart
         const chartData = [["Task", "Hours per Day"]];
         tagsData.forEach((tag) => {
@@ -440,6 +456,8 @@
           title: "Tag 3",
           pieHole: 0.4,
           backgroundColor: "transparent",
+          width: 600,
+          height: 500,
         };
 
         var chart = new google.visualization.PieChart(

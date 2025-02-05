@@ -857,7 +857,10 @@ exports.countProjectsByTag1 = async (req, res) => {
       where: {
         company_id_fk: companyId,
         tag_1: {
-          [Op.ne]: 0, // Ensure tag_1 is not 0
+          [Op.and]: {
+            [Op.ne]: 0, // Ensure tag_1 is not 0
+            [Op.ne]: null, // Ensure tag_1 is not null
+          },
         },
       },
       attributes: [
@@ -873,8 +876,6 @@ exports.countProjectsByTag1 = async (req, res) => {
       ],
     });
 
-    console.log("tag1Counts:", tag1Counts);
-
     // Fetch tag names for each tag_1
     const tag1Names = await db.tags.findAll({
       where: {
@@ -885,8 +886,6 @@ exports.countProjectsByTag1 = async (req, res) => {
       attributes: ["id", "tag_name"],
     });
 
-    console.log("tag1Names:", tag1Names);
-
     // Map tag names to tag1Counts
     const tag1CountsWithNames = tag1Counts.map((tag) => {
       const tagName = tag1Names.find((t) => t.id === tag.tag_1);
@@ -896,8 +895,6 @@ exports.countProjectsByTag1 = async (req, res) => {
         project_count: tag.get("project_count"),
       };
     });
-
-    console.log("tag1CountsWithNames:", tag1CountsWithNames);
 
     // Send the response
     res.json(tag1CountsWithNames);
@@ -927,7 +924,10 @@ exports.countProjectsByTag2 = async (req, res) => {
       where: {
         company_id_fk: companyId,
         tag_1: {
-          [Op.ne]: 0, // Ensure tag_1 is not 0
+          [Op.and]: {
+            [Op.ne]: 0, // Ensure tag_1 is not 0
+            [Op.ne]: null, // Ensure tag_1 is not null
+          },
         },
       },
       attributes: [
@@ -943,8 +943,6 @@ exports.countProjectsByTag2 = async (req, res) => {
       ],
     });
 
-    console.log("tag1Counts:", tag2Counts);
-
     // Fetch tag names for each tag_1
     const tag2Names = await db.tags.findAll({
       where: {
@@ -955,8 +953,6 @@ exports.countProjectsByTag2 = async (req, res) => {
       attributes: ["id", "tag_name"],
     });
 
-    console.log("tag2Names:", tag2Names);
-
     // Map tag names to tag1Counts
     const tag1CountsWithNames = tag2Counts.map((tag) => {
       const tagName = tag2Names.find((t) => t.id === tag.tag_2);
@@ -966,8 +962,6 @@ exports.countProjectsByTag2 = async (req, res) => {
         project_count: tag.get("project_count"),
       };
     });
-
-    console.log("tag1CountsWithNames:", tag1CountsWithNames);
 
     // Send the response
     res.json(tag1CountsWithNames);
@@ -997,7 +991,10 @@ exports.countProjectsByTag3 = async (req, res) => {
       where: {
         company_id_fk: companyId,
         tag_3: {
-          [Op.ne]: 0, // Ensure tag_1 is not 0
+          [Op.and]: {
+            [Op.ne]: 0, // Ensure tag_1 is not 0
+            [Op.ne]: null, // Ensure tag_1 is not null
+          },
         },
       },
       attributes: [
@@ -1359,7 +1356,7 @@ exports.update = async (req, res) => {
     if (!req.session || !req.session.company) {
       return res.redirect("/pages-500");
     }
-
+    console.log("req.body:", req.body);
     const { id } = req.params;
     const {
       project_name,
@@ -1377,6 +1374,9 @@ exports.update = async (req, res) => {
       next_milestone_date,
       change_reason,
       change_explanation,
+      tag_1,
+      tag_2,
+      tag_3,
     } = req.body;
 
     // Convert dates
@@ -1400,6 +1400,9 @@ exports.update = async (req, res) => {
         benefit,
         phase_id_fk,
         next_milestone_date: nextMilestoneDateTest,
+        tag_1,
+        tag_2,
+        tag_3,
       },
       {
         where: { id },
@@ -1426,10 +1429,12 @@ exports.update = async (req, res) => {
         phase_id_fk,
         change_reason_id_fk: req.body.change_reason,
         change_explanation,
+        tag_1,
+        tag_2,
+        tag_3,
       };
 
       const changedProject = await ChangeProject.create(newChangedProject);
-      console.log("ChangedProject entry created:", changedProject);
 
       // Fetch updated project data using raw SQL query
       const query = `
