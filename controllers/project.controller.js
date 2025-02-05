@@ -987,7 +987,7 @@ exports.countProjectsByTag3 = async (req, res) => {
 
   try {
     // Count projects grouped by tag_1 and ensure tag_1 is not 0
-    const tag1Counts = await db.projects.findAll({
+    const tag3Counts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
         tag_3: {
@@ -1010,23 +1010,23 @@ exports.countProjectsByTag3 = async (req, res) => {
       ],
     });
 
-    console.log("tag3Counts:", tag1Counts);
+    console.log("tag3Counts:", tag3Counts);
 
-    // Fetch tag names for each tag_1
-    const tag1Names = await db.tags.findAll({
+    // Fetch tag names for each tag_3
+    const tag3Names = await db.tags.findAll({
       where: {
         id: {
-          [Op.in]: tag1Counts.map((tag) => tag.tag_1),
+          [Op.in]: tag3Counts.map((tag) => tag.tag_3),
         },
       },
       attributes: ["id", "tag_name"],
     });
 
-    console.log("tag1Names:", tag1Names);
+    console.log("tag3Names:", tag3Names);
 
-    // Map tag names to tag1Counts
-    const tag1CountsWithNames = tag1Counts.map((tag) => {
-      const tagName = tag1Names.find((t) => t.id === tag.tag_1);
+    // Map tag names to tag3Counts
+    const tag3CountsWithNames = tag3Counts.map((tag) => {
+      const tagName = tag3Names.find((t) => t.id === tag.tag_3);
       return {
         tag_3: tag.tag_3,
         tag_name: tagName ? tagName.tag_name : null,
@@ -1034,10 +1034,10 @@ exports.countProjectsByTag3 = async (req, res) => {
       };
     });
 
-    console.log("tag1CountsWithNames:", tag1CountsWithNames);
+    console.log("tag3CountsWithNames:", tag3CountsWithNames);
 
     // Send the response
-    res.json(tag1CountsWithNames);
+    res.json(tag3CountsWithNames);
   } catch (error) {
     console.log("Query error:", error);
     return res.status(500).send({ message: "Server error" });

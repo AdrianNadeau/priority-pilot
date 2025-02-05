@@ -368,7 +368,6 @@
       .then((response) => response.json())
       .then((tagsData) => {
         if (tagsData.length === 0 || tagsData[0].tag_name === null) {
-          console.log("No data found for tag 1");
           document.getElementById("tag1NoTags").innerText =
             "No data found for tag 1";
           return;
@@ -386,8 +385,8 @@
           title: "Tag 1",
           pieHole: 0.4,
           backgroundColor: "transparent",
-          width: 600,
-          height: 500,
+          width: 400,
+          height: 300,
         };
 
         var chart = new google.visualization.PieChart(
@@ -403,7 +402,6 @@
         console.log("Tags 2 Data received:", tagsData);
 
         if (tagsData.length === 0 || tagsData[0].tag_name === null) {
-          console.log("No data found for tag 2");
           document.getElementById("tag2Chart").innerText =
             "No data found for tag 2";
           return;
@@ -421,8 +419,8 @@
           title: "Tag 2",
           pieHole: 0.4,
           backgroundColor: "transparent",
-          width: 600,
-          height: 500,
+          width: 400,
+          height: 300,
         };
 
         var chart = new google.visualization.PieChart(
@@ -436,10 +434,9 @@
       .then((response) => response.json())
       .then((tagsData) => {
         console.log("Tags 3 Data received:", tagsData);
-
         if (tagsData.length === 0 || tagsData[0].tag_name === null) {
-          console.log("No data found for tag 3");
-          document.getElementById("tag3Chart").innerText =
+          console.log("Tags 3 Data received:", tagsData);
+          document.getElementById("tag1NoTags").innerText =
             "No data found for tag 3";
           return;
         }
@@ -456,8 +453,8 @@
           title: "Tag 3",
           pieHole: 0.4,
           backgroundColor: "transparent",
-          width: 600,
-          height: 500,
+          width: 400,
+          height: 300,
         };
 
         var chart = new google.visualization.PieChart(
