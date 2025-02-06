@@ -71,13 +71,12 @@ const db = require("./models");
 console.log("LOGGING:", process.env.DB_LOGGING);
 // Initialize Sequelize with the connection URL and SSL/TLS options
 
-// Initialize Sequelize with the connection URL
 const sequelize = new Sequelize(
-  "priority_pilot",
-  "priority_pilot",
-  "priority_pilot",
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
   {
-    host: "localhost",
+    host: process.env.DB_HOST,
     dialect: "postgres",
   },
 );
