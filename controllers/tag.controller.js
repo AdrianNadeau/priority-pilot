@@ -84,8 +84,6 @@ exports.update = (req, res) => {
     });
 };
 exports.updateFromDefaultsPage = (req, res) => {
-  // Ensure tag_name is included in the request body
-  console.log("req.body:", req.body);
   const updatedTag = {
     tag_id: req.body.tag_id,
     tag_name: req.body.tag_name,

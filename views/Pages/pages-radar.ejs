@@ -1,4 +1,15 @@
-<%- contentFor('HeaderCss') %> <%- contentFor('breadcrumb') %>
+<%- contentFor('HeaderCss') %>
+<style>
+  .chart-container {
+    display: flex;
+    flex-direction: row;
+  }
+  .chart {
+    flex: 1;
+    margin: 10px;
+  }
+</style>
+<%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
   <li class="list-inline-item">
     <button type="button" class="button-menu-mobile open-left waves-effect">

@@ -15,6 +15,7 @@ var DashboardRouter = require("./routes/DashboardRouter.js");
 
 var authMiddleware = require("./middleware/authMiddleware.js");
 const connectionString = process.env.DB_URL;
+console.log("Connection String:", connectionString);
 
 // Initialize Sequelize with the connection URL
 // const sequelize = new Sequelize(connectionString);
