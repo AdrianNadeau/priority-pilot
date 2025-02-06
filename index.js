@@ -17,6 +17,11 @@ var authMiddleware = require("./middleware/authMiddleware.js");
 const connectionString = process.env.DB_URL;
 console.log("Connection String:", connectionString);
 
+console.log("DB_HOST:", process.env.DB_HOST_NAME);
+console.log("DB_USER:", process.env.DB_USER);
+console.log("DB_NAME:", process.env.DB_NAME);
+console.log("DB_DIALECT:", process.env.DB_DIALECT);
+
 // Initialize Sequelize with the connection URL
 // const sequelize = new Sequelize(connectionString);
 app.use(express.urlencoded({ extended: true }));
@@ -70,15 +75,17 @@ app.use("/", router);
 const db = require("./models");
 console.log("LOGGING:", process.env.DB_LOGGING);
 // Initialize Sequelize with the connection URL and SSL/TLS options
-const sequelize = new Sequelize(connectionString, {
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false, // You may need to set this to false if using a self-signed certificate
-    },
-    logging: process.env.DB_LOGGING,
+
+// Initialize Sequelize with the connection URL
+const sequelize = new Sequelize(
+  "priority_pilot",
+  "priority_pilot",
+  "priority_pilot",
+  {
+    host: "localhost",
+    dialect: "postgres",
   },
-});
+);
 
 require("./routes/company.routes")(app);
 require("./routes/person.routes")(app);
