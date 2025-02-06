@@ -1,3 +1,4 @@
+const dbConfig = require("./config/db.config.js");
 var app = require("express")();
 var express = require("express");
 var session = require("express-session");
@@ -15,12 +16,6 @@ var Authrouter = require("./routes/AuthRouter.js");
 var DashboardRouter = require("./routes/DashboardRouter.js");
 
 var authMiddleware = require("./middleware/authMiddleware.js");
-
-console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("DB_USER:", process.env.DB_USER);
-console.log("DB_USER:", process.env.DB_PASSWORD);
-console.log("DB_NAME:", process.env.DB_NAME);
-console.log("DB_DIALECT:", process.env.DB_DIALECT);
 
 // Initialize Sequelize with the connection URL
 // const sequelize = new Sequelize(connectionString);
