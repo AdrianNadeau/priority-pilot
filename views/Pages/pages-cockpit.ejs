@@ -67,6 +67,13 @@
                 <% } %>
               </div>
             </div>
+            <div class="col-md-3">
+              <div><strong>Phase:</strong> 
+                <% if (project[0].phase_name) { %>
+                  <%= project[0].phase_name %>
+                <% } %>
+              </div>
+            </div>
           </div>
           <div class="row">
             <div class="col-md-3">
@@ -397,11 +404,7 @@
 </script>
 </div>
  
-<!-- Add the missing input elements -->
-<input type="text" id="view_status_accomplishments" class="form-control" disabled>
-<input type="text" id="view_status_issue" class="form-control" disabled>
-<input type="text" id="view_status_action" class="form-control" disabled>
-<input type="text" id="view_status_date" class="form-control" disabled>
+
 </div>
 <%- contentFor('FooterJs') %>
 <script src="/public/assets/plugins/peity-chart/jquery.peity.min.js"></script>

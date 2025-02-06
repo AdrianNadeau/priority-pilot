@@ -329,7 +329,8 @@ exports.cockpit = async (req, res) => {
   sponsor_person.last_name AS sponsor_last_name, 
   proj.project_cost, 
   phases.phase_name,
-  proj.prime_id_fk
+  proj.prime_id_fk,
+  proj.benefit
   FROM projects proj 
   LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk 
   LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 

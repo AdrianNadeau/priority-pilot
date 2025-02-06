@@ -874,7 +874,7 @@ body.fixed-left .side-menu.left {
 ===================*/
 .row {
   margin-right: -10px;
-  margin-left: 50px;
+  /* margin-left: 50px; */
 }
 
 .col,

@@ -21,7 +21,7 @@
     "connect-pg-simple": "^10.0.0",
     "connect-redis": "^7.1.1",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "ejs": "^2.6.1",
     "ejs-lint": "^2.0.0",
     "ejs-locals": "^1.0.2",

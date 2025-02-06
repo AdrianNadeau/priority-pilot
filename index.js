@@ -5,6 +5,7 @@ var path = require("path");
 var http = require("http").Server(app);
 var bCrypt = require("bcryptjs");
 const multer = require("multer");
+require("dotenv").config();
 
 // Import Sequelize
 const { Sequelize } = require("sequelize");
@@ -14,10 +15,8 @@ var Authrouter = require("./routes/AuthRouter.js");
 var DashboardRouter = require("./routes/DashboardRouter.js");
 
 var authMiddleware = require("./middleware/authMiddleware.js");
-const connectionString = process.env.DB_URL;
-console.log("Connection String:", connectionString);
 
-console.log("DB_HOST:", process.env.DB_HOST_NAME);
+console.log("NODE_ENV:", process.env.NODE_ENV);
 console.log("DB_USER:", process.env.DB_USER);
 console.log("DB_NAME:", process.env.DB_NAME);
 console.log("DB_DIALECT:", process.env.DB_DIALECT);
