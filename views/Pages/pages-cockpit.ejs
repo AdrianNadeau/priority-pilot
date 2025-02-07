@@ -115,7 +115,7 @@
             </div>
             <div class="col-md-3">
               <div>
-                <strong>Beneift:</strong> $<%= project[0].benefit %>
+                <strong>Benefit:</strong> $<%= project[0].benefit %>
               </div>
             </div>
           </div>
@@ -425,6 +425,11 @@ flatpickr("#status_date", {
           });
         });
 </script>
+<!-- Add the missing input elements -->
+<input type="text" id="view_status_accomplishments" class="form-control" disabled>
+<input type="text" id="view_status_issue" class="form-control" disabled>
+<input type="text" id="view_status_action" class="form-control" disabled>
+<input type="text" id="view_status_date" class="form-control" disabled>
 
 
 <%- contentFor('BottomJs') %>

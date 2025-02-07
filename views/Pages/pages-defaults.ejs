@@ -35,6 +35,12 @@
                           <div class="col-md-4">
                               <!-- First column of form fields -->
                               <div class="form-group needs-validation" novalidate>
+                                <label for="portfolio_budget">Portfolio Name:</label>
+                               <input type="text" class="form-control" id="company_name" name="company_name" value ="<%= company.company_name %>">
+                               <div class="invalid-feedback">
+                                Porfolio Name.
+                                </div>
+                              <div class="form-group needs-validation" novalidate>
                                 <label for="portfolio_budget">Portfolio Budget ($)</label>
                                <input type="text" class="form-control" id="portfolio_budget" oninput="formatNumberWithCommas(this);"  name="portfolio_budget" value ="<%= company.portfolio_budget %>">
                                <div class="invalid-feedback">

@@ -753,7 +753,7 @@ exports.radar = async (req, res) => {
 
 exports.progress = async (req, res) => {
   let companyId;
-
+  console.log("GET PROGRESS!!!!!");
   // Ensure session exists and extract company information
   try {
     if (!req.session || !req.session.company) {

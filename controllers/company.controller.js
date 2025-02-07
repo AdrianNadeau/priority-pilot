@@ -203,6 +203,7 @@ exports.setDefaults = async (req, res, next) => {
   try {
     const [rowsUpdated, [updatedCompany]] = await Company.update(
       {
+        company_name: req.body.company_name,
         portfolio_budget: req.body.portfolio_budget,
         effort: req.body.portfolio_effort,
       },
