@@ -45,7 +45,7 @@ const sequelize = new Sequelize(process.env.DB_URL, {
   dialect: "postgres",
   logging: process.env.DB_LOGGING === "true",
 });
-console.log("DB NEW URL", process.env.DB_URL);
+// console.log("DB NEW URL", process.env.DB_URL);
 // const sequelize = new Sequelize(
 //   process.env.DB_NAME,
 //   process.env.DB_USER,
