@@ -888,6 +888,7 @@ exports.countProjectsByTag1 = async (req, res) => {
     });
 
     // Map tag names to tag1Counts
+
     const tag1CountsWithNames = tag1Counts.map((tag) => {
       const tagName = tag1Names.find((t) => t.id === tag.tag_1);
       return {
@@ -896,7 +897,7 @@ exports.countProjectsByTag1 = async (req, res) => {
         project_count: tag.get("project_count"),
       };
     });
-
+    console.log("tag1CountsWithNames:", tag1CountsWithNames);
     // Send the response
     res.json(tag1CountsWithNames);
   } catch (error) {
@@ -953,9 +954,9 @@ exports.countProjectsByTag2 = async (req, res) => {
       },
       attributes: ["id", "tag_name"],
     });
-
-    // Map tag names to tag1Counts
-    const tag1CountsWithNames = tag2Counts.map((tag) => {
+    console.log("tag2Counts:", tag2Counts);
+    // Map tag names to tag3Counts
+    const tag2CountsWithNames = tag2Counts.map((tag) => {
       const tagName = tag2Names.find((t) => t.id === tag.tag_2);
       return {
         tag_2: tag.tag_2,
@@ -963,9 +964,9 @@ exports.countProjectsByTag2 = async (req, res) => {
         project_count: tag.get("project_count"),
       };
     });
-
+    console.log("tag2CountsWithNames:", tag2CountsWithNames);
     // Send the response
-    res.json(tag1CountsWithNames);
+    res.json(tag2CountsWithNames);
   } catch (error) {
     console.log("Query error:", error);
     return res.status(500).send({ message: "Server error" });
@@ -1022,8 +1023,6 @@ exports.countProjectsByTag3 = async (req, res) => {
       },
       attributes: ["id", "tag_name"],
     });
-
-    console.log("tag3Names:", tag3Names);
 
     // Map tag names to tag3Counts
     const tag3CountsWithNames = tag3Counts.map((tag) => {
