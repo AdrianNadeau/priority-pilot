@@ -486,7 +486,10 @@
     fetch(`/projects/radar/countProjectsByTag1`)
       .then((response) => response.json())
       .then((tagsData) => {
-        if (tagsData.length === 0 || tagsData[0].tag_name === null) {
+        if (
+          tagsData.length === 0 ||
+          tagsData.every((tag) => tag.tag_name === null)
+        ) {
           document.getElementById("tag1NoTags").innerText =
             "No data found for tag 1";
           return;
@@ -504,6 +507,7 @@
           title: "Projects by Tag 1",
           pieHole: 0.4,
           backgroundColor: "transparent",
+          width: "600px",
         };
         const chart = new google.visualization.PieChart(
           document.getElementById("tag1Chart"),
@@ -515,7 +519,10 @@
     fetch(`/projects/radar/countProjectsByTag2`)
       .then((response) => response.json())
       .then((tagsData) => {
-        if (tagsData.length === 0 || tagsData[0].tag_name === null) {
+        if (
+          tagsData.length === 0 ||
+          tagsData.every((tag) => tag.tag_name === null)
+        ) {
           document.getElementById("tag2NoTags").innerText =
             "No data found for tag 2";
           return;
@@ -544,7 +551,10 @@
     fetch(`/projects/radar/countProjectsByTag3`)
       .then((response) => response.json())
       .then((tagsData) => {
-        if (tagsData.length === 0 || tagsData[0].tag_name === null) {
+        if (
+          tagsData.length === 0 ||
+          tagsData.every((tag) => tag.tag_name === null)
+        ) {
           document.getElementById("tag3NoTags").innerText =
             "No data found for tag 3";
           return;
