@@ -954,7 +954,7 @@ exports.countProjectsByTag2 = async (req, res) => {
       },
       attributes: ["id", "tag_name"],
     });
-    console.log("tag2Counts:", tag2Counts);
+
     // Map tag names to tag3Counts
     const tag2CountsWithNames = tag2Counts.map((tag) => {
       const tagName = tag2Names.find((t) => t.id === tag.tag_2);
@@ -1011,8 +1011,6 @@ exports.countProjectsByTag3 = async (req, res) => {
         [db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")), "DESC"],
       ],
     });
-
-    console.log("tag3Counts:", tag3Counts);
 
     // Fetch tag names for each tag_3
     const tag3Names = await db.tags.findAll({

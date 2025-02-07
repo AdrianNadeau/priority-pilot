@@ -11,7 +11,7 @@ const db = {};
 // Initialize Sequelize with the connection URL
 const sequelize = new Sequelize(process.env.DB_URL, {
   dialect: "postgres",
-  logging: process.env.DB_LOGGING === "true",
+  logging: process.env.DB_LOGGING ? process.env.DB_LOGGING === "true" : true,
 });
 
 db.companies = require("./company.model.js")(sequelize, Sequelize);
