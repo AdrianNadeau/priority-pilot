@@ -33,6 +33,8 @@ app.use(express.urlencoded({ extended: true }));
 console.log("DB HOST", process.env.DB_HOST_NAME);
 console.log("DB DB_NAME", process.env.DB_NAME);
 console.log("DB DB_PASSWORD", process.env.DB_PASSWORD);
+console.log("DB DB_DIALECT", process.env.DB_DIALECT);
+
 const sessionMiddleware = session({
   secret: process.env.SECRET,
   resave: true,
