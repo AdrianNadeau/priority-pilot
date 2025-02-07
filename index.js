@@ -30,6 +30,9 @@ app.get("/layouts/", function (req, res) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+console.log("DB HOST", process.env.DB_HOST_NAME);
+console.log("DB DB_NAME", process.env.DB_NAME);
+console.log("DB DB_PASSWORD", process.env.DB_PASSWORD);
 const sessionMiddleware = session({
   secret: process.env.SECRET,
   resave: true,
