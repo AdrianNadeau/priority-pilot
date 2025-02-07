@@ -40,15 +40,21 @@ const env = process.env.NODE_ENV || "development";
 console.log("ENVIRONMENT", env);
 console.log("LOGGING:", process.env.DB_LOGGING);
 const db = {};
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT,
-  },
-);
+// Initialize Sequelize with the connection URL
+const sequelize = new Sequelize(process.env.DB_URL, {
+  dialect: "postgres",
+  logging: process.env.DB_LOGGING === "true",
+});
+console.log("DB NEW URL", process.env.DB_URL);
+// const sequelize = new Sequelize(
+//   process.env.DB_NAME,
+//   process.env.DB_USER,
+//   process.env.DB_PASSWORD,
+//   {
+//     host: process.env.DB_HOST,
+//     dialect: process.env.DB_DIALECT,
+//   },
+// );
 
 db.companies = require("./company.model.js")(sequelize, Sequelize);
 db.persons = require("./person.model.js")(sequelize, Sequelize);
