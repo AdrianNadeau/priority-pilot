@@ -17,8 +17,6 @@ var DashboardRouter = require("./routes/DashboardRouter.js");
 
 var authMiddleware = require("./middleware/authMiddleware.js");
 
-// Initialize Sequelize with the connection URL
-// const sequelize = new Sequelize(connectionString);
 app.use(express.urlencoded({ extended: true }));
 
 // Access public folder from root
