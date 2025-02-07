@@ -786,7 +786,6 @@ exports.progress = async (req, res) => {
     const colors = [];
 
     for (const project of projects) {
-      console.log("project_name:", project.project_name);
       projectNames.push(project.project_name);
 
       // Fetch the most recent status for this project
