@@ -4,9 +4,6 @@ require("dotenv").config();
 var Authrouter = express.Router();
 const companies = require("../controllers/company.controller");
 const persons = require("../controllers/person.controller");
-// const Company = db.companies;
-// const Person = db.persons;
-// const Op = db.Sequelize.Op;
 
 //Authentications all TABs.
 Authrouter.get("/login", function (req, res) {
@@ -26,7 +23,7 @@ Authrouter.get("/confirm", function (req, res) {
   res.render("Pages/pages-register-confirm");
 });
 Authrouter.get("/session-expired", function (req, res) {
-  res.render("Pages/pages-session-timeout");
+  res.render("Pages/pages-session-expired");
 });
 Authrouter.get("/terms", function (req, res) {
   res.render("Pages/pages-terms");
@@ -51,9 +48,9 @@ Authrouter.get("/help", function (req, res) {
     sessionValid,
   });
 });
-// Authrouter.get("/pages-maintenance", function (req, res) {
-//   res.render("Pages/pages-maintenance");
-// });
+Authrouter.get("/pages-maintenance", function (req, res) {
+  res.render("Pages/pages-maintenance");
+});
 Authrouter.get("Pages/pages-roadmap", function (req, res) {
   //get company id
   if (!req.session || !req.session.company || !req.session.person) {
@@ -70,6 +67,15 @@ Authrouter.get("Pages/pages-roadmap", function (req, res) {
 });
 Authrouter.post("/register", companies.create);
 Authrouter.post("/auth/login", persons.login);
+
+Authrouter.get("/pages-maintenance", function (req, res) {
+  res.render("Pages/pages-maintenance");
+});
+
+Authrouter.get("/session-expired", function (req, res) {
+  console.log("Rendering session expired page");
+  res.render("Pages/pages-session-expired");
+});
 
 // Authrouter.get('/test', function(req, res)
 // {

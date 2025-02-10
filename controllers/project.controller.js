@@ -12,6 +12,9 @@ const sequelize = require("sequelize");
 const Op = db.Sequelize.Op;
 const currentDate = new Date();
 const moment = require("moment");
+const pg = require("pg");
+const session = require("express-session");
+const pgSession = require("connect-pg-simple")(session);
 
 // Create and Save a new Project
 exports.create = (req, res) => {
@@ -137,17 +140,9 @@ exports.findAllRadar = async (req, res) => {
   const type = req.params.type;
 
   // Get company id from session
-  let company_id_fk;
-  try {
-    if (!req.session) {
-      return res.redirect("/pages-500");
-    } else {
-      company_id_fk = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("error:", error);
-    return res.status(500).json({ message: "Error retrieving session data." });
-  }
+
+  const company_id_fk = req.session.company.id;
+
   // Get all company projects with the latest status health
   try {
     const projects = await Project.findAll({
@@ -753,7 +748,7 @@ exports.radar = async (req, res) => {
 
 exports.progress = async (req, res) => {
   let companyId;
-  console.log("GET PROGRESS!!!!!");
+
   // Ensure session exists and extract company information
   try {
     if (!req.session || !req.session.company) {

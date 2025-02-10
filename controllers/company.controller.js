@@ -146,17 +146,7 @@ exports.deleteAll = (req, res) => {
     });
 };
 exports.findDefaults = (req, res) => {
-  try {
-    if (!req.session) {
-      return res.redirect("/pages-500");
-    } else {
-      company_id_fk = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("error:", error);
-    return res.status(500).json({ message: "Error retrieving session data." });
-  }
-
+  company_id_fk = req.session.company.id;
   Company.findOne({ where: { id: company_id_fk } })
     .then((company) => {
       if (!company) {
@@ -187,17 +177,7 @@ exports.findDefaults = (req, res) => {
     });
 };
 exports.setDefaults = async (req, res, next) => {
-  // Ensure session exists and extract company ID
-  let company_id_fk;
-  try {
-    if (!req.session || !req.session.company) {
-      return res.redirect("/pages-500");
-    }
-    company_id_fk = req.session.company.id;
-  } catch (error) {
-    console.error("Error retrieving session data:", error);
-    return res.status(500).json({ message: "Error retrieving session data." });
-  }
+  const company_id_fk = req.session.company.id;
 
   // Update company portfolio budget and effort
   try {

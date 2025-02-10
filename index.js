@@ -7,14 +7,14 @@ var http = require("http").Server(app);
 var bCrypt = require("bcryptjs");
 const multer = require("multer");
 require("dotenv").config();
-
-// Import Sequelize
-const { Sequelize } = require("sequelize");
+const Sequelize = require("sequelize");
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
+pg = require("pg");
+const pgSession = require("connect-pg-simple")(session);
 
 var router = require("./router.js");
 var Authrouter = require("./routes/AuthRouter.js");
 var DashboardRouter = require("./routes/DashboardRouter.js");
-
 var authMiddleware = require("./middleware/authMiddleware.js");
 
 app.use(express.urlencoded({ extended: true }));
@@ -28,10 +28,20 @@ app.get("/layouts/", function (req, res) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const sessionMiddleware = session({
+  store: new pgSession({
+    pool: new pg.Pool({
+      host: process.env.DB_HOST_NAME,
+      port: process.env.DB_PORT,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+    }),
+    tableName: "session", // Use a custom table name if needed
+  }),
   secret: process.env.SECRET,
-  resave: true,
-  saveUninitialized: true,
-  rolling: true, // Force regeneration of session ID for each request
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 30 * 60 * 1000 }, // 30 minutes
 });
 app.use(sessionMiddleware);
 

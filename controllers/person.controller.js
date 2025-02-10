@@ -110,11 +110,14 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid username or password." });
 
     const company = await Company.findByPk(person.company_id_fk);
-    if (!company) return res.redirect("/login");
-    req.session.company = company;
-    req.session.person = person;
-    console.log("Redirecting to Dashboard...");
-    res.redirect("/");
+    if (!company) {
+      return res.redirect("/login");
+    } else {
+      req.session.company = company;
+      req.session.person = person;
+      console.log("Redirecting to Dashboard...");
+      res.redirect("/");
+    }
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).send({

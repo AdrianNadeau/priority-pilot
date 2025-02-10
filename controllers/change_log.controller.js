@@ -8,16 +8,7 @@ exports.create = (req, res) => {
 
   const project_id = req.body.project_id;
   console.log("project_id:", project_id);
-  let company_id_fk;
-  try {
-    if (!req.session) {
-      res.redirect("/pages-500");
-    } else {
-      company_id_fk = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("error:", error);
-  }
+  const company_id_fk = req.session.company.id;
 
   const change_log = {
     change_date: new Date(),
