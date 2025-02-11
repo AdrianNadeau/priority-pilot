@@ -211,7 +211,8 @@
 
       <div class="col-lg-2">
         <div style="margin-left: 40px" class="row">
-          <canvas id="pieChart1"></canvas>
+          <!-- <canvas id="pieChart1"></canvas> -->
+          <div id="pieChart"></div>
         </div>
         <div class="row mt-5" class="text-center">
           <div id="tag1Chart"></div>
@@ -236,7 +237,6 @@
     fetch(`/projects/radar/progress`)
       .then((response) => response.json())
       .then((data) => {
-        console.log("Data received:", data);
         // Select the canvas element
         if (typeof Chart !== "undefined") {
           const colorMapping = {
@@ -317,60 +317,9 @@
           // Custom legend labels
           const customLabels = ["Healthy", "Caution", "In Trouble"];
 
-          const pieCtx = document.getElementById("pieChart1").getContext("2d");
-          new Chart(pieCtx, {
-            type: "doughnut",
-            data: {
-              labels: labels, // Status labels
-              datasets: [
-                {
-                  data: counts, // Count of projects in each category
-                  backgroundColor: chartColors, // Status colors
-                  borderWidth: 1,
-                },
-              ],
-            },
-            options: {
-              plugins: {
-                legend: {
-                  display: true,
-                  position: "top",
-                  labels: {
-                    generateLabels: function (chart) {
-                      return chart.data.labels.map((label, index) => {
-                        return {
-                          text: `${customLabels[index]} (${percentages[index]}%)`,
-                          fillStyle: chartColors[index], // Set the color for the label's box
-                          strokeStyle: chartColors[index],
-                          lineWidth: 1,
-                        };
-                      });
-                    },
-                    color: "#333", // Text color for legend
-                    font: {
-                      size: 14, // Font size for legend
-                    },
-                  },
-                },
-                tooltip: {
-                  callbacks: {
-                    label: function (tooltipItem) {
-                      const status = customLabels[tooltipItem.dataIndex];
-                      const count = counts[tooltipItem.dataIndex];
-                      return `${status}: ${count} project(s)`;
-                    },
-                  },
-                },
-              },
-            },
-          });
-        } else {
-          console.error("Chart.js library NOT loaded");
-          document.body.innerHTML =
-            "<p>Error: Chart.js library failed to load</p>";
+          // Create pie chart
         }
-      })
-      .catch((err) => console.error(err));
+      });
   });
   function getRandomColorForTags() {
     const letters = "0123456789ABCDEF";
