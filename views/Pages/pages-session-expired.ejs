@@ -1,4 +1,8 @@
-<%- contentFor('HeaderCss') %>
+<% include ../Partials/HeaderRoot %>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+/>
 <style>
   .session-timeout-container {
     min-height: 70vh;
@@ -34,25 +38,6 @@
   }
 </style>
 
-<%- contentFor('breadcrumb') %>
-<nav aria-label="breadcrumb">
-  <ul class="list-inline menu-left mb-0">
-    <li class="list-inline-item">
-      <button
-        type="button"
-        class="button-menu-mobile open-left waves-effect"
-        aria-label="Toggle menu"
-      >
-        <i class="ion-navicon" aria-hidden="true"></i>
-      </button>
-    </li>
-    <li class="hide-phone list-inline-item app-search">
-      <h1 class="page-title h3">Session Timeout</h1>
-    </li>
-  </ul>
-</nav>
-
-<%- contentFor('body') %>
 <div class="page-content-wrapper">
   <div class="container-fluid">
     <div class="session-timeout-container">
@@ -84,7 +69,6 @@
   </div>
 </div>
 
-<%- contentFor('FooterJs') %>
 <script>
   // Clear any sensitive data from localStorage
   localStorage.clear();
@@ -96,4 +80,4 @@
   });
 </script>
 
-<%- contentFor('BottomJs') %>
+<% include ../Partials/FooterRoot %>
