@@ -645,18 +645,8 @@ exports.findOneForPrime = async (req, res) => {
 //   }
 // };
 exports.radar = async (req, res) => {
-  let company_id_fk;
+  let company_id_fk = req.session.company.id;
 
-  try {
-    if (!req.session) {
-      return res.redirect("/pages-500");
-    } else {
-      company_id_fk = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-  }
-  console.log();
   const query = `
   SELECT
     SUM(CASE WHEN phase_id_fk = 1 THEN 1 ELSE 0 END) AS phase_1_count,
