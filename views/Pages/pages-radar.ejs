@@ -210,7 +210,7 @@
       </div>
 
       <div class="col-lg-2">
-        <div style="margin-left: 40px" class="row">
+        <div class="row">
           <!-- <canvas id="pieChart1"></canvas> -->
           <div id="pieChart"></div>
         </div>
@@ -233,31 +233,63 @@
 
 <%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  function getRandomColorForTags() {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+</script>
+<script type="text/javascript">
+  google.charts.load("current", { packages: ["corechart"] });
+  google.charts.setOnLoadCallback(drawCharts);
+
+  function drawCharts() {
     fetch(`/projects/radar/progress`)
       .then((response) => response.json())
-      .then((data) => {
-        // Select the canvas element
-        if (typeof Chart !== "undefined") {
+      .then((progressData) => {
+        console.log("Progress:", progressData);
+        if (
+          progressData &&
+          progressData.progress &&
+          Array.isArray(progressData.progress)
+        ) {
           const colorMapping = {
             Green: "#28a745",
             Yellow: "#ffc107",
             Red: "#dc3545",
           };
 
-          // Convert API colors to hex codes
-          const mappedColors = data.colors.map(
-            (color) => colorMapping[color] || "#000000",
+          // Filter out "No status available" entries
+          const validProgressData = progressData.progress.filter(
+            (_, index) =>
+              progressData.colors[index].trim() !== "No status available",
           );
+          const validColors = progressData.colors.filter(
+            (color) => color.trim() !== "No status available",
+          );
+          const validProjectNames = progressData.project_names.filter(
+            (_, index) =>
+              progressData.colors[index].trim() !== "No status available",
+          );
+
+          // Convert API colors to hex codes
+          const mappedColors = validColors.map(
+            (color) => colorMapping[color.trim()] || "#000000",
+          );
+
+          // Draw Bar Chart
           const barCtx = document.getElementById("barChart").getContext("2d");
           new Chart(barCtx, {
             type: "bar",
             data: {
-              labels: data.project_names,
+              labels: validProjectNames,
               datasets: [
                 {
                   label: "Progress",
-                  data: data.progress,
+                  data: validProgressData,
                   backgroundColor: mappedColors,
                   borderWidth: 1,
                 },
@@ -280,7 +312,7 @@
                   callbacks: {
                     // Custom tooltip for hover
                     label: function (tooltipItem) {
-                      const progress = data.progress[tooltipItem.dataIndex];
+                      const progress = validProgressData[tooltipItem.dataIndex];
                       return `Progress: ${progress}%`;
                     },
                   },
@@ -297,16 +329,16 @@
           };
 
           // Count occurrences of each color
-          data.colors.forEach((color) => {
-            if (colorCounts[color] !== undefined) {
-              colorCounts[color] += 1;
+          validColors.forEach((color) => {
+            if (colorCounts[color.trim()] !== undefined) {
+              colorCounts[color.trim()] += 1;
             }
           });
 
           // Extract data for the chart
           const labels = Object.keys(colorCounts); // ["Green", "Yellow", "Red"]
           const counts = Object.values(colorCounts); // [3, 2, 1]
-          const chartColors = ["#28a745", "#ffc107", "#dc3545"]; // Static colors for Green, Yellow, Red
+          const chartColors = ["#28a745", "#ffc107", "#dc3545"]; // Green for Healthy, Yellow for Caution, Red for In Trouble
 
           // Calculate percentages
           const total = counts.reduce((sum, count) => sum + count, 0);
@@ -317,24 +349,60 @@
           // Custom legend labels
           const customLabels = ["Healthy", "Caution", "In Trouble"];
 
-          // Create pie chart
-        }
-      });
-  });
-  function getRandomColorForTags() {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
-</script>
-<script type="text/javascript">
-  google.charts.load("current", { packages: ["corechart"] });
-  google.charts.setOnLoadCallback(drawCharts);
+          const chartData = [["Status", "Count"]];
+          labels.forEach((label, index) => {
+            chartData.push([customLabels[index], counts[index]]);
+          });
 
-  function drawCharts() {
+          const data = google.visualization.arrayToDataTable(chartData);
+          const options = {
+            title: "Portfolio Health",
+            pieHole: 0.4,
+            backgroundColor: "transparent",
+            width: "600px",
+            colors: chartColors, // Set the colors for the pie chart
+            legend: {
+              position: "right",
+              labels: {
+                generateLabels: function (chart) {
+                  return chartData
+                    .map((row, index) => {
+                      if (index === 0) return null; // Skip header row
+                      return {
+                        text: `${row[0]} (${percentages[index - 1]}%)`,
+                        fillStyle: chartColors[index - 1], // Set the color for the label's box
+                        strokeStyle: chartColors[index - 1],
+                        lineWidth: 1,
+                      };
+                    })
+                    .filter((label) => label !== null);
+                },
+                color: "#333", // Text color for legend
+                font: {
+                  size: 14, // Font size for legend
+                },
+              },
+            },
+            tooltip: {
+              callbacks: {
+                label: function (tooltipItem) {
+                  const status = customLabels[tooltipItem.dataIndex];
+                  const count = counts[tooltipItem.dataIndex];
+                  return `${status}: ${count} project(s)`;
+                },
+              },
+            },
+          };
+          const chart = new google.visualization.PieChart(
+            document.getElementById("pieChart"),
+          );
+          chart.draw(data, options);
+        } else {
+          console.error("Expected an array but got:", progressData);
+        }
+      })
+      .catch((err) => console.error(err));
+
     fetch(`/projects/radar/countProjectsByTag1`)
       .then((response) => response.json())
       .then((tagsData) => {

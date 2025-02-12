@@ -881,7 +881,7 @@ exports.countProjectsByTag1 = async (req, res) => {
         project_count: tag.get("project_count"),
       };
     });
-    console.log("tag1CountsWithNames:", tag1CountsWithNames);
+
     // Send the response
     res.json(tag1CountsWithNames);
   } catch (error) {
@@ -948,7 +948,7 @@ exports.countProjectsByTag2 = async (req, res) => {
         project_count: tag.get("project_count"),
       };
     });
-    console.log("tag2CountsWithNames:", tag2CountsWithNames);
+
     // Send the response
     res.json(tag2CountsWithNames);
   } catch (error) {
@@ -1015,8 +1015,6 @@ exports.countProjectsByTag3 = async (req, res) => {
         project_count: tag.get("project_count"),
       };
     });
-
-    console.log("tag3CountsWithNames:", tag3CountsWithNames);
 
     // Send the response
     res.json(tag3CountsWithNames);
