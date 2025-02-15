@@ -647,7 +647,7 @@ exports.findOneForPrime = async (req, res) => {
 exports.radar = async (req, res) => {
   let company_id_fk = req.session.company.id;
 
-  const query = `
+  const query1 = `
   SELECT
     SUM(CASE WHEN phase_id_fk = 1 THEN 1 ELSE 0 END) AS phase_1_count,
     SUM(CASE WHEN phase_id_fk = 2 THEN 1 ELSE 0 END) AS phase_2_count,
@@ -663,12 +663,11 @@ exports.radar = async (req, res) => {
     projects
   WHERE
     company_id_fk = ?
-
-`;
+  `;
 
   try {
-    // Execute the query
-    const data = await db.sequelize.query(query, {
+    // Execute the first query
+    const data = await db.sequelize.query(query1, {
       replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
@@ -681,8 +680,8 @@ exports.radar = async (req, res) => {
     const pitchCount = Number(data[0].phase_1_count);
     const priorityCount = Number(data[0].phase_2_count);
     const discoveryCount = Number(data[0].phase_3_count);
-    const deliveryCount = Number(data[0].phase_3_count);
-    const operationsCount = Number(data[0].phase_4_count);
+    const deliveryCount = Number(data[0].phase_4_count);
+    const operationsCount = Number(data[0].phase_5_count);
     const pitchTotalCost = formatCost(Number(data[0].phase_1_total_cost) || 0);
     const priorityTotalCost = formatCost(
       Number(data[0].phase_2_total_cost) || 0,
@@ -698,7 +697,6 @@ exports.radar = async (req, res) => {
       pitchTotalCost +
       discoveryCost +
       priorityTotalCost +
-      discoveryCost +
       deliveryTotalCost +
       operationsTotalCost;
     const usedCost = totalCost - operationsTotalCost;
@@ -706,27 +704,52 @@ exports.radar = async (req, res) => {
     const in_flight_count = priorityTotalCost + discoveryCount + deliveryCount;
     const in_flight_cost =
       priorityTotalCost + discoveryCost + deliveryTotalCost;
-    // console.log("flight count:",Number(in_flight_count) || 0);
+
+    // Get all estimated costs by phase
+    const query2 = `
+      SELECT 
+        phases.phase_name,
+        AVG(CAST(REPLACE(proj.project_cost, ',', '') AS NUMERIC)) AS average_project_cost
+      FROM 
+        projects proj
+      LEFT JOIN 
+        phases ON phases.id = proj.phase_id_fk
+      WHERE 
+        proj.company_id_fk = ?
+      GROUP BY 
+        phases.phase_name
+      ORDER BY 
+        phases.phase_name;
+    `;
+
+    const averageCostData = await db.sequelize.query(query2, {
+      replacements: [company_id_fk],
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    // Format the average project cost
+    averageCostData.forEach((item) => {
+      item.average_project_cost = formatCost(item.average_project_cost);
+    });
+
     res.render("Pages/pages-radar", {
       projects: data,
       pitchCount,
       priorityCount,
       discoveryCount,
-      // operationsCount: in_flight_count,
+      deliveryCount,
+      operationsCount,
       pitchCost: pitchTotalCost,
       priorityCost: priorityTotalCost,
-      in_flight_count: in_flight_count,
-      operationsCost: data[0].phase_5_count,
-      // phase_2_total_cost: data[0].phase_2_total_cost,
-      in_flight_cost: in_flight_cost,
-      operationsCount,
-      operationsTotalCost: formatCost(operationsTotalCost),
+      discoveryCost: discoveryCost,
+      deliveryCost: deliveryTotalCost,
+      operationsTotalCost: operationsTotalCost,
       totalCost,
       usedCost,
       avalCost,
-      deliveryCount,
-      deliveryCost: formatCost(deliveryTotalCost),
-      discoveryCost: formatCost(deliveryTotalCost),
+      in_flight_count,
+      in_flight_cost,
+      averageCostData,
       currentDate: new Date().toLocaleDateString(),
       company_id: company_id_fk,
     });
@@ -1229,7 +1252,7 @@ exports.health = async (req, res) => {
   //get all company projects
   const company_id_fk = req.session.company.id;
 
-  const query = `SELECT 
+  const costQuery = `SELECT 
     proj.company_id_fk,
     proj.id AS project_id,
     proj.project_name,
@@ -1270,10 +1293,11 @@ ORDER BY
     proj.phase_id_fk, proj.id;
 
 `;
-  const data = await db.sequelize.query(query, {
+  costData = await db.sequelize.query(costQuery, {
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
   });
+  console.log("costData:", costData);
 
   // Loop through data and get the most recent progress for each project
   data.forEach((project) => {

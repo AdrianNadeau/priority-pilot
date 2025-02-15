@@ -138,13 +138,19 @@
                                       <label for="dates">Dates:</label>
                                       <div class="form-row">
                                         <div class="col">
-                                          <input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start date">
+                                          <input type="text" required class="form-control datepicker" value="" id="start_date" name="start_date" placeholder="Start date">
+                                          <div class="invalid-feedback">
+                                            Start Date is required.
+                                          </div>
                                         </div>
                                         <div class="col">
-                                          <input type="text" class="form-control datepicker" id="end_date" name="end_date" placeholder="End date">
+                                          <input type="text" required class="form-control datepicker" id="end_date" value="" name="end_date" placeholder="End date">
                                         </div>
+                                        <div class="invalid-feedback">
+                                         End Date is required.
+                                      </div>
                                         <div class="col">
-                                          <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone date">
+                                          <input type="text" class="form-control datepicker"  value="" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone date">
                                         </div>
                                       </div>
                                     </div>
@@ -321,25 +327,33 @@
             });
         });
          // Initialize Flatpickr on the input field with id "datepicker"
-         flatpickr("#start_date", {
+        // Initialize Flatpickr on the input fields
+        const startDatePicker = flatpickr("#start_date", {
             dateFormat: "Y-m-d",
             defaultDate: new Date(), // Set the default date to today
             onChange: function(selectedDates, dateStr, instance) {
               // This function will be triggered when the user selects a date
               console.log("Selected date:", dateStr);
+              endDatePicker.set('minDate', dateStr); // Set the minimum date for the end date picker
             }
-          });
+        });
 
-            flatpickr('#end_date', {
-                dateFormat: 'Y-m-d', // Format the date as YYYY-MM-DD
-                minDate: 'today',    // Set the minimum selectable date to today
-                maxDate: new Date().fp_incr(365) // Set the maximum selectable date to one year from now
-            });
-            flatpickr('#next_milestone_date', {
-                dateFormat: 'Y-m-d', // Format the date as YYYY-MM-DD
-                minDate: 'today',    // Set the minimum selectable date to today
-                maxDate: new Date().fp_incr(365) // Set the maximum selectable date to one year from now
-            });
+        const endDatePicker = flatpickr("#end_date", {
+            dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+            minDate: 'today',    // Set the minimum selectable date to today
+            maxDate: new Date().fp_incr(365), // Set the maximum selectable date to one year from now
+            onChange: function(selectedDates, dateStr, instance) {
+              // This function will be triggered when the user selects a date
+              console.log("Selected date:", dateStr);
+              startDatePicker.set('maxDate', dateStr); // Set the maximum date for the start date picker
+            }
+        });
+
+        flatpickr('#next_milestone_date', {
+            dateFormat: 'Y-m-d', // Format the date as YYYY-MM-DD
+            minDate: 'today',    // Set the minimum selectable date to today
+            maxDate: new Date().fp_incr(365) // Set the maximum selectable date to one year from now
+        });
     });
     
     addProject.addEventListener('click', function(event) {

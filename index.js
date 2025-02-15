@@ -12,10 +12,13 @@ const SequelizeStore = require("connect-session-sequelize")(session.Store);
 pg = require("pg");
 const pgSession = require("connect-pg-simple")(session);
 
-var router = require("./router.js");
-var Authrouter = require("./routes/AuthRouter.js");
-var DashboardRouter = require("./routes/DashboardRouter.js");
-var authMiddleware = require("./middleware/authMiddleware.js");
+const router = require("./router.js");
+const Authrouter = require("./routes/AuthRouter.js");
+const DashboardRouter = require("./routes/DashboardRouter.js");
+
+const errorHandler = require("./middleware/errorHandler");
+const notFoundHandler = require("./middleware/notFoundHandler");
+const authMiddleware = require("./middleware/authMiddleware.js");
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -89,7 +92,9 @@ require("./routes/phase.routes")(app);
 require("./routes/priority.routes")(app);
 require("./routes/change_reason.routes.js")(app);
 require("./routes/changed_project.routes.js")(app);
-
+// Error handling middleware (should be the last middleware)
+// app.use(notFoundHandler);
+// app.use(errorHandler);
 http.listen(8080, function () {
   console.log("listening on *:8080");
 });

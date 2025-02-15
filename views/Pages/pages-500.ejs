@@ -6,7 +6,7 @@
     </button>
   </li>
   <li class="hide-phone list-inline-item app-search">
-    <h3 class="page-title">Session Timeout</h3>
+    <h3 class="page-title">Error Occured</h3>
   </li>
 </ul>
 
@@ -17,15 +17,12 @@
       <div class="col-md-6 offset-md-3">
         <div class="card">
           <div class="card-body">
-            <div class="ex-page-content text-center">
-              <h3>Your session has timed out.</h3>
-              <br />
-
-              <a
-                class="btn btn-primary mb-5 waves-effect waves-light"
-                href="/login"
-                >Back to Login</a
-              >
+            <div class="error-page">
+              <h1>There was an error loading your page:</h1>
+              <p><%= message %></p>
+              <a href="/">Go back to Home</a>
+              <a href="mailto:help@prioritypilot.ca ">Email Support</a> if issue persists.
+            </div>
             </div>
           </div>
         </div>

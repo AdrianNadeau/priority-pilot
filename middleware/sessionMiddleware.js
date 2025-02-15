@@ -1,8 +1,8 @@
 async function sessionMiddleware(req, res, next) {
   try {
-    if (!req.session) {
-      // Direct to session timeout page
-      res.render("Pages/pages-session-expired");
+    if (!req.session || !req.session.company || !req.session.person) {
+      // Redirect to session expired page
+      res.redirect("/session-expired");
       return;
     } else {
       // console.log("req.session:", req.session);
@@ -11,8 +11,7 @@ async function sessionMiddleware(req, res, next) {
     }
     next();
   } catch (error) {
-    console.log("ERRRRORRRRR");
-    res.redirect("/session-expired");
+    next(error); // Pass the error to the error handler
   }
 }
 

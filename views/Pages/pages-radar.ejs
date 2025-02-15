@@ -18,6 +18,8 @@
   type="text/javascript"
   src="https://www.gstatic.com/charts/loader.js"
 ></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
   <li class="list-inline-item">
@@ -34,187 +36,34 @@
 <div class="page-content-wrapper">
   <div class="container" style="margin-left: 0.5em">
     <div class="row">
-      <div class="col-lg-8">
-        <div class="row">
-          <div class="col-lg-2 text-center">
-            <div class="card-body p-2">
-              <strong class="h3">Funnel</strong>
-              <br />
-              <button
-                type="button"
-                class="btn btn-light"
-                style="
-                  background-color: #e2e6ea;
-                  border-color: #e2e6ea;
-                  margin-bottom: 5px;
-                  width: 120px;
-                  height: 50px;
-                "
-              >
-                <%= pitchCount%>
-              </button>
-              <br />
-              <button
-                type="button"
-                class="btn btn-light"
-                style="
-                  background-color: #e2e6ea;
-                  border-color: #e2e6ea;
-                  margin-bottom: 5px;
-                  width: 120px;
-                  height: 50px;
-                "
-              >
-                $<%= pitchCost %>
-              </button>
-            </div>
-          </div>
-          <div class="col-lg-2 text-center">
-            <div class="card-body p-2">
-              <strong class="h3">Planning</strong>
-              <br />
-              <button
-                type="button"
-                class="btn btn-light"
-                style="
-                  background-color: #e2e6ea;
-                  border-color: #e2e6ea;
-                  margin-bottom: 5px;
-                  width: 120px;
-                  height: 50px;
-                "
-              >
-                <%= priorityCount %>
-              </button>
-              <br />
-              <button
-                type="button"
-                class="btn btn-light"
-                style="
-                  background-color: #e2e6ea;
-                  border-color: #e2e6ea;
-                  margin-bottom: 5px;
-                  width: 120px;
-                  height: 50px;
-                "
-              >
-                $<%= priorityCost %>
-              </button>
-            </div>
-          </div>
-          <div class="col-lg-2 text-center">
-            <div class="card-body p-2">
-              <strong class="h3">Discovery</strong>
-              <br />
-              <button
-                type="button"
-                class="btn btn-light"
-                style="
-                  background-color: #e2e6ea;
-                  border-color: #e2e6ea;
-                  margin-bottom: 5px;
-                  width: 120px;
-                  height: 50px;
-                "
-              >
-                <%= discoveryCount %>
-              </button>
-              <br />
-              <button
-                type="button"
-                class="btn btn-light"
-                style="
-                  background-color: #e2e6ea;
-                  border-color: #e2e6ea;
-                  margin-bottom: 5px;
-                  width: 120px;
-                  height: 50px;
-                "
-              >
-                $<%= discoveryCost %>
-              </button>
-            </div>
-          </div>
-          <div class="col-lg-2 text-center">
-            <div class="card-body p-2">
-              <strong class="h3">Delivery</strong>
-              <br />
-              <button
-                type="button"
-                class="btn btn-light"
-                style="
-                  background-color: #e2e6ea;
-                  border-color: #e2e6ea;
-                  margin-bottom: 5px;
-                  width: 120px;
-                  height: 50px;
-                "
-              >
-                <%= deliveryCount %>
-              </button>
-              <br />
-              <button
-                type="button"
-                class="btn btn-light"
-                style="
-                  background-color: #e2e6ea;
-                  border-color: #e2e6ea;
-                  margin-bottom: 5px;
-                  width: 120px;
-                  height: 50px;
-                "
-              >
-                $<%= deliveryCost %>
-              </button>
-            </div>
-          </div>
-          <div class="col-lg-2 text-center">
-            <div class="card-body p-2">
-              <strong class="h3">Done</strong>
-              <br />
-              <button
-                type="button"
-                class="btn btn-light"
-                style="
-                  background-color: #e2e6ea;
-                  border-color: #e2e6ea;
-                  margin-bottom: 5px;
-                  width: 120px;
-                  height: 50px;
-                "
-              >
-                <%= operationsCount %>
-              </button>
-              <br />
-              <button
-                type="button"
-                class="btn btn-light"
-                style="
-                  background-color: #e2e6ea;
-                  border-color: #e2e6ea;
-                  margin-bottom: 5px;
-                  width: 120px;
-                  height: 50px;
-                "
-              >
-                $<%= operationsTotalCost %>
-              </button>
-            </div>
-          </div>
-        </div>
+      <div class="col-lg-7">
         <div class="row mt-5">
+          <div class="col-lg-6 text-center">
+            <div
+              id="columnchart_values"
+              style="width: 100%; height: 300px"
+            ></div>
+          </div>
+          <div class="col-lg-6 text-center">
+            <div
+              id="columnChartCost_values"
+              style="width: 100%; height: 300px"
+            ></div>
+          </div>
           <div class="col-lg-10 text-center">
             <canvas id="barChart"></canvas>
           </div>
         </div>
       </div>
 
-      <div class="col-lg-2">
-        <div class="row">
-          <!-- <canvas id="pieChart1"></canvas> -->
+      <div class="col-lg-4">
+        <div class="row mt-5 text-center">
           <div id="pieChart"></div>
         </div>
-        <div class="row mt-5" class="text-center">
+        <div class="row">
+          <div class="col-lg-6"></div>
+        </div>
+        <div class="row mt-5 text-center">
           <div id="tag1Chart"></div>
           <span id="tag1NoTags" name="tag1NoTags" class="text-center"></span>
         </div>
@@ -245,6 +94,17 @@
 <script type="text/javascript">
   google.charts.load("current", { packages: ["corechart"] });
   google.charts.setOnLoadCallback(drawCharts);
+
+  function parseFormattedCost(cost) {
+    if (typeof cost === "string") {
+      if (cost.endsWith("K")) {
+        return parseFloat(cost.replace("K", "")) * 1000;
+      } else if (cost.endsWith("M")) {
+        return parseFloat(cost.replace("M", "")) * 1000000;
+      }
+    }
+    return parseFloat(cost);
+  }
 
   function drawCharts() {
     fetch(`/projects/radar/progress`)
@@ -279,7 +139,7 @@
           const mappedColors = validColors.map(
             (color) => colorMapping[color.trim()] || "#000000",
           );
-
+          console.log("Valid Progress Data:", validProgressData);
           // Draw Bar Chart
           const barCtx = document.getElementById("barChart").getContext("2d");
           new Chart(barCtx, {
@@ -288,7 +148,7 @@
               labels: validProjectNames,
               datasets: [
                 {
-                  label: "Progress",
+                  label: "",
                   data: validProgressData,
                   backgroundColor: mappedColors,
                   borderWidth: 1,
@@ -308,6 +168,12 @@
                 },
               },
               plugins: {
+                title: {
+                  display: false, // Hide the title
+                },
+                legend: {
+                  display: false, // Hide the legend
+                },
                 tooltip: {
                   callbacks: {
                     // Custom tooltip for hover
@@ -317,8 +183,20 @@
                     },
                   },
                 },
+                datalabels: {
+                  anchor: "end",
+                  align: "end",
+                  formatter: function (value) {
+                    return value + "%";
+                  },
+                  color: "#000",
+                  font: {
+                    weight: "bold",
+                  },
+                },
               },
             },
+            plugins: [ChartDataLabels],
           });
 
           // Define static colors and initialize counts
@@ -397,11 +275,125 @@
             document.getElementById("pieChart"),
           );
           chart.draw(data, options);
+
+          // Draw the new chart
+          var chartCostData = google.visualization.arrayToDataTable([
+            ["Element", "Projects", { role: "style" }],
+            ["Funnel", parseFormattedCost("$<%= pitchCount %>"), "blue"],
+            ["Planning", parseFormattedCost("$<%= priorityCount %>"), "blue"],
+            ["Discovery", parseFormattedCost("$<%= discoveryCount %>"), "blue"],
+            ["Delivery", parseFormattedCost("$<%= deliveryCount %>"), "blue"],
+            ["Done", parseFormattedCost("$<%= operationsCount %>"), "blue"],
+          ]);
+
+          var chartCostView = new google.visualization.DataView(chartCostData);
+          chartCostView.setColumns([
+            0,
+            1,
+            {
+              calc: "stringify",
+              sourceColumn: 1,
+              type: "string",
+              role: "annotation",
+            },
+            2,
+          ]);
+
+          var newChartOptions = {
+            title: "Projects by Phase",
+            width: 400,
+            height: 200,
+            bar: { groupWidth: "95%" },
+            legend: { position: "none" },
+            backgroundColor: "transparent",
+            textStyle: {
+              fontSize: 40, // Set vertical axis text to 14px
+            },
+          };
+          var newChart = new google.visualization.ColumnChart(
+            document.getElementById("newChart"),
+          );
+          newChart.draw(chartCostView, newChartOptions);
         } else {
           console.error("Expected an array but got:", progressData);
         }
       })
       .catch((err) => console.error(err));
+    var data = google.visualization.arrayToDataTable([
+      ["Element", "Projects", { role: "style" }],
+      ["Funnel", <%= pitchCount %>, "blue"],
+      ["Planning", <%= priorityCount %>, "blue"],
+      ["Discovery", <%= discoveryCount %>, "blue"],
+      ["Delivery", <%= deliveryCount %>, "blue"],
+      ["Done",<%= operationsCount %>, "blue"],
+    ]);
+
+    var view = new google.visualization.DataView(data);
+    view.setColumns([
+      0,
+      1,
+      {
+        calc: "stringify",
+        sourceColumn: 1,
+        type: "string",
+        role: "annotation",
+      },
+      2,
+    ]);
+
+    var options = {
+      title: "Projects by Phase",
+      width: 400,
+      height: 200,
+      bar: { groupWidth: "95%" },
+      legend: { position: "none" },
+      backgroundColor: "transparent",
+      textStyle: {
+        fontSize: 40, // Set vertical axis text to 14px
+      },
+    };
+    var chart = new google.visualization.ColumnChart(
+      document.getElementById("columnchart_values"),
+    );
+    chart.draw(view, options);
+
+    var costData = google.visualization.arrayToDataTable([
+      ["Element", "Cost", { role: "style" }],
+      ["Funnel", parseFormattedCost("<%= pitchCost %>"), "green"],
+      ["Planning", parseFormattedCost("<%= priorityCost %>"), "green"],
+      ["Discovery", parseFormattedCost("<%= discoveryCost %>"), "green"],
+      ["Delivery", parseFormattedCost("<%= deliveryCost %>"), "green"],
+      ["Done", parseFormattedCost("<%= operationsTotalCost %>"), "green"],
+    ]);
+
+    var costView = new google.visualization.DataView(costData);
+    costView.setColumns([
+      0,
+      1,
+      {
+        calc: "stringify",
+        sourceColumn: 1,
+        type: "string",
+        role: "annotation",
+      },
+      2,
+    ]);
+
+    var costOptions = {
+      title: "Estimated Cost by Phase",
+      width: 400,
+      height: 200,
+      bar: { groupWidth: "95%" },
+      legend: { position: "none" },
+      backgroundColor: "transparent",
+      textStyle: {
+        fontSize: 40, // Set vertical axis text to 14px
+      },
+    };
+    var costChart = new google.visualization.ColumnChart(
+      document.getElementById("columnChartCost_values"),
+    );
+    costChart.draw(costView, costOptions);
 
     fetch(`/projects/radar/countProjectsByTag1`)
       .then((response) => response.json())
