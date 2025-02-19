@@ -74,7 +74,7 @@ exports.create = (req, res) => {
     tag_3: req.body.tag_3 || 0,
     // other project fields
   };
-  console.log("project:", project);
+
   // Save Project in the database
   Project.create(project).then(async (data) => {
     const phasesData = await Phase.findAll({
@@ -203,7 +203,6 @@ exports.findAll = async (req, res) => {
         .status(500)
         .json({ message: "Error retrieving session data." });
     }
-    console.log("getting tags for company");
 
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
@@ -236,7 +235,6 @@ exports.findAll = async (req, res) => {
       })
 
       .then((data) => {
-        console.log("data:", data);
         res.render("Pages/pages-projects", {
           projects: data,
           phases: phasesData,
@@ -1297,7 +1295,6 @@ ORDER BY
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
   });
-  console.log("costData:", costData);
 
   // Loop through data and get the most recent progress for each project
   data.forEach((project) => {

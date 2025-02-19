@@ -27,6 +27,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: true,
     },
+    company_timezone: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
   });
 
   return Company;

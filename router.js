@@ -126,7 +126,6 @@ router.get("/", async (req, res) => {
         console.warn("Unknown phase:", project.phase_name);
       }
     });
-
     // Calculate used values
     const usedCost =
       phaseData.planning.cost +
@@ -180,6 +179,7 @@ router.get("/", async (req, res) => {
         cost: formatToKMB(phaseData.done.cost),
         ph: phaseData.done.ph.toLocaleString(),
       },
+
       totalCost: formatToKMB(portfolio_budget),
       usedCost: formatToKMB(usedCost),
       availableCost: formatToKMB(availableCost),

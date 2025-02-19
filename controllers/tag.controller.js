@@ -16,9 +16,10 @@ exports.create = (req, res) => {
   // Create a Tag
   const tag = {
     tag_name: req.body.company_tag,
-    company_id_fk: req.body.company_id,
+    company_id_fk: req.session.company.id,
   };
-  // Save Tag in the database
+
+  // Save Tag in the databasecompany_id_fk = req.session.company.id;
   Tag.create(tag)
     .then((data) => {
       res.redirect("/companies/get/defaults");
@@ -29,7 +30,6 @@ exports.create = (req, res) => {
       });
     });
 };
-
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
   // const tag_name = req.query.tag_name;
@@ -68,38 +68,18 @@ exports.findOne = (req, res) => {
 // Update a Tag by the id in the request
 exports.update = (req, res) => {
   const id = req.params.id;
-  console.log("req.body:", req.body);
   Tag.update(req.body, {
     where: { id: id },
+    returning: true, // Ensure the updated rows are returned
   })
-    .then((num) => {
+    .then(([num, updatedTag]) => {
       if (num == 1) {
+        console.log(
+          "Tag was updated successfully. Direct back to defaults page",
+        );
         res.redirect("/companies/get/defaults");
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error updating Tag with id=" + id,
-      });
-    });
-};
-exports.updateFromDefaultsPage = (req, res) => {
-  const updatedTag = {
-    tag_id: req.body.tag_id,
-    tag_name: req.body.tag_name,
-    company_id_fk: req.body.company_id_fk,
-  };
-  console.log("updatedTag:", updatedTag);
-  Tag.update(req.body, {
-    where: { id: id },
-  })
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: "Tag was updated successfully.",
-        });
       } else {
-        res.send({
+        res.status(404).send({
           message: `Cannot update Tag with id=${id}. Maybe Tag was not found or req.body is empty!`,
         });
       }
@@ -110,10 +90,38 @@ exports.updateFromDefaultsPage = (req, res) => {
       });
     });
 };
+// exports.updateFromDefaultsPage = (req, res) => {
+//   console.log("req.body:", req.body);
+//   const id = req.body.tag_id; // Extract the id from the request body
+//   const updatedTag = {
+//     tag_id: req.body.tag_id,
+//     tag_name: req.body.tag_name,
+//   };
+//   console.log("updatedTag:", updatedTag);
+//   Tag.update(updatedTag, {
+//     where: { id: id },
+//   })
+//     .then((num) => {
+//       if (num == 1) {
+//         res.send({
+//           message: "Tag was updated successfully.",
+//         });
+//       } else {
+//         res.send({
+//           message: `Cannot update Tag with id=${id}. Maybe Tag was not found or req.body is empty!`,
+//         });
+//       }
+//     })
+//     .catch((err) => {
+//       res.status(500).send({
+//         message: "Error updating Tag with id=" + id,
+//       });
+//     });
+// };
 // Delete a Tag with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
-  console.log("ID", id);
+  console.log("DELETE ID", id);
   Tag.destroy({
     where: { id: id },
   })
@@ -137,17 +145,17 @@ exports.delete = (req, res) => {
 
 // Delete all  from the database.
 exports.deleteAll = (req, res) => {
-  Tag.destroy({
-    where: {},
-    truncate: false,
-  })
-    .then((nums) => {
-      res.send({ message: `${nums} Companies were deleted successfully!` });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while removing all companies.",
-      });
-    });
+  // Tag.destroy({
+  //   where: {},
+  //   truncate: false,
+  // })
+  //   .then((nums) => {
+  //     res.send({ message: `${nums} Companies were deleted successfully!` });
+  //   })
+  //   .catch((err) => {
+  //     res.status(500).send({
+  //       message:
+  //         err.message || "Some error occurred while removing all companies.",
+  //     });
+  //   });
 };

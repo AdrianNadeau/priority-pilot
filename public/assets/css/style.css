@@ -3433,6 +3433,7 @@ textarea:-ms-input-placeholder {
 .datepicker {
   border: 1px solid #dddddd;
   padding: 8px;
+  width: 100px;
 }
 
 .datepicker table tr td.active,
@@ -4874,3 +4875,6 @@ Invoice
   min-height:50px; width: 100%; border-width: 2px; margin-bottom: 5px; border-radius: 10px;
   
 } */
+.required_star {
+  color: red;
+}

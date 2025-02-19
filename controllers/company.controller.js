@@ -10,6 +10,7 @@ exports.create = async (req, res) => {
   const effort = req.body.effort;
 
   try {
+    console.log("req.body", req.body);
     const {
       company_name,
       company_headline,
@@ -17,11 +18,12 @@ exports.create = async (req, res) => {
       company_logo,
       portfolio_budget,
       effort,
+      company_timezone,
     } = req.body;
     if (!company_name) {
       return res.status(400).json({ message: "Company Name cannot be empty!" });
     }
-
+    console.log("company_timezone:", company_timezone);
     const company = await Company.create({
       company_name,
       company_headline,
@@ -29,6 +31,7 @@ exports.create = async (req, res) => {
       company_logo,
       portfolio_budget,
       effort,
+      company_timezone,
     });
     if (company) {
       const session = req.session;
@@ -146,7 +149,7 @@ exports.deleteAll = (req, res) => {
     });
 };
 exports.findDefaults = (req, res) => {
-  company_id_fk = req.session.company.id;
+  const company_id_fk = req.session.company.id;
   Company.findOne({ where: { id: company_id_fk } })
     .then((company) => {
       if (!company) {
@@ -164,7 +167,12 @@ exports.findDefaults = (req, res) => {
           if (!tags) {
             // return res.status(404).send("Tag not found");
           }
-          res.render("Pages/pages-defaults", { company, tags });
+
+          res.render("Pages/pages-defaults", {
+            company,
+            tags,
+            timezone: company.company_timezone,
+          });
         })
         .catch((error) => {
           console.error(error);
@@ -186,6 +194,7 @@ exports.setDefaults = async (req, res, next) => {
         company_name: req.body.company_name,
         portfolio_budget: req.body.portfolio_budget,
         effort: req.body.portfolio_effort,
+        company_timezone: req.body.company_timezone,
       },
       {
         returning: true,
@@ -199,7 +208,6 @@ exports.setDefaults = async (req, res, next) => {
         .json({ message: "Company not found or no updates were made." });
     }
 
-    // /companies/set/defaults
     res.redirect("/companies/get/defaults");
     // res.json(updatedCompany);
   } catch (error) {

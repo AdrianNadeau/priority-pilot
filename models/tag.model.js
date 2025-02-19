@@ -12,6 +12,14 @@ module.exports = (sequelize, Sequelize) => {
     company_id_fk: {
       type: Sequelize.DataTypes.INTEGER,
     },
+    createdAt: {
+      allowNull: false,
+      type: Sequelize.DATE,
+    },
+    updatedAt: {
+      allowNull: false,
+      type: Sequelize.DATE,
+    },
   });
 
   return Tag;

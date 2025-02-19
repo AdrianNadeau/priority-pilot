@@ -28,14 +28,6 @@ module.exports = (sequelize, Sequelize) => {
     },
     change_log_id_fk: {
       type: Sequelize.DataTypes.INTEGER,
-      // references: {
-      //   model: {
-      //     tableName: 'companies',
-      //     schema: 'public'
-      //   },
-      //   key: 'id'
-      // },
-      // allowNull: false
     },
   });
 
