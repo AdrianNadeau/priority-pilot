@@ -11,7 +11,7 @@
   <div class="sidebar-inner slimscrollleft">
     <div id="sidebar-menu">
       <ul>
-        <% if (person && person.isAdmin) { %>
+        
         <li class="has_sub">
           <a a href="/" onclick="forwardToDashboard();"
             ><i class="mdi mdi-view-dashboard"></i> <span>Dashboard</span>
@@ -73,6 +73,7 @@
                           ><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a
                         >
                       </li>
+                      <% if (person && person.isAdmin) { %>
                       <li>
                         <a href="/persons" class="waves-effect"
                           ><i class="mdi mdi-account-location"></i><span> People </span></a
@@ -81,14 +82,6 @@
                       <li>
                         <a href="/companies/get/defaults" class="waves-effect"
                           ><i class="dripicons-gear"></i><span> Defaults </span></a
-                        >
-                      </li>
-                     
-                      
-                  <% }else if (person && !person.isAdmin) { %>
-                    <li class="has_sub">
-                        <a href="/" class="waves-effect"
-                          ><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a
                         >
                       </li>
                   <% } %>
