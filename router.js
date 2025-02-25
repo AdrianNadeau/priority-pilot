@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const isAdminMiddleware = require("./middleware/isAdminMiddleware");
 
 const db = require("./models");
 const Project = db.projects;
@@ -28,7 +29,7 @@ function removeCommasAndConvert(numStr) {
   return parseFloat(numStr.replace(/,/g, ""));
 }
 
-router.get("/", async (req, res) => {
+router.get("/", isAdminMiddleware, async (req, res) => {
   let company_id_fk;
 
   try {
