@@ -1,28 +1,32 @@
 
 <%- contentFor('HeaderCss') %>
 <!-- Bootstrap CSS -->
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+/>
 <style>
-.password-container {
-  position: relative;
-  width: 300px;
-}
+  .password-container {
+    position: relative;
+    width: 300px;
+  }
 
-.password-container input {
-  width: 100%;
-  padding-right: 40px;
-}
+  .password-container input {
+    width: 100%;
+    padding-right: 40px;
+  }
 
-.password-container .toggle-password {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-}
-.toggle-password:hover {
-  cursor: pointer;
-}
-  </style>
+  .password-container .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+  .toggle-password:hover {
+    cursor: pointer;
+  }
+</style>
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
     <li class="list-inline-item">
@@ -100,7 +104,7 @@
                               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                           </div>
                           <div class="modal-body">
-                              <form action="/persons" class="needs-validation" id="addPersonForm" novalidate method="POST">
+                              <form action="/persons" class="needs-validation" id="" novalidate method="POST">
                                 
                                 
                                 <input type="hidden" id="add_yn"  name="add_yn" value="y">
@@ -139,17 +143,16 @@
                                             Admin
                                           </label>
                                         </div>
-                                     
-                                        <i class="fas fa-eye toggle-password" id="togglePassword"></i
-                                            >
-                                            <input
-                                              type="password"
-                                              class="form-control"
-                                              id="password"
-                                              name="password"
-                                              placeholder="Enter password"
-                                            />
-                                          </div>
+                                        <div>
+                                          <label for="password">Password</label>
+                                          <i class="fas fa-eye toggle-password" id="togglePassword"></i
+                                          ><input
+                                            type="password"
+                                            class="form-control"
+                                            id="password"
+                                            name="password"
+                                            placeholder="Enter password"
+                                          />
                                         <div class="form-group needs-validation" novalidate>
                                         
                                         
@@ -216,15 +219,15 @@ function clearModalFields() {
      var addPersonBtn = document.getElementById('btnAddPerson');
 
 // Add a click event listener to the clear button
-addPersonBtn.addEventListener("click", function() {
+// addPersonBtn.addEventListener("click", function() {
     
-    // Call the function to clear all modal fields
-    clearModalFields();
-    //display modal
-    var personForm = document.getElementById("modal")
-    personForm.style.display = "block";
+//     // Call the function to clear all modal fields
+//     clearModalFields();
+//     //display modal
+//     var personForm = document.getElementById("addPersonForm")
+//     personForm.style.display = "block";
     
-});
+// });
  // Wait for the DOM to be ready
  document.addEventListener("DOMContentLoaded", function() {
         // Get all table rows

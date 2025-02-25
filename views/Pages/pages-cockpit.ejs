@@ -345,7 +345,7 @@
           <strong>Date: </strong><span id="view_status_date"></span><br/>
           
             <% if(project[0].status_date) %>
-            <%=project[0].status_date %>, <%=project[0].status_date %><br/>
+            <%=project[0].status_date %> <%=project[0].status_date %>
           <strong>Prime:</strong><% if(project[0].prime_last_name) %>
           <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
           <div class="form-group">
@@ -383,7 +383,7 @@
     fetch(`/statuses/${id}`)
     .then(response => response.json())
     .then(data => {
-      console.log("Data: ", data);
+      
       // all working
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;
@@ -391,8 +391,9 @@
       if (data.progress) document.getElementById('view_status_progress').value = data.progress;
       if (data.health) document.getElementById('view_status_health').value = data.health;
       if (data.status_date) {
-          document.getElementById('view_status_date').value = 
-              new Date(data.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          // document.getElementById('view_status_date').value = 
+          //     new Date(data.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          document.getElementById('view_status_date').innerText = new Date(data.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       }
         
        // Open the modal
@@ -402,7 +403,7 @@
     .catch(err => console.error(err));
   }
   function getChange(id) {
-    console.log("ID: ", id);
+    
     
     fetch(`/changed_projects/changedlog/${id}/`)///changed_projects
     .then(response => response.json())
@@ -411,7 +412,6 @@
       fetch(`/change_reason/${data.change_reason_id_fk}/`)
         .then(reasonResponse => reasonResponse.json())
         .then(reasonData => {
-          console.log("Reason Data: ", reasonData);
           document.getElementById('change_reason').value = reasonData.change_reason;
           document.getElementById('change_explanation').value = data.change_explanation;
           document.getElementById('view_change_date').innerText = new Date(data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });

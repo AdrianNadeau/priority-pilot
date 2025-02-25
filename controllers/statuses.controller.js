@@ -90,13 +90,9 @@ exports.findAllByProjectId = (req, res) => {
 // Find a single Status with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
-  console.log(
-    "************************************ findOne ************************************ ",
-    id,
-  );
+
   Status.findByPk(id)
     .then((data) => {
-      console.log("data", data);
       if (data) {
         res.send(data);
       } else {

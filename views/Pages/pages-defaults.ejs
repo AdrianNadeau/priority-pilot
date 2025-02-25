@@ -184,11 +184,13 @@
                     Please select a Timezone.
                   </div>
                 </div>
-                <div class="modal-footer" style="margin-right: 400px;">
+                <div class="modal-footer text-center">
                   <button type="button" class="btn btn-secondary waves-effect" onclick="window.location.replace('/companies/get/defaults/')">Cancel</button>
                   <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Update</button>
+                  
                 </div>
                 <div class="required_star">* To save default values, Update must be clicked.</div>
+                
               </div>
               <div class="col-md-6">
                 <!-- Second column of form fields -->
@@ -198,12 +200,10 @@
                   <% tags.forEach(function(tag) { %>
                     <li>
                       <%= tag.tag_name %>
-                      <% if (tag.company_id_fk === 0) { %>
-                        <strong>(system tag)</strong>
-                      <% } else { %>
+                      
                         <i class="mdi mdi-pencil" data-toggle="modal" data-target="#editTagModal" onclick="editTag('<%= tag.id %>', '<%= tag.tag_name %>', '<%= tag.company_id_fk %>')" title="Edit Tag"></i>
                         <i class="mdi mdi-delete" data-toggle="modal" data-target="#deleteTagModal" onclick="deleteTag('<%= tag.id %>', '<%= tag.tag_name %>', '<%= tag.company_id_fk %>')" title="Delete Tag"></i>
-                      <% } %>
+                      
                     </li>
                   <% }); %>
                   <br/>

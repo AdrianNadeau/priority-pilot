@@ -106,29 +106,13 @@
             <!-- Radar and Flight Plan Buttons -->
             <div class="col-md-2">
                 <div class="mini-stat bg-white text-center clearfix">
-                    <div>
-                        <button type="button" class="btn btn-light" style="min-height: 55px;margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 100px;" onClick="loadFunnel();">
-                            Funnel<br/>
-                            <%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)
-                        </button>
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-light" style="min-height: 55px;margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px;min-width: 100px;" onClick="loadRadar();">
-                           Radar
-                           
-                        </button>
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-light" style="min-height: 55px;margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 100px;" onClick="loadHealth();">
-                            Health Check
-                            
-                        </button>
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-light" style="min-height: 55px;margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 100px;" onClick="loadFlightFull();">
-                            Flight Plan
-                       </button>
-                    </div>
+                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFunnel();" >Funnel
+                        <%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)</button></div>
+                   
+                    <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;" onClick="loadRadar();" >Radar</div>
+                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadHealth();" >Health Check</div>
+                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFlightFull();" >Flight Plan</div>
+                    
                     
                     <div class="row text-center" style="padding-top: 20px;">
                         <div class="col-md-12">

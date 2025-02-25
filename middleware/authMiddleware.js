@@ -9,7 +9,6 @@ async function authMiddleware(req, res, next) {
 
       // If the user exists, update the session's user data
       if (person) {
-        console.log("Person exists:", person);
         req.session.person = person;
 
         // Update res.locals for global access in templates

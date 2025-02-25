@@ -185,7 +185,7 @@ router.get("/", async (req, res) => {
       availableCost: formatToKMB(availableCost),
       usedEffort: formatToKMB(usedEffort),
     };
-
+    console.log("Formatted data", formattedData);
     // Render dashboard with all calculated values
     res.render("Dashboard/dashboard1", {
       company_id: company_id_fk,
