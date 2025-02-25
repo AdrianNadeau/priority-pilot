@@ -226,7 +226,7 @@
 
 </div>
 
-<div class="row"></div>
+<div class="row">
   <div class="col-md-6 m-t-30">
       <!-- project modal content -->
       <div id="addStatus" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -377,7 +377,8 @@
     </div>
   </div>
 </div><!-- /.modal -->
-<script>
+<script> 
+
   function getStatus(id) {
     console.log("get status for id: ", id);
     fetch(`/statuses/${id}`)
@@ -442,7 +443,7 @@ flatpickr("#status_date", {
             defaultDate: new Date(), // Set the default date to today
             onChange: function(selectedDates, dateStr, instance) {
               // This function will be triggered when the user selects a date
-              console.log("Status Selected date:", dateStr);
+              console.log("Status Status Date:", dateStr);
             }
           });
         });

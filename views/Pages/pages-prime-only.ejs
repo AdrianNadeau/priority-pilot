@@ -20,8 +20,22 @@
   .red-circle {
     background-color: red;
   }
-</style>
+  .mdi-eye, .mdi-note-plus {
+    cursor: pointer;
+  }
 
+  .form-group-inline {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  .form-group-inline label {
+    margin-right: 10px;
+  }
+  .form-group-inline select {
+    margin-right: 10px;
+  }
+</style>
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
     <li class="list-inline-item">
@@ -44,7 +58,7 @@
                         <table class="table mb-0">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                  
                                     <th>Name</th>
                                     <th>Prime</th>
                                     <th>Sponsor</th>
@@ -57,9 +71,9 @@
                             </thead>
                             <tbody>
                                 <% projects.forEach(function (project) { %>
-                                <tr style="cursor: pointer;">
-                                    <input type="hidden" name="project_id" value="<%= project.id %>"/>
-                                    <td><%= project.id %></td>
+                                <tr>
+                                    
+                                    
                                     <td><%= project.project_name %></td>
                                     <td><%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %></td>
                                     <td><%= project.sponsor_last_name ? `${project.sponsor_last_name}, ${project.sponsor_first_name}` : "N/A" %></td>
@@ -72,9 +86,11 @@
                                         <i data-toggle="modal" data-target="#myModal_<%= project.id %>" class="mdi mdi-note-plus"></i> <i data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal" class="mdi mdi-eye"></i>
                                     </td>
                                     <% } else { %>
-                                    <td data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
-                                        <i class="mdi mdi-eye"></i>
+                                    >
+                                    <a href="#"><td data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
+                                        <i style="cursor: pointer;"class="mdi mdi-eye"></i>
                                     </td>
+                                  </a>
                                     <% } %>
                                 </tr>
 
@@ -95,8 +111,8 @@
                                                     <div class="row">
                                                         <div class="col-md-12">
                                                             <div class="form-group">
-                                                              <strong>Status Date (YYYY-MM-DD): </strong><span id="status_date"></span><br/>
-                                                              <input type="text" class="form-control" id="status_date" name="status_date" placeholder="yyyy-mm-dd">
+                                                              <i class="bi bi-calendar-check"></i><input type="text" required class="form-control datepicker" id="status_date" name="start_date" placeholder="Status Date">
+                                                              
                                                                 <strong>Prime:</strong> <%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %>
                                                             </div>
                                                             <div class="form-group">
@@ -267,6 +283,17 @@
     })
     .catch(err => console.error(err));
   }
+  document.addEventListener("DOMContentLoaded", function() {
+
+      const statusDatePicker = flatpickr("#status_date", {
+        dateFormat: "Y-m-d",
+        onChange: function(selectedDates, dateStr, instance) {
+          // This function will be triggered when the user selects a date
+          endDatePicker.set('minDate', dateStr); // Set the minimum date for the end date picker
+          startDateClicked = true; // Set the flag to true when a date is selected
+        }
+      });
+  });
 </script>
 
 <%- contentFor('FooterJs') %>
