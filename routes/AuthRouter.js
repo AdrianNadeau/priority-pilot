@@ -4,6 +4,7 @@ require("dotenv").config();
 var Authrouter = express.Router();
 const companies = require("../controllers/company.controller");
 const persons = require("../controllers/person.controller");
+const isAdminMiddleware = require("../middleware/isAdminMiddleware");
 
 //Authentications all TABs.
 Authrouter.get("/login", function (req, res) {

@@ -130,13 +130,6 @@
             <div class="col-md-12" style="padding-top:20px;">
               <strong>What:</strong>
               <textarea class="form-control" id="project_what" rows="5" disabled><%= project[0].project_what %></textarea>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <a href="/projects/edit/<%= project[0].id%>" style="margin-top:20px;">Change Project</a>
-              <br/>
-              
               <% 
               let tags = [];
               if (project[0].tag_1_name && project[0].tag_1_name !== "done") {
@@ -151,29 +144,16 @@
             %>
             <strong>Tags:</strong> 
             <%= tags.join(', ') %>
-              <br/>
-              <strong>Change Log:</strong>
-              <% if (changed_projects) { %>
-                <br/>
-                <% changed_projects.forEach(function(change) { %>
-                  
-                  <% if (change.id) { %>
-                    
-                    <a href="#" onClick="getChange(<%=change.id%>)" data-target="#viewChangeModal" id="viewChangeLink"><%= change.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></a>
-                    <br/>
-                    
-                  <% } %>
-                <% }); %>
-              <% } %>
             </div>
+           
           </div>
-        </div>
-      </div>
-
-      <!-- Right Section: Status and Button (4 columns) -->
-      <div class="col-4">
-        <div class="mini-stat clearfix bg-white">
-          <div>
+          </div> <!-- Close the mini-stat div -->
+          </div> <!-- Close the col-8 div -->
+          
+          <!-- Right Section: Status and Button (4 columns) -->
+          <div class="col-4">
+            <div class="mini-stat clearfix bg-white">
+              <!-- Status Updates and Change Log content -->
             <strong>Status Updates:</strong><br/>
             <% if (statuses && statuses.length > 0) { %>
               <% statuses.forEach(function(status) { %>
@@ -196,13 +176,54 @@
             <% } else { %>
               <p>No status updates available</p>
             <% } %>
+            <button type="button" class="btn btn-primary waves-effect waves-light" syle="padding-top:5px;"data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
+            <br/><br/>
+            <strong>Change Log:</strong>
+            <% if (changed_projects) { %>
+              <br/>
+              <% changed_projects.forEach(function(change) { %>
+                
+                <% if (change.id) { %>
+                  
+                  <a href="#" onClick="getChange(<%=change.id%>)" data-target="#viewChangeModal" id="viewChangeLink"><%= change.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></a>
+                  <br/>
+                  
+                <% } %>
+              <% }); %>
+            <% } %>
+            <br/>
+            <div class="row">
+   
+              <!-- <a href="/projects/edit/<%= project[0].id%>" style="margin-top:20px;">Change Project</a> -->
+               
+              <a href="/projects/edit/<%= project[0].id %>" 
+                class="btn btn-primary waves-effect waves-light" 
+                style="padding-top:5px; margin-left: 15px;" 
+                id="btnAddStatus">
+                 Change Project
+             </a>
+             
+              <br/>
           </div>
-          <button type="button" class="btn btn-primary waves-effect waves-light" syle="padding-top:5px;"data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
+          
+         
+            
+          </div>
+        </div>
+         <div class="row">
+            <div class="col-md-12">
+             
+              <br/>
+              
+           
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+</div>
+
 </div>
 
 <div class="row"></div>
@@ -321,7 +342,8 @@
         </div>
         <div class="modal-body">
           <!-- Modal content goes here -->
-          <strong>Date:</strong><%=project[0].status_date %>
+          <strong>Date: </strong><span id="view_status_date"></span><br/>
+          
             <% if(project[0].status_date) %>
             <%=project[0].status_date %>, <%=project[0].status_date %><br/>
           <strong>Prime:</strong><% if(project[0].prime_last_name) %>
@@ -361,7 +383,7 @@
     fetch(`/statuses/${id}`)
     .then(response => response.json())
     .then(data => {
-     
+      console.log("Data: ", data);
       // all working
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;
@@ -426,10 +448,10 @@ flatpickr("#status_date", {
         });
 </script>
 <!-- Add the missing input elements -->
-<input type="text" id="view_status_accomplishments" class="form-control" disabled>
-<input type="text" id="view_status_issue" class="form-control" disabled>
-<input type="text" id="view_status_action" class="form-control" disabled>
-<input type="text" id="view_status_date" class="form-control" disabled>
+<input type="text" id="view_status_accomplishments" class="form-control" style="background-color:white;height:0px;" disabled>
+<input type="text" id="view_status_issue" class="form-control" style="background-color:white;height:0px;" disabled>
+<input type="text" id="view_status_action" class="form-control" style="background-color:white;height:0px;"  disabled>
+<input type="text" id="view_status_date" class="form-control"  style="background-color:white;height:0px;"  disabled>
 
 
 <%- contentFor('BottomJs') %>

@@ -118,7 +118,8 @@
                           <label for="what">What:</label>
                           <textarea class="form-control" id="what" name="what"></textarea>
                         </div>
-                        <div class="form-group">
+
+                        <div class="form-group" id="date_section">
                           <label for="dates">Start Date and End Date: <span class="required_star">*</span></label>
                           <div class="form-row">
                             <div class="col">
@@ -299,19 +300,15 @@
 
     // Get all table rows
     var rows = document.querySelectorAll(".table tbody tr");
+    //hide date until phase changes
+    document.getElementById('date_section').style.display = 'none';
 
     // Loop through each row
     rows.forEach(function(row) {
       // Add a click event listener to each row
       row.addEventListener("click", function() {
-        var id = row.cells[0].textContent; // Assuming the ID is in the first cell
-
-        // Now you have the ID, you can use it as needed
-
-        // Show the modal when a row is clicked
+        var id = row.cells[0].textContent; 
         window.location.replace('/projects/edit/'+id)
-
-        // $('#personForm').modal('show'); // Assuming you're using jQuery
       });
     });
 
@@ -346,7 +343,6 @@
     // Add event listener to the form submit event
     const form = document.querySelector('.needs-validation');
     form.addEventListener('submit', function(event) {
-      console.log("Form submitted", startDateClicked, endDateClicked);
       if (!startDateClicked || !endDateClicked) {
         event.preventDefault();
         event.stopPropagation();
@@ -372,4 +368,27 @@
       keyboard: false,
     });
   });
+  // Show or hide date_section based on phase selection
+  const phaseSelect = document.getElementById("phase_id_fk");
+    phaseSelect.addEventListener("change", function() {
+      if(phase_id_fk.value=="1"){
+        //phase is pitch hide dates
+        document.getElementById('date_section').style.display = 'none';
+      }
+      else{
+        //phase is not pitch show dates
+        document.getElementById('date_section').style.display = 'block';
+      }
+      
+    });
+    function formatNumberWithCommas(input) {
+  // Remove non-numeric characters
+  let value = input.value.replace(/\D/g, "");
+
+  // Format the number with commas
+  value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  // Set the formatted value back to the input
+  input.value = value;
+}
 </script>

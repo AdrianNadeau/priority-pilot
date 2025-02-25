@@ -8,7 +8,6 @@ exports.create = async (req, res) => {
   try {
     let prime_id = req.body.prime_id_fk;
     const status_date = req.body.status_date;
-    console.log("******************************* status_date: ", status_date);
 
     if (!prime_id) {
       prime_id = null;
@@ -77,6 +76,7 @@ exports.findAllByProjectId = (req, res) => {
     order: [["createdAt", "DESC"]],
   })
     .then((data) => {
+      console.log("data for project:", data);
       res.send(data);
     })
     .catch((err) => {
@@ -90,9 +90,13 @@ exports.findAllByProjectId = (req, res) => {
 // Find a single Status with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
-
+  console.log(
+    "************************************ findOne ************************************ ",
+    id,
+  );
   Status.findByPk(id)
     .then((data) => {
+      console.log("data", data);
       if (data) {
         res.send(data);
       } else {
