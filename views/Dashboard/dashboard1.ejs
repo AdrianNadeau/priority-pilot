@@ -126,7 +126,7 @@
                             <strong>Effort</strong>
                             <ul class="list-unstyled">
                                 <li>Full: <%= totalPH %> PH</li>
-                                <li>Used: <%= totalUsedPH %> PH</li>
+                                <li>Used: <%= usedEffort %> PH</li>
                                 
                                     <li>Avail: <span style="color: <%= availablePHColor %>; font-weight:900;"><strong><%= totalAvailPH %></strong></span></li>
                                 
@@ -134,8 +134,9 @@
                         </div>
                     </div>
                     <div>
-                        <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 100px;" onClick="getProjects();">
-                            Add Project
+                        <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;" onClick="getProjects();">Add Project</div>
+                        <!-- <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 100px;" onClick="getProjects();"> -->
+                            
                         </button>
                     </div>
                 </div>

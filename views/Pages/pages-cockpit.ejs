@@ -95,6 +95,7 @@
             <div class="col-md-3">
               <div>
                 <strong>Next Milestone Date:</strong> 
+                
                 <% if (project[0].next_milestone_date) { %>
                   <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
                 <% } %>
@@ -115,7 +116,7 @@
             </div>
             <div class="col-md-3">
               <div>
-                <strong>Benefit:</strong> $<%= project[0].benefit %>
+                <strong>Benefit:</strong> <%= project[0].benefit %>
               </div>
             </div>
           </div>

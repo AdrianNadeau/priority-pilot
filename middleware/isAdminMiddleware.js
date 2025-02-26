@@ -7,7 +7,6 @@ const currentDate = new Date();
 
 async function isAdminMiddleware(req, res, next) {
   try {
-    console.log("isAdminMiddleware");
     // Check if user is in the session and if they are an admin
     if (!req.session || !req.session.person || !req.session.company) {
       // Redirect or send an error response if user or company is missing in session

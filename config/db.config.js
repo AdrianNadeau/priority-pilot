@@ -10,6 +10,6 @@ module.exports = {
     max: 200,
     min: 0,
     acquire: 40000,
-    idle: 40000,
+    idleTimeoutMillis: 7200000, // 2 hours
   },
 };

@@ -9,6 +9,7 @@ const { Op, fn, col, literal } = require("sequelize");
 const { format } = require("sequelize/lib/utils");
 
 // Function to format numbers with K, M, B
+// Function to format numbers with K, M, B
 function formatToKMB(num) {
   if (typeof num !== "number") {
     num = parseFloat(num) || 0;
@@ -17,7 +18,7 @@ function formatToKMB(num) {
   num = Math.abs(num);
   if (num >= 1e9) return (isNegative ? "-" : "") + (num / 1e9).toFixed(2) + "B";
   if (num >= 1e6) return (isNegative ? "-" : "") + (num / 1e6).toFixed(2) + "M";
-  if (num >= 1e3) return (isNegative ? "-" : "") + (num / 1e3).toFixed(2) + "K"; // No decimal if whole number
+  if (num >= 1e3) return (isNegative ? "-" : "") + (num / 1e3).toFixed(2) + "K";
   return (isNegative ? "-" : "") + num.toFixed(2);
 }
 
@@ -186,7 +187,7 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       availableCost: formatToKMB(availableCost),
       usedEffort: formatToKMB(usedEffort),
     };
-    console.log("Formatted data", formattedData);
+    console.log("formatted Data", formattedData);
     // Render dashboard with all calculated values
     res.render("Dashboard/dashboard1", {
       company_id: company_id_fk,
