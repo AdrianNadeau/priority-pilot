@@ -107,6 +107,9 @@
   }
 
   function drawCharts() {
+    // ---------------------------------------------
+    // Fetch Progress Data & Draw Charts
+    // ---------------------------------------------
     fetch(`/projects/radar/progress`)
       .then((response) => response.json())
       .then((progressData) => {
@@ -125,22 +128,25 @@
           // Filter out "No status available" entries
           const validProgressData = progressData.progress.filter(
             (_, index) =>
-              progressData.colors[index].trim() !== "No status available",
+              progressData.colors[index].trim() !== "No status available"
           );
           const validColors = progressData.colors.filter(
-            (color) => color.trim() !== "No status available",
+            (color) => color.trim() !== "No status available"
           );
           const validProjectNames = progressData.project_names.filter(
             (_, index) =>
-              progressData.colors[index].trim() !== "No status available",
+              progressData.colors[index].trim() !== "No status available"
           );
 
           // Convert API colors to hex codes
           const mappedColors = validColors.map(
-            (color) => colorMapping[color.trim()] || "#000000",
+            (color) => colorMapping[color.trim()] || "#000000"
           );
           console.log("Valid Progress Data:", validProgressData);
-          // Draw Bar Chart
+
+          // -------------------------------
+          // 1) Bar Chart with Chart.js
+          // -------------------------------
           const barCtx = document.getElementById("barChart").getContext("2d");
           new Chart(barCtx, {
             type: "bar",
@@ -160,26 +166,28 @@
                 y: {
                   beginAtZero: true,
                   max: 100, // Fix vertical scale at 100
-                  stepSize: 10, // Set interval to 10
+                  ticks: {
+                    stepSize: 10,
+                  },
                   title: {
                     display: true,
-                    text: "Progress (%)", // Vertical axis label
+                    text: "Progress (%)",
                   },
                 },
               },
               plugins: {
                 title: {
-                  display: false, // Hide the title
+                  display: false,
                 },
                 legend: {
-                  display: false, // Hide the legend
+                  display: false,
                 },
                 tooltip: {
                   callbacks: {
-                    // Custom tooltip for hover
+                    // Round off the percentage shown in tooltips
                     label: function (tooltipItem) {
                       const progress = validProgressData[tooltipItem.dataIndex];
-                      return `Progress: ${progress}%`;
+                      return `Progress: ${Math.round(progress)}%`;
                     },
                   },
                 },
@@ -187,7 +195,7 @@
                   anchor: "end",
                   align: "end",
                   formatter: function (value) {
-                    return value + "%";
+                    return Math.round(value) + "%";
                   },
                   color: "#000",
                   font: {
@@ -199,84 +207,82 @@
             plugins: [ChartDataLabels],
           });
 
-          // Define static colors and initialize counts
+          // -------------------------------
+          // 2) Portfolio Health Pie Chart
+          // -------------------------------
+          // Count occurrences of each color
           const colorCounts = {
             Green: 0,
             Yellow: 0,
             Red: 0,
           };
 
-          // Count occurrences of each color
           validColors.forEach((color) => {
             if (colorCounts[color.trim()] !== undefined) {
               colorCounts[color.trim()] += 1;
             }
           });
 
-          // Extract data for the chart
           const labels = Object.keys(colorCounts); // ["Green", "Yellow", "Red"]
-          const counts = Object.values(colorCounts); // [3, 2, 1]
-          const chartColors = ["#28a745", "#ffc107", "#dc3545"]; // Green for Healthy, Yellow for Caution, Red for In Trouble
+          const counts = Object.values(colorCounts); // e.g., [3, 2, 1]
+          const chartColors = ["#28a745", "#ffc107", "#dc3545"]; // Healthy, Caution, In Trouble
 
-          // Calculate percentages
+          // Calculate rounded percentages
           const total = counts.reduce((sum, count) => sum + count, 0);
           const percentages = counts.map((count) =>
-          ((count / total) * 100).toFixed(0),
-          ); // Percentages with 1 decimal point
-          console.log("Percentages:", percentages);
-          // Custom legend labels
+            Math.round((count / total) * 100)
+          );
+
+          // Define label text
           const customLabels = ["Healthy", "Caution", "In Trouble"];
 
-          const chartData = [["Status", "Count"]];
+          // Build data array for Google Charts
+          //  - Column 1: slice label for legend
+          //  - Column 2: numeric value with a formatted string (just the percentage for the slice)
+          //  - Column 3: custom tooltip showing "count (percentage)"
+          const chartDataArray = [
+            ["Status", "Count", { role: "tooltip", p: { html: false } }],
+          ];
+
           labels.forEach((label, index) => {
-            chartData.push([customLabels[index], counts[index]]);
+            const sliceCount = counts[index];
+            const slicePct = percentages[index];
+            chartDataArray.push([
+              customLabels[index],                  // Legend label
+              { v: sliceCount, f: slicePct + "%" }, // Slice label as "43%" etc.
+              customLabels[index] + "\n" + sliceCount + " (" + slicePct + "%)",  // Tooltip: e.g., "3 (43%)"
+            ]);
           });
-          console.log("loading project health:", percentages);
-          const data = google.visualization.arrayToDataTable(chartData);
+
+          console.log("Portfolio Health Data:", chartDataArray);
+          const data = google.visualization.arrayToDataTable(chartDataArray);
+
           const options = {
             title: "Portfolio Health",
             pieHole: 0.4,
             backgroundColor: "transparent",
-            width: "600px",
-            colors: chartColors, // Set the colors for the pie chart
+            width: 600,
+            colors: chartColors,
             legend: {
               position: "right",
-              labels: {
-                generateLabels: function (chart) {
-                  return chartData
-                    .map((row, index) => {
-                      if (index === 0) return null; // Skip header row
-                      return {
-                        text: `${row[0]} (${percentages[index - 1]}%)`,
-                        fillStyle: chartColors[index - 1], // Set the color for the label's box
-                        strokeStyle: chartColors[index - 1],
-                        lineWidth: 1,
-                      };
-                    })
-                    .filter((label) => label !== null);
-                },
-                color: "#333", // Text color for legend
-                font: {
-                  size: 14, // Font size for legend
-                },
-              },
+              textStyle: { color: "#333", fontSize: 14 },
             },
+            // Use our formatted values for the slice text
+            pieSliceText: "value",
+            // Let Google Charts use the custom tooltip column
             tooltip: {
-              callbacks: {
-                label: function (tooltipItem) {
-                  const status = customLabels[tooltipItem.dataIndex];
-                  const count = counts[tooltipItem.dataIndex];
-                  return `${status}: ${count} project(s)`;
-                },
-              },
+              isHtml: false,
             },
           };
-          const chart = new google.visualization.PieChart(
-            document.getElementById("pieChart"),
+
+          const pieChart = new google.visualization.PieChart(
+            document.getElementById("pieChart")
           );
-          chart.draw(data, options);
-          console.log("loading project health done")
-          // Draw the new chart
+          pieChart.draw(data, options);
+
+          // -------------------------------
+          // 3) "Projects by Phase" Column Chart
+          // -------------------------------
           var chartCostData = google.visualization.arrayToDataTable([
             ["Element", "Projects", { role: "style" }],
             ["Funnel", parseFormattedCost("$<%= pitchCount %>"), "blue"],
@@ -307,11 +313,11 @@
             legend: { position: "none" },
             backgroundColor: "transparent",
             textStyle: {
-              fontSize: 40, // Set vertical axis text to 14px
+              fontSize: 40,
             },
           };
           var newChart = new google.visualization.ColumnChart(
-            document.getElementById("newChart"),
+            document.getElementById("newChart")
           );
           console.log("newChart", newChart);
           newChart.draw(chartCostView, newChartOptions);
@@ -320,13 +326,17 @@
         }
       })
       .catch((err) => console.error(err));
+
+    // ---------------------------------------------
+    // 4) Static Column Chart ("Projects by Phase")
+    // ---------------------------------------------
     var data = google.visualization.arrayToDataTable([
       ["Element", "Projects", { role: "style" }],
       ["Funnel", <%= pitchCount %>, "blue"],
       ["Planning", <%= priorityCount %>, "blue"],
       ["Discovery", <%= discoveryCount %>, "blue"],
       ["Delivery", <%= deliveryCount %>, "blue"],
-      ["Done",<%= operationsCount %>, "blue"],
+      ["Done", <%= operationsCount %>, "blue"],
     ]);
 
     var view = new google.visualization.DataView(data);
@@ -350,14 +360,17 @@
       legend: { position: "none" },
       backgroundColor: "transparent",
       textStyle: {
-        fontSize: 40, // Set vertical axis text to 14px
+        fontSize: 40,
       },
     };
     var chart = new google.visualization.ColumnChart(
-      document.getElementById("columnchart_values"),
+      document.getElementById("columnchart_values")
     );
     chart.draw(view, options);
 
+    // ---------------------------------------------
+    // 5) Estimated Cost by Phase Column Chart
+    // ---------------------------------------------
     var costData = google.visualization.arrayToDataTable([
       ["Element", "Cost", { role: "style" }],
       ["Funnel", parseFormattedCost("<%= pitchCost %>"), "green"],
@@ -388,14 +401,17 @@
       legend: { position: "none" },
       backgroundColor: "transparent",
       textStyle: {
-        fontSize: 40, // Set vertical axis text to 14px
+        fontSize: 40,
       },
     };
     var costChart = new google.visualization.ColumnChart(
-      document.getElementById("columnChartCost_values"),
+      document.getElementById("columnChartCost_values")
     );
     costChart.draw(costView, costOptions);
 
+    // ---------------------------------------------
+    // 6) Projects by Tag 1
+    // ---------------------------------------------
     fetch(`/projects/radar/countProjectsByTag1`)
       .then((response) => response.json())
       .then((tagsData) => {
@@ -420,15 +436,18 @@
           title: "Projects by Tag 1",
           pieHole: 0.4,
           backgroundColor: "transparent",
-          width: "600px",
+          width: 600,
         };
         const chart = new google.visualization.PieChart(
-          document.getElementById("tag1Chart"),
+          document.getElementById("tag1Chart")
         );
         chart.draw(data, options);
       })
       .catch((err) => console.error(err));
 
+    // ---------------------------------------------
+    // 7) Projects by Tag 2
+    // ---------------------------------------------
     fetch(`/projects/radar/countProjectsByTag2`)
       .then((response) => response.json())
       .then((tagsData) => {
@@ -455,12 +474,15 @@
           backgroundColor: "transparent",
         };
         const chart = new google.visualization.PieChart(
-          document.getElementById("tag2Chart"),
+          document.getElementById("tag2Chart")
         );
         chart.draw(data, options);
       })
       .catch((err) => console.error(err));
 
+    // ---------------------------------------------
+    // 8) Projects by Tag 3
+    // ---------------------------------------------
     fetch(`/projects/radar/countProjectsByTag3`)
       .then((response) => response.json())
       .then((tagsData) => {
@@ -487,7 +509,7 @@
           backgroundColor: "transparent",
         };
         const chart = new google.visualization.PieChart(
-          document.getElementById("tag3Chart"),
+          document.getElementById("tag3Chart")
         );
         chart.draw(data, options);
       })
