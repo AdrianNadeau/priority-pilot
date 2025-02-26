@@ -221,9 +221,9 @@
           // Calculate percentages
           const total = counts.reduce((sum, count) => sum + count, 0);
           const percentages = counts.map((count) =>
-            ((count / total) * 100).toFixed(1),
+          ((count / total) * 100).toFixed(0),
           ); // Percentages with 1 decimal point
-
+          console.log("Percentages:", percentages);
           // Custom legend labels
           const customLabels = ["Healthy", "Caution", "In Trouble"];
 
@@ -231,7 +231,7 @@
           labels.forEach((label, index) => {
             chartData.push([customLabels[index], counts[index]]);
           });
-
+          console.log("loading project health:", percentages);
           const data = google.visualization.arrayToDataTable(chartData);
           const options = {
             title: "Portfolio Health",
@@ -275,7 +275,7 @@
             document.getElementById("pieChart"),
           );
           chart.draw(data, options);
-
+          console.log("loading project health done")
           // Draw the new chart
           var chartCostData = google.visualization.arrayToDataTable([
             ["Element", "Projects", { role: "style" }],
@@ -313,6 +313,7 @@
           var newChart = new google.visualization.ColumnChart(
             document.getElementById("newChart"),
           );
+          console.log("newChart", newChart);
           newChart.draw(chartCostView, newChartOptions);
         } else {
           console.error("Expected an array but got:", progressData);
