@@ -13,6 +13,13 @@
     flex: 1;
     margin: 10px;
   }
+  /* Add hover-over pointer effect for pie charts */
+  #pieChart,
+  #tag1Chart,
+  #tag2Chart,
+  #tag3Chart {
+    cursor: pointer;
+  }
 </style>
 <script
   type="text/javascript"
@@ -67,11 +74,11 @@
           <div id="tag1Chart"></div>
           <span id="tag1NoTags" name="tag1NoTags" class="text-center"></span>
         </div>
-        <div class="row mt-5" style="margin-left: 50px">
+        <div class="row mt-5">
           <div id="tag2Chart"></div>
           <span id="tag2NoTags" name="tag2NoTags" class="text-center"></span>
         </div>
-        <div class="row mt-5" style="margin-left: 50px">
+        <div class="row mt-5">
           <div id="tag3Chart"></div>
           <span id="tag3NoTags" name="tag3NoTags" class="text-center"></span>
         </div>
@@ -81,16 +88,6 @@
 </div>
 
 <%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
-<script>
-  function getRandomColorForTags() {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
-</script>
 <script type="text/javascript">
   google.charts.load("current", { packages: ["corechart"] });
   google.charts.setOnLoadCallback(drawCharts);
@@ -142,8 +139,6 @@
           const mappedColors = validColors.map(
             (color) => colorMapping[color.trim()] || "#000000"
           );
-          console.log("Valid Progress Data:", validProgressData);
-
           // -------------------------------
           // 1) Bar Chart with Chart.js
           // -------------------------------
@@ -248,9 +243,14 @@
             const sliceCount = counts[index];
             const slicePct = percentages[index];
             chartDataArray.push([
-              customLabels[index],                  // Legend label
+              customLabels[index], // Legend label
               { v: sliceCount, f: slicePct + "%" }, // Slice label as "43%" etc.
-              customLabels[index] + "\n" + sliceCount + " (" + slicePct + "%)",  // Tooltip: e.g., "3 (43%)"
+              customLabels[index] +
+                "\n" +
+                sliceCount +
+                " (" +
+                slicePct +
+                "%)", // Tooltip: e.g., "3 (43%)"
             ]);
           });
 
@@ -431,12 +431,24 @@
           }
         });
 
+        const counts = chartData.slice(1).map((row) => row[1]);
+        const total = counts.reduce((sum, count) => sum + count, 0);
+        const percentages = counts.map((count) =>
+          Math.round((count / total) * 100)
+        );
+
         const data = google.visualization.arrayToDataTable(chartData);
         const options = {
           title: "Projects by Tag 1",
           pieHole: 0.4,
           backgroundColor: "transparent",
           width: 600,
+          tooltip: {
+            text: "percentage",
+          },
+          slices: chartData.slice(1).map((row, index) => ({
+            text: `${row[0]} (${percentages[index]}%)`,
+          })),
         };
         const chart = new google.visualization.PieChart(
           document.getElementById("tag1Chart")
@@ -467,11 +479,24 @@
           }
         });
 
+        const counts = chartData.slice(1).map((row) => row[1]);
+        const total = counts.reduce((sum, count) => sum + count, 0);
+        const percentages = counts.map((count) =>
+          Math.round((count / total) * 100)
+        );
+
         const data = google.visualization.arrayToDataTable(chartData);
         const options = {
           title: "Projects by Tag 2",
           pieHole: 0.4,
           backgroundColor: "transparent",
+          width: 600,
+          tooltip: {
+            text: "percentage",
+          },
+          slices: chartData.slice(1).map((row, index) => ({
+            text: `${row[0]} (${percentages[index]}%)`,
+          })),
         };
         const chart = new google.visualization.PieChart(
           document.getElementById("tag2Chart")
@@ -502,11 +527,24 @@
           }
         });
 
+        const counts = chartData.slice(1).map((row) => row[1]);
+        const total = counts.reduce((sum, count) => sum + count, 0);
+        const percentages = counts.map((count) =>
+          Math.round((count / total) * 100)
+        );
+
         const data = google.visualization.arrayToDataTable(chartData);
         const options = {
           title: "Projects by Tag 3",
           pieHole: 0.4,
           backgroundColor: "transparent",
+          width: 600,
+          tooltip: {
+            text: "percentage",
+          },
+          slices: chartData.slice(1).map((row, index) => ({
+            text: `${row[0]} (${percentages[index]}%)`,
+          })),
         };
         const chart = new google.visualization.PieChart(
           document.getElementById("tag3Chart")
