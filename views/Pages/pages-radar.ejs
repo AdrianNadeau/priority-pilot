@@ -413,97 +413,112 @@
     // 6) Projects by Tag 1
     // ---------------------------------------------
     fetch(`/projects/radar/countProjectsByTag1`)
-      .then((response) => response.json())
-      .then((tagsData) => {
-        if (
-          tagsData.length === 0 ||
-          tagsData.every((tag) => tag.tag_name === null)
-        ) {
-          document.getElementById("tag1NoTags").innerText =
-            "No data found for tag 1";
-          return;
-        }
+  .then((response) => response.json())
+  .then((tagsData) => {
+    if (
+      tagsData.length === 0 ||
+      tagsData.every((tag) => tag.tag_name === null)
+    ) {
+      document.getElementById("tag1NoTags").innerText =
+        "No data found for tag 1";
+      return;
+    }
 
-        const chartData = [["Tag 1", "Project Count"]];
-        tagsData.forEach((tag) => {
-          if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
-            chartData.push([tag.tag_name, parseInt(tag.project_count)]);
-          }
-        });
+    const chartData = [["Tag 1", "Project Count"]];
+    let total = 0;
 
-        const counts = chartData.slice(1).map((row) => row[1]);
-        const total = counts.reduce((sum, count) => sum + count, 0);
-        const percentages = counts.map((count) =>
-          Math.round((count / total) * 100)
-        );
+    tagsData.forEach((tag) => {
+      if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
+        const count = parseInt(tag.project_count);
+        chartData.push([tag.tag_name, count]);
+        total += count;
+      }
+    });
 
-        const data = google.visualization.arrayToDataTable(chartData);
-        const options = {
-          title: "Projects by Tag 1",
-          pieHole: 0.4,
-          backgroundColor: "transparent",
-          width: 600,
-          tooltip: {
-            text: "percentage",
-          },
-          slices: chartData.slice(1).map((row, index) => ({
-            text: `${row[0]} (${percentages[index]}%)`,
-          })),
-        };
-        const chart = new google.visualization.PieChart(
-          document.getElementById("tag1Chart")
-        );
-        chart.draw(data, options);
-      })
-      .catch((err) => console.error(err));
+    const roundedChartData = chartData.slice(1).map((row) => {
+      const roundedValue = Math.round((row[1] / total) * 100);
+      return [row[0], row[1], `${roundedValue}%`];
+    });
+
+    const formattedData = [
+      ["Tag 1", "Project Count", { role: "tooltip", p: { html: false } }],
+      ...roundedChartData,
+    ];
+
+    const data = google.visualization.arrayToDataTable(formattedData);
+
+    const options = {
+      title: "Projects by Tag 1",
+      pieHole: 0.4,
+      backgroundColor: "transparent",
+      width: 600,
+      tooltip: {
+        text: "value",
+      },
+    };
+
+    const chart = new google.visualization.PieChart(
+      document.getElementById("tag1Chart")
+    );
+    chart.draw(data, options);
+  })
+  .catch((err) => console.error(err));
+
 
     // ---------------------------------------------
     // 7) Projects by Tag 2
     // ---------------------------------------------
     fetch(`/projects/radar/countProjectsByTag2`)
-      .then((response) => response.json())
-      .then((tagsData) => {
-        if (
-          tagsData.length === 0 ||
-          tagsData.every((tag) => tag.tag_name === null)
-        ) {
-          document.getElementById("tag2NoTags").innerText =
-            "No data found for tag 2";
-          return;
-        }
+  .then((response) => response.json())
+  .then((tagsData) => {
+    if (
+      tagsData.length === 0 ||
+      tagsData.every((tag) => tag.tag_name === null)
+    ) {
+      document.getElementById("tag1NoTags").innerText =
+        "No data found for tag 2";
+      return;
+    }
 
-        const chartData = [["Tag 2", "Project Count"]];
-        tagsData.forEach((tag) => {
-          if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
-            chartData.push([tag.tag_name, parseInt(tag.project_count)]);
-          }
-        });
+    const chartData = [["Tag 2", "Project Count"]];
+    let total = 0;
 
-        const counts = chartData.slice(1).map((row) => row[1]);
-        const total = counts.reduce((sum, count) => sum + count, 0);
-        const percentages = counts.map((count) =>
-          Math.round((count / total) * 100)
-        );
+    tagsData.forEach((tag) => {
+      if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
+        const count = parseInt(tag.project_count);
+        chartData.push([tag.tag_name, count]);
+        total += count;
+      }
+    });
 
-        const data = google.visualization.arrayToDataTable(chartData);
-        const options = {
-          title: "Projects by Tag 2",
-          pieHole: 0.4,
-          backgroundColor: "transparent",
-          width: 600,
-          tooltip: {
-            text: "percentage",
-          },
-          slices: chartData.slice(1).map((row, index) => ({
-            text: `${row[0]} (${percentages[index]}%)`,
-          })),
-        };
-        const chart = new google.visualization.PieChart(
-          document.getElementById("tag2Chart")
-        );
-        chart.draw(data, options);
-      })
-      .catch((err) => console.error(err));
+    const roundedChartData = chartData.slice(1).map((row) => {
+      const roundedValue = Math.round((row[1] / total) * 100);
+      return [row[0], row[1], `${roundedValue}%`];
+    });
+
+    const formattedData = [
+      ["Tag 1", "Project Count", { role: "tooltip", p: { html: false } }],
+      ...roundedChartData,
+    ];
+
+    const data = google.visualization.arrayToDataTable(formattedData);
+
+    const options = {
+      title: "Projects by Tag 1",
+      pieHole: 0.4,
+      backgroundColor: "transparent",
+      width: 600,
+      tooltip: {
+        text: "value",
+      },
+    };
+
+    const chart = new google.visualization.PieChart(
+      document.getElementById("tag2Chart")
+    );
+    chart.draw(data, options);
+  })
+  .catch((err) => console.error(err));
 
     // ---------------------------------------------
     // 8) Projects by Tag 3

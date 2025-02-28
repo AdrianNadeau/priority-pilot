@@ -187,7 +187,7 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       availableCost: formatToKMB(availableCost),
       usedEffort: formatToKMB(usedEffort),
     };
-    console.log("formatted Data", formattedData);
+    // console.log("formatted Data", formattedData);
     // Render dashboard with all calculated values
     res.render("Dashboard/dashboard1", {
       company_id: company_id_fk,

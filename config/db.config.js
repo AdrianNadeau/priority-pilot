@@ -7,10 +7,10 @@ module.exports = {
   DB: process.env.DB_NAME,
   dialect: "postgres",
   pool: {
-    max: 30, // Maximum number of connections in the pool
-    min: 0, // Minimum number of connections
-    acquire: 30000,
-    idle: 10000,
-    evict: 150000, // Time (ms) before Sequelize removes an idle connection
+    max: 100, // Maximum number of connections in the pool
+    min: 2, // Minimum number of connections
+    acquire: 50000,
+    idle: 50000,
+    evict: 100000, // Time (ms) before Sequelize removes an idle connection
   },
 };
