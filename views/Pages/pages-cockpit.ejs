@@ -80,14 +80,17 @@
               <div>
                 <strong>Start Date:</strong> 
                 <% if (project[0].start_date) { %>
+                  <br/>
                   <%= project[0].start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
                 <% } %>
               </div>
             </div>
             <div class="col-md-3">
               <div>
+                
                 <strong>End Date:</strong> 
                 <% if (project[0].end_date) { %>
+                  <br/>
                   <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
                 <% } %>
               </div>
@@ -97,7 +100,8 @@
                 <strong>Next Milestone Date:</strong> 
                 
                 <% if (project[0].next_milestone_date) { %>
-                  <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  <br/>
+                  <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
                   
                 <% } %>
               </div>

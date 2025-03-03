@@ -313,6 +313,7 @@ exports.cockpit = async (req, res) => {
   proj.project_headline,
   proj.start_date, 
   proj.end_date,
+  proj.next_milestone_date,
   proj.effort,
   proj.project_why,
   proj.project_what,
