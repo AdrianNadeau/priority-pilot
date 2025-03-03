@@ -97,7 +97,8 @@
                 <strong>Next Milestone Date:</strong> 
                 
                 <% if (project[0].next_milestone_date) { %>
-                  <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  
                 <% } %>
               </div>
             </div>

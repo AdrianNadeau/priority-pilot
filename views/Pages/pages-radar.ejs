@@ -70,15 +70,15 @@
         <div class="row">
           <div class="col-lg-6"></div>
         </div>
-        <div class="row mt-5 text-center">
+        <div class="row mt-5 text-center" style="margin-top: 0rem !important">
           <div id="tag1Chart"></div>
           <span id="tag1NoTags" name="tag1NoTags" class="text-center"></span>
         </div>
-        <div class="row mt-5">
+        <div class="row mt-5" style="margin-top: 0rem !important">
           <div id="tag2Chart"></div>
           <span id="tag2NoTags" name="tag2NoTags" class="text-center"></span>
         </div>
-        <div class="row mt-5">
+        <div class="row mt-5" style="margin-top: 0rem !important">
           <div id="tag3Chart"></div>
           <span id="tag3NoTags" name="tag3NoTags" class="text-center"></span>
         </div>
@@ -89,483 +89,555 @@
 
 <%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
 <script type="text/javascript">
-  google.charts.load("current", { packages: ["corechart"] });
-  google.charts.setOnLoadCallback(drawCharts);
+       google.charts.load("current", { packages: ["corechart"] });
+       google.charts.setOnLoadCallback(drawCharts);
 
-  function parseFormattedCost(cost) {
-    if (typeof cost === "string") {
-      if (cost.endsWith("K")) {
-        return parseFloat(cost.replace("K", "")) * 1000;
-      } else if (cost.endsWith("M")) {
-        return parseFloat(cost.replace("M", "")) * 1000000;
-      }
-    }
-    return parseFloat(cost);
-  }
+       function parseFormattedCost(cost) {
+         if (typeof cost === "string") {
+           if (cost.endsWith("K")) {
+             return parseFloat(cost.replace("K", "")) * 1000;
+           } else if (cost.endsWith("M")) {
+             return parseFloat(cost.replace("M", "")) * 1000000;
+           }
+         }
+         return parseFloat(cost);
+       }
 
-  function drawCharts() {
-    // ---------------------------------------------
-    // Fetch Progress Data & Draw Charts
-    // ---------------------------------------------
-    fetch(`/projects/radar/progress`)
-      .then((response) => response.json())
-      .then((progressData) => {
-        console.log("Progress:", progressData);
-        if (
-          progressData &&
-          progressData.progress &&
-          Array.isArray(progressData.progress)
-        ) {
-          const colorMapping = {
-            Green: "#28a745",
-            Yellow: "#ffc107",
-            Red: "#dc3545",
-          };
+       function drawCharts() {
+         // ---------------------------------------------
+         // Fetch Progress Data & Draw Charts
+         // ---------------------------------------------
+         fetch(`/projects/radar/progress`)
+           .then((response) => response.json())
+           .then((progressData) => {
+             console.log("Progress:", progressData);
+             if (
+               progressData &&
+               progressData.progress &&
+               Array.isArray(progressData.progress)
+             ) {
+               const colorMapping = {
+                 Green: "#28a745",
+                 Yellow: "#ffc107",
+                 Red: "#dc3545",
+               };
 
-          // Filter out "No status available" entries
-          const validProgressData = progressData.progress.filter(
-            (_, index) =>
-              progressData.colors[index].trim() !== "No status available"
-          );
-          const validColors = progressData.colors.filter(
-            (color) => color.trim() !== "No status available"
-          );
-          const validProjectNames = progressData.project_names.filter(
-            (_, index) =>
-              progressData.colors[index].trim() !== "No status available"
-          );
+               // Filter out "No status available" entries
+               const validProgressData = progressData.progress.filter(
+                 (_, index) =>
+                   progressData.colors[index].trim() !== "No status available"
+               );
+               const validColors = progressData.colors.filter(
+                 (color) => color.trim() !== "No status available"
+               );
+               const validProjectNames = progressData.project_names.filter(
+                 (_, index) =>
+                   progressData.colors[index].trim() !== "No status available"
+               );
 
-          // Convert API colors to hex codes
-          const mappedColors = validColors.map(
-            (color) => colorMapping[color.trim()] || "#000000"
-          );
-          // -------------------------------
-          // 1) Bar Chart with Chart.js
-          // -------------------------------
-          const barCtx = document.getElementById("barChart").getContext("2d");
-          new Chart(barCtx, {
-            type: "bar",
-            data: {
-              labels: validProjectNames,
-              datasets: [
-                {
-                  label: "",
-                  data: validProgressData,
-                  backgroundColor: mappedColors,
-                  borderWidth: 1,
-                },
-              ],
-            },
-            options: {
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  max: 100, // Fix vertical scale at 100
-                  ticks: {
-                    stepSize: 10,
-                  },
-                  title: {
-                    display: true,
-                    text: "Progress (%)",
-                  },
-                },
-              },
-              plugins: {
-                title: {
-                  display: false,
-                },
-                legend: {
-                  display: false,
-                },
-                tooltip: {
-                  callbacks: {
-                    // Round off the percentage shown in tooltips
-                    label: function (tooltipItem) {
-                      const progress = validProgressData[tooltipItem.dataIndex];
-                      return `Progress: ${Math.round(progress)}%`;
-                    },
-                  },
-                },
-                datalabels: {
-                  anchor: "end",
-                  align: "end",
-                  formatter: function (value) {
-                    return Math.round(value) + "%";
-                  },
-                  color: "#000",
-                  font: {
-                    weight: "bold",
-                  },
-                },
-              },
-            },
-            plugins: [ChartDataLabels],
-          });
+               // Convert API colors to hex codes
+               const mappedColors = validColors.map(
+                 (color) => colorMapping[color.trim()] || "#000000"
+               );
+               // -------------------------------
+               // 1) Bar Chart with Chart.js
+               // -------------------------------
+               const barCtx = document.getElementById("barChart").getContext("2d");
+               new Chart(barCtx, {
+                 type: "bar",
+                 data: {
+                   labels: validProjectNames,
+                   datasets: [
+                     {
+                       label: "",
+                       data: validProgressData,
+                       backgroundColor: mappedColors,
+                       borderWidth: 1,
+                     },
+                   ],
+                 },
+                 options: {
+                   scales: {
+                     y: {
+                       beginAtZero: true,
+                       max: 100, // Fix vertical scale at 100
+                       ticks: {
+                         stepSize: 10,
+                       },
+                       title: {
+                         display: true,
+                         text: "Progress (%)",
+                       },
+                     },
+                   },
+                   plugins: {
+                     title: {
+                       display: false,
+                     },
+                     legend: {
+                       display: false,
+                     },
+                     tooltip: {
+                       callbacks: {
+                         // Round off the percentage shown in tooltips
+                         label: function (tooltipItem) {
+                           const progress = validProgressData[tooltipItem.dataIndex];
+                           return `Progress: ${Math.round(progress)}%`;
+                         },
+                       },
+                     },
+                     datalabels: {
+                       anchor: "end",
+                       align: "end",
+                       formatter: function (value) {
+                         return Math.round(value) + "%";
+                       },
+                       color: "#000",
+                       font: {
+                         weight: "bold",
+                       },
+                     },
+                   },
+                 },
+                 plugins: [ChartDataLabels],
+               });
 
-          // -------------------------------
-          // 2) Portfolio Health Pie Chart
-          // -------------------------------
-          // Count occurrences of each color
-          const colorCounts = {
-            Green: 0,
-            Yellow: 0,
-            Red: 0,
-          };
+               // -------------------------------
+               // 2) Portfolio Health Pie Chart
+               // -------------------------------
+               // Count occurrences of each color
+               const colorCounts = {
+                 Green: 0,
+                 Yellow: 0,
+                 Red: 0,
+               };
 
-          validColors.forEach((color) => {
-            if (colorCounts[color.trim()] !== undefined) {
-              colorCounts[color.trim()] += 1;
-            }
-          });
+               validColors.forEach((color) => {
+                 if (colorCounts[color.trim()] !== undefined) {
+                   colorCounts[color.trim()] += 1;
+                 }
+               });
 
-          const labels = Object.keys(colorCounts); // ["Green", "Yellow", "Red"]
-          const counts = Object.values(colorCounts); // e.g., [3, 2, 1]
-          const chartColors = ["#28a745", "#ffc107", "#dc3545"]; // Healthy, Caution, In Trouble
+               const labels = Object.keys(colorCounts); // ["Green", "Yellow", "Red"]
+               const counts = Object.values(colorCounts); // e.g., [3, 2, 1]
+               const chartColors = ["#28a745", "#ffc107", "#dc3545"]; // Healthy, Caution, In Trouble
 
-          // Calculate rounded percentages
-          const total = counts.reduce((sum, count) => sum + count, 0);
-          const percentages = counts.map((count) =>
-            Math.round((count / total) * 100)
-          );
+               // Calculate rounded percentages
+               const total = counts.reduce((sum, count) => sum + count, 0);
+               const percentages = counts.map((count) =>
+                 Math.round((count / total) * 100)
+               );
 
-          // Define label text
-          const customLabels = ["Healthy", "Caution", "In Trouble"];
+               // Define label text
+               const customLabels = ["Healthy", "Caution", "In Trouble"];
 
-          // Build data array for Google Charts
-          //  - Column 1: slice label for legend
-          //  - Column 2: numeric value with a formatted string (just the percentage for the slice)
-          //  - Column 3: custom tooltip showing "count (percentage)"
-          const chartDataArray = [
-            ["Status", "Count", { role: "tooltip", p: { html: false } }],
-          ];
+               // Build data array for Google Charts
+               //  - Column 1: slice label for legend
+               //  - Column 2: numeric value with a formatted string (just the percentage for the slice)
+               //  - Column 3: custom tooltip showing "count (percentage)"
+               const chartDataArray = [
+                 ["Status", "Count", { role: "tooltip", p: { html: false } }],
+               ];
 
-          labels.forEach((label, index) => {
-            const sliceCount = counts[index];
-            const slicePct = percentages[index];
-            chartDataArray.push([
-              customLabels[index], // Legend label
-              { v: sliceCount, f: slicePct + "%" }, // Slice label as "43%" etc.
-              customLabels[index] +
-                "\n" +
-                sliceCount +
-                " (" +
-                slicePct +
-                "%)", // Tooltip: e.g., "3 (43%)"
-            ]);
-          });
+               labels.forEach((label, index) => {
+                 const sliceCount = counts[index];
+                 const slicePct = percentages[index];
+                 chartDataArray.push([
+                   customLabels[index], // Legend label
+                   { v: sliceCount, f: slicePct + "%" }, // Slice label as "43%" etc.
+                   customLabels[index] +
+                     "\n" +
+                     sliceCount +
+                     " (" +
+                     slicePct +
+                     "%)", // Tooltip: e.g., "3 (43%)"
+                 ]);
+               });
 
-          console.log("Portfolio Health Data:", chartDataArray);
-          const data = google.visualization.arrayToDataTable(chartDataArray);
+               console.log("Portfolio Health Data:", chartDataArray);
+               const data = google.visualization.arrayToDataTable(chartDataArray);
 
-          const options = {
-            title: "Portfolio Health",
-            pieHole: 0.4,
-            backgroundColor: "transparent",
-            width: 600,
-            colors: chartColors,
-            legend: {
-              position: "right",
-              textStyle: { color: "#333", fontSize: 14 },
-            },
-            // Use our formatted values for the slice text
-            pieSliceText: "value",
-            // Let Google Charts use the custom tooltip column
-            tooltip: {
-              isHtml: false,
-            },
-          };
+               const options = {
+                 title: "Portfolio Health",
+                 pieHole: 0.4,
+                 backgroundColor: "transparent",
+                 width: 600,
+                 colors: chartColors,
+                 width: 600,
+                 height: 400,
+                 legend: {
+                   position: "right",
+                   textStyle: { color: "#333", fontSize: 14 },
+                 },
+                 // Use our formatted values for the slice text
+                 pieSliceText: "value",
+                 // Let Google Charts use the custom tooltip column
+                 tooltip: {
+                   isHtml: false,
+                 },
+               };
 
-          const pieChart = new google.visualization.PieChart(
-            document.getElementById("pieChart")
-          );
-          pieChart.draw(data, options);
+               const pieChart = new google.visualization.PieChart(
+                 document.getElementById("pieChart")
+               );
+               pieChart.draw(data, options);
 
-          // -------------------------------
-          // 3) "Projects by Phase" Column Chart
-          // -------------------------------
-          var chartCostData = google.visualization.arrayToDataTable([
-            ["Element", "Projects", { role: "style" }],
-            ["Funnel", parseFormattedCost("$<%= pitchCount %>"), "blue"],
-            ["Planning", parseFormattedCost("$<%= priorityCount %>"), "blue"],
-            ["Discovery", parseFormattedCost("$<%= discoveryCount %>"), "blue"],
-            ["Delivery", parseFormattedCost("$<%= deliveryCount %>"), "blue"],
-            ["Done", parseFormattedCost("$<%= operationsCount %>"), "blue"],
-          ]);
+               // -------------------------------
+               // 3) "Projects by Phase" Column Chart
+               // -------------------------------
+               var chartCostData = google.visualization.arrayToDataTable([
+                 ["Element", "Projects", { role: "style" }],
+                 ["Funnel", parseFormattedCost("$<%= pitchCount %>"), "blue"],
+                 ["Planning", parseFormattedCost("$<%= priorityCount %>"), "blue"],
+                 ["Discovery", parseFormattedCost("$<%= discoveryCount %>"), "blue"],
+                 ["Delivery", parseFormattedCost("$<%= deliveryCount %>"), "blue"],
+                 ["Done", parseFormattedCost("$<%= operationsCount %>"), "blue"],
+               ]);
 
-          var chartCostView = new google.visualization.DataView(chartCostData);
-          chartCostView.setColumns([
-            0,
-            1,
-            {
-              calc: "stringify",
-              sourceColumn: 1,
-              type: "string",
-              role: "annotation",
-            },
-            2,
-          ]);
+               var chartCostView = new google.visualization.DataView(chartCostData);
+               chartCostView.setColumns([
+                 0,
+                 1,
+                 {
+                   calc: "stringify",
+                   sourceColumn: 1,
+                   type: "string",
+                   role: "annotation",
+                 },
+                 2,
+               ]);
 
-          var newChartOptions = {
-            title: "Projects by Phase",
-            width: 400,
-            height: 200,
-            bar: { groupWidth: "95%" },
-            legend: { position: "none" },
-            backgroundColor: "transparent",
-            textStyle: {
-              fontSize: 40,
-            },
-          };
-          var newChart = new google.visualization.ColumnChart(
-            document.getElementById("newChart")
-          );
-          console.log("newChart", newChart);
-          newChart.draw(chartCostView, newChartOptions);
-        } else {
-          console.error("Expected an array but got:", progressData);
-        }
-      })
-      .catch((err) => console.error(err));
+               var newChartOptions = {
+                 title: "Projects by Phase",
+                 width: 400,
+                 height: 200,
+                 bar: { groupWidth: "95%" },
+                 legend: { position: "none" },
+                 backgroundColor: "transparent",
+                 textStyle: {
+                   fontSize: 40,
+                 },
+               };
+               var newChart = new google.visualization.ColumnChart(
+                 document.getElementById("newChart")
+               );
+               console.log("newChart", newChart);
+               newChart.draw(chartCostView, newChartOptions);
+             } else {
+               console.error("Expected an array but got:", progressData);
+             }
+           })
+           .catch((err) => console.error(err));
 
-    // ---------------------------------------------
-    // 4) Static Column Chart ("Projects by Phase")
-    // ---------------------------------------------
-    var data = google.visualization.arrayToDataTable([
-      ["Element", "Projects", { role: "style" }],
-      ["Funnel", <%= pitchCount %>, "blue"],
-      ["Planning", <%= priorityCount %>, "blue"],
-      ["Discovery", <%= discoveryCount %>, "blue"],
-      ["Delivery", <%= deliveryCount %>, "blue"],
-      ["Done", <%= operationsCount %>, "blue"],
-    ]);
+         // ---------------------------------------------
+         // 4) Static Column Chart ("Projects by Phase")
+         // ---------------------------------------------
+         var data = google.visualization.arrayToDataTable([
+           ["Element", "Projects", { role: "style" }],
+           ["Funnel", <%= pitchCount %>, "blue"],
+           ["Planning", <%= priorityCount %>, "blue"],
+           ["Discovery", <%= discoveryCount %>, "blue"],
+           ["Delivery", <%= deliveryCount %>, "blue"],
+           ["Done", <%= operationsCount %>, "blue"],
+         ]);
 
-    var view = new google.visualization.DataView(data);
-    view.setColumns([
-      0,
-      1,
-      {
-        calc: "stringify",
-        sourceColumn: 1,
-        type: "string",
-        role: "annotation",
-      },
-      2,
-    ]);
+         var view = new google.visualization.DataView(data);
+         view.setColumns([
+           0,
+           1,
+           {
+             calc: "stringify",
+             sourceColumn: 1,
+             type: "string",
+             role: "annotation",
+           },
+           2,
+         ]);
 
-    var options = {
-      title: "Projects by Phase",
-      width: 400,
-      height: 200,
-      bar: { groupWidth: "95%" },
-      legend: { position: "none" },
-      backgroundColor: "transparent",
-      textStyle: {
-        fontSize: 40,
-      },
-    };
-    var chart = new google.visualization.ColumnChart(
-      document.getElementById("columnchart_values")
-    );
-    chart.draw(view, options);
+         var options = {
+           title: "Projects by Phase",
+           width: 400,
+           height: 200,
+           bar: { groupWidth: "95%" },
+           legend: { position: "none" },
+           backgroundColor: "transparent",
+           textStyle: {
+             fontSize: 40,
+           },
+         };
+         var chart = new google.visualization.ColumnChart(
+           document.getElementById("columnchart_values")
+         );
+         chart.draw(view, options);
 
-    // ---------------------------------------------
-    // 5) Estimated Cost by Phase Column Chart
-    // ---------------------------------------------
-    var costData = google.visualization.arrayToDataTable([
-      ["Element", "Cost", { role: "style" }],
-      ["Funnel", parseFormattedCost("<%= pitchCost %>"), "green"],
-      ["Planning", parseFormattedCost("<%= priorityCost %>"), "green"],
-      ["Discovery", parseFormattedCost("<%= discoveryCost %>"), "green"],
-      ["Delivery", parseFormattedCost("<%= deliveryCost %>"), "green"],
-      ["Done", parseFormattedCost("<%= operationsTotalCost %>"), "green"],
-    ]);
+         // ---------------------------------------------
+         // 5) Estimated Cost by Phase Column Chart
+         // ---------------------------------------------
+         var costData = google.visualization.arrayToDataTable([
+           ["Element", "Cost", { role: "style" }],
+           ["Funnel", parseFormattedCost("<%= pitchCost %>"), "green"],
+           ["Planning", parseFormattedCost("<%= priorityCost %>"), "green"],
+           ["Discovery", parseFormattedCost("<%= discoveryCost %>"), "green"],
+           ["Delivery", parseFormattedCost("<%= deliveryCost %>"), "green"],
+           ["Done", parseFormattedCost("<%= operationsTotalCost %>"), "green"],
+         ]);
 
-    var costView = new google.visualization.DataView(costData);
-    costView.setColumns([
-      0,
-      1,
-      {
-        calc: "stringify",
-        sourceColumn: 1,
-        type: "string",
-        role: "annotation",
-      },
-      2,
-    ]);
+         var costView = new google.visualization.DataView(costData);
+         costView.setColumns([
+           0,
+           1,
+           {
+             calc: "stringify",
+             sourceColumn: 1,
+             type: "string",
+             role: "annotation",
+           },
+           2,
+         ]);
 
-    var costOptions = {
-      title: "Estimated Cost by Phase",
-      width: 400,
-      height: 200,
-      bar: { groupWidth: "95%" },
-      legend: { position: "none" },
-      backgroundColor: "transparent",
-      textStyle: {
-        fontSize: 40,
-      },
-    };
-    var costChart = new google.visualization.ColumnChart(
-      document.getElementById("columnChartCost_values")
-    );
-    costChart.draw(costView, costOptions);
+         var costOptions = {
+           title: "Estimated Cost by Phase",
+           width: 400,
+           height: 200,
+           bar: { groupWidth: "95%" },
+           legend: { position: "none" },
+           backgroundColor: "transparent",
+           textStyle: {
+             fontSize: 40,
+           },
+         };
+         var costChart = new google.visualization.ColumnChart(
+           document.getElementById("columnChartCost_values")
+         );
+         costChart.draw(costView, costOptions);
 
-    // ---------------------------------------------
-    // 6) Projects by Tag 1
-    // ---------------------------------------------
-    fetch(`/projects/radar/countProjectsByTag1`)
-  .then((response) => response.json())
-  .then((tagsData) => {
-    if (
-      tagsData.length === 0 ||
-      tagsData.every((tag) => tag.tag_name === null)
-    ) {
-      document.getElementById("tag1NoTags").innerText =
-        "No data found for tag 1";
-      return;
-    }
+         // ---------------------------------------------
+         // 6) Projects by Tag 1
+         // ---------------------------------------------
+         fetch(`/projects/radar/countProjectsByTag1`)
+           .then((response) => response.json())
+           .then((tagsData) => {
+             if (
+               tagsData.length === 0 ||
+               tagsData.every((tag) => tag.tag_name === null)
+             ) {
+               document.getElementById("tag1NoTags").innerText =
+                 "No data found for tag 1";
+               return;
+             }
 
-    const chartData = [["Tag 1", "Project Count"]];
-    let total = 0;
+             const chartData = [["Tag 1", "Percentage"]];
+             let total = 0;
 
-    tagsData.forEach((tag) => {
-      if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
-        const count = parseInt(tag.project_count);
-        chartData.push([tag.tag_name, count]);
-        total += count;
-      }
-    });
+             tagsData.forEach((tag) => {
+               if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
+                 const count = parseInt(tag.project_count);
+                 chartData.push([tag.tag_name, count]);
+                 total += count;
+               }
+             });
 
-    const roundedChartData = chartData.slice(1).map((row) => {
-      const roundedValue = Math.round((row[1] / total) * 100);
-      return [row[0], row[1], `${roundedValue}%`];
-    });
+             const roundedChartData = chartData.slice(1).map((row) => {
+               const roundedValue = Math.round((row[1] / total) * 100);
+               return [row[0], roundedValue, `${roundedValue}%`];
+             });
 
-    const formattedData = [
-      ["Tag 1", "Project Count", { role: "tooltip", p: { html: false } }],
-      ...roundedChartData,
-    ];
+             const formattedData = [
+               ["Tag 1", "Percentage", { p: { html: false } }],
+               ...roundedChartData,
+             ];
 
-    const data = google.visualization.arrayToDataTable(formattedData);
+             const data = google.visualization.arrayToDataTable(formattedData);
 
-    const options = {
-      title: "Projects by Tag 1",
-      pieHole: 0.4,
-      backgroundColor: "transparent",
-      width: 600,
-      tooltip: {
-        text: "value",
-      },
-    };
+             const options = {
+               title: "Projects by Tag 1",
+               pieHole: 0.4,
+               backgroundColor: "transparent",
+               width: 600,
+               height: 400,
 
-    const chart = new google.visualization.PieChart(
-      document.getElementById("tag1Chart")
-    );
-    chart.draw(data, options);
-  })
-  .catch((err) => console.error(err));
+               tooltip: {
+                 text: "percentage",
+               },
+               pieSliceText: "value"+"%", // Use the formatted value for the slice text
+             };
 
+             const chart = new google.visualization.PieChart(
+               document.getElementById("tag1Chart")
+             );
+             chart.draw(data, options);
+           })
+           .catch((err) => console.error(err));
+      // ---------------------------------------------
+         // 7) Projects by Tag 2 (Same Logic as Tag 1)
+         // ---------------------------------------------
 
-    // ---------------------------------------------
-    // 7) Projects by Tag 2
-    // ---------------------------------------------
     fetch(`/projects/radar/countProjectsByTag2`)
-  .then((response) => response.json())
-  .then((tagsData) => {
-    if (
-      tagsData.length === 0 ||
-      tagsData.every((tag) => tag.tag_name === null)
-    ) {
-      document.getElementById("tag1NoTags").innerText =
-        "No data found for tag 2";
-      return;
-    }
-
-    const chartData = [["Tag 2", "Project Count"]];
-    let total = 0;
-
-    tagsData.forEach((tag) => {
-      if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
-        const count = parseInt(tag.project_count);
-        chartData.push([tag.tag_name, count]);
-        total += count;
-      }
-    });
-
-    const roundedChartData = chartData.slice(1).map((row) => {
-      const roundedValue = Math.round((row[1] / total) * 100);
-      return [row[0], row[1], `${roundedValue}%`];
-    });
-
-    const formattedData = [
-      ["Tag 1", "Project Count", { role: "tooltip", p: { html: false } }],
-      ...roundedChartData,
-    ];
-
-    const data = google.visualization.arrayToDataTable(formattedData);
-
-    const options = {
-      title: "Projects by Tag 1",
-      pieHole: 0.4,
-      backgroundColor: "transparent",
-      width: 600,
-      tooltip: {
-        text: "value",
-      },
-    };
-
-    const chart = new google.visualization.PieChart(
-      document.getElementById("tag2Chart")
-    );
-    chart.draw(data, options);
-  })
-  .catch((err) => console.error(err));
-
-    // ---------------------------------------------
-    // 8) Projects by Tag 3
-    // ---------------------------------------------
-    fetch(`/projects/radar/countProjectsByTag3`)
       .then((response) => response.json())
       .then((tagsData) => {
         if (
           tagsData.length === 0 ||
           tagsData.every((tag) => tag.tag_name === null)
         ) {
-          document.getElementById("tag3NoTags").innerText =
-            "No data found for tag 3";
+          document.getElementById("tag2NoTags").innerText =
+            "No data found for tag 2";
           return;
         }
 
-        const chartData = [["Tag 3", "Project Count"]];
+        const chartData = [["Tag 2", "Percentage"]];
+        let total = 0;
+
         tagsData.forEach((tag) => {
           if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
-            chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+            const count = parseInt(tag.project_count);
+            chartData.push([tag.tag_name, count]);
+            total += count;
           }
         });
 
-        const counts = chartData.slice(1).map((row) => row[1]);
-        const total = counts.reduce((sum, count) => sum + count, 0);
-        const percentages = counts.map((count) =>
-          Math.round((count / total) * 100)
-        );
+        const roundedChartData = chartData.slice(1).map((row) => {
+          const roundedValue = Math.round((row[1] / total) * 100);
+          return [row[0], roundedValue, `${roundedValue}%`];
+        });
 
-        const data = google.visualization.arrayToDataTable(chartData);
+        const formattedData = [
+          ["Tag 2", "Percentage", { role: "tooltip", p: { html: false } }],
+          ...roundedChartData,
+        ];
+
+        const data = google.visualization.arrayToDataTable(formattedData);
+
         const options = {
-          title: "Projects by Tag 3",
+          title: "Projects by Tag 2",
           pieHole: 0.4,
           backgroundColor: "transparent",
           width: 600,
+          height: 400,
           tooltip: {
             text: "percentage",
           },
-          slices: chartData.slice(1).map((row, index) => ({
-            text: `${row[0]} (${percentages[index]}%)`,
-          })),
+          pieSliceText: "value", // Use the formatted value for the slice text
         };
+
         const chart = new google.visualization.PieChart(
-          document.getElementById("tag3Chart")
+          document.getElementById("tag2Chart")
         );
         chart.draw(data, options);
       })
       .catch((err) => console.error(err));
-  }
+
+
+   // ---------------------------------------------
+      // 8) Projects by Tag 2
+      // ---------------------------------------------
+  fetch(`/projects/radar/countProjectsByTag2`)
+    .then((response) => response.json())
+    .then((tagsData) => {
+      if (
+        tagsData.length === 0 ||
+        tagsData.every((tag) => tag.tag_name === null)
+      ) {
+        document.getElementById("tag2NoTags").innerText =
+          "No data found for tag 2";
+        return;
+      }
+
+      const chartData = [["Tag 2", "Percentage"]];
+      let total = 0;
+
+      tagsData.forEach((tag) => {
+        if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
+          const count = parseInt(tag.project_count);
+          chartData.push([tag.tag_name, count]);
+          total += count;
+        }
+      });
+
+      const roundedChartData = chartData.slice(1).map((row) => {
+        const roundedValue = Math.round((row[1] / total) * 100);
+        return [row[0], roundedValue, `${roundedValue}%`];
+      });
+
+      const formattedData = [
+        ["Tag 2", "Percentage", { role: "tooltip", p: { html: false } }],
+        ...roundedChartData,
+      ];
+
+      const data = google.visualization.arrayToDataTable(formattedData);
+
+      const options = {
+        title: "Projects by Tag 2",
+        pieHole: 0.4,
+        backgroundColor: "transparent",
+        width: 600,
+        height: 400,
+        tooltip: {
+          text: "percentage",
+        },
+        pieSliceText: "value"+"%", // Show percentage symbol with value
+      };
+
+      const chart = new google.visualization.PieChart(
+        document.getElementById("tag2Chart")
+      );
+      chart.draw(data, options);
+    })
+    .catch((err) => console.error(err));
+    // ---------------------------------------------
+        // 8) Projects by Tag 3
+        // ---------------------------------------------
+        fetch(`/projects/radar/countProjectsByTag3`)
+        .then((response) => response.json())
+        .then((tagsData) => {
+          if (
+            tagsData.length === 0 ||
+            tagsData.every((tag) => tag.tag_name === null)
+          ) {
+            document.getElementById("tag3NoTags").innerText =
+              "No data found for tag 3";
+            return;
+          }
+
+          const chartData = [["Tag 3", "Percentage"]];
+          let total = 0;
+
+          tagsData.forEach((tag) => {
+            if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
+              const count = parseInt(tag.project_count);
+              chartData.push([tag.tag_name, count]);
+              total += count;
+            }
+          });
+
+          const roundedChartData = chartData.slice(1).map((row) => {
+            const roundedValue = Math.round((row[1] / total) * 100);
+            return [row[0], roundedValue, `${roundedValue}%`];
+          });
+
+          const formattedData = [
+            ["Tag 3", "Percentage", { role: "tooltip", p: { html: false } }],
+            ...roundedChartData,
+          ];
+
+          const data = google.visualization.arrayToDataTable(formattedData);
+
+          const options = {
+            title: "Projects by Tag 3",
+            pieHole: 0.4,
+            backgroundColor: "transparent",
+            width: 600,
+            height: 400,
+            tooltip: {
+              text: "percentage",
+            },
+            pieSliceText: "value"+"%",
+          };
+
+          const chart = new google.visualization.PieChart(
+            document.getElementById("tag3Chart")
+          );
+          chart.draw(data, options);
+        })
+        .catch((err) => console.error(err));
+    }
 </script>
