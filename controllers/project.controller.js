@@ -18,6 +18,7 @@ const pgSession = require("connect-pg-simple")(session);
 
 // Create and Save a new Project
 exports.create = (req, res) => {
+  console.log("CREATE PROJECT");
   try {
     if (!req.session) {
       res.redirect("/pages-500");
@@ -28,22 +29,33 @@ exports.create = (req, res) => {
     console.log("error:", error);
   }
 
-  //convert dates
-
-  const startDateTest = insertValidDate(req.body.start_date);
-  const endDateTest = insertValidDate(req.body.end_date);
-  const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
-
+  // Convert dates
+  let startDateTest = null;
+  let endDateTest = null;
+  let nextMilestoneDateTest = null;
   let pitch_message = "";
+  let projectCost = null;
+
   if (req.body.phase_id_fk == 1) {
     pitch_message = req.body.pitch_message;
+  } else {
+    startDateTest = insertValidDate(req.body.start_date);
+    endDateTest = insertValidDate(req.body.end_date);
+    nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
   }
-  const projectCost = removeCommasAndConvertToNumber(req.body.project_cost);
+  console.log("startDateTest:", startDateTest);
+  console.log("endDateTest:", endDateTest);
+  console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
+  try {
+    projectCost = removeCommasAndConvertToNumber(req.body.project_cost);
+  } catch (error) {
+    projectCost = 0;
+  }
   if (isNaN(projectCost)) {
-    return 0;
+    projectCost = 0;
   }
-  // Create a Project
 
+  // Create a Project
   const project = {
     company_id_fk: company_id_fk,
     project_name: req.body.project_name,
@@ -68,20 +80,49 @@ exports.create = (req, res) => {
     tag_2: req.body.tag_2,
     tag_3: req.body.tag_3,
   };
-  const tags = {
-    tag_1: req.body.tag_1 || 0,
-    tag_2: req.body.tag_2 || 0,
-    tag_3: req.body.tag_3 || 0,
-    // other project fields
-  };
+
+  console.log("project:", project);
 
   // Save Project in the database
-  Project.create(project).then(async (data) => {
+  Project.create(project).then(async (createdProject) => {
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     }).catch((error) => {
       console.log("Error fetching phasesData:", error);
     });
+
+    console.log("initial create");
+
+    const newChangedProject = {
+      company_id_fk: company_id_fk,
+      project_id_fk: createdProject.id,
+      project_name: req.body.project_name,
+      project_headline: req.body.headline,
+      project_description: req.body.project_description,
+      project_why: req.body.why,
+      project_what: req.body.what,
+      start_date: startDateTest,
+      end_date: endDateTest,
+      next_milestone_date: nextMilestoneDateTest,
+      priority_id_fk: req.body.priority_id_fk,
+      sponsor_id_fk: req.body.sponsor_id_fk,
+      prime_id_fk: req.body.prime_id_fk,
+      phase_id_fk: req.body.phase_id_fk,
+      project_cost: req.body.project_cost,
+      effort: req.body.effort,
+      benefit: req.body.benefit,
+      impact: req.body.impact,
+      complexity: req.body.complexity,
+      pitch_message: pitch_message,
+      tag_1: req.body.tag_1,
+      tag_2: req.body.tag_2,
+      tag_3: req.body.tag_3,
+      change_reason_id_fk: 1,
+      change_explanation: "Initial Entry",
+    };
+
+    const changedProject = await ChangeProject.create(newChangedProject);
+
     let tagsData = await Tag.findAll({
       where: {
         [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
@@ -94,29 +135,23 @@ exports.create = (req, res) => {
 
     const [prioritiesData, personsData, projectsData] = await Promise.all([
       Priority.findAll(),
-
-      // Results will be an empty array and metadata will contain the number of affected rows.
       Person.findAll({
         where: {
           company_id_fk: company_id_fk,
         },
       }),
       Project.findAll(),
-      // ChangeReason.findAll()
     ]);
 
     const query =
       "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
-    // Add year range calculation
 
     await db.sequelize
       .query(query, {
         replacements: [company_id_fk],
         type: db.sequelize.QueryTypes.SELECT,
       })
-
       .then((data) => {
-        // Render the page when all data retrieval operations are complete
         res.render("Pages/pages-projects", {
           projects: data,
           phases: phasesData,
@@ -125,7 +160,6 @@ exports.create = (req, res) => {
           primes: personsData,
           tags: tagsData,
           company_id: company_id_fk,
-          projects: data,
         });
       })
       .catch((err) => {
@@ -345,7 +379,6 @@ exports.cockpit = async (req, res) => {
       changed_projects = await db.changed_projects.findAll({
         where: {
           project_id_fk: project_id,
-          company_id_fk: company_id_fk,
         },
         order: [["change_date", "DESC"]],
       });
@@ -454,10 +487,25 @@ proj.company_id_fk = ? AND proj.id = ?`;
       if (!data || data.length === 0) {
         return res.status(404).send({ message: "Project not found" });
       }
+      try {
+        console.log("data.start_date:", data[0].start_date);
+        startDateTest = insertValidDate(data[0].start_date);
+        console.log("startDateTest:", startDateTest);
+        endDateTest = insertValidDate(data[0].end_date);
+        nextMilestoneDateTest = insertValidDate(data[0].next_milestone_date);
+      } catch (error) {
+        startDateTest = null;
+        endDateTest = null;
+        nextMilestoneDateTest = null;
+      }
 
       // Get reasons for change for the project
       const change_reasons = await ChangeReason.findAll({
-        company_id_fk: company_id_fk,
+        where: {
+          id: {
+            [Op.ne]: 1, // Exclude records where id is equal to 1
+          },
+        },
       });
       let tagsData = await Tag.findAll({
         where: {
@@ -500,6 +548,9 @@ proj.company_id_fk = ? AND proj.id = ?`;
         primes: personsData,
         change_reasons,
         tags: tagsData,
+        start_date: startDateTest,
+        end_date: endDateTest,
+        next_milestone_date: nextMilestoneDateTest,
       });
     } catch (err) {
       console.error("Error retrieving data:", err);
@@ -606,43 +657,6 @@ exports.findOneForPrime = async (req, res) => {
   }
 };
 
-// exports.findFunnel = async (req, res) => {
-//   console.log("IN THIS 2");
-//   try {
-//     const company_id_fk = req.session.company.id;
-//     // Retrieve projects related to the company
-//     const projects = await Project.findAll({
-//       where: { company_id_fk: company_id_fk, phase_id_fk: 1 },
-//     });
-//     console.log("************************************* projects ", projects);
-//     // Calculate pitch count, total cost, and total effort
-//     const pitchCount = projects.length;
-//     let pitchTotalCost = 0;
-//     let pitchTotalPH = 0;
-
-//     const tagsData = await Tag.findAll({
-//       where: { company_id_fk: company_id_fk },
-//       order: [["id", "ASC"]],
-//     });
-//     projects.forEach((project) => {
-//       pitchTotalCost += parseFloat(project.project_cost) || 0;
-//       pitchTotalPH += parseFloat(project.effort) || 0;
-//     });
-
-//     // Render the funnel page with the retrieved data
-//     res.render("Pages/pages-funnel", {
-//       phases: phases,
-//       projects: projects,
-//       // pitchCount: pitchCount,
-//       pitchTotalCost: pitchTotalCost,
-//       pitchTotalPH: pitchTotalPH,
-//       tags: tagsData,
-//     });
-//   } catch (error) {
-//     console.error("Error finding funnel:", error);
-//     res.status(500).json({ message: "Error finding funnel" });
-//   }
-// };
 exports.radar = async (req, res) => {
   let company_id_fk = req.session.company.id;
 

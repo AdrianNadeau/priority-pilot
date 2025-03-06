@@ -45,26 +45,29 @@
                             <textarea rows="4" class="form-control" id="project_what" name="project_what"><%= project.project_what %></textarea>
                         </div>
                         
-                        <div class="form-group">
+                       <div class="form-group" id="date_section">
+                          <label for="dates">Start Date and End Date: <span class="required_star">*</span></label>
                           <div class="form-row">
-                            <div class="col-md-4">
-                              <label for="start_date">Start Date:</label>
-                              <a class="input-button" title="toggle" data-toggle>
-                                <i class="icon-calendar"></i>
-                              </a>
-                              <input type="text" class="form-control datepicker" id="start_date" name="start_date" value="<%= project.start_date ? project.start_date.toISOString().split('T')[0] : '' %>">
+                            <div class="col">
+                              <i class="bi bi-calendar-check"></i><input type="text" class="form-control datepicker" id="start_date" value = <%= start_date %> name="start_date" placeholder="Start Date">
+                              <div class="invalid-feedback">
+                                Start Date is required.
+                              </div>
                             </div>
-                            <div class="col-md-4">
-                              <label for="end_date">End Date:</label>
-                              <input type="text" class="form-control datepicker" id="end_date" name="end_date" value="<%= project.end_date ? project.end_date.toISOString().split('T')[0] : '' %>">
+                            <div class="col">
+                              <input type="text" required class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date">
+                              <div class="invalid-feedback">
+                                End Date is required.   
+                              </div>
                             </div>
-                            <div class="col-md-4">
-                              <label for="next_milestone_date">Next Milestone Date:</label>
-                              <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" value="<%= project.next_milestone_date ? project.next_milestone_date.toISOString().split('T')[0] : '' %>">
+                            <div class="col">
+                              <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date">
                             </div>
                           </div>
+                          <div><span class="required_star" id ="dates_required" style="display:none;">Start and End dates are required</span></span></div>
                         </div>
-                    </div>
+                      </div>
+                    
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-md-6">

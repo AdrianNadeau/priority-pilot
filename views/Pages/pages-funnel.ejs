@@ -62,20 +62,21 @@
               </div>
               <div class="modal-body">
                 <form action="/projects" class="needs-validation" novalidate method="POST">
+                  <input hidden name="phase_id_fk" value="1">
                   <div class="container">
                     <div class="row">
                       <div class="col-md-6">
                         <!-- First column of form fields -->
                         <div class="form-group">
                           <label for="project_name">Name</label>
-                          <input type="text" class="form-control" id="project_name" name="project_name" required>
+                          <input type="text" class="form-control" id="project_name" name="project_name" maxlength="25" required>
                           <div class="invalid-feedback">
                             Please enter project name.
                           </div>
                         </div>
                         <div class="form-group">
                           <label for="project_headline">Headline</label>
-                          <input type="text" class="form-control" id="project_headline" name="headline">
+                          <input type="text" class="form-control" id="project_headline" maxlength="250" name="headline">
                         </div>
                         <div id="leftElements">
                           <div class="form-group">
@@ -104,7 +105,7 @@
                                   <div class="col-md-6">
                                     <div class="form-group">
                                       <label for="priority">Priority:</label>
-                                      <select name="priority_id_fk" id="priority_id_fk" class="form-control">
+                                      <select style="width:150px !important;" name="priority_id_fk" id="priority_id_fk" class="form-control">
                                         <% priorities.forEach(function(priority){ %>
                                           <option value="<%= priority.id %>"><%= priority.priority_name %></option>
                                         <% }) %>
@@ -164,7 +165,7 @@
                             <div class="form-group">
                               <label for="tag_1">Tag 1:</label>
                               <select name="tag_1" id="tag_1" class="form-control">
-                                <option selected value="0">Select...</option>
+                                <option selected value="0">None</option>
                                 <% if (tags && tags.length > 0) { %>
                                   <% tags.forEach(function(tag){ %>
                                     <option value="<%= tag.id %>"><%= tag.tag_name %></option>
@@ -179,7 +180,7 @@
                             <div class="form-group">
                               <label for="tag_2">Tag 2:</label>
                               <select name="tag_2" id="project_tag2" class="form-control">
-                                <option value="0">Select...</option>
+                                <option value="0">None</option>
                                 <% if (tags && tags.length > 0) { %>
                                   <% tags.forEach(function(tag){ %>
                                     <option value="<%= tag.id %>"><%= tag.tag_name %></option>
@@ -194,7 +195,7 @@
                             <div class="form-group">
                               <label for="tag_3">Tag 3:</label>
                               <select name="tag_3" id="tag_3" class="form-control">
-                                <option value="0">Select...</option>
+                                <option value="0">None</option>
                                 <% if (tags && tags.length > 0) { %>
                                   <% tags.forEach(function(tag){ %>
                                     <option value="<%= tag.id %>"><%= tag.tag_name %></option>
