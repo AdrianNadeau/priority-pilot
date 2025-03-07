@@ -49,19 +49,19 @@
                           <label for="dates">Start Date and End Date: <span class="required_star">*</span></label>
                           <div class="form-row">
                             <div class="col">
-                              <i class="bi bi-calendar-check"></i><input type="text" class="form-control datepicker" id="start_date" value = <%= start_date %> placeholder="Start Date">
+                              <input type="text" required class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date" value="<%= startDateTest %>">
                               <div class="invalid-feedback">
                                 Start Date is required.
                               </div>
                             </div>
                             <div class="col">
-                              <input type="text" required class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date">
+                              <input type="text" required class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date" value="<%= endDateTest %>">
                               <div class="invalid-feedback">
                                 End Date is required.   
                               </div>
                             </div>
                             <div class="col">
-                              <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date">
+                              <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date" value="<%= nextMilestoneDateTest %>">
                             </div>
                           </div>
                           <div><span class="required_star" id ="dates_required" style="display:none;">Start and End dates are required</span></span></div>

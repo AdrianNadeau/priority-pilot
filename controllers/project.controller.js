@@ -432,14 +432,15 @@ exports.findOneForEdit = async (req, res) => {
     const project_id = req.params.id;
 
     let company_id_fk;
-
+    let startDateTest = null,
+      endDateTest = null,
+      nextMilestoneDateTest = null;
     // Ensure session exists and fetch company ID
     if (!req.session || !req.session.company) {
       res.redirect("Pages/pages-500");
     }
 
     company_id_fk = req.session.company.id;
-
     // Query to fetch project details
     const query = `
      SELECT 
@@ -449,13 +450,13 @@ exports.findOneForEdit = async (req, res) => {
       proj.company_id_fk,
       proj.id,
       proj.project_name,
-	    proj.project_headline,
+        proj.project_headline,
       proj.start_date,
       proj.end_date,
-	    proj.next_milestone_date,
-	    proj.project_why,
-	    proj.project_what,
-	    proj.phase_id_fk,	
+        proj.next_milestone_date,
+        proj.project_why,
+        proj.project_what,
+        proj.phase_id_fk,	
       proj.prime_id_fk,
       proj.sponsor_id_fk,
       proj.priority_id_fk,
@@ -487,18 +488,22 @@ proj.company_id_fk = ? AND proj.id = ?`;
       if (!data || data.length === 0) {
         return res.status(404).send({ message: "Project not found" });
       }
+      //format dates for pickers
       try {
-        console.log("data.start_date:", data[0].start_date);
-        startDateTest = insertValidDate(data[0].start_date);
-        console.log("startDateTest:", startDateTest);
-        endDateTest = insertValidDate(data[0].end_date);
-        nextMilestoneDateTest = insertValidDate(data[0].next_milestone_date);
+        startDateTest = moment.utc(data[0].start_date).format("YYYY-MM-DD");
+        console.log("startDateTest", startDateTest);
+
+        endDateTest = moment.utc(data[0].end_date).format("YYYY-MM-DD");
+        console.log("endDateTest", endDateTest);
+        nextMilestoneDateTest = moment
+          .utc(data[0].next_milestone_date)
+          .format("YYYY-MM-DD");
+        console.log("nextMilestoneDateTest", nextMilestoneDateTest);
       } catch (error) {
         startDateTest = null;
         endDateTest = null;
         nextMilestoneDateTest = null;
       }
-
       // Get reasons for change for the project
       const change_reasons = await ChangeReason.findAll({
         where: {
@@ -548,9 +553,9 @@ proj.company_id_fk = ? AND proj.id = ?`;
         primes: personsData,
         change_reasons,
         tags: tagsData,
-        start_date: startDateTest,
-        end_date: endDateTest,
-        next_milestone_date: nextMilestoneDateTest,
+        startDateTest: startDateTest,
+        endDateTest: endDateTest,
+        nextMilestoneDateTest: nextMilestoneDateTest,
       });
     } catch (err) {
       console.error("Error retrieving data:", err);
@@ -1379,7 +1384,9 @@ exports.update = async (req, res) => {
     if (!req.session || !req.session.company) {
       return res.redirect("/pages-500");
     }
-    console.log("req.body:", req.body);
+    console.log("start:", req.start_date);
+    console.log("end:", req.end_date);
+    console.log("nms:", req.next_milestone_date);
     const { id } = req.params;
     const {
       project_name,
@@ -1404,8 +1411,11 @@ exports.update = async (req, res) => {
 
     // Convert dates
     const startDateTest = insertValidDate(start_date);
+    console.log("startDateTest:", startDateTest);
     const endDateTest = insertValidDate(end_date);
+    console.log("endDateTest:", endDateTest);
     const nextMilestoneDateTest = insertValidDate(next_milestone_date);
+    console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
 
     // Update the project
     const [num] = await Project.update(
