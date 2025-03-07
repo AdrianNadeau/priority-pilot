@@ -18,13 +18,12 @@ const authenticateUser = async (email, password) => {
     );
     return isMatch ? person : null;
   } catch (error) {
-    console.error("Authentication error:", error);
-    return null;
+    throw error;
   }
 };
 
 // Register and create a new user
-exports.create = async (req, res) => {
+exports.create = async (req, res, next) => {
   try {
     const {
       email,
@@ -37,30 +36,30 @@ exports.create = async (req, res) => {
     } = req.body;
     const company_id_fk = req.session.company?.id;
 
-    // Ensure company exists for this session
     const company = await Company.findByPk(company_id_fk);
-    if (!company)
-      return res.status(404).json({ message: "Company not found." });
+    if (!company) {
+      const error = new Error("Company not found.");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    if (!email || !password)
-      return res
-        .status(400)
-        .json({ message: "Email and password are required." });
+    if (!email || !password) {
+      const error = new Error("Email and password are required.");
+      error.statusCode = 400;
+      throw error;
+    }
 
     const existingPerson = await Person.findOne({ where: { email } });
-    if (existingPerson)
-      return res
-        .status(409)
-        .json({ message: "User with this email already exists." });
+    if (existingPerson) {
+      const error = new Error("User with this email already exists.");
+      error.statusCode = 409;
+      throw error;
+    }
 
-    // Determine admin status
     const isAdminStatus = isAdmin === "true" || register_yn === "y";
     console.log("isAdminStatus:", isAdminStatus);
-
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the new person
     const newPerson = await Person.create({
       email,
       first_name,
@@ -72,7 +71,6 @@ exports.create = async (req, res) => {
     });
 
     if (!req.session.person) {
-      // Update session
       req.session.company = company;
       req.session.person = newPerson;
     }
@@ -80,13 +78,12 @@ exports.create = async (req, res) => {
 
     res.redirect(register_yn === "y" ? "/" : "/persons");
   } catch (error) {
-    console.error("!!!Error creating person:", error);
-    res.status(500).json({ message: "Error creating person." });
+    next(error);
   }
 };
 
 // Get all users for the company
-exports.findAll = async (req, res) => {
+exports.findAll = async (req, res, next) => {
   try {
     const company_id_fk = req.session.company?.id;
     if (!company_id_fk) return res.redirect("/pages-500");
@@ -94,75 +91,69 @@ exports.findAll = async (req, res) => {
     const data = await Person.findAll({ where: { company_id_fk } });
     res.render("Pages/pages-persons", { persons: data });
   } catch (error) {
-    console.error("Error retrieving users:", error);
-    res.status(500).send({ message: "Error retrieving users." });
+    next(error);
   }
 };
 
 // Login user
-exports.login = async (req, res) => {
-  console.log("Logging in user...");
+exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     const person = await authenticateUser(email, password);
-    if (!person)
-      return res.status(401).json({ message: "Invalid username or password." });
+    if (!person) {
+      const error = new Error("Invalid username or password.");
+      error.statusCode = 401;
+      throw error;
+    }
 
     const company = await Company.findByPk(person.company_id_fk);
     if (!company) {
       return res.redirect("/login");
-    } else {
-      req.session.company = company;
-      req.session.person = person;
-      console.log("Redirecting to Dashboard...");
-      res.redirect("/");
     }
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).send({
-      message: err.message || "Some error occurred while logging in.",
-    });
+
+    req.session.company = company;
+    req.session.person = person;
+    console.log("Redirecting to Dashboard...");
+    res.redirect("/");
+  } catch (error) {
+    next(error);
   }
 };
 
 // Find a single person by id
-exports.findOne = async (req, res) => {
+exports.findOne = async (req, res, next) => {
   try {
     const id = req.params.id;
     const data = await Person.findByPk(id);
-    if (data) {
-      res.redirect(`/persons/edit/${id}`);
-    } else {
-      res.status(404).send({ message: `Cannot find Person with id=${id}.` });
+    if (!data) {
+      const error = new Error(`Person with id=${id} not found.`);
+      error.statusCode = 404;
+      throw error;
     }
+    res.redirect(`/persons/edit/${id}`);
   } catch (error) {
-    console.error("Error retrieving Person:", error);
-    res.status(500).send({ message: "Error retrieving Person with id=" + id });
+    next(error);
   }
 };
 
 // Get single user for editing
-exports.findOneForEdit = async (req, res) => {
+exports.findOneForEdit = async (req, res, next) => {
   try {
     const personData = await Person.findByPk(req.params.id);
-    if (personData) {
-      res.render("Pages/pages-edit-person", { personData });
-    } else {
-      res
-        .status(404)
-        .send({ message: `Cannot find Person with id=${req.params.id}.` });
+    if (!personData) {
+      const error = new Error(`Person with id=${req.params.id} not found.`);
+      error.statusCode = 404;
+      throw error;
     }
+    res.render("Pages/pages-edit-person", { personData });
   } catch (error) {
-    console.error("Error retrieving person:", error);
-    res
-      .status(500)
-      .send({ message: `Error retrieving Person with id=${req.params.id}` });
+    next(error);
   }
 };
 
 // Update user
-exports.update = async (req, res) => {
+exports.update = async (req, res, next) => {
   try {
     const { person_id, isAdmin, ...personDetails } = req.body;
     personDetails.isAdmin = isAdmin === "true";
@@ -170,43 +161,38 @@ exports.update = async (req, res) => {
     const [updated] = await Person.update(personDetails, {
       where: { id: person_id },
     });
-    if (updated) {
-      res.redirect("/persons/");
-    } else {
-      res
-        .status(404)
-        .send({ message: `Cannot update Person with id=${person_id}.` });
+    if (!updated) {
+      const error = new Error(`Cannot update Person with id=${person_id}.`);
+      error.statusCode = 404;
+      throw error;
     }
+    res.redirect("/persons/");
   } catch (error) {
-    console.error("Error updating person:", error);
-    res.status(500).send({ message: "Error updating person." });
+    next(error);
   }
 };
 
 // Delete a user
-exports.delete = async (req, res) => {
+exports.delete = async (req, res, next) => {
   try {
     const deleted = await Person.destroy({ where: { id: req.params.id } });
-    if (deleted) {
-      res.send({ message: "Person was deleted successfully!" });
-    } else {
-      res
-        .status(404)
-        .send({ message: `Cannot delete Person with id=${req.params.id}.` });
+    if (!deleted) {
+      const error = new Error(`Cannot delete Person with id=${req.params.id}.`);
+      error.statusCode = 404;
+      throw error;
     }
+    res.json({ message: "Person was deleted successfully!" });
   } catch (error) {
-    console.error("Error deleting person:", error);
-    res.status(500).send({ message: "Could not delete Person." });
+    next(error);
   }
 };
 
 // Delete all users
-exports.deleteAll = async (req, res) => {
+exports.deleteAll = async (req, res, next) => {
   try {
     const deleted = await Person.destroy({ where: {}, truncate: true });
-    res.send({ message: `${deleted} users were deleted successfully!` });
+    res.json({ message: `${deleted} users were deleted successfully!` });
   } catch (error) {
-    console.error("Error deleting all persons:", error);
-    res.status(500).send({ message: "Could not delete persons." });
+    next(error);
   }
 };

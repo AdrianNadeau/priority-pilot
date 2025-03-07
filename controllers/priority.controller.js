@@ -3,137 +3,106 @@ const Priority = db.priorities;
 const Op = db.Sequelize.Op;
 
 // Create and Save a new Priority
-exports.create = (req, res) => {
-  // Validate request
-  if (!req.body.priority_name) {
-    res.status(400).send({
-      message: "Priority Name can not be empty!",
-    });
-    return;
+exports.create = async (req, res, next) => {
+  try {
+    if (!req.body.priority_name) {
+      const error = new Error("Priority Name cannot be empty!");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const priority = {
+      priority_name: req.body.priority_name,
+      priority_description: req.body.priority_description,
+    };
+
+    const data = await Priority.create(priority);
+    res.status(201).json(data);
+  } catch (err) {
+    next(err);
   }
-
-  // Create a Priority
-  const priority = {
-    priority_name: req.body.priority_name,
-    priority_description: req.body.priority_description,
-  };
-  // console.log("+++++++++++++++++++++++++++++ priority: ",priority)
-  // Save Priority in the database
-  Priority.create(priority)
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while creating the Priority.",
-      });
-    });
 };
 
-// Retrieve all  from the database.
-exports.findAll = (req, res) => {
-  const priority_name = req.query.priority_name;
-  var condition = priority_name
-    ? { priority_name: { [Op.iLike]: `%${company_name}%` } }
-    : null;
+// Retrieve all Priorities from the database
+exports.findAll = async (req, res, next) => {
+  try {
+    const priority_name = req.query.priority_name;
+    const condition = priority_name
+      ? { priority_name: { [Op.iLike]: `%${priority_name}%` } }
+      : null;
 
-  Priority.findAll({ where: condition })
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving companies.",
-      });
-    });
+    const data = await Priority.findAll({ where: condition });
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
 };
 
-// Find a single Priority with an id
-exports.findOne = (req, res) => {
-  const id = req.params.id;
+// Find a single Priority by ID
+exports.findOne = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const data = await Priority.findByPk(id);
 
-  Priority.findByPk(id)
-    .then((data) => {
-      if (data) {
-        res.send(data);
-      } else {
-        res.status(404).send({
-          message: `Cannot find Priority with id=${id}.`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error retrieving Priority with id=" + id,
-      });
-    });
+    if (!data) {
+      const error = new Error(`Priority with id=${id} not found.`);
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
 };
 
-// Update a Priority by the id in the request
-exports.update = (req, res) => {
-  const id = req.params.id;
+// Update a Priority by ID
+exports.update = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const [updated] = await Priority.update(req.body, { where: { id } });
 
-  Priority.update(req.body, {
-    where: { id: id },
-  })
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: "Priority was updated successfully.",
-        });
-      } else {
-        res.send({
-          message: `Cannot update Priority with id=${id}. Maybe Priority was not found or req.body is empty!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error updating Priority with id=" + id,
-      });
-    });
+    if (updated === 0) {
+      const error = new Error(
+        `Cannot update Priority with id=${id}. Maybe Priority was not found or req.body is empty!`,
+      );
+      error.statusCode = 400;
+      throw error;
+    }
+
+    res.json({ message: "Priority updated successfully." });
+  } catch (err) {
+    next(err);
+  }
 };
 
-// Delete a Priority with the specified id in the request
-exports.delete = (req, res) => {
-  const id = req.params.id;
+// Delete a Priority by ID
+exports.delete = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const deleted = await Priority.destroy({ where: { id } });
 
-  Priority.destroy({
-    where: { id: id },
-  })
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: "Priority was deleted successfully!",
-        });
-      } else {
-        res.send({
-          message: `Cannot delete Priority with id=${id}. Maybe Priority was not found!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete Priority with id=" + id,
-      });
-    });
+    if (deleted === 0) {
+      const error = new Error(
+        `Cannot delete Priority with id=${id}. Maybe Priority was not found!`,
+      );
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.json({ message: "Priority deleted successfully!" });
+  } catch (err) {
+    next(err);
+  }
 };
 
-// Delete all  from the database.
-exports.deleteAll = (req, res) => {
-  Priority.destroy({
-    where: {},
-    truncate: false,
-  })
-    .then((nums) => {
-      res.send({ message: `${nums} Companies were deleted successfully!` });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while removing all companies.",
-      });
-    });
+// Delete all Priorities
+exports.deleteAll = async (req, res, next) => {
+  try {
+    const deleted = await Priority.destroy({ where: {}, truncate: false });
+
+    res.json({ message: `${deleted} Priorities were deleted successfully!` });
+  } catch (err) {
+    next(err);
+  }
 };

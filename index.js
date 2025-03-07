@@ -94,7 +94,7 @@ require("./routes/change_reason.routes.js")(app);
 require("./routes/changed_project.routes.js")(app);
 // Error handling middleware (should be the last middleware)
 // app.use(notFoundHandler);
-// app.use(errorHandler);
+app.use(errorHandler);
 http.listen(8080, function () {
   console.log("listening on *:8080");
 });
