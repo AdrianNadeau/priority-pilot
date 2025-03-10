@@ -284,6 +284,13 @@
     var forms = document.querySelectorAll('.needs-validation');
     Array.prototype.slice.call(forms).forEach(function (form) {
         form.addEventListener('submit', function (event) {
+            const phaseSelect = document.getElementById("phase_id_fk");
+            if (phaseSelect.value == "1") {
+                document.getElementById('start_date').value = null;
+                document.getElementById('end_date').value = null;
+                document.getElementById('next_milestone_date').value = null;
+            }
+
             if (!form.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -315,9 +322,7 @@
 
     // Input formatting with commas for project cost and benefit
     ['project_cost', 'benefit'].forEach(function(fieldId) {
-       
         document.getElementById(fieldId).addEventListener('input', function () {
-          
             let input = this.value.replace(/[^0-9.]/g, '');
             if (input.includes('.')) {
                 const parts = input.split('.');
@@ -326,63 +331,42 @@
             } else {
                 input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             }
-            console.log("input", input);
             this.value = input;
         });
     });
 
-    // Dynamic field display based on phase selection
-    // document.getElementById('phase_id_fk').addEventListener('change', function() {
-    //     var textarea = document.getElementById('pitch_message');
-    //     var hideElements = document.getElementById("otherPhaseFields");
-    //     var leftElements = document.getElementById("leftElements");
-    //     var effort_option = document.getElementById("effort_option");
-    //     var benefit_option = document.getElementById("benefit_option");
-    //     var impact_option = document.getElementById("impact_option");
-    //     var complexity_option = document.getElementById("complexity_option");
-    //     var tags_option = document.getElementById("tags_option");
-
-    //     if (this.value == '1') {
-    //         // textarea.style.display = 'block';
-    //         hideElements.style.display = 'none';
-    //         leftElements.style.display = 'none';
-    //         effort_option.style.display = 'block';
-    //         benefit_option.style.display = 'none';
-    //         impact_option.style.display = 'none';
-    //         complexity_option.style.display = 'none';
-    //         tags_option.style.display = 'none';
-    //     } else {
-    //         // textarea.style.display = 'none';
-    //         hideElements.style.display = 'block';
-    //         leftElements.style.display = 'block';
-    //         benefit_option.style.display = 'block';
-    //         impact_option.style.display = 'block';
-    //         complexity_option.style.display = 'block';
-    //         tags_option.style.display = 'block';
-    //     }
-    // });
-});
-function submitForm() {
-    console.log("Submit form");
-    document.getElementById('editProjectForm').submit();
-}
-function cancelForm(){
-  
-  window.location.replace("/projects");
-}
-// const startDate = {'start_date': {anyDate: true}};
-//   new DeskyCalendar(startDate);
-//   const endDate = {'end_date': {anyDate: true}};
-//   new DeskyCalendar(endDate);
-//   const milestoneDate = {'next_milestone_date': {anyDate: true}};
-//   new DeskyCalendar(milestoneDate);
-
-document.addEventListener("DOMContentLoaded", function () {
     // Initialize Flatpickr for all datepicker inputs
     flatpickr(".datepicker", {
       dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-    //   minDate: "today",    // Example: Restrict past dates
       allowInput: true     // Allow manual input if needed
     });
+
+    // Show or hide date_section based on phase selection
+    const phaseSelect = document.getElementById("phase_id_fk");
+    const dateSection = document.getElementById("date_section");
+
+    function toggleDateSection() {
+      if (phaseSelect.value == "1") {
+        // Phase is pitch, hide dates
+        dateSection.style.display = 'none';
+      } else {
+        // Phase is not pitch, show dates
+        dateSection.style.display = 'block';
+      }
+    }
+
+    // Initial check
+    toggleDateSection();
+
+    // Add event listener to phase selection change
+    phaseSelect.addEventListener("change", toggleDateSection);
   });
+
+  function submitForm() {
+    document.getElementById('editProjectForm').submit();
+  }
+
+  function cancelForm(){
+    window.location.replace("/projects");
+  }
 </script>

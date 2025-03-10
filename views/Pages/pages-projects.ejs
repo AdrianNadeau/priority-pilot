@@ -274,122 +274,119 @@
 </div>
 
 <%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
+
 <script>
-  (function () {
+  document.addEventListener("DOMContentLoaded", function() {
     'use strict';
 
-    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    // Form validation using Bootstrap's custom styles
     var forms = document.querySelectorAll('.needs-validation');
-
-    // Loop over them and prevent submission
-    Array.prototype.slice.call(forms)
-      .forEach(function (form) {
+    Array.prototype.slice.call(forms).forEach(function (form) {
         form.addEventListener('submit', function (event) {
-          if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
+            const phaseSelect = document.getElementById("phase_id_fk");
+            if (phaseSelect.value == "1") {
+                document.getElementById('start_date').value = "";
+                document.getElementById('end_date').value = "";
+                document.getElementById('next_milestone_date').value = "";
+            }
 
-          form.classList.add('was-validated');
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
         }, false);
-      });
-  })();
-
-  document.addEventListener("DOMContentLoaded", function() {
-    let startDateClicked = false;
-    let endDateClicked = false;
-
-    // Get all table rows
-    var rows = document.querySelectorAll(".table tbody tr");
-    //hide date until phase changes
-    document.getElementById('date_section').style.display = 'none';
-
-    // Loop through each row
-    rows.forEach(function(row) {
-      // Add a click event listener to each row
-      row.addEventListener("click", function() {
-        var id = row.cells[0].textContent; 
-        window.location.replace('/projects/edit/'+id)
-      });
     });
 
-    // Initialize Flatpickr on the input fields
-    const startDatePicker = flatpickr("#start_date", {
-      dateFormat: "Y-m-d",
-      onChange: function(selectedDates, dateStr, instance) {
-        // This function will be triggered when the user selects a date
-        endDatePicker.set('minDate', dateStr); // Set the minimum date for the end date picker
-        startDateClicked = true; // Set the flag to true when a date is selected
-      }
+    // Numeric input validation for specific fields
+    const numericFields = ['project_cost', 'effort', 'benefit'];
+    numericFields.forEach(function(fieldId) {
+        document.getElementById(fieldId).addEventListener('keydown', function(event) {
+            if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
+                !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
+                !(event.ctrlKey || event.metaKey)) {
+                alert("Only numbers are allowed.")
+                event.preventDefault();
+            }
+        });
     });
 
-    const endDatePicker = flatpickr("#end_date", {
+    // Table row click navigation to edit page
+    document.querySelectorAll(".table tbody tr").forEach(function(row) {
+        row.addEventListener('click', function() {
+            var id = row.cells[0].textContent;
+            window.location.replace('/projects/edit/' + id);
+        });
+    });
+
+    // Input formatting with commas for project cost and benefit
+    ['project_cost', 'benefit'].forEach(function(fieldId) {
+        document.getElementById(fieldId).addEventListener('input', function () {
+            let input = this.value.replace(/[^0-9.]/g, '');
+            if (input.includes('.')) {
+                const parts = input.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                input = parts.join('.');
+            } else {
+                input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+            this.value = input;
+        });
+    });
+
+    // Initialize Flatpickr for all datepicker inputs
+    flatpickr(".datepicker", {
       dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      minDate: 'today',    // Set the minimum selectable date to today
-      maxDate: new Date().fp_incr(365), // Set the maximum selectable date to one year from now
-      onChange: function(selectedDates, dateStr, instance) {
-        // This function will be triggered when the user selects a date
-        console.log("Selected date:", dateStr);
-        startDatePicker.set('maxDate', dateStr); // Set the maximum date for the start date picker
-        endDateClicked = true; // Set the flag to true when a date is selected
-      }
+      allowInput: true     // Allow manual input if needed
     });
 
-    flatpickr('#next_milestone_date', {
-      dateFormat: 'Y-m-d', // Format the date as YYYY-MM-DD
-      minDate: 'today',    // Set the minimum selectable date to today
-      maxDate: new Date().fp_incr(365) // Set the maximum selectable date to one year from now
-    });
+    // Show or hide date_section based on phase selection
+    const phaseSelect = document.getElementById("phase_id_fk");
+    const dateSection = document.getElementById("date_section");
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const nextMilestoneDateInput = document.getElementById('next_milestone_date');
+    const dateRequired = document.getElementById('dates_required');
 
-    // Add event listener to the form submit event
-    const form = document.querySelector('.needs-validation');
-    form.addEventListener('submit', function(event) {
-      if (!startDateClicked || !endDateClicked) {
-        event.preventDefault();
-        event.stopPropagation();
-        const dateRequired = document.getElementById('dates_required');
-        dateRequired.style.display = "block";
+    function toggleDateSection() {
+      if (phaseSelect.value == "1") {
+        // Phase is pitch, hide dates and clear validation messages
+        dateSection.style.display = 'none';
+        startDateInput.required = false;
+        endDateInput.required = false;
+        dateRequired.style.display = 'none';
+        startDateInput.value = "";
+        endDateInput.value = "";
+        nextMilestoneDateInput.value = "";
       } else {
-        const dateRequired = document.getElementById('dates_required');
-        dateRequired.style.display = "none";
+        // Phase is not pitch, show dates and set required
+        dateSection.style.display = 'block';
+        startDateInput.required = true;
+        endDateInput.required = true;
+        if (!startDateInput.value) {
+          startDateInput.placeholder = "Start Date";
+        }
+        if (!endDateInput.value) {
+          endDateInput.placeholder = "End Date";
+        }
+        if (!nextMilestoneDateInput.value) {
+          nextMilestoneDateInput.placeholder = "Milestone Date";
+        }
       }
+    }
 
-      if (!form.checkValidity()) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
+    // Initial check
+    toggleDateSection();
 
-      form.classList.add('was-validated');
-    }, false);
+    // Add event listener to phase selection change
+    phaseSelect.addEventListener("change", toggleDateSection);
   });
 
-  addProject.addEventListener('click', function(event) {
-    $("#addProject").modal({
-      backdrop: "static",
-      keyboard: false,
-    });
-  });
-  // Show or hide date_section based on phase selection
-  const phaseSelect = document.getElementById("phase_id_fk");
-    phaseSelect.addEventListener("change", function() {
-      if(phase_id_fk.value=="1"){
-        //phase is pitch hide dates
-        document.getElementById('date_section').style.display = 'none';
-      }
-      else{
-        //phase is not pitch show dates
-        document.getElementById('date_section').style.display = 'block';
-      }
-      
-    });
-    function formatNumberWithCommas(input) {
-  // Remove non-numeric characters
-  let value = input.value.replace(/\D/g, "");
+  function submitForm() {
+    document.getElementById('editProjectForm').submit();
+  }
 
-  // Format the number with commas
-  value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-  // Set the formatted value back to the input
-  input.value = value;
-}
+  function cancelForm(){
+    window.location.replace("/projects");
+  }
 </script>
