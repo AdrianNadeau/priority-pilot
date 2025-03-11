@@ -333,11 +333,12 @@
             this.value = input;
         });
     });
-
+    console.log("Initializing flatpickr");
     // Initialize Flatpickr for all datepicker inputs
     flatpickr(".datepicker", {
       dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true     // Allow manual input if needed
+      allowInput: true,     // Allow manual input if needed
+      allowInvalidPreload: true, // Allow invalid dates to be preloaded
     });
 
     // Show or hide date_section based on phase selection
@@ -364,6 +365,7 @@
         startDateInput.required = true;
         endDateInput.required = true;
         if (!startDateInput.value) {
+          // Set the placeholder
           startDateInput.placeholder = "Start Date";
         }
         if (!endDateInput.value) {

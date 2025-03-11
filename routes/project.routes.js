@@ -14,7 +14,7 @@ module.exports = (app) => {
   router.get("/cockpit/:id", sessionMiddleware, projects.cockpit);
   router.get("/funnel/view/", sessionMiddleware, projects.findFunnel);
   router.get("/radar/view/", sessionMiddleware, projects.radar);
-  router.get("/radar/progress/", projects.progress);
+  router.get("/radar/progress/", sessionMiddleware, projects.progress);
   router.get(
     "/radar/countProjectsByTag1/",
     sessionMiddleware,

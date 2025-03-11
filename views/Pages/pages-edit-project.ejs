@@ -277,6 +277,20 @@
 
 <%- contentFor('BottomJs') %>
 <script>
+  // Form validation using Bootstrap's custom styles
+  var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            
+
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+
   document.addEventListener("DOMContentLoaded", function() {
     'use strict';
 
@@ -286,9 +300,9 @@
         form.addEventListener('submit', function (event) {
             const phaseSelect = document.getElementById("phase_id_fk");
             if (phaseSelect.value == "1") {
-                document.getElementById('start_date').value = null;
-                document.getElementById('end_date').value = null;
-                document.getElementById('next_milestone_date').value = null;
+                document.getElementById('start_date').value = "";
+                document.getElementById('end_date').value = "";
+                document.getElementById('next_milestone_date').value = "";
             }
 
             if (!form.checkValidity()) {
@@ -335,23 +349,57 @@
         });
     });
 
+    console.log("Initializing flatpickr");
     // Initialize Flatpickr for all datepicker inputs
-    flatpickr(".datepicker", {
+    const startDatePicker = flatpickr("#start_date", {
       dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true     // Allow manual input if needed
+      allowInput: true,    // Allow manual input if needed
+      defaultDate: new Date(), // Set the default date to today
+    });
+
+    const endDatePicker = flatpickr("#end_date", {
+      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+      allowInput: true,    // Allow manual input if needed
+    });
+
+    const nextMilestoneDatePicker = flatpickr("#next_milestone_date", {
+      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+      allowInput: true,    // Allow manual input if needed
     });
 
     // Show or hide date_section based on phase selection
     const phaseSelect = document.getElementById("phase_id_fk");
     const dateSection = document.getElementById("date_section");
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const nextMilestoneDateInput = document.getElementById('next_milestone_date');
+    const dateRequired = document.getElementById('dates_required');
 
     function toggleDateSection() {
       if (phaseSelect.value == "1") {
-        // Phase is pitch, hide dates
+        // Phase is pitch, hide dates and clear validation messages
         dateSection.style.display = 'none';
+        startDateInput.required = false;
+        endDateInput.required = false;
+        dateRequired.style.display = 'none';
+        startDateInput.value = "";
+        endDateInput.value = "";
+        nextMilestoneDateInput.value = "";
       } else {
-        // Phase is not pitch, show dates
+        // Phase is not pitch, show dates and set required
         dateSection.style.display = 'block';
+        startDateInput.required = true;
+        endDateInput.required = true;
+        if (!startDateInput.value) {
+          // Set the placeholder
+          startDateInput.placeholder = "Start Date";
+        }
+        if (!endDateInput.value) {
+          endDateInput.placeholder = "End Date";
+        }
+        if (!nextMilestoneDateInput.value) {
+          nextMilestoneDateInput.placeholder = "Milestone Date";
+        }
       }
     }
 
@@ -360,6 +408,17 @@
 
     // Add event listener to phase selection change
     phaseSelect.addEventListener("change", toggleDateSection);
+
+    // Set the date to default for datepicker start_date then change to date if it exists
+    if (startDateInput.value) {
+      startDatePicker.setDate(startDateInput.value);
+    }
+    if (endDateInput.value) {
+      endDatePicker.setDate(endDateInput.value);
+    }
+    if (nextMilestoneDateInput.value) {
+      nextMilestoneDatePicker.setDate(nextMilestoneDateInput.value);
+    }
   });
 
   function submitForm() {

@@ -1557,8 +1557,9 @@ exports.deleteAll = (req, res) => {
 };
 // Helper function to insert valid date
 function insertValidDate(date) {
-  return date ? moment.tz(date, "YYYY-MM-DD", "UTC") : null;
+  return date ? moment(date, "YYYY-MM-DD").toDate() : null;
 }
+
 function formatNumberWithCommas(input) {
   if (input && typeof input.value === "string") {
     // Remove non-numeric characters
@@ -1573,6 +1574,7 @@ function formatNumberWithCommas(input) {
     console.error("Invalid input or input value:", input);
   }
 }
+
 function removeCommasAndConvertToNumber(value) {
   if (typeof value === "string") {
     value = value.toString();
@@ -1580,6 +1582,7 @@ function removeCommasAndConvertToNumber(value) {
   }
   return value;
 }
+
 const formatCost = (cost) => {
   if (cost === null || cost === undefined) return "0";
   if (cost >= 1_000_000_000) return `${(cost / 1_000_000_000).toFixed(1)}B`;
