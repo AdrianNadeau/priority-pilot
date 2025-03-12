@@ -18,7 +18,6 @@ const pgSession = require("connect-pg-simple")(session);
 
 // Create and Save a new Project
 exports.create = (req, res) => {
-  console.log("CREATE PROJECT");
   try {
     if (!req.session) {
       res.redirect("/pages-500");
@@ -81,8 +80,6 @@ exports.create = (req, res) => {
     tag_3: req.body.tag_3,
   };
 
-  console.log("project:", project);
-
   // Save Project in the database
   Project.create(project).then(async (createdProject) => {
     const phasesData = await Phase.findAll({
@@ -94,7 +91,7 @@ exports.create = (req, res) => {
     console.log("initial create");
 
     const newChangedProject = {
-      company_id_fk: company_id_fk,
+      company_id_fk,
       project_id_fk: createdProject.id,
       project_name: req.body.project_name,
       project_headline: req.body.headline,
@@ -521,7 +518,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
       let lastStartDate = null;
       // Get statuses for the project
       const statuses = await Status.findAll({
-        where: { project_id_fk: project_id },
+        where: { project_id_fk: project_id, status_date: { [Op.ne]: null } },
         order: [["status_date", "DESC"]],
       });
       if (statuses.length > 0) {
