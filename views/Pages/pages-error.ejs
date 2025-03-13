@@ -1,23 +1,13 @@
-<%- contentFor('HeaderCss') %> <%- contentFor('breadcrumb') %>
-<ul class="list-inline menu-left mb-0">
-  <li class="list-inline-item">
-    <button type="button" class="button-menu-mobile open-left waves-effect">
-      <i class="ion-navicon"></i>
-    </button>
-  </li>
-  <li class="hide-phone list-inline-item app-search">
-    <h3 class="page-title">Error Occured</h3>
-  </li>
-</ul>
-<%- contentFor('body') %>
+<%- contentFor('HeaderCss') %> <%- contentFor('breadcrumb') %> <%-
+contentFor('body') %>
 
 <div id="notfound">
   <div class="notfound">
     <div class="notfound-404">
       <h1><%= statusCode %></h1>
     </div>
-    <h2>Oops! There was an error loading your page:</h2>
-    <p><%= message %></p>
+    <h2>Oops! There was an error loading your page</h2>
+    <p><%= errorMessage %></p>
     <a href="/">Go To Homepage</a>
   </div>
 </div>
