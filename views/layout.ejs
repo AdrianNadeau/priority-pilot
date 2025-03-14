@@ -48,7 +48,9 @@
     </div>
 
     <div id="wrapper">
+      <% if (typeof errorMessage === 'undefined' && typeof statusCode === 'undefined') { %>
       <% include ./Partials/Header %>
+      <% } %>
       <div class="content-page">
         <div class="content"><% include ./Partials/Sidebar %> <%- body %></div>
         <% include ./Partials/Footer %>
