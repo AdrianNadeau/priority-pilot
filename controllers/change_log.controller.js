@@ -7,7 +7,6 @@ exports.create = (req, res) => {
   // create a snapshot of current values before and submit to change_log table
 
   const project_id = req.body.project_id;
-  console.log("project_id:", project_id);
   const company_id_fk = req.session.company.id;
 
   const change_log = {
