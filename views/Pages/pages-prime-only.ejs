@@ -35,7 +35,12 @@
   .form-group-inline select {
     margin-right: 10px;
   }
+  /* Add hover pointer for status date */
+  .datepicker {
+    cursor: pointer;
+  }
 </style>
+
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
     <li class="list-inline-item">
@@ -58,7 +63,6 @@
                         <table class="table mb-0">
                             <thead>
                                 <tr>
-                                  
                                     <th>Name</th>
                                     <th>Prime</th>
                                     <th>Sponsor</th>
@@ -72,8 +76,6 @@
                             <tbody>
                                 <% projects.forEach(function (project) { %>
                                 <tr>
-                                    
-                                    
                                     <td><%= project.project_name %></td>
                                     <td><%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %></td>
                                     <td><%= project.sponsor_last_name ? `${project.sponsor_last_name}, ${project.sponsor_first_name}` : "N/A" %></td>
@@ -82,15 +84,13 @@
                                     <td><%= project.phase_name %></td>
                                     <td><%= project.project_cost %></td>
                                     <% if (project.prime_id_fk === person.id) { %>
-                                    <td >
+                                    <td>
                                         <i data-toggle="modal" data-target="#myModal_<%= project.id %>" class="mdi mdi-note-plus"></i> <i data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal" class="mdi mdi-eye"></i>
                                     </td>
                                     <% } else { %>
-                                    
                                     <a href="#"><td data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
-                                        <i style="cursor: pointer;"class="mdi mdi-eye"></i>
-                                    </td>
-                                  </a>
+                                        <i style="cursor: pointer;" class="mdi mdi-eye"></i>
+                                    </td></a>
                                     <% } %>
                                 </tr>
 
@@ -98,7 +98,7 @@
                                 <div id="myModal_<%= project.id %>" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
-                                            <form action="/statuses" class="needs-validation" id="addStatusForm" novalidate method="POST">
+                                            <form action="/statuses" class="needs-validation" novalidate id="addStatusForm" method="POST">
                                                 <input type="hidden" name="prime_only" value="y">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title mt-0" id="myModalLabel">Add Status</h5>
@@ -117,27 +117,47 @@
                                                             </div>
                                                             <div class="form-group">
                                                                 <strong>Accomplishments:</strong>
-                                                                <textarea class="form-control" name="status_accomplishments" rows="3"></textarea>
-                                                            </div>
+                                                                <textarea class="form-control" name="status_accomplishments" required rows="3"></textarea>
+                                                                <div class="invalid-feedback">
+                                                                  Please enter Accomplishments.
+                                                                </div>
+                                                              </div>
                                                             <div class="form-group">
                                                                 <strong>Issues:</strong>
-                                                                <textarea class="form-control" name="issue" rows="3"></textarea>
+                                                                <textarea class="form-control" name="issue" rows="3" required ></textarea>
+                                                                <div class="invalid-feedback">
+                                                                  Please enter Issues.
+                                                                </div>
                                                             </div>
                                                             <div class="form-group">
                                                                 <strong>Actions:</strong>
-                                                                <textarea class="form-control" name="actions" rows="3"></textarea>
+                                                                <textarea class="form-control" name="actions" rows="3" required ></textarea>
+                                                                <div class="invalid-feedback">
+                                                                  Please enter Actions.
+                                                                </div>
+                                                            </div>
+                                                              <!-- Add the dropdown for progress -->
+                                                            <div class="form-group needs-validation" novalidate>
+                                                              <strong>Progress:</strong>
+                                                              <select style="width:100px !important;" class="form-control" id="progress" name="progress" required>
+                                                                <% for (let i = 1; i <= 100; i++) { %>
+                                                                  <option value="<%= i %>"><%= i %></option>
+                                                                <% } %>
+                                                              </select>
+                                                              <div class="invalid-feedback">
+                                                                Please select a progress value.
+                                                              </div>
                                                             </div>
                                                             <div class="form-group">
-                                                                <strong>Progress:</strong>
-                                                                <input type="text" class="form-control" name="progress">
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <strong>Health:</strong>
-                                                                <select class="form-control" name="health">
-                                                                    <option value="Green">Green</option>
-                                                                    <option value="Yellow">Yellow</option>
-                                                                    <option value="Red">Red</option>
-                                                                </select>
+                                                              <strong>Health:</strong>
+                                                              <select style="width:100px !important;" class="form-control" id="health" required name="health">
+                                                                <option value="green">Green</option>
+                                                                <option value="yellow">Yellow</option>
+                                                                <option value="red">Red</option>
+                                                              </select>
+                                                              <div class="invalid-feedback">
+                                                                Please select a health status.
+                                                              </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -218,8 +238,33 @@
         </div>
     </div>
 </div>
-
 <script>
+document.addEventListener("DOMContentLoaded", function() {
+  'use strict';
+  flatpickr(".datepicker", {
+      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+      allowInput: true,     // Allow manual input if needed
+      allowInvalidPreload: true, // Allow invalid dates to be preloaded
+    });
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  var forms = document.querySelectorAll(".needs-validation");
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms).forEach(function (form) {
+    form.addEventListener(
+      "submit",
+      function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+
+        form.classList.add("was-validated");
+      },
+      false,
+    );
+  });
+});
     function getStatusUpdates(project_id_fk){
       var modalBody = document.getElementById("statusUpdates");
       // Clear previous content
@@ -284,16 +329,16 @@
     .catch(err => console.error(err));
   }
   document.addEventListener("DOMContentLoaded", function() {
-
+    flatpickr(".datepicker", {
+      
+    });
       const statusDatePicker = flatpickr("#status_date", {
-        dateFormat: "Y-m-d",
-        onChange: function(selectedDates, dateStr, instance) {
-          // This function will be triggered when the user selects a date
-          endDatePicker.set('minDate', dateStr); // Set the minimum date for the end date picker
-          startDateClicked = true; // Set the flag to true when a date is selected
-        }
+        dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+        allowInput: true,     // Allow manual input if needed
+        allowInvalidPreload: true, // Allow invalid dates to be preloaded
       });
   });
+  
 </script>
 
 <%- contentFor('FooterJs') %>

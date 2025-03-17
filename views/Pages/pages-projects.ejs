@@ -1,17 +1,5 @@
 <%- contentFor('HeaderCss') %>
-<style>
-  .form-group-inline {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  .form-group-inline label {
-    margin-right: 10px;
-  }
-  .form-group-inline select {
-    margin-right: 10px;
-  }
-</style>
+
 
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
@@ -279,23 +267,23 @@
   document.addEventListener("DOMContentLoaded", function() {
     'use strict';
 
-    // Form validation using Bootstrap's custom styles
-    var forms = document.querySelectorAll('.needs-validation');
-    Array.prototype.slice.call(forms).forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-            const phaseSelect = document.getElementById("phase_id_fk");
-            if (phaseSelect.value == "1") {
-                document.getElementById('start_date').value = "";
-                document.getElementById('end_date').value = "";
-                document.getElementById('next_milestone_date').value = "";
-            }
+   // Fetch all the forms we want to apply custom Bootstrap validation styles to
+   var forms = document.querySelectorAll(".needs-validation");
 
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        }, false);
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach(function (form) {
+      form.addEventListener(
+        "submit",
+        function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+
+          form.classList.add("was-validated");
+        },
+        false,
+      );
     });
 
     // Numeric input validation for specific fields

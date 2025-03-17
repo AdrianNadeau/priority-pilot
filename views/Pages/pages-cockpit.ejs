@@ -4,9 +4,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
 
 <style>
-  canvas {
-    background-color: white;
-  }
+ 
   .green-circle, .yellow-circle, .red-circle {
     display: inline-block;
     width: 10px !important;
@@ -213,16 +211,6 @@
           </div>
           
          
-            
-          </div>
-        </div>
-         <div class="row">
-            <div class="col-md-12">
-             
-              <br/>
-              
-           
-          </div>
         </div>
       </div>
     </div>
@@ -252,8 +240,10 @@
                                 <!-- First column of form fields -->
                                 <div class="form-group needs-validation" novalidate>
                                   <strong>Status Date: </strong>
-                                  <input type="text" class="form-control datepicker" id="status_date" name="status_date" placeholder="Status Date">
-                                  
+                                  <input type="text" style="width:150px;" required class="form-control datepicker" required id="status_date" name="status_date" placeholder="Status Date">
+                                  <div class="invalid-feedback">
+                                    Please Status Date.
+                                  </div>
                                  
                                   
                                   <strong>Prime:</strong><% if(project[0].prime_last_name) %>
@@ -262,29 +252,44 @@
                                 
                               </div>
                                 
-                                <div class="form-group needs-validation" novalidate>
+                                <div class="form-group needs-validation" required  novalidate>
                                   <strong>Accomplishments:</strong><br/>
-                                  <textarea class="form-control" id="status_accomplishments" name="status_accomplishments" rows="3"></textarea>
-                                
+                                  <textarea class="form-control" id="status_accomplishments" required name="status_accomplishments" rows="3"></textarea>
+                                  <div class="invalid-feedback">
+                                    Please enter Accomplishments.
+                                  </div>
                               </div>
                               <div class="form-group needs-validation" novalidate>
                                 <strong>Issues:</strong><br/>
-                                <textarea class="form-control" id="issue" name="issue" rows="3"></textarea>
-                              
+                                <textarea class="form-control" id="issues" required name="issues" rows="3"></textarea>
+                                <div class="invalid-feedback">
+                                  Please enter Issues.
+                                </div>
                               </div>
-                              <div class="form-group needs-validation" novalidate>
+                              <div class="form-group needs-validation"  novalidate>
                                 <strong>Actions:</strong><br/>
-                                <textarea class="form-control" id="action" name="actions" rows="3"></textarea>
-                              
+                                <textarea class="form-control" id="actions" name="actions" rows="3" required></textarea>
+                                <div class="invalid-feedback">
+                                  Please enter Actions.
+                                </div>
                             </div>
-                            <div class="form-group needs-validation" novalidate>
+                            </div>
+                           <!-- Add the dropdown for progress -->
+                            <div class="form-group needs-validation" style="margin-left:10px;" novalidate>
                               <strong>Progress:</strong>
-                              <input type="text" class="form-control" id="progress"  name="progress" >
-                            
-                          </div>
-                          <div class="form-group needs-validation" novalidate>
+                              <select style="width:100px !important;" class="form-control" id="progress" name="progress">
+                                <% for (let i = 1; i <= 100; i++) { %>
+                                  <option value="<%= i %>"><%= i %></option>
+                                <% } %>
+                              </select>
+                              <div class="invalid-feedback">
+                                Please select a progress value.
+                              </div>
+                            </div>
+                          <div class="form-group needs-validation" style="margin-left:10px;"  novalidate>
                             <strong>Health:</strong>
-                            <select name = "health" id = "health">
+                            <select style="width:100px !important;" class="form-control" id="health" name="health">
+                            
                                 <option value="Green">Green</option>
                                 <option value="Yellow">Yellow</option>
                                 <option value="Red">Red</option>
@@ -298,7 +303,8 @@
                        <!-- Add more rows and columns if needed -->
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
-                            <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                            <button type="button" class="btn btn-primary waves-effect" id="submitStatusButton">Submit</button>
+                            
                         </div>
                     </form>
                 </div>
@@ -348,7 +354,7 @@
         </div>
         <div class="modal-body">
           <!-- Modal content goes here -->
-          <strong>Date: </strong><span id="view_status_date"></span><br/>
+          <strong>Date: </strong><span id="view_status_date" style="width:100px"></span><br/>
           
             <% if(project[0].status_date) %>
             <%=project[0].status_date %> <%=project[0].status_date %>
@@ -383,8 +389,83 @@
     </div>
   </div>
 </div><!-- /.modal -->
-<script> 
 
+</div>
+ 
+
+<!-- Add the missing input elements -->
+<input type="text" id="view_status_accomplishments" class="form-control no-border" style="background-color:#f5f5f5;height:0px;" disabled>
+<input type="text" id="view_status_issue" class="form-control no-border" style="background-color:#f5f5f5;height:0px;" disabled>
+<input type="text" id="view_status_action" class="form-control no-border" style="background-color:#f5f5f5;height:0px;"  disabled>
+<input type="text" id="view_status_date" class="form-control no-border" style="background-color:#f5f5f5;height:0px;"  disabled>
+
+<%- contentFor('FooterJs') %>
+<script src="/public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
+<script src="/public/assets/plugins/d3/d3.min.js"></script>
+<script src="/public/assets/plugins/c3/c3.min.js"></script>
+<script src="/public/assets/plugins/jquery-knob/excanvas.js"></script>
+<script src="/public/assets/plugins/jquery-knob/jquery.knob.js"></script>
+<script> 
+  document.addEventListener("DOMContentLoaded", function() {
+    flatpickr("#status_date", {
+      dateFormat: "Y-m-d",
+      defaultDate: new Date(), // Set the default date to today
+      onChange: function(selectedDates, dateStr, instance) {
+        console.log("Status Date:", dateStr);
+      }
+    });
+
+    const submitButton = document.getElementById('submitStatusButton');
+    if (!submitButton) {
+      console.error("Submit button not found!");
+      return;
+    }
+
+    console.log("Submit Button:", submitButton);
+
+    submitButton.onclick = function() {
+      console.log("Submit Button Clicked");
+      let isValid = true;
+      // Get the form
+      const form = document.querySelector('#addStatus form');
+    
+      const statusDate = form.querySelector('#status_date');
+      console.log("Status Date:", statusDate.value);
+      const statusAccomplishments = form.querySelector('#status_accomplishments');
+      console.log("statusAccomplishments:", statusAccomplishments.value);
+      const statusActions = form.querySelector('#actions');
+      console.log("statusActions:", statusActions.value);
+      const statusIssue = form.querySelector('#issues');
+      console.log("statusIssue:", statusIssue.value);
+    
+      if (!statusDate.value) {
+        // alert("Please select a date");
+        isValid = false;
+        // return false;
+      }
+      if (!statusAccomplishments.value) {
+        isValid = false;
+      }
+      if (!statusActions.value) {
+        isValid = false;
+      }
+      if (!statusIssue.value) {
+        isValid = false;
+      }
+      console.lo
+      // Form validation
+      if (isValid) {
+        
+          form.submit();
+      
+      } else {
+        form.classList.add('was-validated');
+      }
+     
+      
+    };
+    
+  });
   function getStatus(id) {
     console.log("get status for id: ", id);
     fetch(`/statuses/${id}`)
@@ -429,36 +510,7 @@
     })
     .catch(err => console.error(err));
   }
-  const statusDate = {'status_date': {anyDate: true}};
 </script>
-</div>
- 
-
-</div>
-<%- contentFor('FooterJs') %>
-<script src="/public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
-<script src="/public/assets/plugins/d3/d3.min.js"></script>
-<script src="/public/assets/plugins/c3/c3.min.js"></script>
-<script src="/public/assets/plugins/jquery-knob/excanvas.js"></script>
-<script src="/public/assets/plugins/jquery-knob/jquery.knob.js"></script>
-<script src="/public/assets/pages/dashboard.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-flatpickr("#status_date", {
-            dateFormat: "Y-m-d",
-            defaultDate: new Date(), // Set the default date to today
-            onChange: function(selectedDates, dateStr, instance) {
-              // This function will be triggered when the user selects a date
-              console.log("Status Status Date:", dateStr);
-            }
-          });
-        });
-</script>
-<!-- Add the missing input elements -->
-<input type="text" id="view_status_accomplishments" class="form-control no-border" style="background-color:#f5f5f5;height:0px;" disabled>
-<input type="text" id="view_status_issue" class="form-control no-border" style="background-color:#f5f5f5;height:0px;" disabled>
-<input type="text" id="view_status_action" class="form-control no-border" style="background-color:#f5f5f5;height:0px;"  disabled>
-<input type="text" id="view_status_date" class="form-control no-border" style="background-color:#f5f5f5;height:0px;"  disabled>
 
 
 <%- contentFor('BottomJs') %>

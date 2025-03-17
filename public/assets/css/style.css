@@ -4954,10 +4954,24 @@ Invoice
   background-color: green; /* Color of the circle */
   border-radius: 50%; /* Makes the div a circle */
 }
-/* .mission-phase-button{
-  min-height:50px; width: 100%; border-width: 2px; margin-bottom: 5px; border-radius: 10px;
-  
-} */
+canvas {
+  background-color: white;
+}
 .required_star {
   color: red;
+}
+.form-group-inline {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.form-group-inline label {
+  margin-right: 10px;
+}
+.form-group-inline select {
+  margin-right: 10px;
+}
+/* Add hover pointer for date fields */
+.datepicker {
+  cursor: pointer;
 }

@@ -17,6 +17,7 @@
 </ul>
 
 <%- contentFor('body') %>
+
 <div class="page-content-wrapper">
   <div class="container-fluid">
       <div class="row">
@@ -26,6 +27,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
+                          
                             <label for="project_name">Project Name:</label>
                             <input type="text" class="form-control" id="project_name" name="project_name" maxlength="25" value="<%= project.project_name %>" required>
                             <div class="invalid-feedback">
@@ -350,11 +352,11 @@
     });
 
     console.log("Initializing flatpickr");
+    
     // Initialize Flatpickr for all datepicker inputs
     const startDatePicker = flatpickr("#start_date", {
       dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
       allowInput: true,    // Allow manual input if needed
-      defaultDate: new Date(), // Set the default date to today
     });
 
     const endDatePicker = flatpickr("#end_date", {
