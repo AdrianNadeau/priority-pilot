@@ -4519,6 +4519,7 @@ Invoice
 }
 
 .wrapper-page .logo-admin {
+  width: 18em !important;
   font-size: 28px;
   line-height: 70px;
 }

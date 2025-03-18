@@ -37,7 +37,6 @@ Authrouter.get("/help", function (req, res) {
     return res.redirect("/pages-500");
   } else {
     sessionValid = true;
-    console.log("SESSION IS VALID SHOW ROADMAP");
   }
 
   const company_id_fk = req.session.company.id;
@@ -78,6 +77,17 @@ Authrouter.get("/session-expired", function (req, res) {
   res.render("Pages/pages-session-expired");
 });
 
+Authrouter.get("/recover-password", function (req, res) {
+  res.render("Pages/pages-recoverpw");
+});
+
+Authrouter.post("/recover-password", function (req, res) {
+  //create unique token to send user if email exists
+  const email = req.body.email;
+  console.log("email", email);
+  persons.findOne(email, res);
+});
+
 // Authrouter.get('/test', function(req, res)
 // {
 //       res.render('Pages/test');
@@ -98,10 +108,7 @@ Authrouter.get("/session-expired", function (req, res) {
 // {
 //       res.render('Pages/pages-maintenance');
 // });
-// Authrouter.get('/pages-recoverpw', function(req, res)
-// {
-//       res.render('Pages/pages-recoverpw');
-// });
+
 // Authrouter.get('/pages-recoverpw-2', function(req, res)
 // {
 //       res.render('Pages/pages-recoverpw-2');
