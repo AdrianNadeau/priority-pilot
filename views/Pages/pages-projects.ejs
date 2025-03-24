@@ -242,6 +242,13 @@
                                 <% } %>
                               </select>
                             </div>
+                            <div class="form-group">
+                              <label for="reference">Reference:</label>
+                              <input type="text" class="form-control" id="reference" name="reference">
+                              <div class="invalid-feedback">
+                                Please enter project name.
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -338,7 +345,7 @@
     const dateRequired = document.getElementById('dates_required');
 
     function toggleDateSection() {
-      if (phaseSelect.value == "1") {
+      if (phaseSelect.value == "1" || phaseSelect.value == "6") {
         // Phase is pitch, hide dates and clear validation messages
         dateSection.style.display = 'none';
         startDateInput.required = false;

@@ -49,7 +49,7 @@ router.get("/", isAdminMiddleware, async (req, res) => {
   }
 
   const query = `
-    SELECT 
+   SELECT 
       proj.company_id_fk, 
       proj.id, 
       proj.project_name, 
@@ -64,6 +64,7 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       proj.project_cost, 
       phases.phase_name,
       companies.portfolio_budget AS company_budget,
+      companies.company_headline AS portfolio_name,
       companies.effort AS company_effort
     FROM 
       projects proj
@@ -99,6 +100,7 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       discovery: { count: 0, cost: 0, ph: 0 },
       delivery: { count: 0, cost: 0, ph: 0 },
       done: { count: 0, cost: 0, ph: 0 },
+      archive: { count: 0, cost: 0, ph: 0 },
     };
 
     // Retrieve portfolio_budget and portfolio_effort from the first record
@@ -189,12 +191,14 @@ router.get("/", isAdminMiddleware, async (req, res) => {
     };
     // console.log("formatted Data", formattedData);
     // Render dashboard with all calculated values
+    const portfolioName = req.session.company.company_headline;
     res.render("Dashboard/dashboard1", {
       company_id: company_id_fk,
       projects: data,
       ...formattedData,
       availableCostColor,
       availablePHColor,
+      portfolioName,
     });
   } catch (error) {
     console.error("Error executing query:", error);

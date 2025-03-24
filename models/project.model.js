@@ -94,6 +94,9 @@ module.exports = (sequelize, Sequelize) => {
       tag_3: {
         type: Sequelize.INTEGER,
       },
+      reference: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

@@ -4,6 +4,9 @@ module.exports = (app) => {
 
   var router = require("express").Router();
 
+  // Route to send welcome email
+  router.get("/send-welcome-email", persons.sendWelcomeEmail);
+
   // Create a new Person
   router.post("/", persons.create);
 

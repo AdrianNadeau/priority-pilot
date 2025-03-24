@@ -147,7 +147,15 @@
               }
             %>
             <strong>Tags:</strong> 
-            <%= tags.join(', ') %>
+            <% if (tags) { %>
+            <%= tags.join(', ') %><br/>
+              <% if (project[0].reference) { %>
+                <strong>Reference:</strong> 
+                <%= project[0].reference %>
+              <% } %>
+            <% } %>
+            
+
             </div>
            
           </div>

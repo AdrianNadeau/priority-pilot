@@ -3,6 +3,7 @@ const db = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../routes/JWTRouter");
+const sendEmail = require("../utils/emailSender");
 
 const { persons: Person, companies: Company } = db;
 
@@ -84,11 +85,18 @@ exports.create = async (req, res, next) => {
 
 // Get all users for the company
 exports.findAll = async (req, res, next) => {
+  console.log("find all");
   try {
     const company_id_fk = req.session.company?.id;
     if (!company_id_fk) return res.redirect("/pages-500");
 
-    const data = await Person.findAll({ where: { company_id_fk } });
+    const data = await Person.findAll({
+      where: { company_id_fk },
+      order: [
+        ["last_name", "ASC"],
+        ["first_name", "ASC"],
+      ],
+    });
     res.render("Pages/pages-persons", { persons: data });
   } catch (error) {
     next(error);
@@ -194,5 +202,38 @@ exports.deleteAll = async (req, res, next) => {
     res.json({ message: `${deleted} users were deleted successfully!` });
   } catch (error) {
     next(error);
+  }
+};
+exports.sendWelcomeEmail = async (req, res) => {
+  console.log(".....Sending WelcomeEmail....");
+  const pesronFirstName = req.session.person?.first_name;
+  const personEmail = req.session.person?.email;
+
+  console.log("person:", pesronFirstName);
+  console.log("personEmail:", personEmail);
+
+  // const email = "adrian@prioritypilot.ca";
+  try {
+    await sendEmail(email, "Welcome to Priority Pilot!", "welcome", {
+      first_name: pesronFirstName,
+    });
+    res.status(200).send("Welcome email sent successfully");
+  } catch (error) {
+    console.error("Error sending welcome email:", error);
+    res.status(500).send("Error sending welcome email");
+  }
+};
+
+exports.sendResetPasswordEmail = async (req, res) => {
+  const { email, resetLink } = req.body;
+
+  try {
+    await sendEmail(email, "Reset Your Password", "resetPassword", {
+      resetLink,
+    });
+    res.status(200).send("Reset password email sent successfully");
+  } catch (error) {
+    console.error("Error sending reset password email:", error);
+    res.status(500).send("Error sending reset password email");
   }
 };

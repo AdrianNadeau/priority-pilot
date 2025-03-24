@@ -39,6 +39,43 @@
   .datepicker {
     cursor: pointer;
   }
+
+  /* Responsive design for mobile */
+  @media (max-width: 768px) {
+    .table-responsive {
+      overflow-x: auto;
+    }
+    .table th, .table td {
+      white-space: nowrap;
+    }
+    .mdi-eye, .mdi-note-plus {
+      font-size: 1.5em;
+    }
+    .table th, .table td {
+      display: block;
+      width: 100%;
+    }
+    .table thead {
+      display: none;
+    }
+    .table tbody tr {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 5px; /* Reduced margin */
+      border: 1px solid #ddd;
+      padding: 5px; /* Reduced padding */
+    }
+    .table tbody tr td {
+      border: none;
+      padding: 2px 0; /* Reduced padding */
+    }
+    .table tbody tr td:before {
+      content: attr(data-label);
+      font-weight: bold;
+      display: inline-block;
+      width: 100px;
+    }
+  }
 </style>
 
 <%- contentFor('breadcrumb') %>
@@ -76,21 +113,23 @@
                             <tbody>
                                 <% projects.forEach(function (project) { %>
                                 <tr>
-                                    <td><%= project.project_name %></td>
-                                    <td><%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %></td>
-                                    <td><%= project.sponsor_last_name ? `${project.sponsor_last_name}, ${project.sponsor_first_name}` : "N/A" %></td>
-                                    <td><%= project.start_date ? project.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
-                                    <td><%= project.end_date ? project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
-                                    <td><%= project.phase_name %></td>
-                                    <td><%= project.project_cost %></td>
+                                    <td data-label="Name"><%= project.project_name %></td>
+                                    <td data-label="Prime"><%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %></td>
+                                    <td data-label="Sponsor"><%= project.sponsor_last_name ? `${project.sponsor_last_name}, ${project.sponsor_first_name}` : "N/A" %></td>
+                                    <td data-label="Start"><%= project.start_date ? project.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
+                                    <td data-label="End"><%= project.end_date ? project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
+                                    <td data-label="Phase"><%= project.phase_name %></td>
+                                    <td data-label="Cost"><%= project.project_cost %></td>
                                     <% if (project.prime_id_fk === person.id) { %>
-                                    <td>
+                                    <td data-label="Status">
                                         <i data-toggle="modal" data-target="#myModal_<%= project.id %>" class="mdi mdi-note-plus"></i> <i data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal" class="mdi mdi-eye"></i>
                                     </td>
                                     <% } else { %>
-                                    <a href="#"><td data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
-                                        <i style="cursor: pointer;" class="mdi mdi-eye"></i>
-                                    </td></a>
+                                    <td data-label="Status">
+                                        <a href="#" data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
+                                            <i style="cursor: pointer;" class="mdi mdi-eye"></i>
+                                        </a>
+                                    </td>
                                     <% } %>
                                 </tr>
 

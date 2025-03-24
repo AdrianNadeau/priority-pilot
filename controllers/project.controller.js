@@ -15,6 +15,7 @@ const moment = require("moment");
 const pg = require("pg");
 const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
+const sendEmail = require("../utils/emailSender");
 
 // Create and Save a new Project
 exports.create = (req, res) => {
@@ -78,6 +79,7 @@ exports.create = (req, res) => {
     tag_1: req.body.tag_1,
     tag_2: req.body.tag_2,
     tag_3: req.body.tag_3,
+    reference: req.body.reference,
   };
 
   // Save Project in the database
@@ -464,7 +466,8 @@ exports.findOneForEdit = async (req, res) => {
       proj.project_cost,
       proj.tag_1,
       proj.tag_2,
-      proj.tag_3
+      proj.tag_3,
+      proj.reference
       FROM 
       projects proj
 LEFT JOIN 
@@ -539,10 +542,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
           company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
         },
       });
-      console.log(
-        "******************************************************** startDateTest:",
-        startDateTest,
-      );
+
       res.render("Pages/pages-edit-project", {
         project: data[0], // Pass the first element of the data array
         current_date: currentDate,
@@ -1384,9 +1384,6 @@ exports.update = async (req, res) => {
     if (!req.session || !req.session.company) {
       return res.redirect("/pages-500");
     }
-    console.log("start:", req.start_date);
-    console.log("end:", req.end_date);
-    console.log("nms:", req.next_milestone_date);
     const { id } = req.params;
     const {
       project_name,
@@ -1407,6 +1404,7 @@ exports.update = async (req, res) => {
       tag_1,
       tag_2,
       tag_3,
+      reference,
     } = req.body;
 
     // Convert dates
@@ -1416,7 +1414,7 @@ exports.update = async (req, res) => {
     console.log("endDateTest:", endDateTest);
     const nextMilestoneDateTest = insertValidDate(next_milestone_date);
     console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
-
+    console.log("reference:", reference);
     // Update the project
     const [num] = await Project.update(
       {
@@ -1436,6 +1434,7 @@ exports.update = async (req, res) => {
         tag_1,
         tag_2,
         tag_3,
+        reference,
       },
       {
         where: { id },
@@ -1555,6 +1554,27 @@ exports.deleteAll = (req, res) => {
       });
     });
 };
+exports.archvive = (req, res) => {
+  const id = req.params.id;
+  console.log("archvive id:", id);
+  Project.update({
+    where: { id: id },
+  })
+    .then((num) => {
+      if (num == 1) {
+      } else {
+        res.send({
+          message: `Cannot delete Project with id=${id}. Maybe Project was not found!`,
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Could not delete Project with id=" + id,
+      });
+    });
+};
+
 // Helper function to insert valid date
 function insertValidDate(date) {
   return date ? moment(date, "YYYY-MM-DD").toDate() : null;

@@ -9,6 +9,8 @@ module.exports = (app) => {
   router.get("/:id", sessionMiddleware, projects.findOne);
   router.post("/:id", sessionMiddleware, projects.update);
   router.delete("/:id", sessionMiddleware, projects.delete);
+
+  router.get("/archvive/:id", sessionMiddleware, projects.archvive);
   router.get("/cockpit/:id", sessionMiddleware, projects.cockpit);
   router.get("/edit/:id", sessionMiddleware, projects.findOneForEdit);
   router.get("/cockpit/:id", sessionMiddleware, projects.cockpit);

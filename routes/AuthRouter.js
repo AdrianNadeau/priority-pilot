@@ -5,7 +5,33 @@ var Authrouter = express.Router();
 const companies = require("../controllers/company.controller");
 const persons = require("../controllers/person.controller");
 const isAdminMiddleware = require("../middleware/isAdminMiddleware");
+const sendEmail = require("../utils/emailSender");
 
+exports.sendWelcomeEmail = (req, res) => {
+  const { email, name } = req.body;
+
+  sendEmail(email, "Welcome to Our Platform", "welcome", { name })
+    .then(() => {
+      res.status(200).send("Welcome email sent successfully");
+    })
+    .catch((error) => {
+      console.error("Error sending welcome email:", error);
+      res.status(500).send("Error sending welcome email");
+    });
+};
+
+exports.sendResetPasswordEmail = (req, res) => {
+  const { email, resetLink } = req.body;
+
+  sendEmail(email, "Reset Your Password", "resetPassword", { resetLink })
+    .then(() => {
+      res.status(200).send("Reset password email sent successfully");
+    })
+    .catch((error) => {
+      console.error("Error sending reset password email:", error);
+      res.status(500).send("Error sending reset password email");
+    });
+};
 //Authentications all TABs.
 Authrouter.get("/login", function (req, res) {
   res.render("Pages/pages-login");
@@ -85,7 +111,8 @@ Authrouter.post("/recover-password", function (req, res) {
   //create unique token to send user if email exists
   const email = req.body.email;
   console.log("email", email);
-  persons.findOne(email, res);
+  res.send("Email sent to " + email);
+  // persons.findOne(email, res);
 });
 
 // Authrouter.get('/test', function(req, res)
