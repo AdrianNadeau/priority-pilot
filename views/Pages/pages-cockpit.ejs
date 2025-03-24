@@ -149,8 +149,9 @@
             <strong>Tags:</strong> 
             <% if (tags) { %>
             <%= tags.join(', ') %><br/>
+            <strong>Reference:</strong> <%= project[0].reference %>
               <% if (project[0].reference) { %>
-                <strong>Reference:</strong> 
+               
                 <%= project[0].reference %>
               <% } %>
             <% } %>
@@ -188,8 +189,11 @@
             <% } else { %>
               <p>No status updates available</p>
             <% } %>
-            <button type="button" class="btn btn-primary waves-effect waves-light" syle="padding-top:5px;"data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
-            <br/><br/>
+            
+            <% if (project[0].phase_id_fk != "1" && project[0].phase_id_fk != "2") { %>
+              <button type="button" class="btn btn-primary waves-effect waves-light" style="padding-top:5px;" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
+            <% } %>
+                 <br/><br/>
             <strong>Change Log:</strong>
             <% if (changed_projects) { %>
               <br/>

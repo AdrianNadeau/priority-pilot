@@ -1,19 +1,20 @@
 <%- contentFor('HeaderCss') %>
 
 <%- contentFor('breadcrumb') %>
-<ul class="list-inline menu-left mb-0"> 
-    <li class="list-inline-item">
+<div class="row">
+    <div class="col-md-4">
         <button type="button" class="button-menu-mobile open-left waves-effect">
             <i class="ion-navicon"></i>
         </button>
-    </li>
-    <li class="list-inline-item app-search">
         <h3 class="page-title">Dashboard</h3>
-    </li>
-    <li class="list-inline-item app-search text-center" style="color:#67a8e4 !important; flex-grow: 1; margin-left: 38em;">
-        <h3 class="page-title"><%= portfolioName %></h3>
-    </li>
-</ul>
+    </div>
+    <div class="col-md-4 text-center">
+        <h3 class="page-title" style="margin-right: 10em; color:#67a8e4"><%= portfolioName %></h3>
+    </div>
+    <div class="col-md-4 text-right">
+        <!-- Add any additional content here -->
+    </div>
+</div>
 
 <%- contentFor('body') %>
 
@@ -112,7 +113,7 @@
                 <div class="mini-stat bg-white text-center clearfix">
                     <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFunnel();" >Funnel
                         <%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)</button></div>
-                        <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFunnel();" >Archived
+                        <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFunnel();" >Freezer
                             <%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)</button></div>
                    
                     <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;" onClick="loadRadar();" >Radar</div>

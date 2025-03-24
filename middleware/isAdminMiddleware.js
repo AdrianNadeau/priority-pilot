@@ -10,7 +10,7 @@ async function isAdminMiddleware(req, res, next) {
     // Check if user is in the session and if they are an admin
     if (!req.session || !req.session.person || !req.session.company) {
       // Redirect or send an error response if user or company is missing in session
-      return res.redirect("/register");
+      return res.redirect("/login");
     }
     const person = req.session.person;
     if (person.isAdmin) {

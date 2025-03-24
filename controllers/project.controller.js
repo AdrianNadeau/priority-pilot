@@ -357,7 +357,8 @@ exports.cockpit = async (req, res) => {
   proj.project_cost, 
   phases.phase_name,
   proj.prime_id_fk,
-  proj.benefit
+  proj.benefit,
+  proj.phase_id_fk
   FROM projects proj 
   LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk 
   LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
@@ -1066,15 +1067,6 @@ exports.countProjectsByTag3 = async (req, res) => {
 };
 exports.flight = async (req, res) => {
   let company_id_fk;
-  try {
-    if (!req.session || !req.session.company) {
-      return res.redirect("/pages-500");
-    } else {
-      company_id_fk = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-  }
 
   const query = `
     SELECT 
@@ -1091,7 +1083,6 @@ exports.flight = async (req, res) => {
       latest_status.issue, 
       latest_status.actions, 
       proj.project_name,
-      
       prime_person.first_name AS prime_first_name, 
       prime_person.last_name AS prime_last_name, 
       sponsor_person.first_name AS sponsor_first_name, 
@@ -1380,10 +1371,6 @@ exports.flightview = async (req, res) => {
 // Update a Project by the id in the request
 exports.update = async (req, res) => {
   try {
-    // Ensure session exists and fetch company ID
-    if (!req.session || !req.session.company) {
-      return res.redirect("/pages-500");
-    }
     const { id } = req.params;
     const {
       project_name,
@@ -1409,12 +1396,9 @@ exports.update = async (req, res) => {
 
     // Convert dates
     const startDateTest = insertValidDate(start_date);
-    console.log("startDateTest:", startDateTest);
     const endDateTest = insertValidDate(end_date);
-    console.log("endDateTest:", endDateTest);
     const nextMilestoneDateTest = insertValidDate(next_milestone_date);
-    console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
-    console.log("reference:", reference);
+
     // Update the project
     const [num] = await Project.update(
       {
