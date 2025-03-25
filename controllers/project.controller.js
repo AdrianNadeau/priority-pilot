@@ -19,15 +19,8 @@ const pgSession = require("connect-pg-simple")(session);
 
 // Create and Save a new Project
 exports.create = (req, res) => {
-  try {
-    if (!req.session) {
-      res.redirect("/pages-500");
-    } else {
-      company_id_fk = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("error:", error);
-  }
+  const funnelPage = req.body.funnelPage;
+  company_id_fk = req.session.company.id;
 
   // Convert dates
   let startDateTest = null;
@@ -36,16 +29,9 @@ exports.create = (req, res) => {
   let pitch_message = "";
   let projectCost = null;
 
-  if (req.body.phase_id_fk == 1) {
-    pitch_message = req.body.pitch_message;
-  } else {
-    startDateTest = insertValidDate(req.body.start_date);
-    endDateTest = insertValidDate(req.body.end_date);
-    nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
-  }
-  console.log("startDateTest:", startDateTest);
-  console.log("endDateTest:", endDateTest);
-  console.log("nextMilestoneDateTest:", nextMilestoneDateTest);
+  startDateTest = insertValidDate(req.body.start_date);
+  endDateTest = insertValidDate(req.body.end_date);
+  nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
   try {
     projectCost = removeCommasAndConvertToNumber(req.body.project_cost);
   } catch (error) {
@@ -54,7 +40,7 @@ exports.create = (req, res) => {
   if (isNaN(projectCost)) {
     projectCost = 0;
   }
-  console.log("projectCost:", projectCost);
+
   // Create a Project
   const project = {
     company_id_fk: company_id_fk,
@@ -89,8 +75,6 @@ exports.create = (req, res) => {
     }).catch((error) => {
       console.log("Error fetching phasesData:", error);
     });
-
-    console.log("initial create");
 
     const newChangedProject = {
       company_id_fk,
@@ -141,31 +125,37 @@ exports.create = (req, res) => {
       }),
       Project.findAll(),
     ]);
+    console.log("funnelPage:", funnelPage);
+    if (funnelPage == "n") {
+      const query =
+        "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
 
-    const query =
-      "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
-
-    await db.sequelize
-      .query(query, {
-        replacements: [company_id_fk],
-        type: db.sequelize.QueryTypes.SELECT,
-      })
-      .then((data) => {
-        res.render("Pages/pages-projects", {
-          projects: data,
-          phases: phasesData,
-          priorities: prioritiesData,
-          sponsors: personsData,
-          primes: personsData,
-          tags: tagsData,
-          company_id: company_id_fk,
+      await db.sequelize
+        .query(query, {
+          replacements: [company_id_fk],
+          type: db.sequelize.QueryTypes.SELECT,
+        })
+        .then((data) => {
+          res.render("Pages/pages-projects", {
+            projects: data,
+            phases: phasesData,
+            priorities: prioritiesData,
+            sponsors: personsData,
+            primes: personsData,
+            tags: tagsData,
+            company_id: company_id_fk,
+          });
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message:
+              err.message || "Some error occurred while retrieving data.",
+          });
         });
-      })
-      .catch((err) => {
-        res.status(500).send({
-          message: err.message || "Some error occurred while retrieving data.",
-        });
-      });
+    } else {
+      //send back to http://localhost:8080/projects/funnel/view/
+      res.redirect("/projects/funnel/view/");
+    }
   });
 };
 
