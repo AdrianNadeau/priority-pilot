@@ -350,6 +350,7 @@ exports.cockpit = async (req, res) => {
   proj.effort,
   proj.project_why,
   proj.project_what,
+  proj.reference,
   prime_person.first_name AS prime_first_name, 
   prime_person.last_name AS prime_last_name, 
   sponsor_person.first_name AS sponsor_first_name, 
