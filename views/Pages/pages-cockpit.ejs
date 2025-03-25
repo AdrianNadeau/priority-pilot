@@ -146,15 +146,20 @@
                 tags.push(project[0].tag_3_name);
               }
             %>
+            
             <strong>Tags:</strong> 
             <% if (tags) { %>
-            <%= tags.join(', ') %><br/>
-            <strong>Reference:</strong> <%= project[0].reference %>
-              <% if (project[0].reference) { %>
-               
-                <%= project[0].reference %>
-              <% } %>
+             <%= tags.join(', ') %>
             <% } %>
+            <br/>
+            
+            <strong>Reference:</strong>
+            <% if (project[0].reference) { %>
+              <a href="<%= project[0].reference %>" target="_blank"><%= project[0].reference %></a>
+            <% } else { %>
+              <span>No reference available</span>
+            <% } %>
+
             
 
             </div>

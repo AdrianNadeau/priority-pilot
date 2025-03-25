@@ -100,7 +100,7 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       discovery: { count: 0, cost: 0, ph: 0 },
       delivery: { count: 0, cost: 0, ph: 0 },
       done: { count: 0, cost: 0, ph: 0 },
-      archive: { count: 0, cost: 0, ph: 0 },
+      archived: { count: 0, cost: 0, ph: 0 },
     };
 
     // Retrieve portfolio_budget and portfolio_effort from the first record
@@ -183,13 +183,18 @@ router.get("/", isAdminMiddleware, async (req, res) => {
         cost: formatToKMB(phaseData.done.cost),
         ph: phaseData.done.ph.toLocaleString(),
       },
+      archived: {
+        count: phaseData.archived.count,
+        cost: formatToKMB(phaseData.archived.cost),
+        ph: formatToKMB(phaseData.archived.ph.toLocaleString()),
+      },
 
       totalCost: formatToKMB(portfolio_budget),
       usedCost: formatToKMB(usedCost),
       availableCost: formatToKMB(availableCost),
       usedEffort: formatToKMB(usedEffort),
     };
-    // console.log("formatted Data", formattedData);
+    console.log("formatted Data", formattedData.archived.cost);
     // Render dashboard with all calculated values
     const portfolioName = req.session.company.company_headline;
     res.render("Dashboard/dashboard1", {

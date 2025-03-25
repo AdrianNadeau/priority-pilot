@@ -113,8 +113,8 @@
                 <div class="mini-stat bg-white text-center clearfix">
                     <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFunnel();" >Funnel
                         <%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)</button></div>
-                        <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFunnel();" >Freezer
-                            <%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)</button></div>
+                        <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFreezer();" >Freezer
+                        <%= archived.count %>, $<%= archived.cost %>, <%= archived.ph %> PH)</button></div>
                    
                     <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;" onClick="loadRadar();" >Radar</div>
                     <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadHealth();" >Health Check</div>
@@ -168,6 +168,9 @@
   }
   function loadFunnel() {
     window.location.replace('/projects/funnel/view/');
+  }
+  function loadFreezer() {
+    window.location.replace('/projects/freezer/view/');
   }
   function loadRadar() {
    

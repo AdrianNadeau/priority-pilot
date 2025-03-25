@@ -15,7 +15,7 @@ const moment = require("moment");
 const pg = require("pg");
 const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
-const sendEmail = require("../utils/emailSender");
+// const sendEmail = require("../utils/emailSender");
 
 // Create and Save a new Project
 exports.create = (req, res) => {
@@ -54,7 +54,7 @@ exports.create = (req, res) => {
   if (isNaN(projectCost)) {
     projectCost = 0;
   }
-
+  console.log("projectCost:", projectCost);
   // Create a Project
   const project = {
     company_id_fk: company_id_fk,
@@ -1257,6 +1257,110 @@ exports.findFunnel = async (req, res) => {
     res.status(500).json({ message: "Error finding funnel" });
   }
 };
+exports.findFreezer = async (req, res) => {
+  const company_id_fk = req.session.company.id;
+  console.log("company_id_fk", company_id_fk);
+  const projects = await db.projects.findAll({
+    where: {
+      company_id_fk: company_id_fk,
+      phase_id_fk: 6,
+    },
+    attributes: ["id", "project_name", "project_cost", "effort"],
+  });
+  console.log("total projects", projects.length);
+  const archivedCount = projects.length;
+
+  let archivedTotalPH = 0;
+  let archivedTotalCost = 0;
+
+  projects.forEach((project) => {
+    archivedTotalCost = formatCost(Number(project.project_cost) || 0);
+    archivedTotalPH += parseFloat(project.effort) || 0;
+  });
+  console.log("archivedTotalCost", archivedTotalCost);
+  console.log("archivedTotalPH", archivedTotalPH);
+  // Render the funnel page with the retrieved data
+  res.render("Pages/pages-freezer", {
+    projects,
+    archivedTotalCost,
+    archivedCount,
+    archivedTotalPH,
+  });
+};
+exports.update = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      project_name,
+      project_headline,
+      project_why,
+      project_what,
+      start_date,
+      end_date,
+      prime_id_fk,
+      sponsor_id_fk,
+      project_cost,
+      effort,
+      benefit,
+      phase_id_fk,
+      next_milestone_date,
+      change_reason,
+      change_explanation,
+      tag_1,
+      tag_2,
+      tag_3,
+      reference,
+    } = req.body;
+
+    const startDateTest = insertValidDate(start_date);
+    const endDateTest = insertValidDate(end_date);
+    const nextMilestoneDateTest = insertValidDate(next_milestone_date);
+
+    const sanitizedProjectCost = project_cost
+      ? removeCommasAndConvertToNumber(project_cost)
+      : 0;
+
+    const sanitizedTag1 = tag_1 ? parseInt(tag_1.replace(/,/g, ""), 10) : null;
+    const sanitizedTag2 = tag_2 ? parseInt(tag_2.replace(/,/g, ""), 10) : null;
+    const sanitizedTag3 = tag_3 ? parseInt(tag_3.replace(/,/g, ""), 10) : null;
+
+    const [num] = await Project.update(
+      {
+        project_name,
+        project_headline,
+        project_why,
+        project_what,
+        start_date: startDateTest,
+        end_date: endDateTest,
+        prime_id_fk,
+        sponsor_id_fk,
+        project_cost: sanitizedProjectCost,
+        effort,
+        benefit,
+        phase_id_fk,
+        next_milestone_date: nextMilestoneDateTest,
+        tag_1: sanitizedTag1,
+        tag_2: sanitizedTag2,
+        tag_3: sanitizedTag3,
+        reference,
+      },
+      {
+        where: { id },
+      },
+    );
+
+    if (num === 1) {
+      res.redirect("/projects/");
+    } else {
+      res.status(404).send({
+        message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
+      });
+    }
+  } catch (error) {
+    console.error("Error updating project:", error.message, error.stack);
+    res.status(500).send("Internal Server Error");
+  }
+};
 exports.health = async (req, res) => {
   //get all company projects
   const company_id_fk = req.session.company.id;
@@ -1269,6 +1373,7 @@ exports.health = async (req, res) => {
     proj.end_date,
     proj.health,
     proj.effort,
+    proj.reference,
     prime_person.first_name AS prime_first_name,
     prime_person.last_name AS prime_last_name,
     sponsor_person.first_name AS sponsor_first_name,
@@ -1370,6 +1475,8 @@ exports.flightview = async (req, res) => {
 
 // Update a Project by the id in the request
 exports.update = async (req, res) => {
+  const funnelPage = req.body.funnelPage;
+  console.log("funnelPage:", funnelPage);
   try {
     const { id } = req.params;
     const {
@@ -1399,6 +1506,17 @@ exports.update = async (req, res) => {
     const endDateTest = insertValidDate(end_date);
     const nextMilestoneDateTest = insertValidDate(next_milestone_date);
 
+    // Sanitize project_cost by removing commas and converting to a number
+    const sanitizedProjectCost = removeCommasAndConvertToNumber(project_cost);
+    console.log("Sanitized project_cost:", sanitizedProjectCost);
+
+    // Sanitize tags by converting them to integers or setting them to null if invalid
+    const sanitizedTag1 = tag_1 ? parseInt(tag_1.replace(/,/g, ""), 10) : null;
+    const sanitizedTag2 = tag_2 ? parseInt(tag_2.replace(/,/g, ""), 10) : null;
+    const sanitizedTag3 = tag_3 ? parseInt(tag_3.replace(/,/g, ""), 10) : null;
+
+    console.log("Sanitized tags:", sanitizedTag1, sanitizedTag2, sanitizedTag3);
+
     // Update the project
     const [num] = await Project.update(
       {
@@ -1410,14 +1528,14 @@ exports.update = async (req, res) => {
         end_date: endDateTest,
         prime_id_fk,
         sponsor_id_fk,
-        project_cost,
+        project_cost: sanitizedProjectCost, // Use sanitized value
         effort,
         benefit,
         phase_id_fk,
         next_milestone_date: nextMilestoneDateTest,
-        tag_1,
-        tag_2,
-        tag_3,
+        tag_1: sanitizedTag1, // Use sanitized value
+        tag_2: sanitizedTag2, // Use sanitized value
+        tag_3: sanitizedTag3, // Use sanitized value
         reference,
       },
       {
@@ -1439,56 +1557,23 @@ exports.update = async (req, res) => {
         end_date: endDateTest,
         prime_id_fk,
         sponsor_id_fk,
-        project_cost,
+        project_cost: sanitizedProjectCost, // Use sanitized value
         effort,
         benefit,
         phase_id_fk,
         change_reason_id_fk: req.body.change_reason,
         change_explanation,
-        tag_1,
-        tag_2,
-        tag_3,
+        tag_1: sanitizedTag1, // Use sanitized value
+        tag_2: sanitizedTag2, // Use sanitized value
+        tag_3: sanitizedTag3, // Use sanitized value
       };
 
-      const changedProject = await ChangeProject.create(newChangedProject);
-
-      // Fetch updated project data using raw SQL query
-      const query = `
-        SELECT 
-          proj.id, 
-          proj.project_name, 
-          proj.project_headline, 
-          proj.project_why, 
-          proj.project_what, 
-          proj.start_date, 
-          proj.end_date, 
-          proj.project_cost, 
-          proj.effort, 
-          proj.benefit, 
-          proj.next_milestone_date,
-          prime_person.first_name AS prime_first_name, 
-          prime_person.last_name AS prime_last_name, 
-          sponsor_person.first_name AS sponsor_first_name, 
-          sponsor_person.last_name AS sponsor_last_name, 
-          phases.phase_name 
-        FROM 
-          projects proj
-        LEFT JOIN 
-          persons prime_person ON prime_person.id = proj.prime_id_fk
-        LEFT JOIN 
-          persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-        LEFT JOIN 
-          phases ON phases.id = proj.phase_id_fk
-        WHERE 
-          proj.id = ?;
-      `;
-
-      const updatedProject = await db.sequelize.query(query, {
-        replacements: [id],
-        type: db.sequelize.QueryTypes.SELECT,
-      });
-
-      res.redirect("/projects/");
+      await ChangeProject.create(newChangedProject);
+      if (funnelPage != undefined || funnelPage != null) {
+        res.redirect("/projects/funnel");
+      } else {
+        res.redirect("/projects/");
+      }
     } else {
       res.status(404).send({
         message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
@@ -1581,8 +1666,7 @@ function formatNumberWithCommas(input) {
 
 function removeCommasAndConvertToNumber(value) {
   if (typeof value === "string") {
-    value = value.toString();
-    return parseInt(value.replace(/,/g, ""), 10);
+    return parseFloat(value.replace(/,/g, ""));
   }
   return value;
 }

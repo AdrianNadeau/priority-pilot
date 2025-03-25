@@ -3,7 +3,7 @@ const db = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../routes/JWTRouter");
-const sendEmail = require("../utils/emailSender");
+// const sendEmail = require("../utils/emailSender");
 
 const { persons: Person, companies: Company } = db;
 
@@ -204,36 +204,48 @@ exports.deleteAll = async (req, res, next) => {
     next(error);
   }
 };
-exports.sendWelcomeEmail = async (req, res) => {
-  console.log(".....Sending WelcomeEmail....");
-  const pesronFirstName = req.session.person?.first_name;
-  const personEmail = req.session.person?.email;
 
-  console.log("person:", pesronFirstName);
-  console.log("personEmail:", personEmail);
+// exports.sendWelcomeEmail = async (req, res) => {
+//   console.log(".....Sending WelcomeEmail....");
+//   const pesronFirstName = req.session.person?.first_name;
+//   const personEmail = req.session.person?.email;
 
-  // const email = "adrian@prioritypilot.ca";
-  try {
-    await sendEmail(email, "Welcome to Priority Pilot!", "welcome", {
-      first_name: pesronFirstName,
-    });
-    res.status(200).send("Welcome email sent successfully");
-  } catch (error) {
-    console.error("Error sending welcome email:", error);
-    res.status(500).send("Error sending welcome email");
-  }
-};
+//   console.log("person:", pesronFirstName);
+//   console.log("personEmail:", personEmail);
 
-exports.sendResetPasswordEmail = async (req, res) => {
-  const { email, resetLink } = req.body;
+//   // const email = "adrian@prioritypilot.ca";
+//   try {
+//     await sendEmail(email, "Welcome to Priority Pilot!", "welcome", {
+//       first_name: pesronFirstName,
+//     });
+//     res.status(200).send("Welcome email sent successfully");
+//   } catch (error) {
+//     console.error("Error sending welcome email:", error);
+//     res.status(500).send("Error sending welcome email");
+//   }
+// };
 
-  try {
-    await sendEmail(email, "Reset Your Password", "resetPassword", {
-      resetLink,
-    });
-    res.status(200).send("Reset password email sent successfully");
-  } catch (error) {
-    console.error("Error sending reset password email:", error);
-    res.status(500).send("Error sending reset password email");
-  }
-};
+// exports.sendResetPasswordEmail = async (req, res) => {
+//   console.log(".....Sending reset password....");
+//   const to = "adrian@prioritypilot.ca";
+//   const subject = "Reset your password";
+//   const templateName = "reset-email-password";
+//   const templateData = {
+//     first_name: "John",
+//   };
+
+//   sendEmail(to, subject, templateName, templateData)
+//     .then((info) => {
+//       console.log("Email sent successfully:", info);
+//     })
+//     .catch((error) => {
+//       console.error("Error sending email:", error);
+//     });
+//   sendEmail(to, subject, templateName, templateData)
+//     .then((info) => {
+//       console.log("Email sent successfully:", info);
+//     })
+//     .catch((error) => {
+//       console.error("Error sending email:", error);
+//     });
+// };
