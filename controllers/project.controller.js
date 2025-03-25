@@ -125,7 +125,7 @@ exports.create = (req, res) => {
       }),
       Project.findAll(),
     ]);
-    console.log("funnelPage:", funnelPage);
+
     if (funnelPage == "n") {
       const query =
         "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
@@ -173,22 +173,17 @@ exports.findAllRadar = async (req, res) => {
     });
 
     // Get the most recent status for each project
-    const statuses = await db.sequelize.query(
-      `
-      SELECT 
-        s.project_id_fk, 
-        s.health, 
-        s.status_date,
-        s.progress
-      FROM 
-        statuses s
-      WHERE 
-        s.status_date = (SELECT MAX(status_date) FROM statuses WHERE project_id_fk = s.project_id_fk)
-    `,
-      {
-        type: db.sequelize.QueryTypes.SELECT,
+    const statuses = await db.statuses.findAll({
+      attributes: ["project_id_fk", "health", "status_date", "progress"],
+      where: {
+        status_date: {
+          [db.Sequelize.Op.eq]: db.Sequelize.literal(
+            "(SELECT MAX(status_date) FROM statuses WHERE project_id_fk = statuses.project_id_fk)",
+          ),
+        },
       },
-    );
+      raw: true, // Ensures raw results are returned
+    });
     // get tags for reports
     // Create a map of project_id to status
     const statusMap = {};
@@ -655,113 +650,120 @@ exports.findOneForPrime = async (req, res) => {
 };
 
 exports.radar = async (req, res) => {
-  let company_id_fk = req.session.company.id;
-
-  const query1 = `
-  SELECT
-    SUM(CASE WHEN phase_id_fk = 1 THEN 1 ELSE 0 END) AS phase_1_count,
-    SUM(CASE WHEN phase_id_fk = 2 THEN 1 ELSE 0 END) AS phase_2_count,
-    SUM(CASE WHEN phase_id_fk = 3 THEN 1 ELSE 0 END) AS phase_3_count,
-    SUM(CASE WHEN phase_id_fk = 4 THEN 1 ELSE 0 END) AS phase_4_count,
-    SUM(CASE WHEN phase_id_fk = 5 THEN 1 ELSE 0 END) AS phase_5_count,
-    SUM(CASE WHEN phase_id_fk = 1 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_1_total_cost,
-    SUM(CASE WHEN phase_id_fk = 2 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_2_total_cost,
-    SUM(CASE WHEN phase_id_fk = 3 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_3_total_cost,
-    SUM(CASE WHEN phase_id_fk = 4 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_4_total_cost,
-    SUM(CASE WHEN phase_id_fk = 5 THEN CAST(TRIM(REPLACE(project_cost, ',', '')) AS NUMERIC) ELSE 0 END) AS phase_5_total_cost
-  FROM
-    projects
-  WHERE
-    company_id_fk = ?
-  `;
+  const company_id_fk = req.session.company.id;
 
   try {
-    // Execute the first query
-    const data = await db.sequelize.query(query1, {
-      replacements: [company_id_fk],
-      type: db.sequelize.QueryTypes.SELECT,
+    const data = await db.projects.findAll({
+      where: { company_id_fk },
+      attributes: [
+        "phase_id_fk",
+        [db.Sequelize.fn("COUNT", db.Sequelize.col("*")), "project_count"],
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn(
+                  "REPLACE",
+                  db.Sequelize.col("project_cost"),
+                  ",",
+                  "",
+                ),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "total_cost",
+        ],
+      ],
+      group: ["phase_id_fk"],
+      raw: true,
+    });
+    // Fetch phase names for better readability
+    const phases = await db.phases.findAll({
+      attributes: ["id", "phase_name"],
     });
 
-    if (!data || data.length === 0) {
-      return res.status(404).send({ message: "Project Health not found" });
-    }
+    // Map phase names to the results
+    const projectsWithPhaseNames = data.map((project) => {
+      const phase = phases.find((p) => p.id === project.phase_id_fk);
+      return {
+        phase_id_fk: project.phase_id_fk,
+        phase_name: phase ? phase.phase_name : "Unknown Phase",
+        project_count: project.project_count,
+        total_cost: formatCost(project.total_cost),
+      };
+    });
 
+    console.log("projectsWithPhaseNames:", projectsWithPhaseNames);
     // Pass the result to the EJS template
-    const pitchCount = Number(data[0].phase_1_count);
-    const priorityCount = Number(data[0].phase_2_count);
-    const discoveryCount = Number(data[0].phase_3_count);
-    const deliveryCount = Number(data[0].phase_4_count);
-    const operationsCount = Number(data[0].phase_5_count);
-    const pitchTotalCost = formatCost(Number(data[0].phase_1_total_cost) || 0);
-    const priorityTotalCost = formatCost(
-      Number(data[0].phase_2_total_cost) || 0,
+
+    const pitchCount = Number(
+      data.find((d) => d.phase_id_fk === 1)?.project_count || 0,
     );
-    const discoveryCost = formatCost(Number(data[0].phase_3_total_cost) || 0);
-    const deliveryTotalCost = formatCost(
-      Number(data[0].phase_4_total_cost) || 0,
+    const priorityCount = Number(
+      data.find((d) => d.phase_id_fk === 2)?.project_count || 0,
     );
-    const operationsTotalCost = formatCost(
-      Number(data[0].phase_5_total_cost) || 0,
+    const discoveryCount = Number(
+      data.find((d) => d.phase_id_fk === 3)?.project_count || 0,
     );
+    const deliveryCount = Number(
+      data.find((d) => d.phase_id_fk === 4)?.project_count || 0,
+    );
+
+    const operationsCount = Number(
+      data.find((d) => d.phase_id_fk === 5)?.project_count || 0,
+    );
+    const pitchTotalCost = Number(
+      data.find((d) => d.phase_id_fk === 1)?.total_cost || 0,
+    );
+    const priorityTotalCost = Number(
+      data.find((d) => d.phase_id_fk === 2)?.total_cost || 0,
+    );
+    const discoveryTotalCost = Number(
+      data.find((d) => d.phase_id_fk === 3)?.total_cost || 0,
+    );
+    const deliveryTotalCost = Number(
+      data.find((d) => d.phase_id_fk === 4)?.total_cost || 0,
+    );
+    const operationsTotalCost = Number(
+      data.find((d) => d.phase_id_fk === 5)?.total_cost || 0,
+    );
+
     const totalCost =
       pitchTotalCost +
-      discoveryCost +
       priorityTotalCost +
+      discoveryTotalCost +
       deliveryTotalCost +
       operationsTotalCost;
-    const usedCost = totalCost - operationsTotalCost;
-    const avalCost = totalCost - usedCost;
-    const in_flight_count = priorityTotalCost + discoveryCount + deliveryCount;
-    const in_flight_cost =
-      priorityTotalCost + discoveryCost + deliveryTotalCost;
+    // Calculate in_flight_count as the sum of Discovery and Delivery counts
 
-    // Get all estimated costs by phase
-    const query2 = `
-      SELECT 
-        phases.phase_name,
-        AVG(CAST(REPLACE(proj.project_cost, ',', '') AS NUMERIC)) AS average_project_cost
-      FROM 
-        projects proj
-      LEFT JOIN 
-        phases ON phases.id = proj.phase_id_fk
-      WHERE 
-        proj.company_id_fk = ?
-      GROUP BY 
-        phases.phase_name
-      ORDER BY 
-        phases.phase_name;
-    `;
-
-    const averageCostData = await db.sequelize.query(query2, {
-      replacements: [company_id_fk],
-      type: db.sequelize.QueryTypes.SELECT,
-    });
-
-    // Format the average project cost
-    averageCostData.forEach((item) => {
-      item.average_project_cost = formatCost(item.average_project_cost);
-    });
-
+    const in_flight_cost = discoveryTotalCost + deliveryTotalCost;
+    console.log("in_flight_cost:", in_flight_cost);
     res.render("Pages/pages-radar", {
-      projects: data,
+      projects: projectsWithPhaseNames,
       pitchCount,
       priorityCount,
       discoveryCount,
       deliveryCount,
-      operationsCount,
+      // operationsCount: in_flight_count,
       pitchCost: pitchTotalCost,
       priorityCost: priorityTotalCost,
-      discoveryCost: discoveryCost,
-      deliveryCost: deliveryTotalCost,
-      operationsTotalCost: operationsTotalCost,
-      totalCost,
-      usedCost,
-      avalCost,
-      in_flight_count,
-      in_flight_cost,
-      averageCostData,
+      in_flight_count: in_flight_cost,
+      operationsCost: data[0].phase_5_count,
+      // phase_2_total_cost: data[0].phase_2_total_cost,
+      in_flight_cost: in_flight_cost,
+      operationsCount,
+      operationsTotalCost: formatCost(operationsTotalCost),
+      pitchTotalCost: formatCost(pitchTotalCost),
+      priorityTotalCost: formatCost(priorityTotalCost),
+      discoveryCost: formatCost(discoveryTotalCost),
+      deliveryCost: formatCost(deliveryTotalCost),
+      operationsCost: formatCost(operationsTotalCost),
+      totalCost: formatCost(totalCost),
       currentDate: new Date().toLocaleDateString(),
-      company_id: company_id_fk,
     });
   } catch (error) {
     console.log("Query error:", error);
