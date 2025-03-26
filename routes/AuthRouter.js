@@ -44,9 +44,9 @@ Authrouter.get("/pages-login-2", function (req, res) {
   res.render("Pages/pages-login-2");
 });
 
-Authrouter.get("/register", function (req, res) {
-  res.render("Pages/pages-register");
-});
+// Authrouter.get("/register", function (req, res) {
+//   res.render("Pages/pages-register");
+// });
 Authrouter.get("/confirm", function (req, res) {
   res.render("Pages/pages-register-confirm");
 });
@@ -92,7 +92,7 @@ Authrouter.get("Pages/pages-roadmap", function (req, res) {
     company_id_fk: company_id_fk,
   });
 });
-Authrouter.post("/register", companies.create);
+// Authrouter.post("/register", companies.create);
 Authrouter.post("/auth/login", persons.login);
 
 Authrouter.get("/pages-maintenance", function (req, res) {
@@ -119,9 +119,8 @@ Authrouter.post("/reset-email-password", function (req, res) {
   // persons.findOne(email, res);
 });
 
-// Authrouter.get('/test', function(req, res)
-// {
-//       res.render('Pages/test');
+// Authrouter.get("/test", function (req, res) {
+//   res.render("Pages/pages-reset-password");
 // });
 // Authrouter.get('/pages-coming-soon', function(req, res)
 // {

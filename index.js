@@ -17,7 +17,7 @@ const Authrouter = require("./routes/AuthRouter.js");
 const DashboardRouter = require("./routes/DashboardRouter.js");
 
 const errorHandler = require("./middleware/errorHandler");
-// const notFoundHandler = require("./middleware/notFoundHandler");
+
 const authMiddleware = require("./middleware/authMiddleware.js");
 // const readOnlyProject = require("./middleware/readOnlyProject");
 
@@ -94,9 +94,10 @@ require("./routes/phase.routes")(app);
 require("./routes/priority.routes")(app);
 require("./routes/change_reason.routes.js")(app);
 require("./routes/changed_project.routes.js")(app);
-// Error handling middleware (should be the last middleware)
-// app.use(notFoundHandler);
-app.use(errorHandler);
+// Handle 404 errors
+app.use((req, res, next) => {
+  res.status(404).render("Pages/pages-404");
+});
 http.listen(8080, function () {
   console.log("listening on *:8080");
 });

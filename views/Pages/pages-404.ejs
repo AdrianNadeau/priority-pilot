@@ -1,42 +1,19 @@
-<%- contentFor('HeaderCss') %> <%- contentFor('breadcrumb') %>
-<ul class="list-inline menu-left mb-0">
-  <li class="list-inline-item">
-    <button type="button" class="button-menu-mobile open-left waves-effect">
-      <i class="ion-navicon"></i>
-    </button>
-  </li>
-  <li class="hide-phone list-inline-item app-search">
-    <h3 class="page-title">Error</h3>
-  </li>
-</ul>
+<%- contentFor('HeaderCss') %> <%- contentFor('breadcrumb') %> <%-
+contentFor('body') %>
 
-<%- contentFor('body') %>
-<div class="page-content-wrapper">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-6 offset-md-3">
-        <div class="card">
-          <div class="card-body">
-            <div class="error-page">
-              <h1>Error 404</h1>
-              <p><%= message %></p>
-             
-              <a href="mailto:help@prioritypilot.ca ">Email Support</a> if issue persists.<br/><br/>
-              <a
-href="/login"
-class="btn btn-primary back-to-login waves-effect waves-light"
-role="button"
->
-Return to Login
-</a>
-            </div>
-            </div>
-          </div>
-        </div>
-      </div>
+<div id="notfound">
+  <div class="notfound">
+    <div class="notfound-404">
+      <h1>404</h1>
     </div>
+    <h2>Oops! There was an error loading your page</h2>
+    <p>
+      Sorry, the page you are looking for might have been removed or the link
+      you clicked is broken
+    </p>
+
+    <a href="/">Go To Homepage</a>
   </div>
 </div>
 
-  <%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
-</div>
+<%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>

@@ -208,20 +208,7 @@ exports.findAllRadar = async (req, res) => {
 // Retrieve all  from the database.
 exports.findAll = async (req, res) => {
   try {
-    try {
-      if (!req.session) {
-        return res.redirect("/pages-500");
-      } else {
-        company_id_fk = req.session.company.id;
-        company = req.session.company;
-      }
-    } catch (error) {
-      console.log("error:", error);
-      return res
-        .status(500)
-        .json({ message: "Error retrieving session data." });
-    }
-
+    const company_id_fk = req.session.company.id;
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     });
@@ -242,10 +229,35 @@ exports.findAll = async (req, res) => {
 
     // Add "None" option at the top of the tags list
     tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
-
-    const query =
-      "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, proj.effort, proj.benefit, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ? ORDER BY proj.project_name ASC";
-
+    const query = `
+  SELECT 
+    proj.company_id_fk,
+    proj.id,
+    proj.project_name,
+    proj.start_date,
+    proj.end_date,
+    prime_person.first_name AS prime_first_name,
+    prime_person.last_name AS prime_last_name,
+    sponsor_person.first_name AS sponsor_first_name,
+    sponsor_person.last_name AS sponsor_last_name,
+    proj.project_cost,
+    proj.effort,
+    proj.benefit,
+    phases.phase_name
+  FROM 
+    projects proj
+  LEFT JOIN 
+    persons prime_person ON prime_person.id = proj.prime_id_fk
+  LEFT JOIN 
+    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+  LEFT JOIN 
+    phases ON phases.id = proj.phase_id_fk
+  WHERE 
+    proj.company_id_fk = ?
+    AND proj.phase_id_fk NOT IN (1, 6)
+  ORDER BY 
+    proj.project_name ASC;
+`;
     await db.sequelize
       .query(query, {
         replacements: [company_id_fk],
