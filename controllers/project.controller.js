@@ -199,7 +199,8 @@ exports.findAllRadar = async (req, res) => {
       projectData.health = statusMap[project.id] || null;
       return projectData;
     });
-    res.status(200).json(projectsWithStatus);
+    const portfolioName = await returnPortfolioName(company_id_fk);
+    res.status(200).json(projectsWithStatus, portfolioName);
   } catch (error) {
     console.log("Error retrieving projects:", error);
     res.status(500).json({ message: "Error retrieving projects." });
@@ -209,6 +210,7 @@ exports.findAllRadar = async (req, res) => {
 exports.findAll = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
+
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     });
@@ -709,7 +711,6 @@ exports.radar = async (req, res) => {
       };
     });
 
-    console.log("projectsWithPhaseNames:", projectsWithPhaseNames);
     // Pass the result to the EJS template
 
     const pitchCount = Number(
@@ -750,10 +751,13 @@ exports.radar = async (req, res) => {
       discoveryTotalCost +
       deliveryTotalCost +
       operationsTotalCost;
-    // Calculate in_flight_count as the sum of Discovery and Delivery counts
 
     const in_flight_cost = discoveryTotalCost + deliveryTotalCost;
-    console.log("in_flight_cost:", in_flight_cost);
+
+    //get company_headling (portfolio name)
+
+    const portfolioName = returnPortfolioName(company_id_fk);
+    console.log("portfolioName", portfolioName);
     res.render("Pages/pages-radar", {
       projects: projectsWithPhaseNames,
       pitchCount,
@@ -776,6 +780,7 @@ exports.radar = async (req, res) => {
       operationsCost: formatCost(operationsTotalCost),
       totalCost: formatCost(totalCost),
       currentDate: new Date().toLocaleDateString(),
+      portfolioName,
     });
   } catch (error) {
     console.log("Query error:", error);
@@ -784,20 +789,17 @@ exports.radar = async (req, res) => {
 };
 
 exports.progress = async (req, res) => {
-  let companyId;
+  const companyId = req.session.company.id;
 
-  // Ensure session exists and extract company information
-  try {
-    if (!req.session || !req.session.company) {
-      return res.redirect("/pages-500");
-    } else {
-      companyId = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-    return res.status(500).send({ message: "Server error" });
-  }
-
+  // const companyData = await Person.findAll({
+  //   where: {
+  //     company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
+  //   },
+  // });
+  // if (!companyData) {
+  //   return res.status(404).send({ message: "Company not found" });
+  // } else {
+  // }
   try {
     // Get all projects for the company
     const projects = await db.projects.findAll({
@@ -861,6 +863,7 @@ exports.progress = async (req, res) => {
       progress: progress,
       colors: colors,
       tags: tags,
+      // portfolioName,
     });
   } catch (error) {
     console.log("Query error:", error);
@@ -1151,10 +1154,6 @@ exports.flight = async (req, res) => {
 // Define the findFunnel function
 exports.findFunnel = async (req, res) => {
   try {
-    if (!req.session || !req.session.company || !req.session.person) {
-      return res.redirect("/pages-500");
-    }
-
     const company_id_fk = req.session.company.id;
     const person_id_fk = req.session.person.id;
 
@@ -1245,6 +1244,8 @@ exports.findFunnel = async (req, res) => {
     const primes = persons.filter((person) => person.role === "prime");
     pitchTotalCost = formatCost(pitchTotalCost);
     pitchTotalPH = formatCost(pitchTotalPH);
+    const portfolioName = await returnPortfolioName(company_id_fk);
+    console.log("portfolioName", portfolioName);
     // Render the funnel page with the retrieved data
     res.render("Pages/pages-funnel", {
       phases: phases,
@@ -1256,6 +1257,7 @@ exports.findFunnel = async (req, res) => {
       pitchTotalCost: formatCost(pitchTotalCost),
       pitchTotalPH: formatCost(pitchTotalPH),
       tags: tagsData,
+      portfolioName,
     });
   } catch (error) {
     console.error("Error finding funnel:", error);
@@ -1284,12 +1286,14 @@ exports.findFreezer = async (req, res) => {
   });
   console.log("archivedTotalCost", archivedTotalCost);
   console.log("archivedTotalPH", archivedTotalPH);
+  const portfolioName = await returnPortfolioName(company_id_fk);
   // Render the funnel page with the retrieved data
   res.render("Pages/pages-freezer", {
     projects,
     archivedTotalCost,
     archivedCount,
     archivedTotalPH,
+    portfolioName,
   });
 };
 exports.update = async (req, res) => {
@@ -1471,7 +1475,7 @@ exports.flightview = async (req, res) => {
   const companyProjects = await Project.findAll({
     where: { company_id_fk: company_id_fk },
   });
-
+  const portfolioName = returnPortfolioName(company_id_fk);
   res.render("Pages/pages_flight_plan", {
     projects: companyProjects,
     currentDate: moment().format("MMMM Do YYYY"),
@@ -1683,3 +1687,27 @@ const formatCost = (cost) => {
   if (cost >= 1_000) return `${(cost / 1_000).toFixed(1)}K`;
   return cost.toString();
 };
+async function returnPortfolioName(company_id_fk) {
+  try {
+    console.log(
+      "*************************************************** Fetching portfolio name for company ID:",
+      company_id_fk,
+    );
+
+    // Fetch the company headline from the database
+    const company = await db.companies.findOne({
+      where: { id: company_id_fk },
+      attributes: ["company_headline"],
+    });
+
+    // Check if the company exists and return the headline
+    if (!company || !company.company_headline) {
+      return "Portfolio name not found";
+    }
+
+    return company.company_headline;
+  } catch (error) {
+    console.error("Error fetching portfolio name:", error);
+    return "Error retrieving portfolio name";
+  }
+}
