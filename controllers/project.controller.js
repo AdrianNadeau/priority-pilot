@@ -667,6 +667,7 @@ exports.radar = async (req, res) => {
   const company_id_fk = req.session.company.id;
 
   try {
+    // Fetch project data grouped by phase
     const data = await db.projects.findAll({
       where: { company_id_fk },
       attributes: [
@@ -695,6 +696,20 @@ exports.radar = async (req, res) => {
       group: ["phase_id_fk"],
       raw: true,
     });
+
+    // Fetch company details using company_id_fk
+    const company = await db.companies.findOne({
+      where: { id: company_id_fk },
+      attributes: ["company_headline"],
+    });
+
+    // Check if the company exists
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    const portfolioName = company.company_headline;
+
     // Fetch phase names for better readability
     const phases = await db.phases.findAll({
       attributes: ["id", "phase_name"],
@@ -711,8 +726,7 @@ exports.radar = async (req, res) => {
       };
     });
 
-    // Pass the result to the EJS template
-
+    // Calculate counts and costs for each phase
     const pitchCount = Number(
       data.find((d) => d.phase_id_fk === 1)?.project_count || 0,
     );
@@ -725,10 +739,10 @@ exports.radar = async (req, res) => {
     const deliveryCount = Number(
       data.find((d) => d.phase_id_fk === 4)?.project_count || 0,
     );
-
     const operationsCount = Number(
       data.find((d) => d.phase_id_fk === 5)?.project_count || 0,
     );
+
     const pitchTotalCost = Number(
       data.find((d) => d.phase_id_fk === 1)?.total_cost || 0,
     );
@@ -753,53 +767,34 @@ exports.radar = async (req, res) => {
       operationsTotalCost;
 
     const in_flight_cost = discoveryTotalCost + deliveryTotalCost;
-
-    //get company_headling (portfolio name)
-
-    const portfolioName = returnPortfolioName(company_id_fk);
     console.log("portfolioName", portfolioName);
+    // Render the radar page with the retrieved data
     res.render("Pages/pages-radar", {
       projects: projectsWithPhaseNames,
       pitchCount,
       priorityCount,
       discoveryCount,
       deliveryCount,
-      // operationsCount: in_flight_count,
+      operationsCount,
       pitchCost: pitchTotalCost,
       priorityCost: priorityTotalCost,
       in_flight_count: in_flight_cost,
-      operationsCost: data[0].phase_5_count,
-      // phase_2_total_cost: data[0].phase_2_total_cost,
-      in_flight_cost: in_flight_cost,
-      operationsCount,
       operationsTotalCost: formatCost(operationsTotalCost),
       pitchTotalCost: formatCost(pitchTotalCost),
       priorityTotalCost: formatCost(priorityTotalCost),
       discoveryCost: formatCost(discoveryTotalCost),
       deliveryCost: formatCost(deliveryTotalCost),
-      operationsCost: formatCost(operationsTotalCost),
       totalCost: formatCost(totalCost),
       currentDate: new Date().toLocaleDateString(),
-      portfolioName,
+      portfolioName, // Pass the company headline to the template
     });
   } catch (error) {
-    console.log("Query error:", error);
+    console.error("Query error:", error);
     return res.status(500).send({ message: "Server error" });
   }
 };
-
 exports.progress = async (req, res) => {
   const companyId = req.session.company.id;
-
-  // const companyData = await Person.findAll({
-  //   where: {
-  //     company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
-  //   },
-  // });
-  // if (!companyData) {
-  //   return res.status(404).send({ message: "Company not found" });
-  // } else {
-  // }
   try {
     // Get all projects for the company
     const projects = await db.projects.findAll({
@@ -940,19 +935,7 @@ exports.countProjectsByTag1 = async (req, res) => {
   }
 };
 exports.countProjectsByTag2 = async (req, res) => {
-  let companyId;
-
-  // Ensure session exists and extract company information
-  try {
-    if (!req.session || !req.session.company) {
-      return res.redirect("/pages-500");
-    } else {
-      companyId = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("Error extracting company information:", error);
-    return res.status(500).send({ message: "Server error" });
-  }
+  const companyId = req.session.company.id;
 
   try {
     // Count projects grouped by tag_1 and ensure tag_1 is not 0
@@ -1007,19 +990,7 @@ exports.countProjectsByTag2 = async (req, res) => {
   }
 };
 exports.countProjectsByTag3 = async (req, res) => {
-  let companyId;
-
-  // Ensure session exists and extract company information
-  try {
-    if (!req.session || !req.session.company) {
-      return res.redirect("/pages-500");
-    } else {
-      companyId = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("Error extracting company information:", error);
-    return res.status(500).send({ message: "Server error" });
-  }
+  const companyId = req.session.company.id;
 
   try {
     // Count projects grouped by tag_1 and ensure tag_1 is not 0
@@ -1074,7 +1045,7 @@ exports.countProjectsByTag3 = async (req, res) => {
   }
 };
 exports.flight = async (req, res) => {
-  let company_id_fk;
+  const companyId = req.session.company.id;
 
   const query = `
     SELECT 
@@ -1125,7 +1096,8 @@ exports.flight = async (req, res) => {
     ORDER BY 
       proj.phase_id_fk;
   `;
-
+  const portfolioName = await returnPortfolioName(companyId);
+  console.log("portfolioName", portfolioName);
   const data = await db.sequelize.query(query, {
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
@@ -1145,6 +1117,7 @@ exports.flight = async (req, res) => {
     res.render("Pages/pages_flight_plan", {
       start_date: startDateTest,
       projects: data,
+      portfolioName,
     });
   } catch (error) {
     console.log("Query error:", error);
@@ -1373,6 +1346,9 @@ exports.update = async (req, res) => {
 exports.health = async (req, res) => {
   //get all company projects
   const company_id_fk = req.session.company.id;
+  console.log("company_id_fk", company_id_fk);
+  const portfolioName = req.session.company.company_headline;
+  console.log("portfolioName : ", portfolioName);
 
   const costQuery = `SELECT 
     proj.company_id_fk,
@@ -1420,7 +1396,7 @@ ORDER BY
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
   });
-  console.log("costData:", costData);
+
   if (costData) {
     // Loop through data and get the most recent progress for each project
     costData.forEach((project) => {
@@ -1437,6 +1413,7 @@ ORDER BY
       }
     });
     res.render("Pages/pages-health", {
+      portfolioName,
       projects: costData,
       currentDate: moment().format("MMMM Do YYYY"),
     });
@@ -1475,10 +1452,21 @@ exports.flightview = async (req, res) => {
   const companyProjects = await Project.findAll({
     where: { company_id_fk: company_id_fk },
   });
-  const portfolioName = returnPortfolioName(company_id_fk);
+  const company = await db.companies.findOne({
+    where: { id: company_id_fk },
+    attributes: ["company_headline"],
+  });
+
+  // Check if the company exists
+  if (!company) {
+    return res.status(404).json({ message: "Company not found" });
+  }
+
+  const portfolioName = company.company_headline;
   res.render("Pages/pages_flight_plan", {
     projects: companyProjects,
     currentDate: moment().format("MMMM Do YYYY"),
+    portfolioName,
   });
 };
 
@@ -1688,26 +1676,16 @@ const formatCost = (cost) => {
   return cost.toString();
 };
 async function returnPortfolioName(company_id_fk) {
-  try {
-    console.log(
-      "*************************************************** Fetching portfolio name for company ID:",
-      company_id_fk,
-    );
+  // Fetch the company headline from the database
+  const company = await db.companies.findOne({
+    where: { id: company_id_fk },
+    attributes: ["company_headline"],
+  });
 
-    // Fetch the company headline from the database
-    const company = await db.companies.findOne({
-      where: { id: company_id_fk },
-      attributes: ["company_headline"],
-    });
-
-    // Check if the company exists and return the headline
-    if (!company || !company.company_headline) {
-      return "Portfolio name not found";
-    }
-
-    return company.company_headline;
-  } catch (error) {
-    console.error("Error fetching portfolio name:", error);
-    return "Error retrieving portfolio name";
+  // Check if the company exists and return the headline
+  if (!company || !company.company_headline) {
+    return "Portfolio name not found";
   }
+  console.log("company.company_headline", company.company_headline);
+  return company.company_headline;
 }
