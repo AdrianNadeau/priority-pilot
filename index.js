@@ -19,6 +19,8 @@ const DashboardRouter = require("./routes/DashboardRouter.js");
 const errorHandler = require("./middleware/errorHandler");
 
 const authMiddleware = require("./middleware/authMiddleware.js");
+const companyPortfolioName = require("./middleware/companyPortfolioName");
+
 // const readOnlyProject = require("./middleware/readOnlyProject");
 
 app.use(express.urlencoded({ extended: true }));
@@ -53,7 +55,7 @@ app.use(sessionMiddleware);
 app.use("/", Authrouter);
 app.use("/control", DashboardRouter);
 app.use(authMiddleware);
-// app.use(readOnlyProject);
+app.use(companyPortfolioName);
 
 // Set up storage engine
 const storage = multer.diskStorage({

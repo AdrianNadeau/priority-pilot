@@ -1,6 +1,7 @@
 module.exports = (app) => {
   const projects = require("../controllers/project.controller.js");
   const sessionMiddleware = require("../middleware/sessionMiddleware.js");
+  const checkProjectReadonly = require("../middleware/readOnlyProject");
 
   var router = require("express").Router();
   // Define routes using controller functions

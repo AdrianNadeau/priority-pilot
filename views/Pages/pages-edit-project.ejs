@@ -3,18 +3,25 @@
 
 
 <%- contentFor('breadcrumb') %>
-<ul class="list-inline menu-left mb-0">
-    <li class="list-inline-item">
-        <button type="button" class="button-menu-mobile open-left waves-effect">
-            <i class="ion-navicon"></i>
-        </button>
-    </li>
-    
-    <li class="hide-phone list-inline-item app-search">
-        <h3 class="page-title"> Projects </h3>
-    
-    </li>
-</ul>
+<div class="row">
+  <div class="col-md-4">
+    <button type="button" class="button-menu-mobile open-left waves-effect">
+      <i class="ion-navicon"></i>
+    </button>
+    <h3 class="page-title">Edit Project</h3>
+  </div>
+  <div class="col-md-4">
+    <h3
+      id = "portfolio_name" class="page-title"
+      style="color: #67a8e4; min-width: 600px"
+    >
+    <%= portfolio_name %>
+    </h3>
+  </div>
+  <div class="col-md-4 text-right">
+    <!-- Add any additional content here -->
+  </div>
+</div>
 
 <%- contentFor('body') %>
 
@@ -222,7 +229,7 @@
          <!-- <button class="btn btn-danger w-md waves-effect waves-light" onclick="archiveProject('<%= project.id %>');" type="submit">Archive</button> -->
 
      </div>
-   
+    
    <div id="openConfirm" class="modal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
      <div class="modal-dialog">
          <div class="modal-content" style="width: 500px;">
@@ -282,6 +289,7 @@
          </div><!-- /.modal-content -->
      </div><!-- /.modal-dialog -->
    </div><!-- /.modal -->
+   
 <%- contentFor('FooterJs') %>
 
 <%- contentFor('BottomJs') %>
@@ -451,5 +459,29 @@
       }
     });
   }
-  
+  function disableAllInputs() {
+    // Disable all input fields
+    document.querySelectorAll('input').forEach(input => {
+      input.disabled = true;
+    });
+
+    // Disable all textareas
+    document.querySelectorAll('textarea').forEach(textarea => {
+      textarea.disabled = true;
+    });
+
+    // Disable all select elements
+    document.querySelectorAll('select').forEach(select => {
+      select.disabled = true;
+    });
+
+    // Optionally disable buttons if needed
+    document.querySelectorAll('button').forEach(button => {
+      button.disabled = true;
+    });
+
+    console.log("All inputs, textareas, and selects have been disabled.");
+  }
+
+ 
 </script>
