@@ -2,22 +2,63 @@ module.exports = (app) => {
   const projects = require("../controllers/project.controller.js");
   const sessionMiddleware = require("../middleware/sessionMiddleware.js");
   const checkProjectReadonly = require("../middleware/readOnlyProject");
+  const companyPortfolioName = require("../middleware/companyPortfolioName.js");
 
   var router = require("express").Router();
   // Define routes using controller functions
-  router.post("/", sessionMiddleware, projects.create);
-  router.get("/", sessionMiddleware, projects.findAll);
-  router.get("/:id", sessionMiddleware, projects.findOne);
-  router.post("/:id", sessionMiddleware, projects.update);
-  router.delete("/:id", sessionMiddleware, projects.delete);
+  router.post("/", sessionMiddleware, companyPortfolioName, projects.create);
+  router.get("/", sessionMiddleware, companyPortfolioName, projects.findAll);
+  router.get("/:id", sessionMiddleware, companyPortfolioName, projects.findOne);
+  router.post("/:id", sessionMiddleware, companyPortfolioName, projects.update);
+  router.delete(
+    "/:id",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.delete,
+  );
 
-  router.get("/archvive/:id", sessionMiddleware, projects.archvive);
-  router.get("/cockpit/:id", sessionMiddleware, projects.cockpit);
-  router.get("/edit/:id", sessionMiddleware, projects.findOneForEdit);
-  router.get("/cockpit/:id", sessionMiddleware, projects.cockpit);
-  router.get("/funnel/view/", sessionMiddleware, projects.findFunnel);
-  router.get("/freezer/view/", sessionMiddleware, projects.findFreezer);
-  router.get("/radar/view/", sessionMiddleware, projects.radar);
+  router.get(
+    "/archvive/:id",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.archvive,
+  );
+  router.get(
+    "/cockpit/:id",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.cockpit,
+  );
+  router.get(
+    "/edit/:id",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.findOneForEdit,
+  );
+  router.get(
+    "/cockpit/:id",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.cockpit,
+  );
+  router.get(
+    "/funnel/view/",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.findFunnel,
+  );
+  router.get(
+    "/freezer/view/",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.findFreezer,
+  );
+  router.get(
+    "/radar/view/",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.radar,
+  );
   router.get("/radar/progress/", sessionMiddleware, projects.progress);
   router.get(
     "/radar/countProjectsByTag1/",
@@ -34,11 +75,31 @@ module.exports = (app) => {
     sessionMiddleware,
     projects.countProjectsByTag3,
   );
-  router.get("/flight/view/", sessionMiddleware, projects.flight);
-  router.get("/health/view", sessionMiddleware, projects.health);
-  router.get("/flightview/view/", sessionMiddleware, projects.flightview);
+  router.get(
+    "/flight/view/",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.flight,
+  );
+  router.get(
+    "/health/view",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.health,
+  );
+  router.get(
+    "/flightview/view/",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.flightview,
+  );
   router.get("/flightview/ganttChart/", sessionMiddleware, projects.ganttChart);
-  router.delete("/", sessionMiddleware, projects.deleteAll);
+  router.delete(
+    "/",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.deleteAll,
+  );
 
   app.use("/projects", router);
 };

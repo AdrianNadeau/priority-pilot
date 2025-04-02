@@ -1,10 +1,13 @@
 const session = require("express-session");
+const path = require("path");
 const db = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../routes/JWTRouter");
-// const sendEmail = require("../utils/emailSender");
-
+const sendEmail = require("../utils/emailSender");
+const sgMail = require("@sendgrid/mail");
+const ejs = require("ejs");
+const { v4: uuidv4 } = require("uuid");
 const { persons: Person, companies: Company } = db;
 
 // Helper function to authenticate user credentials
@@ -118,12 +121,12 @@ exports.login = async (req, res, next) => {
     const company = await Company.findByPk(person.company_id_fk);
     if (!company) {
       return res.redirect("/login");
+    } else {
+      req.session.company = company;
+      req.session.person = person;
+      console.log("Redirecting to Dashboard...");
+      res.redirect("/");
     }
-
-    req.session.company = company;
-    req.session.person = person;
-    console.log("Redirecting to Dashboard...");
-    res.redirect("/");
   } catch (error) {
     next(error);
   }
@@ -205,47 +208,141 @@ exports.deleteAll = async (req, res, next) => {
   }
 };
 
-// exports.sendWelcomeEmail = async (req, res) => {
-//   console.log(".....Sending WelcomeEmail....");
-//   const pesronFirstName = req.session.person?.first_name;
-//   const personEmail = req.session.person?.email;
+exports.sendWelcomeEmail = async (req, res) => {
+  console.log(".....Sending WelcomeEmail....");
+  const pesronFirstName = req.session.person?.first_name;
+  const personEmail = req.session.person?.email;
 
-//   console.log("person:", pesronFirstName);
-//   console.log("personEmail:", personEmail);
+  console.log("person:", pesronFirstName);
+  console.log("personEmail:", personEmail);
 
-//   // const email = "adrian@prioritypilot.ca";
-//   try {
-//     await sendEmail(email, "Welcome to Priority Pilot!", "welcome", {
-//       first_name: pesronFirstName,
-//     });
-//     res.status(200).send("Welcome email sent successfully");
-//   } catch (error) {
-//     console.error("Error sending welcome email:", error);
-//     res.status(500).send("Error sending welcome email");
-//   }
-// };
+  // const email = "adrian@prioritypilot.ca";
+  try {
+    await sendEmail(email, "Welcome to Priority Pilot!", "welcome", {
+      first_name: pesronFirstName,
+    });
+    res.status(200).send("Welcome email sent successfully");
+  } catch (error) {
+    console.error("Error sending welcome email:", error);
+    res.status(500).send("Error sending welcome email");
+  }
+};
+exports.setCheckPassword = async (req, res) => {
+  console.log(".....Sending setCheckPassword....");
+  const token = req.parameter.token;
+  console.log("token:", token);
 
+  // const email = "adrian@ansoftwareservices.com";
+  // // if (!req.body.email) {
+  // //   return res.status(400).send("Email is required.");
+  // // }
+  // console.log("FIND PERSON BY EMAIL");
+  // const person = await Person.findOne({
+  //   where: { email: email },
+  // });
+  // if (!person) {
+  //   return res.status(404).send("Email not found.");
+  // }
+
+  // console.log("Person found:", person.first_name);
+  // const resetToken = uuidv4(); // Generate a unique identifier for the token
+  // const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca/persons/ChangePassword"}?token=${resetToken}`;
+
+  // const templateData = {
+  //   first_name: req.body.first_name || "User",
+  //   redirectURL, // Pass the redirect URL to the template
+  // };
+
+  // try {
+  //   console.log("Send Email to:", email);
+  //   await sendEmail(
+  //     email,
+  //     "Reset Your Password",
+  //     "reset-email-password",
+  //     templateData,
+  //   );
+
+  //     res.redirect("/persons/");;
+  //   } catch (error) {
+  //     console.error("Error sending reset password email:", error);
+  //     res.status(500).send("Error sending reset password email.");
+  //   }
+};
+exports.sendResetPasswordEmail = async (req, res) => {
+  const email = req.body.email;
+  // const email = "adrian@ansoftwareservices.com";
+  if (!req.body.email) {
+    return res.status(400).send("Email is required.");
+  }
+  console.log("FIND PERSON BY EMAIL");
+  const person = await Person.findOne({
+    where: { email: email },
+  });
+  if (!person) {
+    return res.status(404).send("Email not found.");
+  }
+
+  const resetToken = uuidv4(); // Generate a unique identifier for the token
+  const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca/persons/ChangePassword"}?token=${resetToken}`;
+
+  const templateData = {
+    first_name: req.body.first_name || "User",
+    redirectURL, // Pass the redirect URL to the template
+  };
+
+  try {
+    console.log("Send Email to:", email);
+    await sendEmail(
+      email,
+      "Reset Your Password",
+      "reset-email-password",
+      templateData,
+    );
+
+    //render change password page
+    console.log("Redirecting to Change Password page...");
+    res.render("Pages/pages-email-status", {
+      success: true,
+      message: "Reset password email sent successfully.",
+    });
+    console.log("Insert token into database");
+  } catch (error) {
+    res.render("Pages/pages-email-status", {
+      success: false,
+      message: "Error resetting password.",
+    });
+  }
+};
 // exports.sendResetPasswordEmail = async (req, res) => {
-//   console.log(".....Sending reset password....");
-//   const to = "adrian@prioritypilot.ca";
-//   const subject = "Reset your password";
-//   const templateName = "reset-email-password";
-//   const templateData = {
-//     first_name: "John",
-//   };
+//   try {
+//     console.log("req.body.email", req.body);
 
-//   sendEmail(to, subject, templateName, templateData)
-//     .then((info) => {
-//       console.log("Email sent successfully:", info);
-//     })
-//     .catch((error) => {
-//       console.error("Error sending email:", error);
-//     });
-//   sendEmail(to, subject, templateName, templateData)
-//     .then((info) => {
-//       console.log("Email sent successfully:", info);
-//     })
-//     .catch((error) => {
-//       console.error("Error sending email:", error);
-//     });
+//     const resetToken = "example-reset-token"; // Replace with actual token generation logic
+//     const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca"}?token=${resetToken}`;
+//     //add value with by person with email  = to req.body.email
+//     console.log("redirectURL", redirectURL);
+//     // Check if the email exists in the database
+//     // const person = await Person.findOne({ where: { email: req.body.email } });
+//     // if (!person) {
+//     //   return res.status(404).send("Email not found.");
+//     // }
+//     const templateData = {
+//       // first_name: person.first_name || "Friend",
+//       first_name: "Adrian",
+//       redirectURL, // Pass the redirect URL to the template
+//     };
+
+//     // Send the email
+//     await sendEmail(
+//       "adrian@prioritypilot.ca",
+//       "Reset Your Password",
+//       "reset-email-password",
+//       templateData,
+//     );
+
+//     res.status(200).send("Reset password email sent successfully.");
+//   } catch (error) {
+//     console.error("Error sending reset password email:", error);
+//     res.status(500).send("Error sending reset password email.");
+//   }
 // };

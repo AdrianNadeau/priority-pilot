@@ -4,35 +4,34 @@ require("dotenv").config();
 var Authrouter = express.Router();
 const companies = require("../controllers/company.controller");
 const persons = require("../controllers/person.controller");
-const isAdminMiddleware = require("../middleware/isAdminMiddleware");
 // const sendEmail = require("../utils/emailSender");
 
-exports.sendWelcomeEmail = (req, res) => {
-  const { email, name } = req.body;
+// exports.sendWelcomeEmail = (req, res) => {
+//   const { email, name } = req.body;
 
-  sendEmail(email, "Welcome to Our Platform", "welcome", { name })
-    .then(() => {
-      res.status(200).send("Welcome email sent successfully");
-    })
-    .catch((error) => {
-      console.error("Error sending welcome email:", error);
-      res.status(500).send("Error sending welcome email");
-    });
-};
+//   sendEmail(email, "Welcome to Our Platform", "welcome", { name })
+//     .then(() => {
+//       res.status(200).send("Welcome email sent successfully");
+//     })
+//     .catch((error) => {
+//       console.error("Error sending welcome email:", error);
+//       res.status(500).send("Error sending welcome email");
+//     });
+// };
 
-exports.sendResetPasswordEmail = (req, res) => {
-  console.log("SEND RESET EMAIL");
-  const { email, resetLink } = req.body;
+// exports.sendResetPasswordEmail = (req, res) => {
+//   console.log("SEND RESET EMAIL");
+//   const { email, resetLink } = req.body;
 
-  sendEmail(email, "Reset Your Password", "resetPassword", { resetLink })
-    .then(() => {
-      res.status(200).send("Reset password email sent successfully");
-    })
-    .catch((error) => {
-      console.error("Error sending reset password email:", error);
-      res.status(500).send("Error sending reset password email");
-    });
-};
+//   sendEmail(email, "Reset Your Password", "resetPassword", { resetLink })
+//     .then(() => {
+//       res.status(200).send("Reset password email sent successfully");
+//     })
+//     .catch((error) => {
+//       console.error("Error sending reset password email:", error);
+//       res.status(500).send("Error sending reset password email");
+//     });
+// };
 //Authentications all TABs.
 Authrouter.get("/login", function (req, res) {
   res.render("Pages/pages-login");
@@ -109,6 +108,9 @@ Authrouter.get("/auth/reset-password", function (req, res) {
 });
 Authrouter.get("/recover-password", function (req, res) {
   res.render("Pages/pages-recoverpw");
+});
+Authrouter.get("/pages-change-password", function (req, res) {
+  res.render("Pages/pages-change-password");
 });
 Authrouter.post("/auth/login", persons.login);
 Authrouter.post("/reset-email-password", function (req, res) {

@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const ejs = require("ejs");
 const path = require("path");
-
+const { v4: uuidv4 } = require("uuid");
 // Ensure environment variables are set
 // console.log("process.env.SG_SMTP_USER_NAME", process.env.SG_SMTP_USER_NAME);
 // console.log("process.env.SENDGRID_SMTP_API_KEY", process.env.SENDGRID_API_KEY);
@@ -21,10 +21,27 @@ const transporter = nodemailer.createTransport({
 
 // Function to send email
 const sendEmail = async (to, subject, templateName, templateData) => {
+  console.log("********************************** to ", to);
   try {
+    const resetToken = uuidv4();
+    const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca"}?token=${resetToken}`;
+    //add value with by person with email  = to req.body.email
+    console.log("redirectURL", redirectURL);
+    // Check if the email exists in the database
+    // const person = await Person.findOne({ where: { email: req.body.email } });
+    // if (!person) {
+    //   return res.status(404).send("Email not found.");
+    // }
+    const templateData = {
+      // first_name: person.first_name || "Friend",
+      first_name: "Adrian",
+      redirectURL, // Pass the redirect URL to the template
+    };
     // Render the email template
     const templatePath = path.join(
       __dirname,
+      "..",
+      "views",
       "emailTemplates",
       `${templateName}.ejs`,
     );

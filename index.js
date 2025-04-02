@@ -17,7 +17,6 @@ const Authrouter = require("./routes/AuthRouter.js");
 const DashboardRouter = require("./routes/DashboardRouter.js");
 
 const errorHandler = require("./middleware/errorHandler");
-
 const authMiddleware = require("./middleware/authMiddleware.js");
 const companyPortfolioName = require("./middleware/companyPortfolioName");
 
@@ -31,8 +30,12 @@ app.get("/layouts/", function (req, res) {
   res.render("view");
 });
 
+// Middleware to parse JSON request bodies
 app.use(express.json());
+
+// Middleware to parse URL-encoded request bodies
 app.use(express.urlencoded({ extended: true }));
+
 const sessionMiddleware = session({
   store: new pgSession({
     pool: new pg.Pool({
