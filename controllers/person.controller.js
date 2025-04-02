@@ -227,10 +227,13 @@ exports.sendWelcomeEmail = async (req, res) => {
     res.status(500).send("Error sending welcome email");
   }
 };
-exports.setCheckPassword = async (req, res) => {
+exports.changePassword = async (req, res) => {
   console.log(".....Sending setCheckPassword....");
   const token = req.parameter.token;
   console.log("token:", token);
+  res.render("pages-reset-password", {
+    token: token,
+  });
 
   // const email = "adrian@ansoftwareservices.com";
   // // if (!req.body.email) {
@@ -274,16 +277,15 @@ exports.sendResetPasswordEmail = async (req, res) => {
   if (!req.body.email) {
     return res.status(400).send("Email is required.");
   }
-  console.log("FIND PERSON BY EMAIL");
+
   const person = await Person.findOne({
     where: { email: email },
   });
   if (!person) {
     return res.status(404).send("Email not found.");
   }
-
   const resetToken = uuidv4(); // Generate a unique identifier for the token
-  const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca/persons/ChangePassword"}?token=${resetToken}`;
+  const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca/pages-change-password"}?token=${resetToken}`;
 
   const templateData = {
     first_name: req.body.first_name || "User",
@@ -313,36 +315,3 @@ exports.sendResetPasswordEmail = async (req, res) => {
     });
   }
 };
-// exports.sendResetPasswordEmail = async (req, res) => {
-//   try {
-//     console.log("req.body.email", req.body);
-
-//     const resetToken = "example-reset-token"; // Replace with actual token generation logic
-//     const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca"}?token=${resetToken}`;
-//     //add value with by person with email  = to req.body.email
-//     console.log("redirectURL", redirectURL);
-//     // Check if the email exists in the database
-//     // const person = await Person.findOne({ where: { email: req.body.email } });
-//     // if (!person) {
-//     //   return res.status(404).send("Email not found.");
-//     // }
-//     const templateData = {
-//       // first_name: person.first_name || "Friend",
-//       first_name: "Adrian",
-//       redirectURL, // Pass the redirect URL to the template
-//     };
-
-//     // Send the email
-//     await sendEmail(
-//       "adrian@prioritypilot.ca",
-//       "Reset Your Password",
-//       "reset-email-password",
-//       templateData,
-//     );
-
-//     res.status(200).send("Reset password email sent successfully.");
-//   } catch (error) {
-//     console.error("Error sending reset password email:", error);
-//     res.status(500).send("Error sending reset password email.");
-//   }
-// };

@@ -109,17 +109,10 @@ Authrouter.get("/auth/reset-password", function (req, res) {
 Authrouter.get("/recover-password", function (req, res) {
   res.render("Pages/pages-recoverpw");
 });
-Authrouter.get("/pages-change-password", function (req, res) {
-  res.render("Pages/pages-change-password");
+Authrouter.get("/auth/pages-change-password/:token", function (req, res) {
+  res.render("Pages/pages-reset-password");
 });
 Authrouter.post("/auth/login", persons.login);
-Authrouter.post("/reset-email-password", function (req, res) {
-  //create unique token to send user if email exists
-  const email = req.body.email;
-
-  res.send("Email sent to " + email);
-  // persons.findOne(email, res);
-});
 
 // Authrouter.get("/test", function (req, res) {
 //   res.render("Pages/pages-reset-password");

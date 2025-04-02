@@ -8,8 +8,11 @@ module.exports = (app) => {
   var router = require("express").Router();
   // Define routes using controller functions
   router.post("/", companyPortfolioName, persons.create);
-  // Route to send welcome emailAuthrouter.post("/register", companies.create);
+  // Route to send reset email
   router.post("/send-reset-email", persons.sendResetPasswordEmail);
+
+  // Route to change password (no session required)
+  router.get("/changePassword/:token", persons.changePassword);
 
   // Create a new Person
   router.post("/", sessionMiddleware, companyPortfolioName, persons.create);
@@ -55,7 +58,6 @@ module.exports = (app) => {
     companyPortfolioName,
     persons.deleteAll,
   );
-  router.get("/setCheckPassword/:token");
-  // persons.setChangePassword,
+
   app.use("/persons", router);
 };
