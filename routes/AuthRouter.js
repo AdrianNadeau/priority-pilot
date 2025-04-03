@@ -103,7 +103,8 @@ Authrouter.get("/session-expired", function (req, res) {
   res.render("Pages/pages-session-expired");
 });
 
-Authrouter.get("/auth/reset-password", function (req, res) {
+Authrouter.get("/auth/reset-password/:token", function (req, res) {
+  console.log("LOAD WITH TOKEN");
   res.render("Pages/pages-reset-password");
 });
 Authrouter.get("/recover-password", function (req, res) {

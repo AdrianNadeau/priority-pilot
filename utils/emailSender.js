@@ -21,7 +21,6 @@ const transporter = nodemailer.createTransport({
 
 // Function to send email
 const sendEmail = async (to, subject, templateName, templateData) => {
-  console.log("send email to ", to);
   try {
     const resetToken = uuidv4();
     const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca"}?token=${resetToken}`;
@@ -55,10 +54,10 @@ const sendEmail = async (to, subject, templateName, templateData) => {
       html: html, // HTML body
     };
 
-    console.log("Sending email...");
     // Send the email
     const info = await transporter.sendMail(mailOptions);
     console.log("Email sent: ", info.messageId);
+    //insert resetToken into the database
     return info;
   } catch (error) {
     console.error("Error sending email:", error);

@@ -32,6 +32,13 @@ db.changed_projects = require("./changed_project.model.js")(
   Sequelize.DataTypes,
 );
 
+const ChangePasswordToken = require("./changed_password_token.model")(
+  sequelize,
+  Sequelize.DataTypes,
+);
+
+db.ChangePasswordToken = ChangePasswordToken;
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

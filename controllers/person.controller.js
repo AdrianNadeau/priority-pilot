@@ -5,9 +5,13 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../routes/JWTRouter");
 const sendEmail = require("../utils/emailSender");
+const changed = require("../utils/emailSender");
 const sgMail = require("@sendgrid/mail");
 const ejs = require("ejs");
 const { v4: uuidv4 } = require("uuid");
+const e = require("express");
+const ChangedPasswordToken = db.ChangePasswordToken;
+
 const { persons: Person, companies: Company } = db;
 
 // Helper function to authenticate user credentials
@@ -74,10 +78,6 @@ exports.create = async (req, res, next) => {
       isAdmin: isAdminStatus,
     });
 
-    if (!req.session.person) {
-      req.session.company = company;
-      req.session.person = newPerson;
-    }
     console.log("Redirecting to Dashboard...");
 
     res.redirect(register_yn === "y" ? "/" : "/persons");
@@ -234,66 +234,35 @@ exports.changePassword = async (req, res) => {
   res.render("pages-reset-password", {
     token: token,
   });
-
-  // const email = "adrian@ansoftwareservices.com";
-  // // if (!req.body.email) {
-  // //   return res.status(400).send("Email is required.");
-  // // }
-  // console.log("FIND PERSON BY EMAIL");
-  // const person = await Person.findOne({
-  //   where: { email: email },
-  // });
-  // if (!person) {
-  //   return res.status(404).send("Email not found.");
-  // }
-
-  // console.log("Person found:", person.first_name);
-  // const resetToken = uuidv4(); // Generate a unique identifier for the token
-  // const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca/persons/ChangePassword"}?token=${resetToken}`;
-
-  // const templateData = {
-  //   first_name: req.body.first_name || "User",
-  //   redirectURL, // Pass the redirect URL to the template
-  // };
-
-  // try {
-  //   console.log("Send Email to:", email);
-  //   await sendEmail(
-  //     email,
-  //     "Reset Your Password",
-  //     "reset-email-password",
-  //     templateData,
-  //   );
-
-  //     res.redirect("/persons/");;
-  //   } catch (error) {
-  //     console.error("Error sending reset password email:", error);
-  //     res.status(500).send("Error sending reset password email.");
-  //   }
 };
 exports.sendResetPasswordEmail = async (req, res) => {
   const email = req.body.email;
-  // const email = "adrian@ansoftwareservices.com";
-  if (!req.body.email) {
+
+  if (!email) {
     return res.status(400).send("Email is required.");
   }
 
-  const person = await Person.findOne({
-    where: { email: email },
-  });
-  if (!person) {
-    return res.status(404).send("Email not found.");
-  }
-  const resetToken = uuidv4(); // Generate a unique identifier for the token
-  const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca/pages-change-password"}?token=${resetToken}`;
-
-  const templateData = {
-    first_name: req.body.first_name || "User",
-    redirectURL, // Pass the redirect URL to the template
-  };
-
   try {
-    console.log("Send Email to:", email);
+    // Find the person by email
+    const person = await Person.findOne({ where: { email } });
+    if (!person) {
+      return res.status(404).send("Email not found.");
+    }
+    console.log("person:", person.id);
+
+    // Generate a unique reset token
+    const resetToken = uuidv4();
+
+    // Generate the redirect URL
+    const redirectURL = `${process.env.REDIRECT_URL}?token=${resetToken}`;
+
+    // Prepare email template data
+    const templateData = {
+      first_name: person.first_name || "Friend",
+      redirectURL, // Pass the redirect URL to the template
+    };
+
+    // Send the reset password email
     await sendEmail(
       email,
       "Reset Your Password",
@@ -301,14 +270,25 @@ exports.sendResetPasswordEmail = async (req, res) => {
       templateData,
     );
 
-    //render change password page
-    console.log("Redirecting to Change Password page...");
+    console.log("Reset password email sent successfully.");
+    //add 10 minutes before the token expires
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+    const changedPasswordToken = await ChangedPasswordToken.create({
+      person_id_fk: person.id,
+      token: resetToken,
+      email: person.email,
+      created_at: new Date(),
+      expires_at: expiresAt,
+    });
+    // Render the email status page
     res.render("Pages/pages-email-status", {
       success: true,
       message: "Reset password email sent successfully.",
     });
-    console.log("Insert token into database");
   } catch (error) {
+    console.error("Error resetting password:", error);
+
+    // Render the email status page with an error message
     res.render("Pages/pages-email-status", {
       success: false,
       message: "Error resetting password.",
