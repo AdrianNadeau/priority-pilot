@@ -125,7 +125,13 @@ exports.login = async (req, res, next) => {
       req.session.company = company;
       req.session.person = person;
       console.log("Redirecting to Dashboard...");
-      res.redirect("/");
+      req.session.save((err) => {
+        if (err) {
+          console.error("Session save error:", err);
+          return res.status(500).send("Internal Server Error");
+        }
+        res.redirect("/");
+      });
     }
   } catch (error) {
     next(error);

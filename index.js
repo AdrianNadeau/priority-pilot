@@ -50,7 +50,7 @@ const sessionMiddleware = session({
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: false,
-  ookie: { maxAge: 2 * 60 * 60 * 1000 }, // 2 hours
+  cookie: { maxAge: 2 * 60 * 60 * 1000 }, // 2 hours
 });
 app.use(sessionMiddleware);
 
