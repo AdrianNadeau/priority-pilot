@@ -110,6 +110,12 @@ Authrouter.get("/auth/reset-password/:token", function (req, res) {
 Authrouter.get("/recover-password", function (req, res) {
   res.render("Pages/pages-recoverpw");
 });
+Authrouter.get("/email-status", function (req, res) {
+  const emailStatus = req.session.emailStatus || "";
+  // Optionally clear the message after displaying:
+  req.session.emailStatus = null;
+  res.render("Pages/pages-email-status", { emailStatus });
+});
 Authrouter.get("/auth/pages-change-password/:token", function (req, res) {
   res.render("Pages/pages-reset-password");
 });

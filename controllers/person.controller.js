@@ -293,11 +293,9 @@ exports.sendResetPasswordEmail = async (req, res) => {
     });
   } catch (error) {
     console.error("Error resetting password:", error);
-
-    // Render the email status page with an error message
-    res.render("Pages/pages-email-status", {
-      success: false,
-      message: "Error resetting password.",
+    req.session.emailStatus = "Error resetting password.";
+    req.session.save(() => {
+      res.redirect("/email-status");
     });
   }
 };

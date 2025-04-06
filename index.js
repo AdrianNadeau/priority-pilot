@@ -101,6 +101,7 @@ require("./routes/change_reason.routes.js")(app);
 require("./routes/changed_project.routes.js")(app);
 require("./routes/changed_password_token.routes.js")(app);
 // Handle 404 errors
+app.use(errorHandler);
 app.use((req, res, next) => {
   res.status(404).render("Pages/pages-404");
 });
