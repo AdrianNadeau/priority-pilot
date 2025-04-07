@@ -56,7 +56,8 @@
     "req-flash": "0.0.3",
     "sequelize": "^6.37.5",
     "util": "^0.12.5",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "dompurify": "^3.2.5"
   },
   "repository": {},
   "devDependencies": {

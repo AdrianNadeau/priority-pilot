@@ -9,11 +9,11 @@
  */
 (function (global, factory) {
   typeof exports === "object" && typeof module !== "undefined"
-    ? factory(require("jquery"))
+    ? factory(require("jquery"), require("dompurify"))
     : typeof define === "function" && define.amd
-      ? define(["jquery"], factory)
-      : factory(global.jQuery);
-})(this, function ($$1) {
+      ? define(["jquery", "dompurify"], factory)
+      : factory(global.jQuery, global.DOMPurify);
+})(this, function ($$1, DOMPurify) {
   "use strict";
 
   $$1 = $$1 && $$1.hasOwnProperty("default") ? $$1["default"] : $$1;
@@ -5146,9 +5146,9 @@
             $$1.each(dataTransfer.types, function (idx, type) {
               var content = dataTransfer.getData(type);
               if (type.toLowerCase().indexOf("text") > -1) {
-                _this.context.invoke("editor.pasteHTML", content);
+                _this.context.invoke("editor.pasteHTML", DOMPurify.sanitize(content));
               } else {
-                $$1(content).each(function (idx, item) {
+                $$1(DOMPurify.sanitize(content)).each(function (idx, item) {
                   _this.context.invoke("editor.insertNode", item);
                 });
               }
