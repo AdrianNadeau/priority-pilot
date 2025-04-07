@@ -287,8 +287,7 @@ exports.sendResetPasswordEmail = async (req, res) => {
       expires_at: expiresAt,
     });
     // Render the email status page
-    req.session.emailStatus =
-      "Reset password email sent successfully" + "to " + person.email;
+    req.session.emailStatus = "Reset password email sent successfully.";
     req.session.save(() => {
       res.redirect("/email-status");
     });
