@@ -1473,7 +1473,7 @@ exports.flightview = async (req, res) => {
 // Update a Project by the id in the request
 exports.update = async (req, res) => {
   const funnelPage = req.body.funnelPage;
-  console.log("funnelPage:", funnelPage);
+
   try {
     const { id } = req.params;
     const {

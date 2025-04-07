@@ -139,7 +139,7 @@
                         </div>
                     </div>
                     <div>
-                        <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;" onClick="getProjects();">Add Project</div>
+                      <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Project</button>
                         <!-- <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 100px;" onClick="getProjects();"> -->
                             
                         </button>
@@ -350,7 +350,123 @@
 <script src="public/assets/plugins/jquery-knob/jquery.knob.js"></script>
 
 <%- contentFor('BottomJs') %>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    'use strict';
 
+   // Fetch all the forms we want to apply custom Bootstrap validation styles to
+   var forms = document.querySelectorAll(".needs-validation");
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach(function (form) {
+      form.addEventListener(
+        "submit",
+        function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+
+          form.classList.add("was-validated");
+        },
+        false,
+      );
+    });
+
+    // Numeric input validation for specific fields
+    const numericFields = ['project_cost', 'effort', 'benefit'];
+    numericFields.forEach(function(fieldId) {
+        document.getElementById(fieldId).addEventListener('keydown', function(event) {
+            if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
+                !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
+                !(event.ctrlKey || event.metaKey)) {
+                alert("Only numbers are allowed.")
+                event.preventDefault();
+            }
+        });
+    });
+
+    // Table row click navigation to edit page
+    document.querySelectorAll(".table tbody tr").forEach(function(row) {
+        row.addEventListener('click', function() {
+            var id = row.cells[0].textContent;
+            window.location.replace('/projects/edit/' + id);
+        });
+    });
+
+    // Input formatting with commas for project cost and benefit
+    ['project_cost', 'benefit'].forEach(function(fieldId) {
+        document.getElementById(fieldId).addEventListener('input', function () {
+            let input = this.value.replace(/[^0-9.]/g, '');
+            if (input.includes('.')) {
+                const parts = input.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                input = parts.join('.');
+            } else {
+                input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+            this.value = input;
+        });
+    });
+    console.log("Initializing flatpickr");
+    // Initialize Flatpickr for all datepicker inputs
+    flatpickr(".datepicker", {
+      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+      allowInput: true,     // Allow manual input if needed
+      allowInvalidPreload: true, // Allow invalid dates to be preloaded
+    });
+
+    // Show or hide date_section based on phase selection
+    const phaseSelect = document.getElementById("phase_id_fk");
+    const dateSection = document.getElementById("date_section");
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const nextMilestoneDateInput = document.getElementById('next_milestone_date');
+    const dateRequired = document.getElementById('dates_required');
+
+    function toggleDateSection() {
+      if (phaseSelect.value == "1" || phaseSelect.value == "6") {
+        // Phase is pitch, hide dates and clear validation messages
+        dateSection.style.display = 'none';
+        startDateInput.required = false;
+        endDateInput.required = false;
+        dateRequired.style.display = 'none';
+        startDateInput.value = "";
+        endDateInput.value = "";
+        nextMilestoneDateInput.value = "";
+      } else {
+        // Phase is not pitch, show dates and set required
+        dateSection.style.display = 'block';
+        startDateInput.required = true;
+        endDateInput.required = true;
+        if (!startDateInput.value) {
+          // Set the placeholder
+          startDateInput.placeholder = "Start Date";
+        }
+        if (!endDateInput.value) {
+          endDateInput.placeholder = "End Date";
+        }
+        if (!nextMilestoneDateInput.value) {
+          nextMilestoneDateInput.placeholder = "Milestone Date";
+        }
+      }
+    }
+
+    // Initial check
+    toggleDateSection();
+
+    // Add event listener to phase selection change
+    phaseSelect.addEventListener("change", toggleDateSection);
+  });
+
+  function submitForm() {
+    document.getElementById('editProjectForm').submit();
+  }
+
+  function cancelForm(){
+    window.location.replace("/projects");
+  }
+</script>
 <script>
   function loadProject(project_id) {
     window.location.replace('/projects/cockpit/' + project_id);

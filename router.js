@@ -193,13 +193,19 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       availableCost: formatToKMB(availableCost),
       usedEffort: formatToKMB(usedEffort),
     };
+
     //get all phases for add project modal
     const phases = await db.phases.findAll({});
     //get all priorities for add project modal
     const priorities = await db.priorities.findAll({});
     //get all persons for primes and sponsors add project modal
     const persons = await db.persons.findAll({ where: { company_id_fk } });
-    const tags = await db.tags.findAll({ where: { company_id_fk } });
+    const tags = await db.tags.findAll({
+      where: {
+        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      },
+    });
+
     // Render dashboard with all calculated values
     const portfolioName = req.session.company.company_headline;
     res.render("Dashboard/dashboard1", {
