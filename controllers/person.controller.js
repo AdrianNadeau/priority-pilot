@@ -289,7 +289,7 @@ exports.sendResetPasswordEmail = async (req, res) => {
     // Render the email status page
     res.render("Pages/pages-email-status", {
       success: true,
-      message: "Reset password email sent successfully.",
+      emailStatus: "Reset password email sent successfully.",
     });
   } catch (error) {
     console.error("Error resetting password:", error);
