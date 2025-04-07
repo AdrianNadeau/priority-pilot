@@ -5,7 +5,7 @@ const isAdminMiddleware = require("./middleware/isAdminMiddleware");
 const db = require("./models");
 const Project = db.projects;
 const Company = db.companies;
-const { Op, fn, col, literal } = require("sequelize");
+const { Op, fn, col, literal, where } = require("sequelize");
 const { format } = require("sequelize/lib/utils");
 
 // Function to format numbers with K, M, B
@@ -87,7 +87,6 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-
     if (!data || data.length === 0) {
       console.log("No data found for company_id_fk:", company_id_fk);
       return res.redirect("/projects");
@@ -194,7 +193,13 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       availableCost: formatToKMB(availableCost),
       usedEffort: formatToKMB(usedEffort),
     };
-    console.log("formatted Data", formattedData.archived.cost);
+    //get all phases for add project modal
+    const phases = await db.phases.findAll({});
+    //get all priorities for add project modal
+    const priorities = await db.priorities.findAll({});
+    //get all persons for primes and sponsors add project modal
+    const persons = await db.persons.findAll({ where: { company_id_fk } });
+    const tags = await db.tags.findAll({ where: { company_id_fk } });
     // Render dashboard with all calculated values
     const portfolioName = req.session.company.company_headline;
     res.render("Dashboard/dashboard1", {
@@ -204,6 +209,11 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       availableCostColor,
       availablePHColor,
       portfolioName,
+      phases,
+      priorities,
+      sponsors: persons,
+      primes: persons,
+      tags,
     });
   } catch (error) {
     console.error("Error executing query:", error);

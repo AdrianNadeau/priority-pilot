@@ -150,6 +150,197 @@
         </div>
     </div>
 </div> 
+<div id="addProject" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content" style="width: 900px;">
+        <div class="modal-header">
+          <h5 class="modal-title mt-0">Add Project</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="container">
+            <div class="container">
+              <form action="/projects" class="needs-validation" novalidate method="POST">
+                <input type="hidden" name="funnelPage" id="funnelPage" value="n">
+                <div class="row">
+                  <div class="col-md-6">
+                    <!-- Left Column -->
+                    <div class="form-group">
+                      <label for="project_name">Project Name:</label> <span class="required_star">*</span>
+                      <input type="text" class="form-control" id="project_name" maxlength="25" name="project_name" required>
+                      <div class="invalid-feedback">
+                        Please enter project name.
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="headline">Headline:</label>
+                      <input type="text" class="form-control" id="headline" name="headline" maxlength="250">
+                    </div>
+                    <div class="form-group">
+                      <label for="why">Why:</label>
+                      <textarea class="form-control" id="why" name="why"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label for="what">What:</label>
+                      <textarea class="form-control" id="what" name="what"></textarea>
+                    </div>
+
+                    <div class="form-group" id="date_section">
+                      <label for="dates">Start Date and End Date: <span class="required_star">*</span></label>
+                      <div class="form-row">
+                        <div class="col">
+                          <i class="bi bi-calendar-check"></i><input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date">
+                          <div class="invalid-feedback">
+                            Start Date is required.
+                          </div>
+                        </div>
+                        <div class="col">
+                          <input type="text" required class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date">
+                          <div class="invalid-feedback">
+                            End Date is required.   
+                          </div>
+                        </div>
+                        <div class="col">
+                          <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date">
+                        </div>
+                      </div>
+                      <div><span class="required_star" id ="dates_required" style="display:none;">Start and End dates are required</span></span></div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <!-- Right Column -->
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label for="phase">Phase:</label>
+                          <select name="phase_id_fk" id="phase_id_fk" class="form-control">
+                            <% phases.forEach(function(phase){ %>
+                            <option value="<%= phase.id %>"><%= phase.phase_name %></option>
+                            <% }) %>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label for="priority">Priority:</label>
+                          <select name="priority_id_fk" id="priority_id_fk" class="form-control">
+                            <% priorities.forEach(function(priority){ %>
+                            <option value="<%= priority.id %>"><%= priority.priority_name %></option>
+                            <% }) %>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label for="sponsor">Sponsor:</label>
+                          <select name="sponsor_id_fk" id="sponsor_id_fk" class="form-control">
+                            <% sponsors.forEach(function(sponsor){ %>
+                            <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
+                            <% }) %>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label for="prime">Prime:</label>
+                          <select name="prime_id_fk" id="prime_id_fk" class="form-control">
+                            <% primes.forEach(function(prime){ %>
+                            <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
+                            <% }) %>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label for="effort">Effort (PH)</label>
+                          <input type="text" class="form-control" id="effort" oninput="formatNumberWithCommas(this);" name="effort" value="0">
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label for="project_cost">Cost ($)</label>
+                          <input type="text" class="form-control" id="project_cost" oninput="formatNumberWithCommas(this);" name="project_cost" value="0">
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label for="benefit">Benefit (ROI or $)</label>
+                          <input type="text" class="form-control" id="benefit" oninput="formatNumberWithCommas(this);" name="benefit" value="0">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label for="tag_1">Tag 1:</label>
+                          <select name="tag_1" id="tag_1" class="form-control">
+                            <% if (tags && tags.length > 0) { %>
+                            <% tags.forEach(function(tag){ %>
+                            <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                            <% }) %>
+                            <% } else { %>
+                            <option value="">No tags available</option>
+                            <% } %>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label for="tag_2">Tag 2:</label>
+                          <select name="tag_2" id="tag_2" class="form-control">
+                            <% if (tags && tags.length > 0) { %>
+                            <% tags.forEach(function(tag){ %>
+                            <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                            <% }) %>
+                            <% } else { %>
+                            <option value="">No tags available</option>
+                            <% } %>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label for="tag_3">Tag 3:</label>
+                          <select name="tag_3" id="tag_3" class="form-control">
+                            <% if (tags && tags.length > 0) { %>
+                            <% tags.forEach(function(tag){ %>
+                            <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                            <% }) %>
+                            <% } else { %>
+                            <option value="">No tags available</option>
+                            <% } %>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label for="reference">Reference:</label>
+                          <input type="text" class="form-control" id="reference" name="reference">
+                          <div class="invalid-feedback">
+                            Please enter project name.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
+                  <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <%- contentFor('FooterJs') %>
 <script src="public/assets/plugins/peity-chart/jquery.peity.min.js"></script>

@@ -112,6 +112,7 @@ Authrouter.get("/recover-password", function (req, res) {
 });
 Authrouter.get("/email-status", function (req, res) {
   const emailStatus = req.session.emailStatus || "";
+  console.log("Email status:", emailStatus);
   // Optionally clear the message after displaying:
   req.session.emailStatus = null;
   res.render("Pages/pages-email-status", { emailStatus });

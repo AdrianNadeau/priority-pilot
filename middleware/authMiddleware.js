@@ -20,9 +20,6 @@ async function authMiddleware(req, res, next) {
       }
     } else {
       res.locals.person = null;
-      console.log(
-        "No session found for person, could be change password or login page",
-      );
     }
   } catch (error) {
     console.error("Error in auth middleware:", error);
