@@ -189,7 +189,6 @@ exports.setDefaults = async (req, res, next) => {
 
   // Update company portfolio budget and effort
   try {
-    console.log("req.body.company_headline", req.body.company_headline);
     const [rowsUpdated, [updatedCompany]] = await Company.update(
       {
         company_name: req.body.company_name,

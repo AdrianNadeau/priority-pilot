@@ -132,8 +132,7 @@
                             <ul class="list-unstyled">
                                 <li>Full: <%= totalPH %> PH</li>
                                 <li>Used: <%= totalUsedPH %> PH</li>
-                                
-                                    <li>Avail: <span style="color: <%= availablePHColor %>; font-weight:900;"><strong><%= totalAvailPH %></strong></span></li>
+                                <li>Avail: <span style="color: <%=availablePHColor%>; font-weight:900;"><strong><%= totalAvailPH %></strong></span></li>
                                 
                             </ul>
                         </div>
@@ -353,7 +352,10 @@
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     'use strict';
-
+    $(".modal").draggable({
+      handle: ".modal-header", // Allow dragging by the modal header
+      containment: "window", // Keep the modal within the window bounds
+    });
    // Fetch all the forms we want to apply custom Bootstrap validation styles to
    var forms = document.querySelectorAll(".needs-validation");
 
@@ -373,6 +375,7 @@
       );
     });
 
+    
     // Numeric input validation for specific fields
     const numericFields = ['project_cost', 'effort', 'benefit'];
     numericFields.forEach(function(fieldId) {

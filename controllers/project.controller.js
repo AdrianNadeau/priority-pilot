@@ -762,7 +762,7 @@ exports.radar = async (req, res) => {
       operationsTotalCost;
 
     const in_flight_cost = discoveryTotalCost + deliveryTotalCost;
-    console.log("portfolioName", portfolioName);
+
     // Render the radar page with the retrieved data
     res.render("Pages/pages-radar", {
       projects: projectsWithPhaseNames,
@@ -1092,7 +1092,6 @@ exports.flight = async (req, res) => {
       proj.phase_id_fk;
   `;
   const portfolioName = await returnPortfolioName(companyId);
-  console.log("portfolioName", portfolioName);
   const data = await db.sequelize.query(query, {
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
@@ -1213,7 +1212,6 @@ exports.findFunnel = async (req, res) => {
     pitchTotalCost = formatCost(pitchTotalCost);
     pitchTotalPH = formatCost(pitchTotalPH);
     const portfolioName = await returnPortfolioName(company_id_fk);
-    console.log("portfolioName", portfolioName);
     // Render the funnel page with the retrieved data
     res.render("Pages/pages-funnel", {
       phases: phases,
@@ -1234,7 +1232,6 @@ exports.findFunnel = async (req, res) => {
 };
 exports.findFreezer = async (req, res) => {
   const company_id_fk = req.session.company.id;
-  console.log("company_id_fk", company_id_fk);
   const projects = await db.projects.findAll({
     where: {
       company_id_fk: company_id_fk,
@@ -1242,7 +1239,7 @@ exports.findFreezer = async (req, res) => {
     },
     attributes: ["id", "project_name", "project_cost", "effort"],
   });
-  console.log("total projects", projects.length);
+
   const archivedCount = projects.length;
 
   let archivedTotalPH = 0;
@@ -1252,8 +1249,6 @@ exports.findFreezer = async (req, res) => {
     archivedTotalCost = formatCost(Number(project.project_cost) || 0);
     archivedTotalPH += parseFloat(project.effort) || 0;
   });
-  console.log("archivedTotalCost", archivedTotalCost);
-  console.log("archivedTotalPH", archivedTotalPH);
   const portfolioName = await returnPortfolioName(company_id_fk);
   // Render the funnel page with the retrieved data
   res.render("Pages/pages-freezer", {
