@@ -4930,6 +4930,9 @@ Invoice
   }
   .page-title {
     display: none;
+    margin-right: 20em;
+    color: #34b871;
+    min-width: 600px;
   }
 }
 
