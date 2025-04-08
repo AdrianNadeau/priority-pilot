@@ -33,7 +33,7 @@ const sendEmail = async (to, subject, templateName, templateData) => {
     // }
     const templateData = {
       // first_name: person.first_name || "Friend",
-      first_name: "Adrian",
+      first_name: personalbar.first_name || "Friend",
       redirectURL, // Pass the redirect URL to the template
     };
     // Render the email template
