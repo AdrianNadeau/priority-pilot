@@ -311,7 +311,6 @@ exports.findOne = (req, res) => {
 };
 exports.cockpit = async (req, res) => {
   const project_id = req.params.id;
-  console.log("project_id:", project_id);
   let company_id_fk;
   try {
     if (!req.session) {
@@ -492,14 +491,10 @@ proj.company_id_fk = ? AND proj.id = ?`;
       //format dates for pickers
       try {
         startDateTest = moment.utc(data[0].start_date).format("YYYY-MM-DD");
-        console.log("startDateTest", startDateTest);
-
         endDateTest = moment.utc(data[0].end_date).format("YYYY-MM-DD");
-        console.log("endDateTest", endDateTest);
         nextMilestoneDateTest = moment
           .utc(data[0].next_milestone_date)
           .format("YYYY-MM-DD");
-        console.log("nextMilestoneDateTest", nextMilestoneDateTest);
       } catch (error) {
         startDateTest = null;
         endDateTest = null;
@@ -1346,9 +1341,7 @@ exports.update = async (req, res) => {
 exports.health = async (req, res) => {
   //get all company projects
   const company_id_fk = req.session.company.id;
-  console.log("company_id_fk", company_id_fk);
   const portfolioName = req.session.company.company_headline;
-  console.log("portfolioName : ", portfolioName);
 
   const costQuery = `SELECT 
     proj.company_id_fk,
@@ -1686,6 +1679,5 @@ async function returnPortfolioName(company_id_fk) {
   if (!company || !company.company_headline) {
     return "Portfolio name not found";
   }
-  console.log("company.company_headline", company.company_headline);
   return company.company_headline;
 }

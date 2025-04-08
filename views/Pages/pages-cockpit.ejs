@@ -6,6 +6,8 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
+console.log("STATUS DATA: ", data);
+
 <style>
  
   .green-circle, .yellow-circle, .red-circle {
@@ -26,26 +28,16 @@
 </style>
 
 <%- contentFor('breadcrumb') %>
-<div class="row">
-  <div class="col-md-4">
+<ul class="list-inline menu-left mb-0">
+  <li class="list-inline-item">
     <button type="button" class="button-menu-mobile open-left waves-effect">
       <i class="ion-navicon"></i>
     </button>
+  </li>
+  <li class="hide-phone list-inline-item app-search">
     <h3 class="page-title">Flight Deck</h3>
-    
-  </div>
-  <div class="col-md-4">
-    <h3
-      id = "portfolio_name" class="page-title"
-      style="color: #67a8e4; min-width: 600px"
-    >
-    <%= portfolio_name %>
-    </h3>
-  </div>
-  <div class="col-md-4 text-right">
-    <!-- Add any additional content here -->
-  </div>
-</div>
+  </li>
+</ul>
 
 <%- contentFor('body') %>
 
@@ -532,7 +524,7 @@
   
 function getChange(event, id) {
   event.preventDefault(); // Prevent the default link behavior
-  console.log("CHANGE DATA: ", id);
+ 
 
   fetch(`/changed_projects/changedlog/${id}/`)
     .then(response => {
@@ -542,7 +534,7 @@ function getChange(event, id) {
       return response.json();
     })
     .then(data => {
-      console.log("Change Data: ", data);
+      
 
       fetch(`/change_reason/${data.change_reason_id_fk}/`)
         .then(reasonResponse => {
@@ -557,7 +549,7 @@ function getChange(event, id) {
           document.getElementById('view_change_date').innerText = new Date(data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
           // Open the modal
-          console.log("OPEN CHANGE MODAL");
+         
           $('#viewChangeModal').modal('show');
         })
         .catch(err => console.error("Error fetching change reason:", err));

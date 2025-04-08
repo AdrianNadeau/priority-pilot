@@ -78,8 +78,6 @@ exports.create = async (req, res, next) => {
       isAdmin: isAdminStatus,
     });
 
-    console.log("Redirecting to Dashboard...");
-
     res.redirect(register_yn === "y" ? "/" : "/persons");
   } catch (error) {
     next(error);
@@ -88,7 +86,6 @@ exports.create = async (req, res, next) => {
 
 // Get all users for the company
 exports.findAll = async (req, res, next) => {
-  console.log("find all");
   try {
     const company_id_fk = req.session.company?.id;
     if (!company_id_fk) return res.redirect("/pages-500");
@@ -124,7 +121,6 @@ exports.login = async (req, res, next) => {
     } else {
       req.session.company = company;
       req.session.person = person;
-      console.log("Redirecting to Dashboard...");
       req.session.save((err) => {
         if (err) {
           console.error("Session save error:", err);
