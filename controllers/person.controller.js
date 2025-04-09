@@ -119,6 +119,8 @@ exports.login = async (req, res, next) => {
     if (!company) {
       return res.redirect("/login");
     } else {
+      console.log("Company:", company.company_name);
+      console.log("Person:", person.email);
       req.session.company = company;
       req.session.person = person;
       req.session.save((err) => {
