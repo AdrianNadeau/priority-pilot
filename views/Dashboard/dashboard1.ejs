@@ -8,7 +8,7 @@
         </button>
         <h3 class="page-title">Dashboard</h3>
     </div>
-    <% include ../Partials/portfolio_name %>
+    <%- include ../Partials/portfolio_name %>
     <div class="col-md-4 text-right">
         <!-- Add any additional content here -->
     </div>
@@ -32,7 +32,7 @@
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
-                                    <% if (project.phase_name.trim() === 'Planning') { %>
+                                  <% if (project.phase_name && project.phase_name.trim() === 'Planning') { %>
                                         <span>
                                             <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
                                                 <%= project.project_name %>
@@ -51,7 +51,8 @@
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
-                                    <% if (project.phase_name.trim() === 'Discovery') { %>
+                                  <% if (project.phase_name && project.phase_name.trim() === 'Discovery') { %>
+                                   
                                         <span>
                                             <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
                                                 <%= project.project_name %>
@@ -73,7 +74,8 @@
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
-                                    <% if (project.phase_name.trim() === 'Delivery') { %>
+                                  <% if (project.phase_name && project.phase_name.trim() === 'Delivery') { %>
+                            
                                         <span>
                                             <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
                                                 <%= project.project_name %>
@@ -88,11 +90,12 @@
                     <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Done</strong> (<%= operations.count %>, $<%= operations.cost  %>, <%= operations.ph %> PH)</span>
+                              <span class="counter"><strong>Done</strong> (<%= operations.count %>, $<%= operations.cost  %>, <%= operations.ph %> PH)</span>
+                             
                             </div>
                             <div>
                                 <% projects.forEach(function(project) { %>
-                                    <% if (project.phase_name.trim() === 'Done') { %>
+                                  <% if (project.phase_name && project.phase_name.trim() === 'Done') { %>
                                         <span>
                                             <button type="button" onclick="loadProject('<%= project.id %>')" target="blank_" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
                                                 <%= project.project_name %>
@@ -117,7 +120,6 @@
                     <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;" onClick="loadRadar();" >Radar</div>
                     <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadHealth();" >Health Check</div>
                     <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFlightFull();" >Flight Plan</div>
-                    
                     
                     <div class="row text-center" style="padding-top: 20px;">
                         <div class="col-md-12">

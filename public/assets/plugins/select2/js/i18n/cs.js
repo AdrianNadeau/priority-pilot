@@ -8,12 +8,12 @@
     e.define("select2/i18n/cs", [], function () {
       function e(e, t) {
         switch (e) {
-          case 2:
-            return t ? "dva" : "dvě";
-          case 3:
-            return "tři";
-          case 4:
-            return "čtyři";
+        case 2:
+          return t ? "dva" : "dvě";
+        case 3:
+          return "tři";
+        case 4:
+          return "čtyři";
         }
         return "";
       }

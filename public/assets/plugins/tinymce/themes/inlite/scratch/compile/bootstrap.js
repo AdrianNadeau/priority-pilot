@@ -985,9 +985,9 @@
               req.status +
               " " +
               req.statusText +
-              ' for resource: "' +
+              " for resource: \"" +
               url +
-              '"',
+              "\"",
           );
         }
       };

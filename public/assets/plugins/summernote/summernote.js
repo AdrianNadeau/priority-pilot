@@ -75,61 +75,61 @@
   };
 
   var editor = renderer.create(
-    '<div class="note-editor note-frame panel panel-default"/>',
+    "<div class=\"note-editor note-frame panel panel-default\"/>",
   );
   var toolbar = renderer.create(
-    '<div class="note-toolbar panel-heading" role="toolbar"></div></div>',
+    "<div class=\"note-toolbar panel-heading\" role=\"toolbar\"></div></div>",
   );
-  var editingArea = renderer.create('<div class="note-editing-area"/>');
+  var editingArea = renderer.create("<div class=\"note-editing-area\"/>");
   var codable = renderer.create(
-    '<textarea class="note-codable" role="textbox" aria-multiline="true"/>',
+    "<textarea class=\"note-codable\" role=\"textbox\" aria-multiline=\"true\"/>",
   );
   var editable = renderer.create(
-    '<div class="note-editable" contentEditable="true" role="textbox" aria-multiline="true"/>',
+    "<div class=\"note-editable\" contentEditable=\"true\" role=\"textbox\" aria-multiline=\"true\"/>",
   );
   var statusbar = renderer.create(
     [
-      '<output class="note-status-output" aria-live="polite"/>',
-      '<div class="note-statusbar" role="status">',
-      '  <div class="note-resizebar" role="seperator" aria-orientation="horizontal" aria-label="Resize">',
-      '    <div class="note-icon-bar"/>',
-      '    <div class="note-icon-bar"/>',
-      '    <div class="note-icon-bar"/>',
+      "<output class=\"note-status-output\" aria-live=\"polite\"/>",
+      "<div class=\"note-statusbar\" role=\"status\">",
+      "  <div class=\"note-resizebar\" role=\"seperator\" aria-orientation=\"horizontal\" aria-label=\"Resize\">",
+      "    <div class=\"note-icon-bar\"/>",
+      "    <div class=\"note-icon-bar\"/>",
+      "    <div class=\"note-icon-bar\"/>",
       "  </div>",
       "</div>",
     ].join(""),
   );
-  var airEditor = renderer.create('<div class="note-editor"/>');
+  var airEditor = renderer.create("<div class=\"note-editor\"/>");
   var airEditable = renderer.create(
     [
-      '<div class="note-editable" contentEditable="true" role="textbox" aria-multiline="true"/>',
-      '<output class="note-status-output" aria-live="polite"/>',
+      "<div class=\"note-editable\" contentEditable=\"true\" role=\"textbox\" aria-multiline=\"true\"/>",
+      "<output class=\"note-status-output\" aria-live=\"polite\"/>",
     ].join(""),
   );
-  var buttonGroup = renderer.create('<div class="note-btn-group btn-group">');
+  var buttonGroup = renderer.create("<div class=\"note-btn-group btn-group\">");
   var dropdown = renderer.create(
-    '<ul class="dropdown-menu" role="list">',
+    "<ul class=\"dropdown-menu\" role=\"list\">",
     function ($node, options) {
       var markup = $$1.isArray(options.items)
         ? options.items
-            .map(function (item) {
-              var value = typeof item === "string" ? item : item.value || "";
-              var content = options.template ? options.template(item) : item;
-              var option = typeof item === "object" ? item.option : undefined;
-              var dataValue = 'data-value="' + value + '"';
-              var dataOption =
-                option !== undefined ? ' data-option="' + option + '"' : "";
-              return (
-                '<li role="listitem" aria-label="' +
+          .map(function (item) {
+            var value = typeof item === "string" ? item : item.value || "";
+            var content = options.template ? options.template(item) : item;
+            var option = typeof item === "object" ? item.option : undefined;
+            var dataValue = "data-value=\"" + value + "\"";
+            var dataOption =
+                option !== undefined ? " data-option=\"" + option + "\"" : "";
+            return (
+              "<li role=\"listitem\" aria-label=\"" +
                 item +
-                '"><a href="#" ' +
+                "\"><a href=\"#\" " +
                 (dataValue + dataOption) +
                 ">" +
                 content +
                 "</a></li>"
-              );
-            })
-            .join("")
+            );
+          })
+          .join("")
         : options.items;
       $node.html(markup).attr({ "aria-label": options.title });
     },
@@ -138,32 +138,32 @@
     return contents + " " + icon(options.icons.caret, "span");
   };
   var dropdownCheck = renderer.create(
-    '<ul class="dropdown-menu note-check" role="list">',
+    "<ul class=\"dropdown-menu note-check\" role=\"list\">",
     function ($node, options) {
       var markup = $$1.isArray(options.items)
         ? options.items
-            .map(function (item) {
-              var value = typeof item === "string" ? item : item.value || "";
-              var content = options.template ? options.template(item) : item;
-              return (
-                '<li role="listitem" aria-label="' +
+          .map(function (item) {
+            var value = typeof item === "string" ? item : item.value || "";
+            var content = options.template ? options.template(item) : item;
+            return (
+              "<li role=\"listitem\" aria-label=\"" +
                 item +
-                '"><a href="#" data-value="' +
+                "\"><a href=\"#\" data-value=\"" +
                 value +
-                '">' +
+                "\">" +
                 icon(options.checkClassName) +
                 " " +
                 content +
                 "</a></li>"
-              );
-            })
-            .join("")
+            );
+          })
+          .join("")
         : options.items;
       $node.html(markup).attr({ "aria-label": options.title });
     },
   );
   var palette = renderer.create(
-    '<div class="note-color-palette"/>',
+    "<div class=\"note-color-palette\"/>",
     function ($node, options) {
       var contents = [];
       for (var row = 0, rowSize = options.colors.length; row < rowSize; row++) {
@@ -176,28 +176,28 @@
           var colorName = colorsName[col];
           buttons.push(
             [
-              '<button type="button" class="note-color-btn"',
-              'style="background-color:',
+              "<button type=\"button\" class=\"note-color-btn\"",
+              "style=\"background-color:",
               color,
-              '" ',
-              'data-event="',
+              "\" ",
+              "data-event=\"",
               eventName,
-              '" ',
-              'data-value="',
+              "\" ",
+              "data-value=\"",
               color,
-              '" ',
-              'title="',
+              "\" ",
+              "title=\"",
               colorName,
-              '" ',
-              'aria-label="',
+              "\" ",
+              "aria-label=\"",
               colorName,
-              '" ',
-              'data-toggle="button" tabindex="-1"></button>',
+              "\" ",
+              "data-toggle=\"button\" tabindex=\"-1\"></button>",
             ].join(""),
           );
         }
         contents.push(
-          '<div class="note-color-row">' + buttons.join("") + "</div>",
+          "<div class=\"note-color-row\">" + buttons.join("") + "</div>",
         );
       }
       $node.html(contents.join(""));
@@ -211,7 +211,7 @@
     },
   );
   var dialog = renderer.create(
-    '<div class="modal" aria-hidden="false" tabindex="-1" role="dialog"/>',
+    "<div class=\"modal\" aria-hidden=\"false\" tabindex=\"-1\" role=\"dialog\"/>",
     function ($node, options) {
       if (options.fade) {
         $node.addClass("fade");
@@ -221,19 +221,19 @@
       });
       $node.html(
         [
-          '<div class="modal-dialog">',
-          '  <div class="modal-content">',
+          "<div class=\"modal-dialog\">",
+          "  <div class=\"modal-content\">",
           options.title
-            ? '    <div class="modal-header">' +
-              '      <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">&times;</button>' +
-              '      <h4 class="modal-title">' +
+            ? "    <div class=\"modal-header\">" +
+              "      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\" aria-hidden=\"true\">&times;</button>" +
+              "      <h4 class=\"modal-title\">" +
               options.title +
               "</h4>" +
               "    </div>"
             : "",
-          '    <div class="modal-body">' + options.body + "</div>",
+          "    <div class=\"modal-body\">" + options.body + "</div>",
           options.footer
-            ? '    <div class="modal-footer">' + options.footer + "</div>"
+            ? "    <div class=\"modal-footer\">" + options.footer + "</div>"
             : "",
           "  </div>",
           "</div>",
@@ -243,9 +243,9 @@
   );
   var popover = renderer.create(
     [
-      '<div class="note-popover popover in">',
-      '  <div class="arrow"/>',
-      '  <div class="popover-content note-children-container"/>',
+      "<div class=\"note-popover popover in\">",
+      "  <div class=\"arrow\"/>",
+      "  <div class=\"popover-content note-children-container\"/>",
       "</div>",
     ].join(""),
     function ($node, options) {
@@ -258,15 +258,15 @@
     },
   );
   var checkbox = renderer.create(
-    '<div class="checkbox"></div>',
+    "<div class=\"checkbox\"></div>",
     function ($node, options) {
       $node.html(
         [
-          "<label" + (options.id ? ' for="' + options.id + '"' : "") + ">",
-          ' <input role="checkbox" type="checkbox"' +
-            (options.id ? ' id="' + options.id + '"' : ""),
+          "<label" + (options.id ? " for=\"" + options.id + "\"" : "") + ">",
+          " <input role=\"checkbox\" type=\"checkbox\"" +
+            (options.id ? " id=\"" + options.id + "\"" : ""),
           options.checked ? " checked" : "",
-          ' aria-checked="' + (options.checked ? "true" : "false") + '"/>',
+          " aria-checked=\"" + (options.checked ? "true" : "false") + "\"/>",
           options.text ? options.text : "",
           "</label>",
         ].join(""),
@@ -275,7 +275,7 @@
   );
   var icon = function (iconClassName, tagName) {
     tagName = tagName || "i";
-    return "<" + tagName + ' class="' + iconClassName + '"/>';
+    return "<" + tagName + " class=\"" + iconClassName + "\"/>";
   };
   var ui = {
     editor: editor,
@@ -298,7 +298,7 @@
     options: {},
     button: function ($node, options) {
       return renderer.create(
-        '<button type="button" class="note-btn btn btn-default btn-sm" role="button" tabindex="-1">',
+        "<button type=\"button\" class=\"note-btn btn btn-default btn-sm\" role=\"button\" tabindex=\"-1\">",
         function ($node, options) {
           if (options && options.tooltip) {
             $node
@@ -340,10 +340,10 @@
         options.airMode
           ? ui.airEditor([ui.editingArea([ui.airEditable()])])
           : ui.editor([
-              ui.toolbar(),
-              ui.editingArea([ui.codable(), ui.editable()]),
-              ui.statusbar(),
-            ])
+            ui.toolbar(),
+            ui.editingArea([ui.codable(), ui.editable()]),
+            ui.statusbar(),
+          ])
       ).render();
       $editor.insertAfter($note);
       return {
@@ -716,7 +716,7 @@
     unique: unique,
   };
 
-  var isSupportAmd = typeof define === "function" && define.amd; // eslint-disable-line
+  var isSupportAmd = typeof define === "function" && define.amd;  
   /**
    * returns whether font is installed or not.
    *
@@ -760,7 +760,7 @@
   if (!hasCodeMirror && isSupportAmd) {
     // Webpack
     if (typeof __webpack_require__ === "function") {
-      // eslint-disable-line
+       
       try {
         // If CodeMirror can't be resolved, `require.resolve` will throw an
         // exception and `hasCodeMirror` won't be set to `true`.
@@ -3323,15 +3323,15 @@
           var lastList =
             headList.childNodes.length > 1
               ? dom.splitTree(
-                  headList,
-                  {
-                    node: last.parentNode,
-                    offset: dom.position(last) + 1,
-                  },
-                  {
-                    isSkipPaddingBlankHTML: true,
-                  },
-                )
+                headList,
+                {
+                  node: last.parentNode,
+                  offset: dom.position(last) + 1,
+                },
+                {
+                  isSkipPaddingBlankHTML: true,
+                },
+              )
               : null;
           var middleList = dom.splitTree(
             headList,
@@ -3397,8 +3397,8 @@
     Bullet.prototype.findList = function (node) {
       return node
         ? lists.find(node.children, function (child) {
-            return ["OL", "UL"].indexOf(child.nodeName) > -1;
-          })
+          return ["OL", "UL"].indexOf(child.nodeName) > -1;
+        })
         : null;
     };
     /**
@@ -3747,18 +3747,18 @@
      */
     function getDeleteResultActionToCell(cell) {
       switch (where) {
-        case TableResultAction.where.Column:
-          if (cell.isColSpan) {
-            return TableResultAction.resultAction.SubtractSpanCount;
-          }
-          break;
-        case TableResultAction.where.Row:
-          if (!cell.isVirtual && cell.isRowSpan) {
-            return TableResultAction.resultAction.AddCell;
-          } else if (cell.isRowSpan) {
-            return TableResultAction.resultAction.SubtractSpanCount;
-          }
-          break;
+      case TableResultAction.where.Column:
+        if (cell.isColSpan) {
+          return TableResultAction.resultAction.SubtractSpanCount;
+        }
+        break;
+      case TableResultAction.where.Row:
+        if (!cell.isVirtual && cell.isRowSpan) {
+          return TableResultAction.resultAction.AddCell;
+        } else if (cell.isRowSpan) {
+          return TableResultAction.resultAction.SubtractSpanCount;
+        }
+        break;
       }
       return TableResultAction.resultAction.RemoveCell;
     }
@@ -3769,20 +3769,20 @@
      */
     function getAddResultActionToCell(cell) {
       switch (where) {
-        case TableResultAction.where.Column:
-          if (cell.isColSpan) {
-            return TableResultAction.resultAction.SumSpanCount;
-          } else if (cell.isRowSpan && cell.isVirtual) {
-            return TableResultAction.resultAction.Ignore;
-          }
-          break;
-        case TableResultAction.where.Row:
-          if (cell.isRowSpan) {
-            return TableResultAction.resultAction.SumSpanCount;
-          } else if (cell.isColSpan && cell.isVirtual) {
-            return TableResultAction.resultAction.Ignore;
-          }
-          break;
+      case TableResultAction.where.Column:
+        if (cell.isColSpan) {
+          return TableResultAction.resultAction.SumSpanCount;
+        } else if (cell.isRowSpan && cell.isVirtual) {
+          return TableResultAction.resultAction.Ignore;
+        }
+        break;
+      case TableResultAction.where.Row:
+        if (cell.isRowSpan) {
+          return TableResultAction.resultAction.SumSpanCount;
+        } else if (cell.isColSpan && cell.isVirtual) {
+          return TableResultAction.resultAction.Ignore;
+        }
+        break;
       }
       return TableResultAction.resultAction.AddCell;
     }
@@ -3819,12 +3819,12 @@
         // Define action to be applied in this cell
         var resultAction = TableResultAction.resultAction.Ignore;
         switch (action) {
-          case TableResultAction.requestAction.Add:
-            resultAction = getAddResultActionToCell(cell);
-            break;
-          case TableResultAction.requestAction.Delete:
-            resultAction = getDeleteResultActionToCell(cell);
-            break;
+        case TableResultAction.requestAction.Add:
+          resultAction = getAddResultActionToCell(cell);
+          break;
+        case TableResultAction.requestAction.Delete:
+          resultAction = getDeleteResultActionToCell(cell);
+          break;
         }
         _actionCellList.push(
           getActionCell(cell, resultAction, rowPosition, colPosition),
@@ -3903,33 +3903,33 @@
         var currentCell = actions[idCell];
         var tdAttributes = this.recoverAttributes(currentCell.baseCell);
         switch (currentCell.action) {
-          case TableResultAction.resultAction.AddCell:
-            html.append("<td" + tdAttributes + ">" + dom.blank + "</td>");
-            break;
-          case TableResultAction.resultAction.SumSpanCount:
-            if (position === "top") {
-              var baseCellTr = currentCell.baseCell.parent;
-              var isTopFromRowSpan =
+        case TableResultAction.resultAction.AddCell:
+          html.append("<td" + tdAttributes + ">" + dom.blank + "</td>");
+          break;
+        case TableResultAction.resultAction.SumSpanCount:
+          if (position === "top") {
+            var baseCellTr = currentCell.baseCell.parent;
+            var isTopFromRowSpan =
                 (!baseCellTr
                   ? 0
                   : currentCell.baseCell.closest("tr").rowIndex) <=
                 currentTr[0].rowIndex;
-              if (isTopFromRowSpan) {
-                var newTd = $$1("<div></div>")
-                  .append(
-                    $$1(
-                      "<td" + tdAttributes + ">" + dom.blank + "</td>",
-                    ).removeAttr("rowspan"),
-                  )
-                  .html();
-                html.append(newTd);
-                break;
-              }
+            if (isTopFromRowSpan) {
+              var newTd = $$1("<div></div>")
+                .append(
+                  $$1(
+                    "<td" + tdAttributes + ">" + dom.blank + "</td>",
+                  ).removeAttr("rowspan"),
+                )
+                .html();
+              html.append(newTd);
+              break;
             }
-            var rowspanNumber = parseInt(currentCell.baseCell.rowSpan, 10);
-            rowspanNumber++;
-            currentCell.baseCell.setAttribute("rowSpan", rowspanNumber);
-            break;
+          }
+          var rowspanNumber = parseInt(currentCell.baseCell.rowSpan, 10);
+          rowspanNumber++;
+          currentCell.baseCell.setAttribute("rowSpan", rowspanNumber);
+          break;
         }
       }
       if (position === "top") {
@@ -3967,28 +3967,28 @@
         var currentCell = actions[actionIndex];
         var tdAttributes = this.recoverAttributes(currentCell.baseCell);
         switch (currentCell.action) {
-          case TableResultAction.resultAction.AddCell:
-            if (position === "right") {
-              $$1(currentCell.baseCell).after(
-                "<td" + tdAttributes + ">" + dom.blank + "</td>",
-              );
-            } else {
-              $$1(currentCell.baseCell).before(
-                "<td" + tdAttributes + ">" + dom.blank + "</td>",
-              );
-            }
-            break;
-          case TableResultAction.resultAction.SumSpanCount:
-            if (position === "right") {
-              var colspanNumber = parseInt(currentCell.baseCell.colSpan, 10);
-              colspanNumber++;
-              currentCell.baseCell.setAttribute("colSpan", colspanNumber);
-            } else {
-              $$1(currentCell.baseCell).before(
-                "<td" + tdAttributes + ">" + dom.blank + "</td>",
-              );
-            }
-            break;
+        case TableResultAction.resultAction.AddCell:
+          if (position === "right") {
+            $$1(currentCell.baseCell).after(
+              "<td" + tdAttributes + ">" + dom.blank + "</td>",
+            );
+          } else {
+            $$1(currentCell.baseCell).before(
+              "<td" + tdAttributes + ">" + dom.blank + "</td>",
+            );
+          }
+          break;
+        case TableResultAction.resultAction.SumSpanCount:
+          if (position === "right") {
+            var colspanNumber = parseInt(currentCell.baseCell.colSpan, 10);
+            colspanNumber++;
+            currentCell.baseCell.setAttribute("colSpan", colspanNumber);
+          } else {
+            $$1(currentCell.baseCell).before(
+              "<td" + tdAttributes + ">" + dom.blank + "</td>",
+            );
+          }
+          break;
         }
       }
     };
@@ -4041,52 +4041,52 @@
         var hasRowspan = baseCell.rowSpan && baseCell.rowSpan > 1;
         var rowspanNumber = hasRowspan ? parseInt(baseCell.rowSpan, 10) : 0;
         switch (actions[actionIndex].action) {
-          case TableResultAction.resultAction.Ignore:
+        case TableResultAction.resultAction.Ignore:
+          continue;
+        case TableResultAction.resultAction.AddCell:
+          var nextRow = row.next("tr")[0];
+          if (!nextRow) {
             continue;
-          case TableResultAction.resultAction.AddCell:
-            var nextRow = row.next("tr")[0];
-            if (!nextRow) {
-              continue;
+          }
+          var cloneRow = row[0].cells[cellPos];
+          if (hasRowspan) {
+            if (rowspanNumber > 2) {
+              rowspanNumber--;
+              nextRow.insertBefore(cloneRow, nextRow.cells[cellPos]);
+              nextRow.cells[cellPos].setAttribute("rowSpan", rowspanNumber);
+              nextRow.cells[cellPos].innerHTML = "";
+            } else if (rowspanNumber === 2) {
+              nextRow.insertBefore(cloneRow, nextRow.cells[cellPos]);
+              nextRow.cells[cellPos].removeAttribute("rowSpan");
+              nextRow.cells[cellPos].innerHTML = "";
             }
-            var cloneRow = row[0].cells[cellPos];
-            if (hasRowspan) {
-              if (rowspanNumber > 2) {
-                rowspanNumber--;
-                nextRow.insertBefore(cloneRow, nextRow.cells[cellPos]);
-                nextRow.cells[cellPos].setAttribute("rowSpan", rowspanNumber);
-                nextRow.cells[cellPos].innerHTML = "";
-              } else if (rowspanNumber === 2) {
-                nextRow.insertBefore(cloneRow, nextRow.cells[cellPos]);
-                nextRow.cells[cellPos].removeAttribute("rowSpan");
-                nextRow.cells[cellPos].innerHTML = "";
+          }
+          continue;
+        case TableResultAction.resultAction.SubtractSpanCount:
+          if (hasRowspan) {
+            if (rowspanNumber > 2) {
+              rowspanNumber--;
+              baseCell.setAttribute("rowSpan", rowspanNumber);
+              if (
+                virtualPosition.rowIndex !== rowPos &&
+                  baseCell.cellIndex === cellPos
+              ) {
+                baseCell.innerHTML = "";
+              }
+            } else if (rowspanNumber === 2) {
+              baseCell.removeAttribute("rowSpan");
+              if (
+                virtualPosition.rowIndex !== rowPos &&
+                  baseCell.cellIndex === cellPos
+              ) {
+                baseCell.innerHTML = "";
               }
             }
-            continue;
-          case TableResultAction.resultAction.SubtractSpanCount:
-            if (hasRowspan) {
-              if (rowspanNumber > 2) {
-                rowspanNumber--;
-                baseCell.setAttribute("rowSpan", rowspanNumber);
-                if (
-                  virtualPosition.rowIndex !== rowPos &&
-                  baseCell.cellIndex === cellPos
-                ) {
-                  baseCell.innerHTML = "";
-                }
-              } else if (rowspanNumber === 2) {
-                baseCell.removeAttribute("rowSpan");
-                if (
-                  virtualPosition.rowIndex !== rowPos &&
-                  baseCell.cellIndex === cellPos
-                ) {
-                  baseCell.innerHTML = "";
-                }
-              }
-            }
-            continue;
-          case TableResultAction.resultAction.RemoveCell:
-            // Do not need remove cell because row will be deleted.
-            continue;
+          }
+          continue;
+        case TableResultAction.resultAction.RemoveCell:
+          // Do not need remove cell because row will be deleted.
+          continue;
         }
       }
       row.remove();
@@ -4113,32 +4113,32 @@
           continue;
         }
         switch (actions[actionIndex].action) {
-          case TableResultAction.resultAction.Ignore:
-            continue;
-          case TableResultAction.resultAction.SubtractSpanCount:
-            var baseCell = actions[actionIndex].baseCell;
-            var hasColspan = baseCell.colSpan && baseCell.colSpan > 1;
-            if (hasColspan) {
-              var colspanNumber = baseCell.colSpan
-                ? parseInt(baseCell.colSpan, 10)
-                : 0;
-              if (colspanNumber > 2) {
-                colspanNumber--;
-                baseCell.setAttribute("colSpan", colspanNumber);
-                if (baseCell.cellIndex === cellPos) {
-                  baseCell.innerHTML = "";
-                }
-              } else if (colspanNumber === 2) {
-                baseCell.removeAttribute("colSpan");
-                if (baseCell.cellIndex === cellPos) {
-                  baseCell.innerHTML = "";
-                }
+        case TableResultAction.resultAction.Ignore:
+          continue;
+        case TableResultAction.resultAction.SubtractSpanCount:
+          var baseCell = actions[actionIndex].baseCell;
+          var hasColspan = baseCell.colSpan && baseCell.colSpan > 1;
+          if (hasColspan) {
+            var colspanNumber = baseCell.colSpan
+              ? parseInt(baseCell.colSpan, 10)
+              : 0;
+            if (colspanNumber > 2) {
+              colspanNumber--;
+              baseCell.setAttribute("colSpan", colspanNumber);
+              if (baseCell.cellIndex === cellPos) {
+                baseCell.innerHTML = "";
+              }
+            } else if (colspanNumber === 2) {
+              baseCell.removeAttribute("colSpan");
+              if (baseCell.cellIndex === cellPos) {
+                baseCell.innerHTML = "";
               }
             }
-            continue;
-          case TableResultAction.resultAction.RemoveCell:
-            dom.remove(actions[actionIndex].baseCell, true);
-            continue;
+          }
+          continue;
+        case TableResultAction.resultAction.RemoveCell:
+          dom.remove(actions[actionIndex].baseCell, true);
+          continue;
         }
       }
     };
@@ -5062,8 +5062,8 @@
       this.documentEventHandlers = {};
       this.$dropzone = $$1(
         [
-          '<div class="note-dropzone">',
-          '  <div class="note-dropzone-message"/>',
+          "<div class=\"note-dropzone\">",
+          "  <div class=\"note-dropzone-message\"/>",
           "</div>",
         ].join(""),
       ).prependTo(this.$editor);
@@ -5418,20 +5418,20 @@
       var _this = this;
       this.$handle = $$1(
         [
-          '<div class="note-handle">',
-          '<div class="note-control-selection">',
-          '<div class="note-control-selection-bg"></div>',
-          '<div class="note-control-holder note-control-nw"></div>',
-          '<div class="note-control-holder note-control-ne"></div>',
-          '<div class="note-control-holder note-control-sw"></div>',
-          '<div class="',
+          "<div class=\"note-handle\">",
+          "<div class=\"note-control-selection\">",
+          "<div class=\"note-control-selection-bg\"></div>",
+          "<div class=\"note-control-holder note-control-nw\"></div>",
+          "<div class=\"note-control-holder note-control-ne\"></div>",
+          "<div class=\"note-control-holder note-control-sw\"></div>",
+          "<div class=\"",
           this.options.disableResizeImage
             ? "note-control-holder"
             : "note-control-sizing",
-          ' note-control-se"></div>',
+          " note-control-se\"></div>",
           this.options.disableResizeImage
             ? ""
-            : '<div class="note-control-selection-info"></div>',
+            : "<div class=\"note-control-selection-info\"></div>",
           "</div>",
           "</div>",
         ].join(""),
@@ -5635,7 +5635,7 @@
     };
     Placeholder.prototype.initialize = function () {
       var _this = this;
-      this.$placeholder = $$1('<div class="note-placeholder">');
+      this.$placeholder = $$1("<div class=\"note-placeholder\">");
       this.$placeholder
         .on("click", function () {
           _this.context.invoke("focus");
@@ -5779,46 +5779,46 @@
               items:
                 (backColor
                   ? [
-                      '<div class="note-palette">',
-                      '  <div class="note-palette-title">' +
+                    "<div class=\"note-palette\">",
+                    "  <div class=\"note-palette-title\">" +
                         this.lang.color.background +
                         "</div>",
-                      "  <div>",
-                      '    <button type="button" class="note-color-reset btn btn-light" data-event="backColor" data-value="inherit">',
-                      this.lang.color.transparent,
-                      "    </button>",
-                      "  </div>",
-                      '  <div class="note-holder" data-event="backColor"/>',
-                      "  <div>",
-                      '    <button type="button" class="note-color-select btn" data-event="openPalette" data-value="backColorPicker">',
-                      this.lang.color.cpSelect,
-                      "    </button>",
-                      '    <input type="color" id="backColorPicker" class="note-btn note-color-select-btn" value="#FFFF00" data-event="backColorPalette">',
-                      "  </div>",
-                      '  <div class="note-holder-custom" id="backColorPalette" data-event="backColor"/>',
-                      "</div>",
-                    ].join("")
+                    "  <div>",
+                    "    <button type=\"button\" class=\"note-color-reset btn btn-light\" data-event=\"backColor\" data-value=\"inherit\">",
+                    this.lang.color.transparent,
+                    "    </button>",
+                    "  </div>",
+                    "  <div class=\"note-holder\" data-event=\"backColor\"/>",
+                    "  <div>",
+                    "    <button type=\"button\" class=\"note-color-select btn\" data-event=\"openPalette\" data-value=\"backColorPicker\">",
+                    this.lang.color.cpSelect,
+                    "    </button>",
+                    "    <input type=\"color\" id=\"backColorPicker\" class=\"note-btn note-color-select-btn\" value=\"#FFFF00\" data-event=\"backColorPalette\">",
+                    "  </div>",
+                    "  <div class=\"note-holder-custom\" id=\"backColorPalette\" data-event=\"backColor\"/>",
+                    "</div>",
+                  ].join("")
                   : "") +
                 (foreColor
                   ? [
-                      '<div class="note-palette">',
-                      '  <div class="note-palette-title">' +
+                    "<div class=\"note-palette\">",
+                    "  <div class=\"note-palette-title\">" +
                         this.lang.color.foreground +
                         "</div>",
-                      "  <div>",
-                      '    <button type="button" class="note-color-reset btn btn-light" data-event="removeFormat" data-value="foreColor">',
-                      this.lang.color.resetToDefault,
-                      "    </button>",
-                      "  </div>",
-                      '  <div class="note-holder" data-event="foreColor"/>',
-                      "  <div>",
-                      '    <button type="button" class="note-color-select btn" data-event="openPalette" data-value="foreColorPicker">',
-                      this.lang.color.cpSelect,
-                      "    </button>",
-                      '    <input type="color" id="foreColorPicker" class="note-btn note-color-select-btn" value="#000000" data-event="foreColorPalette">',
-                      '  <div class="note-holder-custom" id="foreColorPalette" data-event="foreColor"/>',
-                      "</div>",
-                    ].join("")
+                    "  <div>",
+                    "    <button type=\"button\" class=\"note-color-reset btn btn-light\" data-event=\"removeFormat\" data-value=\"foreColor\">",
+                    this.lang.color.resetToDefault,
+                    "    </button>",
+                    "  </div>",
+                    "  <div class=\"note-holder\" data-event=\"foreColor\"/>",
+                    "  <div>",
+                    "    <button type=\"button\" class=\"note-color-select btn\" data-event=\"openPalette\" data-value=\"foreColorPicker\">",
+                    this.lang.color.cpSelect,
+                    "    </button>",
+                    "    <input type=\"color\" id=\"foreColorPicker\" class=\"note-btn note-color-select-btn\" value=\"#000000\" data-event=\"foreColorPalette\">",
+                    "  <div class=\"note-holder-custom\" id=\"foreColorPalette\" data-event=\"foreColor\"/>",
+                    "</div>",
+                  ].join("")
                   : ""),
               callback: function ($dropdown) {
                 $dropdown.find(".note-holder").each(function (idx, item) {
@@ -5956,9 +5956,9 @@
                 }
                 var tag = item.tag;
                 var title = item.title;
-                var style = item.style ? ' style="' + item.style + '" ' : "";
+                var style = item.style ? " style=\"" + item.style + "\" " : "";
                 var className = item.className
-                  ? ' class="' + item.className + '"'
+                  ? " class=\"" + item.className + "\""
                   : "";
                 return (
                   "<" + tag + style + className + ">" + title + "</" + tag + ">"
@@ -5976,9 +5976,9 @@
             .button({
               className: "note-btn-style-" + item,
               contents:
-                '<div data-value="' +
+                "<div data-value=\"" +
                 item +
-                '">' +
+                "\">" +
                 item.toUpperCase() +
                 "</div>",
               tooltip: _this.lang.style[item],
@@ -6097,7 +6097,7 @@
             _this.button({
               className: "dropdown-toggle",
               contents: _this.ui.dropdownButtonContents(
-                '<span class="note-current-fontname"/>',
+                "<span class=\"note-current-fontname\"/>",
                 _this.options,
               ),
               tooltip: _this.lang.font.name,
@@ -6135,7 +6135,7 @@
             _this.button({
               className: "dropdown-toggle",
               contents: _this.ui.dropdownButtonContents(
-                '<span class="note-current-fontsize"/>',
+                "<span class=\"note-current-fontsize\"/>",
                 _this.options,
               ),
               tooltip: _this.lang.font.size,
@@ -6334,12 +6334,12 @@
                 title: _this.lang.table.table,
                 className: "note-table",
                 items: [
-                  '<div class="note-dimension-picker">',
-                  '  <div class="note-dimension-picker-mousecatcher" data-event="insertTable" data-value="1x1"/>',
-                  '  <div class="note-dimension-picker-highlighted"/>',
-                  '  <div class="note-dimension-picker-unhighlighted"/>',
+                  "<div class=\"note-dimension-picker\">",
+                  "  <div class=\"note-dimension-picker-mousecatcher\" data-event=\"insertTable\" data-value=\"1x1\"/>",
+                  "  <div class=\"note-dimension-picker-highlighted\"/>",
+                  "  <div class=\"note-dimension-picker-unhighlighted\"/>",
                   "</div>",
-                  '<div class="note-dimension-display">1 x 1</div>',
+                  "<div class=\"note-dimension-display\">1 x 1</div>",
                 ].join(""),
               }),
             ],
@@ -6464,7 +6464,7 @@
       this.context.memo("button.imageSize100", function () {
         return _this
           .button({
-            contents: '<span class="note-fontsize-10">100%</span>',
+            contents: "<span class=\"note-fontsize-10\">100%</span>",
             tooltip: _this.lang.image.resizeFull,
             click: _this.context.createInvokeHandler("editor.resize", "1"),
           })
@@ -6473,7 +6473,7 @@
       this.context.memo("button.imageSize50", function () {
         return _this
           .button({
-            contents: '<span class="note-fontsize-10">50%</span>',
+            contents: "<span class=\"note-fontsize-10\">50%</span>",
             tooltip: _this.lang.image.resizeHalf,
             click: _this.context.createInvokeHandler("editor.resize", "0.5"),
           })
@@ -6482,7 +6482,7 @@
       this.context.memo("button.imageSize25", function () {
         return _this
           .button({
-            contents: '<span class="note-fontsize-10">25%</span>',
+            contents: "<span class=\"note-fontsize-10\">25%</span>",
             tooltip: _this.lang.image.resizeQuarter,
             click: _this.context.createInvokeHandler("editor.resize", "0.25"),
           })
@@ -6909,38 +6909,38 @@
     LinkDialog.prototype.initialize = function () {
       var $container = this.options.dialogsInBody ? this.$body : this.$editor;
       var body = [
-        '<div class="form-group note-form-group">',
-        '<label class="note-form-label">' +
+        "<div class=\"form-group note-form-group\">",
+        "<label class=\"note-form-label\">" +
           this.lang.link.textToDisplay +
           "</label>",
-        '<input class="note-link-text form-control note-form-control note-input" type="text" />',
+        "<input class=\"note-link-text form-control note-form-control note-input\" type=\"text\" />",
         "</div>",
-        '<div class="form-group note-form-group">',
-        '<label class="note-form-label">' + this.lang.link.url + "</label>",
-        '<input class="note-link-url form-control note-form-control note-input" type="text" value="http://" />',
+        "<div class=\"form-group note-form-group\">",
+        "<label class=\"note-form-label\">" + this.lang.link.url + "</label>",
+        "<input class=\"note-link-url form-control note-form-control note-input\" type=\"text\" value=\"http://\" />",
         "</div>",
         !this.options.disableLinkTarget
           ? $$1("<div/>")
-              .append(
-                this.ui
-                  .checkbox({
-                    className: "sn-checkbox-open-in-new-window",
-                    text: this.lang.link.openInNewWindow,
-                    checked: true,
-                  })
-                  .render(),
-              )
-              .html()
+            .append(
+              this.ui
+                .checkbox({
+                  className: "sn-checkbox-open-in-new-window",
+                  text: this.lang.link.openInNewWindow,
+                  checked: true,
+                })
+                .render(),
+            )
+            .html()
           : "",
       ].join("");
       var buttonClass =
         "btn btn-primary note-btn note-btn-primary note-link-btn";
       var footer =
-        '<input type="button" href="#" class="' +
+        "<input type=\"button\" href=\"#\" class=\"" +
         buttonClass +
-        '" value="' +
+        "\" value=\"" +
         this.lang.link.insert +
-        '" disabled>';
+        "\" disabled>";
       this.$dialog = this.ui
         .dialog({
           className: "link-dialog",
@@ -7101,7 +7101,7 @@
           className: "note-link-popover",
           callback: function ($node) {
             var $content = $node.find(".popover-content,.note-popover-content");
-            $content.prepend('<span><a target="_blank"></a>&nbsp;</span>');
+            $content.prepend("<span><a target=\"_blank\"></a>&nbsp;</span>");
           },
         })
         .render()
@@ -7171,28 +7171,28 @@
           "</small>";
       }
       var body = [
-        '<div class="form-group note-form-group note-group-select-from-files">',
-        '<label class="note-form-label">' +
+        "<div class=\"form-group note-form-group note-group-select-from-files\">",
+        "<label class=\"note-form-label\">" +
           this.lang.image.selectFromFiles +
           "</label>",
-        '<input class="note-image-input note-form-control note-input" ',
-        ' type="file" name="files" accept="image/*" multiple="multiple" />',
+        "<input class=\"note-image-input note-form-control note-input\" ",
+        " type=\"file\" name=\"files\" accept=\"image/*\" multiple=\"multiple\" />",
         imageLimitation,
         "</div>",
-        '<div class="form-group note-group-image-url" style="overflow:auto;">',
-        '<label class="note-form-label">' + this.lang.image.url + "</label>",
-        '<input class="note-image-url form-control note-form-control note-input ',
-        ' col-md-12" type="text" />',
+        "<div class=\"form-group note-group-image-url\" style=\"overflow:auto;\">",
+        "<label class=\"note-form-label\">" + this.lang.image.url + "</label>",
+        "<input class=\"note-image-url form-control note-form-control note-input ",
+        " col-md-12\" type=\"text\" />",
         "</div>",
       ].join("");
       var buttonClass =
         "btn btn-primary note-btn note-btn-primary note-image-btn";
       var footer =
-        '<input type="button" href="#" class="' +
+        "<input type=\"button\" href=\"#\" class=\"" +
         buttonClass +
-        '" value="' +
+        "\" value=\"" +
         this.lang.image.insert +
-        '" disabled>';
+        "\" disabled>";
       this.$dialog = this.ui
         .dialog({
           title: this.lang.image.insert,
@@ -7438,23 +7438,23 @@
     VideoDialog.prototype.initialize = function () {
       var $container = this.options.dialogsInBody ? this.$body : this.$editor;
       var body = [
-        '<div class="form-group note-form-group row-fluid">',
-        '<label class="note-form-label">' +
+        "<div class=\"form-group note-form-group row-fluid\">",
+        "<label class=\"note-form-label\">" +
           this.lang.video.url +
-          ' <small class="text-muted">' +
+          " <small class=\"text-muted\">" +
           this.lang.video.providers +
           "</small></label>",
-        '<input class="note-video-url form-control note-form-control note-input" type="text" />',
+        "<input class=\"note-video-url form-control note-form-control note-input\" type=\"text\" />",
         "</div>",
       ].join("");
       var buttonClass =
         "btn btn-primary note-btn note-btn-primary note-video-btn";
       var footer =
-        '<input type="button" href="#" class="' +
+        "<input type=\"button\" href=\"#\" class=\"" +
         buttonClass +
-        '" value="' +
+        "\" value=\"" +
         this.lang.video.insert +
-        '" disabled>';
+        "\" disabled>";
       this.$dialog = this.ui
         .dialog({
           title: this.lang.video.insert,
@@ -7664,10 +7664,10 @@
     HelpDialog.prototype.initialize = function () {
       var $container = this.options.dialogsInBody ? this.$body : this.$editor;
       var body = [
-        '<p class="text-center">',
-        '<a href="http://summernote.org/" target="_blank">Summernote 0.8.11</a> · ',
-        '<a href="https://github.com/summernote/summernote" target="_blank">Project</a> · ',
-        '<a href="https://github.com/summernote/summernote/issues" target="_blank">Issues</a>',
+        "<p class=\"text-center\">",
+        "<a href=\"http://summernote.org/\" target=\"_blank\">Summernote 0.8.11</a> · ",
+        "<a href=\"https://github.com/summernote/summernote\" target=\"_blank\">Project</a> · ",
+        "<a href=\"https://github.com/summernote/summernote/issues\" target=\"_blank\">Issues</a>",
         "</p>",
       ].join("");
       this.$dialog = this.ui
@@ -7696,7 +7696,7 @@
       return Object.keys(keyMap)
         .map(function (key) {
           var command = keyMap[key];
-          var $row = $$1('<div><div class="help-list-item"/></div>');
+          var $row = $$1("<div><div class=\"help-list-item\"/></div>");
           $row
             .append(
               $$1("<label><kbd>" + key + "</kdb></label>").css({
@@ -7923,7 +7923,7 @@
     HintPopover.prototype.createItemTemplates = function (hintIdx, items) {
       var hint = this.hints[hintIdx];
       return items.map(function (item, idx) {
-        var $item = $$1('<div class="note-hint-item"/>');
+        var $item = $$1("<div class=\"note-hint-item\"/>");
         $item.append(hint.template ? hint.template(item) : item + "");
         $item.data({
           index: hintIdx,
@@ -7959,7 +7959,7 @@
     HintPopover.prototype.createGroup = function (idx, keyword) {
       var _this = this;
       var $group = $$1(
-        '<div class="note-hint-group note-hint-group-' + idx + '"/>',
+        "<div class=\"note-hint-group note-hint-group-" + idx + "\"/>",
       );
       this.searchKeyword(idx, keyword, function (items) {
         items = items || [];

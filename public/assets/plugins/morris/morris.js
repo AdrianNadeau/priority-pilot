@@ -62,7 +62,7 @@ Licensed under the BSD-2-Clause License.
     EventEmitter.prototype.fire = function () {
       var args, handler, name, _i, _len, _ref, _results;
       (name = arguments[0]),
-        (args = 2 <= arguments.length ? __slice.call(arguments, 1) : []);
+      (args = 2 <= arguments.length ? __slice.call(arguments, 1) : []);
       if (this.handlers != null && this.handlers[name] != null) {
         _ref = this.handlers[name];
         _results = [];
@@ -1086,7 +1086,7 @@ Licensed under the BSD-2-Clause License.
             typeof this.options.smooth === "boolean"
               ? this.options.smooth
               : ((_ref1 = this.options.ykeys[i]),
-                __indexOf.call(this.options.smooth, _ref1) >= 0);
+              __indexOf.call(this.options.smooth, _ref1) >= 0);
           coords = function () {
             var _j, _len, _ref2, _results1;
             _ref2 = this.data;
@@ -2526,15 +2526,15 @@ Licensed under the BSD-2-Clause License.
     DonutSegment.prototype.calcSegment = function (r1, r2) {
       var ix0, ix1, iy0, iy1, ox0, ox1, oy0, oy1, _ref, _ref1;
       (_ref = this.calcArcPoints(r1)),
-        (ix0 = _ref[0]),
-        (iy0 = _ref[1]),
-        (ix1 = _ref[2]),
-        (iy1 = _ref[3]);
+      (ix0 = _ref[0]),
+      (iy0 = _ref[1]),
+      (ix1 = _ref[2]),
+      (iy1 = _ref[3]);
       (_ref1 = this.calcArcPoints(r2)),
-        (ox0 = _ref1[0]),
-        (oy0 = _ref1[1]),
-        (ox1 = _ref1[2]),
-        (oy1 = _ref1[3]);
+      (ox0 = _ref1[0]),
+      (oy0 = _ref1[1]),
+      (ox1 = _ref1[2]),
+      (oy1 = _ref1[3]);
       return (
         "M" +
         ix0 +
@@ -2550,10 +2550,10 @@ Licensed under the BSD-2-Clause License.
     DonutSegment.prototype.calcArc = function (r) {
       var ix0, ix1, iy0, iy1, _ref;
       (_ref = this.calcArcPoints(r)),
-        (ix0 = _ref[0]),
-        (iy0 = _ref[1]),
-        (ix1 = _ref[2]),
-        (iy1 = _ref[3]);
+      (ix0 = _ref[0]),
+      (iy0 = _ref[1]),
+      (ix1 = _ref[2]),
+      (iy1 = _ref[3]);
       return (
         "M" +
         ix0 +

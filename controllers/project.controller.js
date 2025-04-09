@@ -26,7 +26,7 @@ exports.create = (req, res) => {
   let startDateTest = null;
   let endDateTest = null;
   let nextMilestoneDateTest = null;
-  let pitch_message = "";
+  const pitch_message = "";
   let projectCost = null;
 
   startDateTest = insertValidDate(req.body.start_date);
@@ -214,7 +214,7 @@ exports.findAll = async (req, res) => {
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     });
-    let priorities = await Priority.findAll();
+    const priorities = await Priority.findAll();
 
     const personsData = await Person.findAll({
       where: {
@@ -322,7 +322,7 @@ exports.cockpit = async (req, res) => {
     console.log("error:", error);
     return res.redirect("/pages-500");
   }
-  let tagsData = await Tag.findAll({
+  const tagsData = await Tag.findAll({
     where: {
       [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
     },
@@ -403,7 +403,7 @@ exports.cockpit = async (req, res) => {
       }
     }
 
-    let tagsData = await Tag.findAll({
+    const tagsData = await Tag.findAll({
       where: {
         [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
       },
@@ -508,7 +508,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
           },
         },
       });
-      let tagsData = await Tag.findAll({
+      const tagsData = await Tag.findAll({
         where: {
           [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
         },
@@ -628,7 +628,7 @@ exports.findOneForPrime = async (req, res) => {
 
     const prioritiesData = await Priority.findAll();
 
-    let tagsData = await Tag.findAll({
+    const tagsData = await Tag.findAll({
       where: {
         [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
       },
@@ -828,21 +828,27 @@ exports.progress = async (req, res) => {
           where: { id: project.tag_1 },
           attributes: ["tag_name"],
         });
-        if (tag1) tags.tag_1.push(tag1.tag_name);
+        if (tag1) {
+          tags.tag_1.push(tag1.tag_name);
+        }
       }
       if (project.tag_2) {
         const tag2 = await db.tags.findOne({
           where: { id: project.tag_2 },
           attributes: ["tag_name"],
         });
-        if (tag2) tags.tag_2.push(tag2.tag_name);
+        if (tag2) {
+          tags.tag_2.push(tag2.tag_name);
+        }
       }
       if (project.tag_3) {
         const tag3 = await db.tags.findOne({
           where: { id: project.tag_3 },
           attributes: ["tag_name"],
         });
-        if (tag3) tags.tag_3.push(tag3.tag_name);
+        if (tag3) {
+          tags.tag_3.push(tag3.tag_name);
+        }
       }
     }
 
@@ -1130,7 +1136,7 @@ exports.findFunnel = async (req, res) => {
       },
     });
 
-    let tagsData = await Tag.findAll({
+    const tagsData = await Tag.findAll({
       where: {
         [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
       },
@@ -1191,11 +1197,10 @@ exports.findFunnel = async (req, res) => {
 
     data.forEach((project) => {
       pitchTotalCost = parseFloat(project.project_cost.replace(/,/g, "")) || 0;
-      // pitchTotalCost += parseFloat(project.project_cost) || 0;
-
+      console.log("pitchTotalCost:", pitchTotalCost);
       pitchTotalPH += parseFloat(project.effort) || 0;
     });
-
+    // console.log("pitchTotalCost:", pitchTotalCost);
     // Retrieve phases and priorities
     const phases = await Phase.findAll({
       order: [["id", "ASC"]],
@@ -1210,6 +1215,7 @@ exports.findFunnel = async (req, res) => {
     const sponsors = persons.filter((person) => person.role === "sponsor");
     const primes = persons.filter((person) => person.role === "prime");
     pitchTotalCost = formatCost(pitchTotalCost);
+    console.log("pitchTotalCost:", pitchTotalCost);
     pitchTotalPH = formatCost(pitchTotalPH);
     const portfolioName = await returnPortfolioName(company_id_fk);
     // Render the funnel page with the retrieved data
@@ -1657,10 +1663,18 @@ function removeCommasAndConvertToNumber(value) {
 }
 
 const formatCost = (cost) => {
-  if (cost === null || cost === undefined) return "0";
-  if (cost >= 1_000_000_000) return `${(cost / 1_000_000_000).toFixed(1)}B`;
-  if (cost >= 1_000_000) return `${(cost / 1_000_000).toFixed(1)}M`;
-  if (cost >= 1_000) return `${(cost / 1_000).toFixed(1)}K`;
+  if (cost === null || cost === undefined) {
+    return "0";
+  }
+  if (cost >= 1_000_000_000) {
+    return `${(cost / 1_000_000_000).toFixed(1)}B`;
+  }
+  if (cost >= 1_000_000) {
+    return `${(cost / 1_000_000).toFixed(1)}M`;
+  }
+  if (cost >= 1_000) {
+    return `${(cost / 1_000).toFixed(1)}K`;
+  }
   return cost.toString();
 };
 async function returnPortfolioName(company_id_fk) {

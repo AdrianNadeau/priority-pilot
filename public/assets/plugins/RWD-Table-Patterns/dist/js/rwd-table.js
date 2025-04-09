@@ -128,7 +128,7 @@
 
   // Wrap table
   ResponsiveTable.prototype.wrapTable = function () {
-    this.$tableScrollWrapper.wrap('<div class="table-wrapper"/>');
+    this.$tableScrollWrapper.wrap("<div class=\"table-wrapper\"/>");
     this.$tableWrapper = this.$tableScrollWrapper.parent();
   };
 
@@ -137,37 +137,37 @@
     var that = this;
 
     this.$btnToolbar = $(
-      '[data-responsive-table-toolbar="' + this.id + '"]',
+      "[data-responsive-table-toolbar=\"" + this.id + "\"]",
     ).addClass("btn-toolbar");
     if (this.$btnToolbar.length === 0) {
-      this.$btnToolbar = $('<div class="btn-toolbar" />');
+      this.$btnToolbar = $("<div class=\"btn-toolbar\" />");
     }
 
     this.$dropdownGroup = $(
-      '<div class="btn-group dropdown-btn-group pull-right" />',
+      "<div class=\"btn-group dropdown-btn-group pull-right\" />",
     );
     this.$dropdownBtn = $(
-      '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">' +
+      "<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\">" +
         this.options.i18n.display +
-        ' <span class="caret"></span></button>',
+        " <span class=\"caret\"></span></button>",
     );
-    this.$dropdownContainer = $('<ul class="dropdown-menu"/>');
+    this.$dropdownContainer = $("<ul class=\"dropdown-menu\"/>");
 
     // Focus btn
     if (this.options.addFocusBtn) {
       // Create focus btn group
-      this.$focusGroup = $('<div class="btn-group focus-btn-group" />');
+      this.$focusGroup = $("<div class=\"btn-group focus-btn-group\" />");
 
       // Create focus btn
       this.$focusBtn = $(
-        '<button type="button" class="btn btn-default">' +
+        "<button type=\"button\" class=\"btn btn-default\">" +
           this.options.i18n.focus +
           "</button>",
       );
 
       if (this.options.focusBtnIcon) {
         this.$focusBtn.prepend(
-          '<span class="' + this.options.focusBtnIcon + '"></span> ',
+          "<span class=\"" + this.options.focusBtnIcon + "\"></span> ",
         );
       }
 
@@ -191,7 +191,7 @@
     if (this.options.addDisplayAllBtn) {
       // Create display-all btn
       this.$displayAllBtn = $(
-        '<button type="button" class="btn btn-default">' +
+        "<button type=\"button\" class=\"btn btn-default\">" +
           this.options.i18n.displayAll +
           "</button>",
       );
@@ -297,7 +297,7 @@
     });
 
     // wrap table clone (this is our "sticky table header" now)
-    that.$tableClone.wrap('<div class="sticky-table-header"/>');
+    that.$tableClone.wrap("<div class=\"sticky-table-header\"/>");
     that.$stickyTableHeader = that.$tableClone.parent();
 
     // give the sticky table header same height as original
@@ -472,15 +472,15 @@
       // create the hide/show toggle for the current column
       if ($th.is("[data-priority]") && $th.data("priority") !== -1) {
         var $toggle = $(
-          '<li class="checkbox-row"><input type="checkbox" name="toggle-' +
+          "<li class=\"checkbox-row\"><input type=\"checkbox\" name=\"toggle-" +
             id +
-            '" id="toggle-' +
+            "\" id=\"toggle-" +
             id +
-            '" value="' +
+            "\" value=\"" +
             id +
-            '" /> <label for="toggle-' +
+            "\" /> <label for=\"toggle-" +
             id +
-            '">' +
+            "\">" +
             thText +
             "</label></li>",
         );

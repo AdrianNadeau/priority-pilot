@@ -5,7 +5,7 @@ const ChangeReason = db.change_reasons;
 // Create and Save a new ChangedProject
 exports.create = async (req, res) => {
   try {
-    if (!req.session.company) return res.redirect("/login");
+    if (!req.session.company) {return res.redirect("/login");}
     const company_id_fk = req.session.company.id;
 
     if (!req.body.project_name) {
@@ -60,7 +60,7 @@ exports.findAll = async (req, res) => {
 };
 
 exports.findAllByProjectId = async (req, res) => {
-  if (!req.session.company) return res.redirect("/login");
+  if (!req.session.company) {return res.redirect("/login");}
   const company_id_fk = req.session.company.id;
   const changed_id = req.params.id;
   console.log("changed_id", changed_id);

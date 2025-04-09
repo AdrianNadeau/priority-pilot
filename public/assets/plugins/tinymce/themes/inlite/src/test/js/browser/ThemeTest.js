@@ -40,7 +40,7 @@ asynctest(
 
     var cClickToolbarButton = function (ariaLabel) {
       return Chain.fromChains([
-        UiFinder.cFindIn('div[aria-label="' + ariaLabel + '"]'),
+        UiFinder.cFindIn("div[aria-label=\"" + ariaLabel + "\"]"),
         Mouse.cTrueClick,
       ]);
     };
@@ -99,7 +99,7 @@ asynctest(
 
     var cClickButton = function (btnText) {
       return Chain.fromChains([
-        UiFinder.cFindIn('button:contains("' + btnText + '")'),
+        UiFinder.cFindIn("button:contains(\"" + btnText + "\")"),
         Mouse.cTrueClick,
       ]);
     };
@@ -227,7 +227,7 @@ asynctest(
           [0, 0],
           1,
           "www.site.com",
-          '<p><a href="http://www.site.com">a</a></p>',
+          "<p><a href=\"http://www.site.com\">a</a></p>",
         ),
         sLinkWithConfirmCancelTest(
           "<p>a</p>",
@@ -236,7 +236,7 @@ asynctest(
           [0, 0],
           1,
           "www.site.com",
-          '<p><a href="www.site.com">a</a></p>',
+          "<p><a href=\"www.site.com\">a</a></p>",
         ),
         sLinkTest(
           "<p>a</p>",
@@ -245,19 +245,19 @@ asynctest(
           [0, 0],
           1,
           "#1",
-          '<p><a href="#1">a</a></p>',
+          "<p><a href=\"#1\">a</a></p>",
         ),
         sLinkTest(
-          '<p><a id="x" href="#1">a</a></p>',
+          "<p><a id=\"x\" href=\"#1\">a</a></p>",
           [0, 0, 0],
           0,
           [0, 0, 0],
           1,
           "#2",
-          '<p><a id="x" href="#2">a</a></p>',
+          "<p><a id=\"x\" href=\"#2\">a</a></p>",
         ),
         sLinkTest(
-          '<p><a href="#3">a</a></p>',
+          "<p><a href=\"#3\">a</a></p>",
           [0, 0, 0],
           0,
           [0, 0, 0],
@@ -266,7 +266,7 @@ asynctest(
           "<p>a</p>",
         ),
         sUnlinkTest(
-          '<p><a id="x" href="#1">a</a></p>',
+          "<p><a id=\"x\" href=\"#1\">a</a></p>",
           [0, 0, 0],
           0,
           [0, 0, 0],
@@ -283,7 +283,7 @@ asynctest(
         sClickContextButton("Insert table"),
         tinyApis.sAssertContent(
           [
-            '<table style="width: 100%;">',
+            "<table style=\"width: 100%;\">",
             "<tbody>",
             "<tr>",
             "<td>&nbsp;</td>",

@@ -2,18 +2,18 @@ var travelMode, unitSystem;
 
 GMaps.prototype.getRoutes = function (options) {
   switch (options.travelMode) {
-    case "bicycling":
-      travelMode = google.maps.TravelMode.BICYCLING;
-      break;
-    case "transit":
-      travelMode = google.maps.TravelMode.TRANSIT;
-      break;
-    case "driving":
-      travelMode = google.maps.TravelMode.DRIVING;
-      break;
-    default:
-      travelMode = google.maps.TravelMode.WALKING;
-      break;
+  case "bicycling":
+    travelMode = google.maps.TravelMode.BICYCLING;
+    break;
+  case "transit":
+    travelMode = google.maps.TravelMode.TRANSIT;
+    break;
+  case "driving":
+    travelMode = google.maps.TravelMode.DRIVING;
+    break;
+  default:
+    travelMode = google.maps.TravelMode.WALKING;
+    break;
   }
 
   if (options.unitSystem === "imperial") {

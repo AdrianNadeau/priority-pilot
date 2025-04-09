@@ -291,11 +291,11 @@ var GMaps = (function (global) {
           var option = options[i];
 
           html +=
-            '<li><a id="' +
+            "<li><a id=\"" +
             control +
             "_" +
             i +
-            '" href="#">' +
+            "\" href=\"#\">" +
             option.title +
             "</a></li>";
         }

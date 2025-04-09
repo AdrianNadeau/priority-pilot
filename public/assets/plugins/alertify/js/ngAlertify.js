@@ -63,10 +63,10 @@ angular.module("ngAlertify", []).factory("alertify", function () {
             t.addEventListener("click", function () {
               n(t);
             }),
-            (e = e && !isNaN(+e) ? +e : this.delay),
-            0 > e
-              ? n(t)
-              : e > 0 &&
+          (e = e && !isNaN(+e) ? +e : this.delay),
+          0 > e
+            ? n(t)
+            : e > 0 &&
                 setTimeout(function () {
                   n(t);
                 }, e);
@@ -105,40 +105,40 @@ angular.module("ngAlertify", []).factory("alertify", function () {
           var i = this.setupLogContainer(),
             a = document.createElement("div");
           (a.className = o || "default"),
-            t.logTemplateMethod
-              ? (a.innerHTML = t.logTemplateMethod(e))
-              : (a.innerHTML = e),
-            "function" === typeof n && a.addEventListener("click", n),
-            i.appendChild(a),
-            setTimeout(function () {
-              a.className += " show";
-            }, 10),
-            this.close(a, this.delay);
+          t.logTemplateMethod
+            ? (a.innerHTML = t.logTemplateMethod(e))
+            : (a.innerHTML = e),
+          "function" === typeof n && a.addEventListener("click", n),
+          i.appendChild(a),
+          setTimeout(function () {
+            a.className += " show";
+          }, 10),
+          this.close(a, this.delay);
         },
         setup: function (t) {
           function e(e) {
             "function" !== typeof e && (e = function () {}),
-              i &&
+            i &&
                 i.addEventListener("click", function (i) {
                   t.onOkay &&
                     "function" === typeof t.onOkay &&
                     (l ? t.onOkay(l.value, i) : t.onOkay(i)),
-                    e(
-                      l
-                        ? { buttonClicked: "ok", inputValue: l.value, event: i }
-                        : { buttonClicked: "ok", event: i },
-                    ),
-                    n(o);
+                  e(
+                    l
+                      ? { buttonClicked: "ok", inputValue: l.value, event: i }
+                      : { buttonClicked: "ok", event: i },
+                  ),
+                  n(o);
                 }),
-              a &&
+            a &&
                 a.addEventListener("click", function (i) {
                   t.onCancel &&
                     "function" === typeof t.onCancel &&
                     t.onCancel(i),
-                    e({ buttonClicked: "cancel", event: i }),
-                    n(o);
+                  e({ buttonClicked: "cancel", event: i }),
+                  n(o);
                 }),
-              l &&
+            l &&
                 l.addEventListener("keyup", function (t) {
                   13 === t.which && i.click();
                 });
@@ -162,9 +162,9 @@ angular.module("ngAlertify", []).factory("alertify", function () {
             this.parent.appendChild(o),
             setTimeout(function () {
               o.classList.remove("hide"),
-                l && t.type && "prompt" === t.type
-                  ? (l.select(), l.focus())
-                  : i && i.focus();
+              l && t.type && "prompt" === t.type
+                ? (l.select(), l.focus())
+                : i && i.focus();
             }, 100),
             s
           );
@@ -187,67 +187,67 @@ angular.module("ngAlertify", []).factory("alertify", function () {
         },
         theme: function (t) {
           switch (t.toLowerCase()) {
-            case "bootstrap":
-              (this.dialogs.buttons.ok =
+          case "bootstrap":
+            (this.dialogs.buttons.ok =
                 "<button class='ok btn btn-primary' tabindex='1'>{{ok}}</button>"),
-                (this.dialogs.buttons.cancel =
+            (this.dialogs.buttons.cancel =
                   "<button class='cancel btn btn-default' tabindex='2'>{{cancel}}</button>"),
-                (this.dialogs.input =
+            (this.dialogs.input =
                   "<input type='text' class='form-control'>");
-              break;
-            case "purecss":
-              (this.dialogs.buttons.ok =
+            break;
+          case "purecss":
+            (this.dialogs.buttons.ok =
                 "<button class='ok pure-button' tabindex='1'>{{ok}}</button>"),
-                (this.dialogs.buttons.cancel =
+            (this.dialogs.buttons.cancel =
                   "<button class='cancel pure-button' tabindex='2'>{{cancel}}</button>");
-              break;
-            case "mdl":
-            case "material-design-light":
-              (this.dialogs.buttons.ok =
+            break;
+          case "mdl":
+          case "material-design-light":
+            (this.dialogs.buttons.ok =
                 "<button class='ok mdl-button mdl-js-button mdl-js-ripple-effect'  tabindex='1'>{{ok}}</button>"),
-                (this.dialogs.buttons.cancel =
+            (this.dialogs.buttons.cancel =
                   "<button class='cancel mdl-button mdl-js-button mdl-js-ripple-effect' tabindex='2'>{{cancel}}</button>"),
-                (this.dialogs.input =
+            (this.dialogs.input =
                   "<div class='mdl-textfield mdl-js-textfield'><input class='mdl-textfield__input'><label class='md-textfield__label'></label></div>");
-              break;
-            case "angular-material":
-              (this.dialogs.buttons.ok =
+            break;
+          case "angular-material":
+            (this.dialogs.buttons.ok =
                 "<button class='ok md-primary md-button' tabindex='1'>{{ok}}</button>"),
-                (this.dialogs.buttons.cancel =
+            (this.dialogs.buttons.cancel =
                   "<button class='cancel md-button' tabindex='2'>{{cancel}}</button>"),
-                (this.dialogs.input =
+            (this.dialogs.input =
                   "<div layout='column'><md-input-container md-no-float><input type='text'></md-input-container></div>");
-              break;
-            case "default":
-            default:
-              (this.dialogs.buttons.ok = this.defaultDialogs.buttons.ok),
-                (this.dialogs.buttons.cancel =
+            break;
+          case "default":
+          default:
+            (this.dialogs.buttons.ok = this.defaultDialogs.buttons.ok),
+            (this.dialogs.buttons.cancel =
                   this.defaultDialogs.buttons.cancel),
-                (this.dialogs.input = this.defaultDialogs.input);
+            (this.dialogs.input = this.defaultDialogs.input);
           }
         },
         reset: function () {
           (this.parent = document.body),
-            this.theme("default"),
-            this.okBtn(this.defaultOkLabel),
-            this.cancelBtn(this.defaultCancelLabel),
-            this.setMaxLogItems(),
-            (this.promptValue = ""),
-            (this.promptPlaceholder = ""),
-            (this.delay = this.defaultDelay),
-            this.setCloseLogOnClick(this.closeLogOnClickDefault),
-            this.setLogPosition("bottom left"),
-            (this.logTemplateMethod = null);
+          this.theme("default"),
+          this.okBtn(this.defaultOkLabel),
+          this.cancelBtn(this.defaultCancelLabel),
+          this.setMaxLogItems(),
+          (this.promptValue = ""),
+          (this.promptPlaceholder = ""),
+          (this.delay = this.defaultDelay),
+          this.setCloseLogOnClick(this.closeLogOnClickDefault),
+          this.setLogPosition("bottom left"),
+          (this.logTemplateMethod = null);
         },
         injectCSS: function () {
           if (!document.querySelector("#alertifyCSS")) {
             var t = document.getElementsByTagName("head")[0],
               e = document.createElement("style");
             (e.type = "text/css"),
-              (e.id = "alertifyCSS"),
-              (e.innerHTML =
+            (e.id = "alertifyCSS"),
+            (e.innerHTML =
                 ".alertify-logs>*{padding:12px 24px;color:#fff;box-shadow:0 2px 5px 0 rgba(0,0,0,.2);border-radius:1px}.alertify-logs>*,.alertify-logs>.default{background:rgba(0,0,0,.8)}.alertify-logs>.error{background:rgba(244,67,54,.8)}.alertify-logs>.success{background:rgba(76,175,80,.9)}.alertify{position:fixed;background-color:rgba(0,0,0,.3);left:0;right:0;top:0;bottom:0;width:100%;height:100%;z-index:1}.alertify.hide{opacity:0;pointer-events:none}.alertify,.alertify.show{box-sizing:border-box;transition:all .33s cubic-bezier(.25,.8,.25,1)}.alertify,.alertify *{box-sizing:border-box}.alertify .dialog{padding:12px}.alertify .alert,.alertify .dialog{width:100%;margin:0 auto;position:relative;top:50%;transform:translateY(-50%)}.alertify .alert>*,.alertify .dialog>*{width:400px;max-width:95%;margin:0 auto;text-align:center;padding:12px;background:#fff;box-shadow:0 2px 4px -1px rgba(0,0,0,.14),0 4px 5px 0 rgba(0,0,0,.098),0 1px 10px 0 rgba(0,0,0,.084)}.alertify .alert .msg,.alertify .dialog .msg{padding:12px;margin-bottom:12px;margin:0;text-align:left}.alertify .alert input:not(.form-control),.alertify .dialog input:not(.form-control){margin-bottom:15px;width:100%;font-size:100%;padding:12px}.alertify .alert input:not(.form-control):focus,.alertify .dialog input:not(.form-control):focus{outline-offset:-2px}.alertify .alert nav,.alertify .dialog nav{text-align:right}.alertify .alert nav button:not(.btn):not(.pure-button):not(.md-button):not(.mdl-button),.alertify .dialog nav button:not(.btn):not(.pure-button):not(.md-button):not(.mdl-button){background:transparent;box-sizing:border-box;color:rgba(0,0,0,.87);position:relative;outline:0;border:0;display:inline-block;-ms-flex-align:center;-ms-grid-row-align:center;align-items:center;padding:0 6px;margin:6px 8px;line-height:36px;min-height:36px;white-space:nowrap;min-width:88px;text-align:center;text-transform:uppercase;font-size:14px;text-decoration:none;cursor:pointer;border:1px solid transparent;border-radius:2px}.alertify .alert nav button:not(.btn):not(.pure-button):not(.md-button):not(.mdl-button):active,.alertify .alert nav button:not(.btn):not(.pure-button):not(.md-button):not(.mdl-button):hover,.alertify .dialog nav button:not(.btn):not(.pure-button):not(.md-button):not(.mdl-button):active,.alertify .dialog nav button:not(.btn):not(.pure-button):not(.md-button):not(.mdl-button):hover{background-color:rgba(0,0,0,.05)}.alertify .alert nav button:not(.btn):not(.pure-button):not(.md-button):not(.mdl-button):focus,.alertify .dialog nav button:not(.btn):not(.pure-button):not(.md-button):not(.mdl-button):focus{border:1px solid rgba(0,0,0,.1)}.alertify .alert nav button.btn,.alertify .dialog nav button.btn{margin:6px 4px}.alertify-logs{position:fixed;z-index:1}.alertify-logs.bottom,.alertify-logs:not(.top){bottom:16px}.alertify-logs.left,.alertify-logs:not(.right){left:16px}.alertify-logs.left>*,.alertify-logs:not(.right)>*{float:left;transform:translateZ(0);height:auto}.alertify-logs.left>.show,.alertify-logs:not(.right)>.show{left:0}.alertify-logs.left>*,.alertify-logs.left>.hide,.alertify-logs:not(.right)>*,.alertify-logs:not(.right)>.hide{left:-110%}.alertify-logs.right{right:16px}.alertify-logs.right>*{float:right;transform:translateZ(0)}.alertify-logs.right>.show{right:0;opacity:1}.alertify-logs.right>*,.alertify-logs.right>.hide{right:-110%;opacity:0}.alertify-logs.top{top:0}.alertify-logs>*{box-sizing:border-box;transition:all .4s cubic-bezier(.25,.8,.25,1);position:relative;clear:both;backface-visibility:hidden;perspective:1000;max-height:0;margin:0;padding:0;overflow:hidden;opacity:0;pointer-events:none}.alertify-logs>.show{margin-top:12px;opacity:1;max-height:1000px;padding:12px;pointer-events:auto}"),
-              t.insertBefore(e, t.firstChild);
+            t.insertBefore(e, t.firstChild);
           }
         },
         removeCSS: function () {
@@ -327,9 +327,9 @@ angular.module("ngAlertify", []).factory("alertify", function () {
             t && t.parentNode && t.parentNode.removeChild(t);
           };
           t.classList.remove("show"),
-            t.classList.add("hide"),
-            t.addEventListener("transitionend", e),
-            setTimeout(e, o);
+          t.classList.add("hide"),
+          t.addEventListener("transitionend", e),
+          setTimeout(e, o);
         }
       };
     if ("undefined" !== typeof t && t && t.exports) {
@@ -343,8 +343,8 @@ angular.module("ngAlertify", []).factory("alertify", function () {
     } else {
       "function" === typeof define && define.amd
         ? define(function () {
-            return new e();
-          })
+          return new e();
+        })
         : (window.alertify = new e());
     }
   })();

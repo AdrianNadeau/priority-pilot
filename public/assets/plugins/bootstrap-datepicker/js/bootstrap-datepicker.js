@@ -310,14 +310,14 @@
       } // no action
       else if (plc.length === 1) {
         switch (plc[0]) {
-          case "top":
-          case "bottom":
-            o.orientation.y = plc[0];
-            break;
-          case "left":
-          case "right":
-            o.orientation.x = plc[0];
-            break;
+        case "top":
+        case "bottom":
+          o.orientation.y = plc[0];
+          break;
+        case "left":
+        case "right":
+          o.orientation.x = plc[0];
+          break;
         }
       } else {
         _plc = $.grep(plc, function (word) {
@@ -944,14 +944,14 @@
         var dowCnt = this.o.weekStart,
           html = "<tr>";
         if (this.o.calendarWeeks) {
-          html += '<th class="cw">&#160;</th>';
+          html += "<th class=\"cw\">&#160;</th>";
         }
         while (dowCnt < this.o.weekStart + 7) {
-          html += '<th class="dow';
+          html += "<th class=\"dow";
           if ($.inArray(dowCnt, this.o.daysOfWeekDisabled) !== -1) {
             html += " disabled";
           }
-          html += '">' + dates[this.o.language].daysMin[dowCnt++ % 7] + "</th>";
+          html += "\">" + dates[this.o.language].daysMin[dowCnt++ % 7] + "</th>";
         }
         html += "</tr>";
         this.picker.find(".datepicker-days thead").append(html);
@@ -965,9 +965,9 @@
       for (var i = 0; i < 12; i++) {
         focused = localDate && localDate.getMonth() === i ? " focused" : "";
         html +=
-          '<span class="month' +
+          "<span class=\"month" +
           focused +
-          '">' +
+          "\">" +
           dates[this.o.language].monthsShort[i] +
           "</span>";
       }
@@ -1102,10 +1102,10 @@
         }
 
         html +=
-          '<span class="' +
+          "<span class=\"" +
           classes.join(" ") +
-          '"' +
-          (tooltip ? ' title="' + tooltip + '"' : "") +
+          "\"" +
+          (tooltip ? " title=\"" + tooltip + "\"" : "") +
           ">" +
           currVal +
           "</span>";
@@ -1204,7 +1204,7 @@
               ),
               // Calendar week: ms between thursdays, div ms per day, div 7 days
               calWeek = (th - yth) / 864e5 / 7 + 1;
-            html.push('<td class="cw">' + calWeek + "</td>");
+            html.push("<td class=\"cw\">" + calWeek + "</td>");
           }
         }
         clsName = this.getClassNames(prevMonth);
@@ -1244,13 +1244,13 @@
         }
 
         html.push(
-          '<td class="' +
+          "<td class=\"" +
             clsName.join(" ") +
-            '"' +
-            (tooltip ? ' title="' + tooltip + '"' : "") +
-            ' data-date="' +
+            "\"" +
+            (tooltip ? " title=\"" + tooltip + "\"" : "") +
+            " data-date=\"" +
             prevMonth.getTime().toString() +
-            '">' +
+            "\">" +
             content +
             "</td>",
         );
@@ -1374,24 +1374,24 @@
         nextIsDisabled,
         factor = 1;
       switch (this.viewMode) {
-        case 4:
-          factor *= 10;
+      case 4:
+        factor *= 10;
         /* falls through */
-        case 3:
-          factor *= 10;
+      case 3:
+        factor *= 10;
         /* falls through */
-        case 2:
-          factor *= 10;
+      case 2:
+        factor *= 10;
         /* falls through */
-        case 1:
-          prevIsDisabled = Math.floor(year / factor) * factor < startYear;
-          nextIsDisabled =
+      case 1:
+        prevIsDisabled = Math.floor(year / factor) * factor < startYear;
+        nextIsDisabled =
             Math.floor(year / factor) * factor + factor > endYear;
-          break;
-        case 0:
-          prevIsDisabled = year <= startYear && month < startMonth;
-          nextIsDisabled = year >= endYear && month > endMonth;
-          break;
+        break;
+      case 0:
+        prevIsDisabled = year <= startYear && month < startMonth;
+        nextIsDisabled = year >= endYear && month > endMonth;
+        break;
       }
 
       this.picker.find(".prev").toggleClass("disabled", prevIsDisabled);
@@ -1567,15 +1567,15 @@
         test =
           dir === -1
             ? // If going back one month, make sure month is not current month
-              // (eg, Mar 31 -> Feb 31 == Feb 28, not Mar 02)
-              function () {
-                return new_date.getUTCMonth() === month;
-              }
+          // (eg, Mar 31 -> Feb 31 == Feb 28, not Mar 02)
+            function () {
+              return new_date.getUTCMonth() === month;
+            }
             : // If going forward one month, make sure month is as expected
-              // (eg, Jan 31 -> Feb 31 == Feb 28, not Mar 02)
-              function () {
-                return new_date.getUTCMonth() !== new_month;
-              };
+          // (eg, Jan 31 -> Feb 31 == Feb 28, not Mar 02)
+            function () {
+              return new_date.getUTCMonth() !== new_month;
+            };
         new_month = month + dir;
         new_date.setUTCMonth(new_month);
         // Dec -> Jan (12) or Jan -> Dec (-1) -- limit expected date to 0-11
@@ -1655,91 +1655,91 @@
         newViewDate,
         focusDate = this.focusDate || this.viewDate;
       switch (e.keyCode) {
-        case 27: // escape
-          if (this.focusDate) {
-            this.focusDate = null;
-            this.viewDate = this.dates.get(-1) || this.viewDate;
-            this.fill();
-          } else {
-            this.hide();
-          }
-          e.preventDefault();
-          e.stopPropagation();
-          break;
-        case 37: // left
-        case 38: // up
-        case 39: // right
-        case 40: // down
-          if (
-            !this.o.keyboardNavigation ||
-            this.o.daysOfWeekDisabled.length === 7
-          ) {
-            break;
-          }
-          dir = e.keyCode === 37 || e.keyCode === 38 ? -1 : 1;
-          if (this.viewMode === 0) {
-            if (e.ctrlKey) {
-              newViewDate = this.moveAvailableDate(focusDate, dir, "moveYear");
-
-              if (newViewDate) {
-                this._trigger("changeYear", this.viewDate);
-              }
-            } else if (e.shiftKey) {
-              newViewDate = this.moveAvailableDate(focusDate, dir, "moveMonth");
-
-              if (newViewDate) {
-                this._trigger("changeMonth", this.viewDate);
-              }
-            } else if (e.keyCode === 37 || e.keyCode === 39) {
-              newViewDate = this.moveAvailableDate(focusDate, dir, "moveDay");
-            } else if (!this.weekOfDateIsDisabled(focusDate)) {
-              newViewDate = this.moveAvailableDate(focusDate, dir, "moveWeek");
-            }
-          } else if (this.viewMode === 1) {
-            if (e.keyCode === 38 || e.keyCode === 40) {
-              dir = dir * 4;
-            }
-            newViewDate = this.moveAvailableDate(focusDate, dir, "moveMonth");
-          } else if (this.viewMode === 2) {
-            if (e.keyCode === 38 || e.keyCode === 40) {
-              dir = dir * 4;
-            }
-            newViewDate = this.moveAvailableDate(focusDate, dir, "moveYear");
-          }
-          if (newViewDate) {
-            this.focusDate = this.viewDate = newViewDate;
-            this.setValue();
-            this.fill();
-            e.preventDefault();
-          }
-          break;
-        case 13: // enter
-          if (!this.o.forceParse) {
-            break;
-          }
-          focusDate = this.focusDate || this.dates.get(-1) || this.viewDate;
-          if (this.o.keyboardNavigation) {
-            this._toggle_multidate(focusDate);
-            dateChanged = true;
-          }
+      case 27: // escape
+        if (this.focusDate) {
           this.focusDate = null;
           this.viewDate = this.dates.get(-1) || this.viewDate;
+          this.fill();
+        } else {
+          this.hide();
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        break;
+      case 37: // left
+      case 38: // up
+      case 39: // right
+      case 40: // down
+        if (
+          !this.o.keyboardNavigation ||
+            this.o.daysOfWeekDisabled.length === 7
+        ) {
+          break;
+        }
+        dir = e.keyCode === 37 || e.keyCode === 38 ? -1 : 1;
+        if (this.viewMode === 0) {
+          if (e.ctrlKey) {
+            newViewDate = this.moveAvailableDate(focusDate, dir, "moveYear");
+
+            if (newViewDate) {
+              this._trigger("changeYear", this.viewDate);
+            }
+          } else if (e.shiftKey) {
+            newViewDate = this.moveAvailableDate(focusDate, dir, "moveMonth");
+
+            if (newViewDate) {
+              this._trigger("changeMonth", this.viewDate);
+            }
+          } else if (e.keyCode === 37 || e.keyCode === 39) {
+            newViewDate = this.moveAvailableDate(focusDate, dir, "moveDay");
+          } else if (!this.weekOfDateIsDisabled(focusDate)) {
+            newViewDate = this.moveAvailableDate(focusDate, dir, "moveWeek");
+          }
+        } else if (this.viewMode === 1) {
+          if (e.keyCode === 38 || e.keyCode === 40) {
+            dir = dir * 4;
+          }
+          newViewDate = this.moveAvailableDate(focusDate, dir, "moveMonth");
+        } else if (this.viewMode === 2) {
+          if (e.keyCode === 38 || e.keyCode === 40) {
+            dir = dir * 4;
+          }
+          newViewDate = this.moveAvailableDate(focusDate, dir, "moveYear");
+        }
+        if (newViewDate) {
+          this.focusDate = this.viewDate = newViewDate;
           this.setValue();
           this.fill();
-          if (this.picker.is(":visible")) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (this.o.autoclose) {
-              this.hide();
-            }
+          e.preventDefault();
+        }
+        break;
+      case 13: // enter
+        if (!this.o.forceParse) {
+          break;
+        }
+        focusDate = this.focusDate || this.dates.get(-1) || this.viewDate;
+        if (this.o.keyboardNavigation) {
+          this._toggle_multidate(focusDate);
+          dateChanged = true;
+        }
+        this.focusDate = null;
+        this.viewDate = this.dates.get(-1) || this.viewDate;
+        this.setValue();
+        this.fill();
+        if (this.picker.is(":visible")) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (this.o.autoclose) {
+            this.hide();
           }
-          break;
-        case 9: // tab
-          this.focusDate = null;
-          this.viewDate = this.dates.get(-1) || this.viewDate;
-          this.fill();
-          this.hide();
-          break;
+        }
+        break;
+      case 9: // tab
+        this.focusDate = null;
+        this.viewDate = this.dates.get(-1) || this.viewDate;
+        this.fill();
+        this.hide();
+        break;
       }
       if (dateChanged) {
         if (this.dates.length) {
@@ -2221,14 +2221,14 @@
           part = fparts[i];
           if (isNaN(val)) {
             switch (part) {
-              case "MM":
-                filtered = $(dates[language].months).filter(match_part);
-                val = $.inArray(filtered[0], dates[language].months) + 1;
-                break;
-              case "M":
-                filtered = $(dates[language].monthsShort).filter(match_part);
-                val = $.inArray(filtered[0], dates[language].monthsShort) + 1;
-                break;
+            case "MM":
+              filtered = $(dates[language].months).filter(match_part);
+              val = $.inArray(filtered[0], dates[language].months) + 1;
+              break;
+            case "M":
+              filtered = $(dates[language].monthsShort).filter(match_part);
+              val = $.inArray(filtered[0], dates[language].monthsShort) + 1;
+              break;
             }
           }
           parsed[part] = val;
@@ -2282,61 +2282,61 @@
     headTemplate:
       "<thead>" +
       "<tr>" +
-      '<th colspan="7" class="datepicker-title"></th>' +
+      "<th colspan=\"7\" class=\"datepicker-title\"></th>" +
       "</tr>" +
       "<tr>" +
-      '<th class="prev">' +
+      "<th class=\"prev\">" +
       defaults.templates.leftArrow +
       "</th>" +
-      '<th colspan="5" class="datepicker-switch"></th>' +
-      '<th class="next">' +
+      "<th colspan=\"5\" class=\"datepicker-switch\"></th>" +
+      "<th class=\"next\">" +
       defaults.templates.rightArrow +
       "</th>" +
       "</tr>" +
       "</thead>",
-    contTemplate: '<tbody><tr><td colspan="7"></td></tr></tbody>',
+    contTemplate: "<tbody><tr><td colspan=\"7\"></td></tr></tbody>",
     footTemplate:
       "<tfoot>" +
       "<tr>" +
-      '<th colspan="7" class="today"></th>' +
+      "<th colspan=\"7\" class=\"today\"></th>" +
       "</tr>" +
       "<tr>" +
-      '<th colspan="7" class="clear"></th>' +
+      "<th colspan=\"7\" class=\"clear\"></th>" +
       "</tr>" +
       "</tfoot>",
   };
   DPGlobal.template =
-    '<div class="datepicker">' +
-    '<div class="datepicker-days">' +
-    '<table class="table-condensed">' +
+    "<div class=\"datepicker\">" +
+    "<div class=\"datepicker-days\">" +
+    "<table class=\"table-condensed\">" +
     DPGlobal.headTemplate +
     "<tbody></tbody>" +
     DPGlobal.footTemplate +
     "</table>" +
     "</div>" +
-    '<div class="datepicker-months">' +
-    '<table class="table-condensed">' +
+    "<div class=\"datepicker-months\">" +
+    "<table class=\"table-condensed\">" +
     DPGlobal.headTemplate +
     DPGlobal.contTemplate +
     DPGlobal.footTemplate +
     "</table>" +
     "</div>" +
-    '<div class="datepicker-years">' +
-    '<table class="table-condensed">' +
+    "<div class=\"datepicker-years\">" +
+    "<table class=\"table-condensed\">" +
     DPGlobal.headTemplate +
     DPGlobal.contTemplate +
     DPGlobal.footTemplate +
     "</table>" +
     "</div>" +
-    '<div class="datepicker-decades">' +
-    '<table class="table-condensed">' +
+    "<div class=\"datepicker-decades\">" +
+    "<table class=\"table-condensed\">" +
     DPGlobal.headTemplate +
     DPGlobal.contTemplate +
     DPGlobal.footTemplate +
     "</table>" +
     "</div>" +
-    '<div class="datepicker-centuries">' +
-    '<table class="table-condensed">' +
+    "<div class=\"datepicker-centuries\">" +
+    "<table class=\"table-condensed\">" +
     DPGlobal.headTemplate +
     DPGlobal.contTemplate +
     DPGlobal.footTemplate +
@@ -2370,7 +2370,7 @@
 
   $(document).on(
     "focus.datepicker.data-api click.datepicker.data-api",
-    '[data-provide="datepicker"]',
+    "[data-provide=\"datepicker\"]",
     function (e) {
       var $this = $(this);
       if ($this.data("datepicker")) {
@@ -2382,6 +2382,6 @@
     },
   );
   $(function () {
-    datepickerPlugin.call($('[data-provide="datepicker-inline"]'));
+    datepickerPlugin.call($("[data-provide=\"datepicker-inline\"]"));
   });
 });

@@ -75,7 +75,7 @@ asynctest(
           {},
           [
             tinyApis.sSetContent(
-              '<p>a</p><div style="width: 50px; height: 300px">b</div><p>c</p>',
+              "<p>a</p><div style=\"width: 50px; height: 300px\">b</div><p>c</p>",
             ),
             sAssertRect(
               editor,

@@ -42,7 +42,7 @@
 
     // convenience method for quick growl-like notifications  (http://www.google.com/search?q=growl)
     $.growlUI = function (title, message, timeout, onClose) {
-      var $m = $('<div class="growlUI"></div>');
+      var $m = $("<div class=\"growlUI\"></div>");
       if (title) {
         $m.append("<h1>" + title + "</h1>");
       }
@@ -322,74 +322,74 @@
       var lyr1, lyr2, lyr3, s;
       if (msie || opts.forceIframe) {
         lyr1 = $(
-          '<iframe class="blockUI" style="z-index:' +
+          "<iframe class=\"blockUI\" style=\"z-index:" +
             z++ +
-            ';display:none;border:none;margin:0;padding:0;position:absolute;width:100%;height:100%;top:0;left:0" src="' +
+            ";display:none;border:none;margin:0;padding:0;position:absolute;width:100%;height:100%;top:0;left:0\" src=\"" +
             opts.iframeSrc +
-            '"></iframe>',
+            "\"></iframe>",
         );
       } else {
-        lyr1 = $('<div class="blockUI" style="display:none"></div>');
+        lyr1 = $("<div class=\"blockUI\" style=\"display:none\"></div>");
       }
 
       if (opts.theme) {
         lyr2 = $(
-          '<div class="blockUI blockOverlay ui-widget-overlay" style="z-index:' +
+          "<div class=\"blockUI blockOverlay ui-widget-overlay\" style=\"z-index:" +
             z++ +
-            ';display:none"></div>',
+            ";display:none\"></div>",
         );
       } else {
         lyr2 = $(
-          '<div class="blockUI blockOverlay" style="z-index:' +
+          "<div class=\"blockUI blockOverlay\" style=\"z-index:" +
             z++ +
-            ';display:none;border:none;margin:0;padding:0;width:100%;height:100%;top:0;left:0"></div>',
+            ";display:none;border:none;margin:0;padding:0;width:100%;height:100%;top:0;left:0\"></div>",
         );
       }
 
       if (opts.theme && full) {
         s =
-          '<div class="blockUI ' +
+          "<div class=\"blockUI " +
           opts.blockMsgClass +
-          ' blockPage ui-dialog ui-widget ui-corner-all" style="z-index:' +
+          " blockPage ui-dialog ui-widget ui-corner-all\" style=\"z-index:" +
           (z + 10) +
-          ';display:none;position:fixed">';
+          ";display:none;position:fixed\">";
         if (opts.title) {
           s +=
-            '<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">' +
+            "<div class=\"ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle\">" +
             (opts.title || "&nbsp;") +
             "</div>";
         }
-        s += '<div class="ui-widget-content ui-dialog-content"></div>';
+        s += "<div class=\"ui-widget-content ui-dialog-content\"></div>";
         s += "</div>";
       } else if (opts.theme) {
         s =
-          '<div class="blockUI ' +
+          "<div class=\"blockUI " +
           opts.blockMsgClass +
-          ' blockElement ui-dialog ui-widget ui-corner-all" style="z-index:' +
+          " blockElement ui-dialog ui-widget ui-corner-all\" style=\"z-index:" +
           (z + 10) +
-          ';display:none;position:absolute">';
+          ";display:none;position:absolute\">";
         if (opts.title) {
           s +=
-            '<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">' +
+            "<div class=\"ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle\">" +
             (opts.title || "&nbsp;") +
             "</div>";
         }
-        s += '<div class="ui-widget-content ui-dialog-content"></div>';
+        s += "<div class=\"ui-widget-content ui-dialog-content\"></div>";
         s += "</div>";
       } else if (full) {
         s =
-          '<div class="blockUI ' +
+          "<div class=\"blockUI " +
           opts.blockMsgClass +
-          ' blockPage" style="z-index:' +
+          " blockPage\" style=\"z-index:" +
           (z + 10) +
-          ';display:none;position:fixed"></div>';
+          ";display:none;position:fixed\"></div>";
       } else {
         s =
-          '<div class="blockUI ' +
+          "<div class=\"blockUI " +
           opts.blockMsgClass +
-          ' blockElement" style="z-index:' +
+          " blockElement\" style=\"z-index:" +
           (z + 10) +
-          ';display:none;position:absolute"></div>';
+          ";display:none;position:absolute\"></div>";
       }
       lyr3 = $(s);
 
@@ -456,18 +456,18 @@
                 "height",
                 "Math.max(document.body.scrollHeight, document.body.offsetHeight) - (jQuery.support.boxModel?0:" +
                   opts.quirksmodeOffsetHack +
-                  ') + "px"',
+                  ") + \"px\"",
               );
             } else {
-              s.setExpression("height", 'this.parentNode.offsetHeight + "px"');
+              s.setExpression("height", "this.parentNode.offsetHeight + \"px\"");
             }
             if (full) {
               s.setExpression(
                 "width",
-                'jQuery.support.boxModel && document.documentElement.clientWidth || document.body.clientWidth + "px"',
+                "jQuery.support.boxModel && document.documentElement.clientWidth || document.body.clientWidth + \"px\"",
               );
             } else {
-              s.setExpression("width", 'this.parentNode.offsetWidth + "px"');
+              s.setExpression("width", "this.parentNode.offsetWidth + \"px\"");
             }
             if (fixL) {
               s.setExpression("left", fixL);
@@ -479,7 +479,7 @@
             if (full) {
               s.setExpression(
                 "top",
-                '(document.documentElement.clientHeight || document.body.clientHeight) / 2 - (this.offsetHeight / 2) + (blah = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + "px"',
+                "(document.documentElement.clientHeight || document.body.clientHeight) / 2 - (this.offsetHeight / 2) + (blah = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + \"px\"",
               );
             }
             s.marginTop = 0;
@@ -488,7 +488,7 @@
             var expression =
               "((document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + " +
               top +
-              ') + "px"';
+              ") + \"px\"";
             s.setExpression("top", expression);
           }
         });

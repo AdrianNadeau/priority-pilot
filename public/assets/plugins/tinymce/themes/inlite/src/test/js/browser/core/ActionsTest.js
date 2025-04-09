@@ -37,7 +37,7 @@ asynctest(
           2,
           3,
           [
-            '<table style="width: 100%;">',
+            "<table style=\"width: 100%;\">",
             "<tbody>",
             "<tr>",
             "<td>&nbsp;</td>",
@@ -61,7 +61,7 @@ asynctest(
           3,
           2,
           [
-            '<table style="width: 100%;">',
+            "<table style=\"width: 100%;\">",
             "<tbody>",
             "<tr>",
             "<td>&nbsp;</td>",
@@ -131,25 +131,25 @@ asynctest(
           0,
           [0, 0],
           1,
-          '<p><a href="#1">a</a></p>',
+          "<p><a href=\"#1\">a</a></p>",
         ),
         sCreateLinkTest(
-          '<p><a href="#1">a</a></p>',
+          "<p><a href=\"#1\">a</a></p>",
           "#2",
           [0, 0],
           0,
           [0, 0],
           1,
-          '<p><a href="#2">a</a></p>',
+          "<p><a href=\"#2\">a</a></p>",
         ),
         sCreateLinkTest(
-          '<p><a href="#1"><em>a</em></a></p>',
+          "<p><a href=\"#1\"><em>a</em></a></p>",
           "#2",
           [0, 0, 0],
           0,
           [0, 0, 0],
           1,
-          '<p><a href="#2"><em>a</em></a></p>',
+          "<p><a href=\"#2\"><em>a</em></a></p>",
         ),
       ]);
     };
@@ -176,7 +176,7 @@ asynctest(
       return GeneralSteps.sequence([
         sUnlinkTest("<p>a</p>", [0, 0], 0, [0, 0], 1, "<p>a</p>"),
         sUnlinkTest(
-          '<p><a href="#">a</a></p>',
+          "<p><a href=\"#\">a</a></p>",
           [0, 0, 0],
           0,
           [0, 0, 0],
@@ -184,7 +184,7 @@ asynctest(
           "<p>a</p>",
         ),
         sUnlinkTest(
-          '<p><a href="#"><em>a</em></a></p>',
+          "<p><a href=\"#\"><em>a</em></a></p>",
           [0, 0, 0],
           0,
           [0, 0, 0],
@@ -192,7 +192,7 @@ asynctest(
           "<p><em>a</em></p>",
         ),
         sUnlinkTest(
-          '<p><a href="#">a</a>b</p>',
+          "<p><a href=\"#\">a</a>b</p>",
           [0, 0, 0],
           0,
           [0, 1],
@@ -242,7 +242,7 @@ asynctest(
           0,
           base64,
           blob,
-          '<p><img src="data:image/gif;base64,' + base64 + '" />a</p>',
+          "<p><img src=\"data:image/gif;base64," + base64 + "\" />a</p>",
         ),
       ]);
     };

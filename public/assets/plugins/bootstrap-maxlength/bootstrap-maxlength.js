@@ -295,9 +295,9 @@
           typeof el.getBoundingClientRect === "function"
             ? el.getBoundingClientRect()
             : {
-                width: el.offsetWidth,
-                height: el.offsetHeight,
-              },
+              width: el.offsetWidth,
+              height: el.offsetHeight,
+            },
           currentInput.offset(),
         );
       }
@@ -338,86 +338,86 @@
         }
 
         switch (options.placement) {
-          case "bottom":
-            maxLengthIndicator.css({
-              top: pos.top + pos.height,
-              left: pos.left + pos.width / 2 - actualWidth / 2,
-            });
-            break;
-          case "top":
-            maxLengthIndicator.css({
-              top: pos.top - actualHeight,
-              left: pos.left + pos.width / 2 - actualWidth / 2,
-            });
-            break;
-          case "left":
-            maxLengthIndicator.css({
-              top: pos.top + pos.height / 2 - actualHeight / 2,
-              left: pos.left - actualWidth,
-            });
-            break;
-          case "right":
-            maxLengthIndicator.css({
-              top: pos.top + pos.height / 2 - actualHeight / 2,
-              left: pos.left + pos.width,
-            });
-            break;
-          case "bottom-right":
-            maxLengthIndicator.css({
-              top: pos.top + pos.height,
-              left: pos.left + pos.width,
-            });
-            break;
-          case "top-right":
-            maxLengthIndicator.css({
-              top: pos.top - actualHeight,
-              left: pos.left + inputOuter,
-            });
-            break;
-          case "top-left":
-            maxLengthIndicator.css({
-              top: pos.top - actualHeight,
-              left: pos.left - outerWidth,
-            });
-            break;
-          case "bottom-left":
-            maxLengthIndicator.css({
-              top: pos.top + currentInput.outerHeight(),
-              left: pos.left - outerWidth,
-            });
-            break;
-          case "centered-right":
-            maxLengthIndicator.css({
-              top: pos.top + actualHeight / 2,
-              left: pos.left + inputOuter - outerWidth - 3,
-            });
-            break;
+        case "bottom":
+          maxLengthIndicator.css({
+            top: pos.top + pos.height,
+            left: pos.left + pos.width / 2 - actualWidth / 2,
+          });
+          break;
+        case "top":
+          maxLengthIndicator.css({
+            top: pos.top - actualHeight,
+            left: pos.left + pos.width / 2 - actualWidth / 2,
+          });
+          break;
+        case "left":
+          maxLengthIndicator.css({
+            top: pos.top + pos.height / 2 - actualHeight / 2,
+            left: pos.left - actualWidth,
+          });
+          break;
+        case "right":
+          maxLengthIndicator.css({
+            top: pos.top + pos.height / 2 - actualHeight / 2,
+            left: pos.left + pos.width,
+          });
+          break;
+        case "bottom-right":
+          maxLengthIndicator.css({
+            top: pos.top + pos.height,
+            left: pos.left + pos.width,
+          });
+          break;
+        case "top-right":
+          maxLengthIndicator.css({
+            top: pos.top - actualHeight,
+            left: pos.left + inputOuter,
+          });
+          break;
+        case "top-left":
+          maxLengthIndicator.css({
+            top: pos.top - actualHeight,
+            left: pos.left - outerWidth,
+          });
+          break;
+        case "bottom-left":
+          maxLengthIndicator.css({
+            top: pos.top + currentInput.outerHeight(),
+            left: pos.left - outerWidth,
+          });
+          break;
+        case "centered-right":
+          maxLengthIndicator.css({
+            top: pos.top + actualHeight / 2,
+            left: pos.left + inputOuter - outerWidth - 3,
+          });
+          break;
 
           // Some more options for placements
-          case "bottom-right-inside":
-            maxLengthIndicator.css({
-              top: pos.top + pos.height,
-              left: pos.left + pos.width - outerWidth,
-            });
-            break;
-          case "top-right-inside":
-            maxLengthIndicator.css({
-              top: pos.top - actualHeight,
-              left: pos.left + inputOuter - outerWidth,
-            });
-            break;
-          case "top-left-inside":
-            maxLengthIndicator.css({
-              top: pos.top - actualHeight,
-              left: pos.left,
-            });
-            break;
-          case "bottom-left-inside":
-            maxLengthIndicator.css({
-              top: pos.top + currentInput.outerHeight(),
-              left: pos.left,
-            });
-            break;
+        case "bottom-right-inside":
+          maxLengthIndicator.css({
+            top: pos.top + pos.height,
+            left: pos.left + pos.width - outerWidth,
+          });
+          break;
+        case "top-right-inside":
+          maxLengthIndicator.css({
+            top: pos.top - actualHeight,
+            left: pos.left + inputOuter - outerWidth,
+          });
+          break;
+        case "top-left-inside":
+          maxLengthIndicator.css({
+            top: pos.top - actualHeight,
+            left: pos.left,
+          });
+          break;
+        case "bottom-left-inside":
+          maxLengthIndicator.css({
+            top: pos.top + currentInput.outerHeight(),
+            left: pos.left,
+          });
+          break;
         }
       }
 
@@ -510,7 +510,7 @@
           maxLengthCurrentInput = getMaxLength(currentInput);
 
           if (!maxLengthIndicator) {
-            maxLengthIndicator = $('<span class="bootstrap-maxlength"></span>')
+            maxLengthIndicator = $("<span class=\"bootstrap-maxlength\"></span>")
               .css({
                 display: "none",
                 position: "absolute",

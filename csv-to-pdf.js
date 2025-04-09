@@ -105,15 +105,15 @@ async function convertCSVRowsToPDF(csvFilePath, outputFolder) {
               <h1 style="text-align: center;">${companyName}</h1>
               <table>
                   ${Object.entries(row)
-                    .filter(([key]) => !excludedColumns.includes(key)) // Exclude unwanted columns
-                    .map(
-                      ([key, value]) => `
+    .filter(([key]) => !excludedColumns.includes(key)) // Exclude unwanted columns
+    .map(
+      ([key, value]) => `
                       <tr>
                         <th>${key}</th>
                         <td>${value}</td>
                       </tr>`,
-                    )
-                    .join("")}
+    )
+    .join("")}
               </table>
           </body>
           </html>

@@ -718,8 +718,8 @@
     regexes[token] = isFunction(regex)
       ? regex
       : function (isStrict, localeData) {
-          return isStrict && strictRegex ? strictRegex : regex;
-        };
+        return isStrict && strictRegex ? strictRegex : regex;
+      };
   }
 
   function getParseRegexForToken(token, config) {
@@ -1014,10 +1014,10 @@
     return isArray(this._months)
       ? this._months[m.month()]
       : this._months[
-          (this._months.isFormat || MONTHS_IN_FORMAT).test(format)
-            ? "format"
-            : "standalone"
-        ][m.month()];
+        (this._months.isFormat || MONTHS_IN_FORMAT).test(format)
+          ? "format"
+          : "standalone"
+      ][m.month()];
   }
 
   var defaultLocaleMonthsShort =
@@ -1031,8 +1031,8 @@
     return isArray(this._monthsShort)
       ? this._monthsShort[m.month()]
       : this._monthsShort[
-          MONTHS_IN_FORMAT.test(format) ? "format" : "standalone"
-        ][m.month()];
+        MONTHS_IN_FORMAT.test(format) ? "format" : "standalone"
+      ][m.month()];
   }
 
   function handleStrictParse(monthName, format, strict) {
@@ -1521,10 +1521,10 @@
     var weekdays = isArray(this._weekdays)
       ? this._weekdays
       : this._weekdays[
-          m && m !== true && this._weekdays.isFormat.test(format)
-            ? "format"
-            : "standalone"
-        ];
+        m && m !== true && this._weekdays.isFormat.test(format)
+          ? "format"
+          : "standalone"
+      ];
     return m === true
       ? shiftWeekdays(weekdays, this._week.dow)
       : m
@@ -3650,32 +3650,32 @@
     units = normalizeUnits(units);
 
     switch (units) {
-      case "year":
-        output = monthDiff(this, that) / 12;
-        break;
-      case "month":
-        output = monthDiff(this, that);
-        break;
-      case "quarter":
-        output = monthDiff(this, that) / 3;
-        break;
-      case "second":
-        output = (this - that) / 1e3;
-        break; // 1000
-      case "minute":
-        output = (this - that) / 6e4;
-        break; // 1000 * 60
-      case "hour":
-        output = (this - that) / 36e5;
-        break; // 1000 * 60 * 60
-      case "day":
-        output = (this - that - zoneDelta) / 864e5;
-        break; // 1000 * 60 * 60 * 24, negate dst
-      case "week":
-        output = (this - that - zoneDelta) / 6048e5;
-        break; // 1000 * 60 * 60 * 24 * 7, negate dst
-      default:
-        output = this - that;
+    case "year":
+      output = monthDiff(this, that) / 12;
+      break;
+    case "month":
+      output = monthDiff(this, that);
+      break;
+    case "quarter":
+      output = monthDiff(this, that) / 3;
+      break;
+    case "second":
+      output = (this - that) / 1e3;
+      break; // 1000
+    case "minute":
+      output = (this - that) / 6e4;
+      break; // 1000 * 60
+    case "hour":
+      output = (this - that) / 36e5;
+      break; // 1000 * 60 * 60
+    case "day":
+      output = (this - that - zoneDelta) / 864e5;
+      break; // 1000 * 60 * 60 * 24, negate dst
+    case "week":
+      output = (this - that - zoneDelta) / 6048e5;
+      break; // 1000 * 60 * 60 * 24 * 7, negate dst
+    default:
+      output = this - that;
     }
 
     return asFloat ? output : absFloor(output);
@@ -3754,10 +3754,10 @@
       func = this.utcOffset() === 0 ? "moment.utc" : "moment.parseZone";
       zone = "Z";
     }
-    var prefix = "[" + func + '("]';
+    var prefix = "[" + func + "(\"]";
     var year = 0 <= this.year() && this.year() <= 9999 ? "YYYY" : "YYYYYY";
     var datetime = "-MM-DD[T]HH:mm:ss.SSS";
-    var suffix = zone + '[")]';
+    var suffix = zone + "[\")]";
 
     return this.format(prefix + year + datetime + suffix);
   }
@@ -3876,48 +3876,48 @@
     var startOfDate = this._isUTC ? utcStartOfDate : localStartOfDate;
 
     switch (units) {
-      case "year":
-        time = startOfDate(this.year(), 0, 1);
-        break;
-      case "quarter":
-        time = startOfDate(this.year(), this.month() - (this.month() % 3), 1);
-        break;
-      case "month":
-        time = startOfDate(this.year(), this.month(), 1);
-        break;
-      case "week":
-        time = startOfDate(
-          this.year(),
-          this.month(),
-          this.date() - this.weekday(),
-        );
-        break;
-      case "isoWeek":
-        time = startOfDate(
-          this.year(),
-          this.month(),
-          this.date() - (this.isoWeekday() - 1),
-        );
-        break;
-      case "day":
-      case "date":
-        time = startOfDate(this.year(), this.month(), this.date());
-        break;
-      case "hour":
-        time = this._d.valueOf();
-        time -= mod$1(
-          time + (this._isUTC ? 0 : this.utcOffset() * MS_PER_MINUTE),
-          MS_PER_HOUR,
-        );
-        break;
-      case "minute":
-        time = this._d.valueOf();
-        time -= mod$1(time, MS_PER_MINUTE);
-        break;
-      case "second":
-        time = this._d.valueOf();
-        time -= mod$1(time, MS_PER_SECOND);
-        break;
+    case "year":
+      time = startOfDate(this.year(), 0, 1);
+      break;
+    case "quarter":
+      time = startOfDate(this.year(), this.month() - (this.month() % 3), 1);
+      break;
+    case "month":
+      time = startOfDate(this.year(), this.month(), 1);
+      break;
+    case "week":
+      time = startOfDate(
+        this.year(),
+        this.month(),
+        this.date() - this.weekday(),
+      );
+      break;
+    case "isoWeek":
+      time = startOfDate(
+        this.year(),
+        this.month(),
+        this.date() - (this.isoWeekday() - 1),
+      );
+      break;
+    case "day":
+    case "date":
+      time = startOfDate(this.year(), this.month(), this.date());
+      break;
+    case "hour":
+      time = this._d.valueOf();
+      time -= mod$1(
+        time + (this._isUTC ? 0 : this.utcOffset() * MS_PER_MINUTE),
+        MS_PER_HOUR,
+      );
+      break;
+    case "minute":
+      time = this._d.valueOf();
+      time -= mod$1(time, MS_PER_MINUTE);
+      break;
+    case "second":
+      time = this._d.valueOf();
+      time -= mod$1(time, MS_PER_SECOND);
+      break;
     }
 
     this._d.setTime(time);
@@ -3935,55 +3935,55 @@
     var startOfDate = this._isUTC ? utcStartOfDate : localStartOfDate;
 
     switch (units) {
-      case "year":
-        time = startOfDate(this.year() + 1, 0, 1) - 1;
-        break;
-      case "quarter":
-        time =
+    case "year":
+      time = startOfDate(this.year() + 1, 0, 1) - 1;
+      break;
+    case "quarter":
+      time =
           startOfDate(this.year(), this.month() - (this.month() % 3) + 3, 1) -
           1;
-        break;
-      case "month":
-        time = startOfDate(this.year(), this.month() + 1, 1) - 1;
-        break;
-      case "week":
-        time =
+      break;
+    case "month":
+      time = startOfDate(this.year(), this.month() + 1, 1) - 1;
+      break;
+    case "week":
+      time =
           startOfDate(
             this.year(),
             this.month(),
             this.date() - this.weekday() + 7,
           ) - 1;
-        break;
-      case "isoWeek":
-        time =
+      break;
+    case "isoWeek":
+      time =
           startOfDate(
             this.year(),
             this.month(),
             this.date() - (this.isoWeekday() - 1) + 7,
           ) - 1;
-        break;
-      case "day":
-      case "date":
-        time = startOfDate(this.year(), this.month(), this.date() + 1) - 1;
-        break;
-      case "hour":
-        time = this._d.valueOf();
-        time +=
+      break;
+    case "day":
+    case "date":
+      time = startOfDate(this.year(), this.month(), this.date() + 1) - 1;
+      break;
+    case "hour":
+      time = this._d.valueOf();
+      time +=
           MS_PER_HOUR -
           mod$1(
             time + (this._isUTC ? 0 : this.utcOffset() * MS_PER_MINUTE),
             MS_PER_HOUR,
           ) -
           1;
-        break;
-      case "minute":
-        time = this._d.valueOf();
-        time += MS_PER_MINUTE - mod$1(time, MS_PER_MINUTE) - 1;
-        break;
-      case "second":
-        time = this._d.valueOf();
-        time += MS_PER_SECOND - mod$1(time, MS_PER_SECOND) - 1;
-        break;
+      break;
+    case "minute":
+      time = this._d.valueOf();
+      time += MS_PER_MINUTE - mod$1(time, MS_PER_MINUTE) - 1;
+      break;
+    case "second":
+      time = this._d.valueOf();
+      time += MS_PER_SECOND - mod$1(time, MS_PER_SECOND) - 1;
+      break;
     }
 
     this._d.setTime(time);
@@ -4751,32 +4751,32 @@
       days = this._days + milliseconds / 864e5;
       months = this._months + daysToMonths(days);
       switch (units) {
-        case "month":
-          return months;
-        case "quarter":
-          return months / 3;
-        case "year":
-          return months / 12;
+      case "month":
+        return months;
+      case "quarter":
+        return months / 3;
+      case "year":
+        return months / 12;
       }
     } else {
       // handle milliseconds separately because of floating point math errors (issue #1867)
       days = this._days + Math.round(monthsToDays(this._months));
       switch (units) {
-        case "week":
-          return days / 7 + milliseconds / 6048e5;
-        case "day":
-          return days + milliseconds / 864e5;
-        case "hour":
-          return days * 24 + milliseconds / 36e5;
-        case "minute":
-          return days * 1440 + milliseconds / 6e4;
-        case "second":
-          return days * 86400 + milliseconds / 1000;
+      case "week":
+        return days / 7 + milliseconds / 6048e5;
+      case "day":
+        return days + milliseconds / 864e5;
+      case "hour":
+        return days * 24 + milliseconds / 36e5;
+      case "minute":
+        return days * 1440 + milliseconds / 6e4;
+      case "second":
+        return days * 86400 + milliseconds / 1000;
         // Math.floor prevents floating point math errors here
-        case "millisecond":
-          return Math.floor(days * 864e5) + milliseconds;
-        default:
-          throw new Error("Unknown unit " + units);
+      case "millisecond":
+        return Math.floor(days * 864e5) + milliseconds;
+      default:
+        throw new Error("Unknown unit " + units);
       }
     }
   }

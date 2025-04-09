@@ -43,9 +43,9 @@
     placeClass: "dd-placeholder",
     noDragClass: "dd-nodrag",
     emptyClass: "dd-empty",
-    expandBtnHTML: '<button data-action="expand" type="button">Expand</button>',
+    expandBtnHTML: "<button data-action=\"expand\" type=\"button\">Expand</button>",
     collapseBtnHTML:
-      '<button data-action="collapse" type="button">Collapse</button>',
+      "<button data-action=\"collapse\" type=\"button\">Collapse</button>",
     group: 0,
     maxDepth: 5,
     threshold: 20,
@@ -66,7 +66,7 @@
 
       list.el.data("nestable-group", this.options.group);
 
-      list.placeEl = $('<div class="' + list.options.placeClass + '"/>');
+      list.placeEl = $("<div class=\"" + list.options.placeClass + "\"/>");
 
       $.each(this.el.find(list.options.itemNodeName), function (k, el) {
         list.setParent($(el));
@@ -189,8 +189,8 @@
 
     expandItem: function (li) {
       li.removeClass(this.options.collapsedClass);
-      li.children('[data-action="expand"]').hide();
-      li.children('[data-action="collapse"]').show();
+      li.children("[data-action=\"expand\"]").hide();
+      li.children("[data-action=\"collapse\"]").show();
       li.children(this.options.listNodeName).show();
     },
 
@@ -198,8 +198,8 @@
       var lists = li.children(this.options.listNodeName);
       if (lists.length) {
         li.addClass(this.options.collapsedClass);
-        li.children('[data-action="collapse"]').hide();
-        li.children('[data-action="expand"]').show();
+        li.children("[data-action=\"collapse\"]").hide();
+        li.children("[data-action=\"expand\"]").show();
         li.children(this.options.listNodeName).hide();
       }
     },
@@ -223,7 +223,7 @@
         li.prepend($(this.options.expandBtnHTML));
         li.prepend($(this.options.collapseBtnHTML));
       }
-      li.children('[data-action="expand"]').hide();
+      li.children("[data-action=\"expand\"]").hide();
     },
 
     unsetParent: function (li) {
@@ -457,7 +457,7 @@
           this.unsetParent(parent.parent());
         }
         if (!this.dragRootEl.find(opt.itemNodeName).length) {
-          this.dragRootEl.append('<div class="' + opt.emptyClass + '"/>');
+          this.dragRootEl.append("<div class=\"" + opt.emptyClass + "\"/>");
         }
         // parent root list has changed
         if (isNewRoot) {

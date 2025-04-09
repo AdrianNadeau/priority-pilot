@@ -500,7 +500,7 @@ jsc*/
     var createTableHtml = function (cols, rows) {
       var x, y, html;
 
-      html = '<table data-mce-id="mce" style="width: 100%">';
+      html = "<table data-mce-id=\"mce\" style=\"width: 100%\">";
       html += "<tbody>";
 
       for (y = 0; y < rows; y++) {

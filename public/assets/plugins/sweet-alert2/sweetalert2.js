@@ -99,8 +99,8 @@
     _getPrototypeOf = Object.setPrototypeOf
       ? Object.getPrototypeOf
       : function _getPrototypeOf(o) {
-          return o.__proto__ || Object.getPrototypeOf(o);
-        };
+        return o.__proto__ || Object.getPrototypeOf(o);
+      };
     return _getPrototypeOf(o);
   }
 
@@ -309,29 +309,29 @@
     var params = {};
 
     switch (_typeof(args[0])) {
-      case "object":
-        _extends(params, args[0]);
+    case "object":
+      _extends(params, args[0]);
 
-        break;
+      break;
 
-      default:
-        ["title", "html", "type"].forEach(function (name, index) {
-          switch (_typeof(args[index])) {
-            case "string":
-              params[name] = args[index];
-              break;
+    default:
+      ["title", "html", "type"].forEach(function (name, index) {
+        switch (_typeof(args[index])) {
+        case "string":
+          params[name] = args[index];
+          break;
 
-            case "undefined":
-              break;
+        case "undefined":
+          break;
 
-            default:
-              error(
-                "Unexpected type of "
-                  .concat(name, '! Expected "string", got ')
-                  .concat(_typeof(args[index])),
-              );
-          }
-        });
+        default:
+          error(
+            "Unexpected type of "
+              .concat(name, "! Expected \"string\", got ")
+              .concat(_typeof(args[index])),
+          );
+        }
+      });
     }
 
     return params;
@@ -543,7 +543,7 @@
   var getFocusableElements = function getFocusableElements() {
     var focusableElementsWithTabindex = toArray(
       getPopup().querySelectorAll(
-        '[tabindex]:not([tabindex="-1"]):not([tabindex="0"])',
+        "[tabindex]:not([tabindex=\"-1\"]):not([tabindex=\"0\"])",
       ),
     ) // sort according to tabindex
       .sort(function (a, b) {
@@ -561,7 +561,7 @@
 
     var otherFocusableElements = toArray(
       getPopup().querySelectorAll(
-        'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable], audio[controls], video[controls]',
+        "a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex=\"0\"], [contenteditable], audio[controls], video[controls]",
       ),
     ).filter(function (el) {
       return el.getAttribute("tabindex") !== "-1";
@@ -590,76 +590,76 @@
     return typeof window === "undefined" || typeof document === "undefined";
   };
 
-  var sweetHTML = '\n <div aria-labelledby="'
-    .concat(swalClasses.title, '" aria-describedby="')
-    .concat(swalClasses.content, '" class="')
-    .concat(swalClasses.popup, '" tabindex="-1">\n   <div class="')
-    .concat(swalClasses.header, '">\n     <ul class="')
-    .concat(swalClasses["progress-steps"], '"></ul>\n     <div class="')
+  var sweetHTML = "\n <div aria-labelledby=\""
+    .concat(swalClasses.title, "\" aria-describedby=\"")
+    .concat(swalClasses.content, "\" class=\"")
+    .concat(swalClasses.popup, "\" tabindex=\"-1\">\n   <div class=\"")
+    .concat(swalClasses.header, "\">\n     <ul class=\"")
+    .concat(swalClasses["progress-steps"], "\"></ul>\n     <div class=\"")
     .concat(swalClasses.icon, " ")
     .concat(
       iconTypes.error,
-      '">\n       <span class="swal2-x-mark"><span class="swal2-x-mark-line-left"></span><span class="swal2-x-mark-line-right"></span></span>\n     </div>\n     <div class="',
+      "\">\n       <span class=\"swal2-x-mark\"><span class=\"swal2-x-mark-line-left\"></span><span class=\"swal2-x-mark-line-right\"></span></span>\n     </div>\n     <div class=\"",
     )
     .concat(swalClasses.icon, " ")
-    .concat(iconTypes.question, '">\n       <span class="')
+    .concat(iconTypes.question, "\">\n       <span class=\"")
     .concat(
       swalClasses["icon-text"],
-      '">?</span>\n      </div>\n     <div class="',
+      "\">?</span>\n      </div>\n     <div class=\"",
     )
     .concat(swalClasses.icon, " ")
-    .concat(iconTypes.warning, '">\n       <span class="')
+    .concat(iconTypes.warning, "\">\n       <span class=\"")
     .concat(
       swalClasses["icon-text"],
-      '">!</span>\n      </div>\n     <div class="',
+      "\">!</span>\n      </div>\n     <div class=\"",
     )
     .concat(swalClasses.icon, " ")
-    .concat(iconTypes.info, '">\n       <span class="')
+    .concat(iconTypes.info, "\">\n       <span class=\"")
     .concat(
       swalClasses["icon-text"],
-      '">i</span>\n      </div>\n     <div class="',
+      "\">i</span>\n      </div>\n     <div class=\"",
     )
     .concat(swalClasses.icon, " ")
     .concat(
       iconTypes.success,
-      '">\n       <div class="swal2-success-circular-line-left"></div>\n       <span class="swal2-success-line-tip"></span> <span class="swal2-success-line-long"></span>\n       <div class="swal2-success-ring"></div> <div class="swal2-success-fix"></div>\n       <div class="swal2-success-circular-line-right"></div>\n     </div>\n     <img class="',
+      "\">\n       <div class=\"swal2-success-circular-line-left\"></div>\n       <span class=\"swal2-success-line-tip\"></span> <span class=\"swal2-success-line-long\"></span>\n       <div class=\"swal2-success-ring\"></div> <div class=\"swal2-success-fix\"></div>\n       <div class=\"swal2-success-circular-line-right\"></div>\n     </div>\n     <img class=\"",
     )
-    .concat(swalClasses.image, '" />\n     <h2 class="')
-    .concat(swalClasses.title, '" id="')
-    .concat(swalClasses.title, '"></h2>\n     <button type="button" class="')
-    .concat(swalClasses.close, '">\xD7</button>\n   </div>\n   <div class="')
-    .concat(swalClasses.content, '">\n     <div id="')
-    .concat(swalClasses.content, '"></div>\n     <input class="')
-    .concat(swalClasses.input, '" />\n     <input type="file" class="')
-    .concat(swalClasses.file, '" />\n     <div class="')
+    .concat(swalClasses.image, "\" />\n     <h2 class=\"")
+    .concat(swalClasses.title, "\" id=\"")
+    .concat(swalClasses.title, "\"></h2>\n     <button type=\"button\" class=\"")
+    .concat(swalClasses.close, "\">\xD7</button>\n   </div>\n   <div class=\"")
+    .concat(swalClasses.content, "\">\n     <div id=\"")
+    .concat(swalClasses.content, "\"></div>\n     <input class=\"")
+    .concat(swalClasses.input, "\" />\n     <input type=\"file\" class=\"")
+    .concat(swalClasses.file, "\" />\n     <div class=\"")
     .concat(
       swalClasses.range,
-      '">\n       <input type="range" />\n       <output></output>\n     </div>\n     <select class="',
+      "\">\n       <input type=\"range\" />\n       <output></output>\n     </div>\n     <select class=\"",
     )
-    .concat(swalClasses.select, '"></select>\n     <div class="')
-    .concat(swalClasses.radio, '"></div>\n     <label for="')
-    .concat(swalClasses.checkbox, '" class="')
+    .concat(swalClasses.select, "\"></select>\n     <div class=\"")
+    .concat(swalClasses.radio, "\"></div>\n     <label for=\"")
+    .concat(swalClasses.checkbox, "\" class=\"")
     .concat(
       swalClasses.checkbox,
-      '">\n       <input type="checkbox" />\n       <span class="',
+      "\">\n       <input type=\"checkbox\" />\n       <span class=\"",
     )
     .concat(
       swalClasses.label,
-      '"></span>\n     </label>\n     <textarea class="',
+      "\"></span>\n     </label>\n     <textarea class=\"",
     )
-    .concat(swalClasses.textarea, '"></textarea>\n     <div class="')
-    .concat(swalClasses["validation-message"], '" id="')
+    .concat(swalClasses.textarea, "\"></textarea>\n     <div class=\"")
+    .concat(swalClasses["validation-message"], "\" id=\"")
     .concat(
       swalClasses["validation-message"],
-      '"></div>\n   </div>\n   <div class="',
+      "\"></div>\n   </div>\n   <div class=\"",
     )
-    .concat(swalClasses.actions, '">\n     <button type="button" class="')
+    .concat(swalClasses.actions, "\">\n     <button type=\"button\" class=\"")
     .concat(
       swalClasses.confirm,
-      '">OK</button>\n     <button type="button" class="',
+      "\">OK</button>\n     <button type=\"button\" class=\"",
     )
-    .concat(swalClasses.cancel, '">Cancel</button>\n   </div>\n   <div class="')
-    .concat(swalClasses.footer, '">\n   </div>\n </div>\n')
+    .concat(swalClasses.cancel, "\">Cancel</button>\n   </div>\n   <div class=\"")
+    .concat(swalClasses.footer, "\">\n   </div>\n </div>\n")
     .replace(/(^|\n)\s*/g, "");
   /*
    * Add modal + backdrop to DOM
@@ -914,9 +914,9 @@
         }
       } else {
         error(
-          'Unknown type! Expected "success", "error", "warning", "info" or "question", got "'.concat(
+          "Unknown type! Expected \"success\", \"error\", \"warning\", \"info\" or \"question\", got \"".concat(
             params.type,
-            '"',
+            "\"",
           ),
         );
       }
@@ -1410,18 +1410,18 @@
   var showWarningsForParams = function showWarningsForParams(params) {
     for (var param in params) {
       if (!isValidParameter(param)) {
-        warn('Unknown parameter "'.concat(param, '"'));
+        warn("Unknown parameter \"".concat(param, "\""));
       }
 
       if (params.toast && toastIncompatibleParams.indexOf(param) !== -1) {
-        warn('The parameter "'.concat(param, '" is incompatible with toasts'));
+        warn("The parameter \"".concat(param, "\" is incompatible with toasts"));
       }
 
       if (isDeprecatedParameter(param)) {
         warnOnce(
-          'The parameter "'.concat(
+          "The parameter \"".concat(
             param,
-            '" is deprecated and will be removed in the next major release.',
+            "\" is deprecated and will be removed in the next major release.",
           ),
         );
       }
@@ -1514,33 +1514,33 @@
     }
 
     switch (inputType) {
-      case "select":
-      case "textarea":
-      case "file":
-        return getChildByClass(domCache.content, swalClasses[inputType]);
+    case "select":
+    case "textarea":
+    case "file":
+      return getChildByClass(domCache.content, swalClasses[inputType]);
 
-      case "checkbox":
-        return domCache.popup.querySelector(
-          ".".concat(swalClasses.checkbox, " input"),
-        );
+    case "checkbox":
+      return domCache.popup.querySelector(
+        ".".concat(swalClasses.checkbox, " input"),
+      );
 
-      case "radio":
-        return (
-          domCache.popup.querySelector(
-            ".".concat(swalClasses.radio, " input:checked"),
-          ) ||
+    case "radio":
+      return (
+        domCache.popup.querySelector(
+          ".".concat(swalClasses.radio, " input:checked"),
+        ) ||
           domCache.popup.querySelector(
             ".".concat(swalClasses.radio, " input:first-child"),
           )
-        );
+      );
 
-      case "range":
-        return domCache.popup.querySelector(
-          ".".concat(swalClasses.range, " input"),
-        );
+    case "range":
+      return domCache.popup.querySelector(
+        ".".concat(swalClasses.range, " input"),
+      );
 
-      default:
-        return getChildByClass(domCache.content, swalClasses.input);
+    default:
+      return getChildByClass(domCache.content, swalClasses.input);
     }
   }
 
@@ -1942,8 +1942,8 @@
       )
         ? Promise.resolve()
         : Promise.resolve(
-            validationMessage ? validationMessage : "Invalid email address",
-          );
+          validationMessage ? validationMessage : "Invalid email address",
+        );
     },
     url: function url(string, validationMessage) {
       // taken from https://stackoverflow.com/a/3809435 with a small change from #1306
@@ -1952,8 +1952,8 @@
       )
         ? Promise.resolve()
         : Promise.resolve(
-            validationMessage ? validationMessage : "Invalid URL",
-          );
+          validationMessage ? validationMessage : "Invalid URL",
+        );
     },
   };
 
@@ -1980,7 +1980,7 @@
         !document.querySelector(params.target)) ||
       (typeof params.target !== "string" && !params.target.appendChild)
     ) {
-      warn('Target parameter is not valid, defaulting to "body"');
+      warn("Target parameter is not valid, defaulting to \"body\"");
       params.target = "body";
     } // Animation
 
@@ -2051,14 +2051,14 @@
 
     if (!params.backdrop && params.allowOutsideClick) {
       warn(
-        '"allowOutsideClick" parameter requires `backdrop` parameter to be set to `true`',
+        "\"allowOutsideClick\" parameter requires `backdrop` parameter to be set to `true`",
       );
     } // Position
 
     if (params.position in swalClasses) {
       addClass(container, swalClasses[params.position]);
     } else {
-      warn('The "position" parameter is not valid, defaulting to "center"');
+      warn("The \"position\" parameter is not valid, defaulting to \"center\"");
       addClass(container, swalClasses.center);
     } // Grow
 
@@ -2261,17 +2261,17 @@
         }
 
         switch (innerParams.input) {
-          case "checkbox":
-            return input.checked ? 1 : 0;
+        case "checkbox":
+          return input.checked ? 1 : 0;
 
-          case "radio":
-            return input.checked ? input.value : null;
+        case "radio":
+          return input.checked ? input.value : null;
 
-          case "file":
-            return input.files.length ? input.files[0] : null;
+        case "file":
+          return input.files.length ? input.files[0] : null;
 
-          default:
-            return innerParams.inputAutoTrim ? input.value.trim() : input.value;
+        default:
+          return innerParams.inputAutoTrim ? input.value.trim() : input.value;
         }
       }; // input autofocus
 
@@ -2327,53 +2327,53 @@
           (cancelButton === target || cancelButton.contains(target));
 
         switch (e.type) {
-          case "click":
-            // Clicked 'confirm'
-            if (targetedConfirm && constructor.isVisible()) {
-              _this.disableButtons();
+        case "click":
+          // Clicked 'confirm'
+          if (targetedConfirm && constructor.isVisible()) {
+            _this.disableButtons();
 
-              if (innerParams.input) {
-                var inputValue = getInputValue();
+            if (innerParams.input) {
+              var inputValue = getInputValue();
 
-                if (innerParams.inputValidator) {
-                  _this.disableInput();
+              if (innerParams.inputValidator) {
+                _this.disableInput();
 
-                  var validationPromise = Promise.resolve().then(function () {
-                    return innerParams.inputValidator(
-                      inputValue,
-                      innerParams.validationMessage,
-                    );
-                  });
-                  validationPromise.then(function (validationMessage) {
-                    _this.enableButtons();
-
-                    _this.enableInput();
-
-                    if (validationMessage) {
-                      _this.showValidationMessage(validationMessage);
-                    } else {
-                      confirm(inputValue);
-                    }
-                  });
-                } else if (!_this.getInput().checkValidity()) {
+                var validationPromise = Promise.resolve().then(function () {
+                  return innerParams.inputValidator(
+                    inputValue,
+                    innerParams.validationMessage,
+                  );
+                });
+                validationPromise.then(function (validationMessage) {
                   _this.enableButtons();
 
-                  _this.showValidationMessage(innerParams.validationMessage);
-                } else {
-                  confirm(inputValue);
-                }
+                  _this.enableInput();
+
+                  if (validationMessage) {
+                    _this.showValidationMessage(validationMessage);
+                  } else {
+                    confirm(inputValue);
+                  }
+                });
+              } else if (!_this.getInput().checkValidity()) {
+                _this.enableButtons();
+
+                _this.showValidationMessage(innerParams.validationMessage);
               } else {
-                confirm(true);
-              } // Clicked 'cancel'
-            } else if (targetedCancel && constructor.isVisible()) {
-              _this.disableButtons();
+                confirm(inputValue);
+              }
+            } else {
+              confirm(true);
+            } // Clicked 'cancel'
+          } else if (targetedCancel && constructor.isVisible()) {
+            _this.disableButtons();
 
-              dismissWith(constructor.DismissReason.cancel);
-            }
+            dismissWith(constructor.DismissReason.cancel);
+          }
 
-            break;
+          break;
 
-          default:
+        default:
         }
       };
 
@@ -2653,166 +2653,166 @@
       var populateInputOptions;
 
       switch (innerParams.input) {
-        case "text":
-        case "email":
-        case "password":
-        case "number":
-        case "tel":
-        case "url": {
-          input = getChildByClass(domCache.content, swalClasses.input);
+      case "text":
+      case "email":
+      case "password":
+      case "number":
+      case "tel":
+      case "url": {
+        input = getChildByClass(domCache.content, swalClasses.input);
 
-          if (
-            typeof innerParams.inputValue === "string" ||
+        if (
+          typeof innerParams.inputValue === "string" ||
             typeof innerParams.inputValue === "number"
-          ) {
-            input.value = innerParams.inputValue;
-          } else if (!isPromise(innerParams.inputValue)) {
-            warn(
-              'Unexpected type of inputValue! Expected "string", "number" or "Promise", got "'.concat(
-                _typeof(innerParams.inputValue),
-                '"',
-              ),
-            );
-          }
-
-          setInputPlaceholder(input);
-          input.type = innerParams.input;
-          show(input);
-          break;
-        }
-
-        case "file": {
-          input = getChildByClass(domCache.content, swalClasses.file);
-          setInputPlaceholder(input);
-          input.type = innerParams.input;
-          show(input);
-          break;
-        }
-
-        case "range": {
-          var range = getChildByClass(domCache.content, swalClasses.range);
-          var rangeInput = range.querySelector("input");
-          var rangeOutput = range.querySelector("output");
-          rangeInput.value = innerParams.inputValue;
-          rangeInput.type = innerParams.input;
-          rangeOutput.value = innerParams.inputValue;
-          show(range);
-          break;
-        }
-
-        case "select": {
-          var select = getChildByClass(domCache.content, swalClasses.select);
-          select.innerHTML = "";
-
-          if (innerParams.inputPlaceholder) {
-            var placeholder = document.createElement("option");
-            placeholder.innerHTML = innerParams.inputPlaceholder;
-            placeholder.value = "";
-            placeholder.disabled = true;
-            placeholder.selected = true;
-            select.appendChild(placeholder);
-          }
-
-          populateInputOptions = function populateInputOptions(inputOptions) {
-            inputOptions.forEach(function (inputOption) {
-              var optionValue = inputOption[0];
-              var optionLabel = inputOption[1];
-              var option = document.createElement("option");
-              option.value = optionValue;
-              option.innerHTML = optionLabel;
-
-              if (
-                innerParams.inputValue.toString() === optionValue.toString()
-              ) {
-                option.selected = true;
-              }
-
-              select.appendChild(option);
-            });
-            show(select);
-            select.focus();
-          };
-
-          break;
-        }
-
-        case "radio": {
-          var radio = getChildByClass(domCache.content, swalClasses.radio);
-          radio.innerHTML = "";
-
-          populateInputOptions = function populateInputOptions(inputOptions) {
-            inputOptions.forEach(function (inputOption) {
-              var radioValue = inputOption[0];
-              var radioLabel = inputOption[1];
-              var radioInput = document.createElement("input");
-              var radioLabelElement = document.createElement("label");
-              radioInput.type = "radio";
-              radioInput.name = swalClasses.radio;
-              radioInput.value = radioValue;
-
-              if (innerParams.inputValue.toString() === radioValue.toString()) {
-                radioInput.checked = true;
-              }
-
-              var label = document.createElement("span");
-              label.innerHTML = radioLabel;
-              label.className = swalClasses.label;
-              radioLabelElement.appendChild(radioInput);
-              radioLabelElement.appendChild(label);
-              radio.appendChild(radioLabelElement);
-            });
-            show(radio);
-            var radios = radio.querySelectorAll("input");
-
-            if (radios.length) {
-              radios[0].focus();
-            }
-          };
-
-          break;
-        }
-
-        case "checkbox": {
-          var checkbox = getChildByClass(
-            domCache.content,
-            swalClasses.checkbox,
-          );
-
-          var checkboxInput = _this.getInput("checkbox");
-
-          checkboxInput.type = "checkbox";
-          checkboxInput.value = 1;
-          checkboxInput.id = swalClasses.checkbox;
-          checkboxInput.checked = Boolean(innerParams.inputValue);
-          var label = checkbox.querySelector("span");
-          label.innerHTML = innerParams.inputPlaceholder;
-          show(checkbox);
-          break;
-        }
-
-        case "textarea": {
-          var textarea = getChildByClass(
-            domCache.content,
-            swalClasses.textarea,
-          );
-          textarea.value = innerParams.inputValue;
-          setInputPlaceholder(textarea);
-          show(textarea);
-          break;
-        }
-
-        case null: {
-          break;
-        }
-
-        default:
-          error(
-            'Unexpected type of input! Expected "text", "email", "password", "number", "tel", "select", "radio", "checkbox", "textarea", "file" or "url", got "'.concat(
-              innerParams.input,
-              '"',
+        ) {
+          input.value = innerParams.inputValue;
+        } else if (!isPromise(innerParams.inputValue)) {
+          warn(
+            "Unexpected type of inputValue! Expected \"string\", \"number\" or \"Promise\", got \"".concat(
+              _typeof(innerParams.inputValue),
+              "\"",
             ),
           );
-          break;
+        }
+
+        setInputPlaceholder(input);
+        input.type = innerParams.input;
+        show(input);
+        break;
+      }
+
+      case "file": {
+        input = getChildByClass(domCache.content, swalClasses.file);
+        setInputPlaceholder(input);
+        input.type = innerParams.input;
+        show(input);
+        break;
+      }
+
+      case "range": {
+        var range = getChildByClass(domCache.content, swalClasses.range);
+        var rangeInput = range.querySelector("input");
+        var rangeOutput = range.querySelector("output");
+        rangeInput.value = innerParams.inputValue;
+        rangeInput.type = innerParams.input;
+        rangeOutput.value = innerParams.inputValue;
+        show(range);
+        break;
+      }
+
+      case "select": {
+        var select = getChildByClass(domCache.content, swalClasses.select);
+        select.innerHTML = "";
+
+        if (innerParams.inputPlaceholder) {
+          var placeholder = document.createElement("option");
+          placeholder.innerHTML = innerParams.inputPlaceholder;
+          placeholder.value = "";
+          placeholder.disabled = true;
+          placeholder.selected = true;
+          select.appendChild(placeholder);
+        }
+
+        populateInputOptions = function populateInputOptions(inputOptions) {
+          inputOptions.forEach(function (inputOption) {
+            var optionValue = inputOption[0];
+            var optionLabel = inputOption[1];
+            var option = document.createElement("option");
+            option.value = optionValue;
+            option.innerHTML = optionLabel;
+
+            if (
+              innerParams.inputValue.toString() === optionValue.toString()
+            ) {
+              option.selected = true;
+            }
+
+            select.appendChild(option);
+          });
+          show(select);
+          select.focus();
+        };
+
+        break;
+      }
+
+      case "radio": {
+        var radio = getChildByClass(domCache.content, swalClasses.radio);
+        radio.innerHTML = "";
+
+        populateInputOptions = function populateInputOptions(inputOptions) {
+          inputOptions.forEach(function (inputOption) {
+            var radioValue = inputOption[0];
+            var radioLabel = inputOption[1];
+            var radioInput = document.createElement("input");
+            var radioLabelElement = document.createElement("label");
+            radioInput.type = "radio";
+            radioInput.name = swalClasses.radio;
+            radioInput.value = radioValue;
+
+            if (innerParams.inputValue.toString() === radioValue.toString()) {
+              radioInput.checked = true;
+            }
+
+            var label = document.createElement("span");
+            label.innerHTML = radioLabel;
+            label.className = swalClasses.label;
+            radioLabelElement.appendChild(radioInput);
+            radioLabelElement.appendChild(label);
+            radio.appendChild(radioLabelElement);
+          });
+          show(radio);
+          var radios = radio.querySelectorAll("input");
+
+          if (radios.length) {
+            radios[0].focus();
+          }
+        };
+
+        break;
+      }
+
+      case "checkbox": {
+        var checkbox = getChildByClass(
+          domCache.content,
+          swalClasses.checkbox,
+        );
+
+        var checkboxInput = _this.getInput("checkbox");
+
+        checkboxInput.type = "checkbox";
+        checkboxInput.value = 1;
+        checkboxInput.id = swalClasses.checkbox;
+        checkboxInput.checked = Boolean(innerParams.inputValue);
+        var label = checkbox.querySelector("span");
+        label.innerHTML = innerParams.inputPlaceholder;
+        show(checkbox);
+        break;
+      }
+
+      case "textarea": {
+        var textarea = getChildByClass(
+          domCache.content,
+          swalClasses.textarea,
+        );
+        textarea.value = innerParams.inputValue;
+        setInputPlaceholder(textarea);
+        show(textarea);
+        break;
+      }
+
+      case null: {
+        break;
+      }
+
+      default:
+        error(
+          "Unexpected type of input! Expected \"text\", \"email\", \"password\", \"number\", \"tel\", \"select\", \"radio\", \"checkbox\", \"textarea\", \"file\" or \"url\", got \"".concat(
+            innerParams.input,
+            "\"",
+          ),
+        );
+        break;
       }
 
       if (innerParams.input === "select" || innerParams.input === "radio") {
@@ -2906,9 +2906,9 @@
         validUpdatableParams[param] = params[param];
       } else {
         warn(
-          'Invalid parameter to update: "'.concat(
+          "Invalid parameter to update: \"".concat(
             param,
-            '". Updatable params are listed here: TODO (@limonte) add link',
+            "\". Updatable params are listed here: TODO (@limonte) add link",
           ),
         );
       }

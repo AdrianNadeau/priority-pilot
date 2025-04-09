@@ -45,7 +45,7 @@
     // Some error handling if options are miss-configured
     if (opt.warnAfter >= opt.redirAfter) {
       console.error(
-        'Bootstrap-session-timeout plugin is miss-configured. Option "redirAfter" must be equal or greater than "warnAfter".',
+        "Bootstrap-session-timeout plugin is miss-configured. Option \"redirAfter\" must be equal or greater than \"warnAfter\".",
       );
       return false;
     }
@@ -57,31 +57,31 @@
         ? "<p>" +
           opt.countdownMessage.replace(
             /{timer}/g,
-            '<span class="countdown-holder"></span>',
+            "<span class=\"countdown-holder\"></span>",
           ) +
           "</p>"
         : "";
       var coundownBarHtml = opt.countdownBar
-        ? '<div class="progress"> \
-                  <div class="progress-bar progress-bar-striped countdown-bar active" role="progressbar" style="min-width: 15px; width: 100%;"> \
-                    <span class="countdown-holder"></span> \
+        ? "<div class=\"progress\"> \
+                  <div class=\"progress-bar progress-bar-striped countdown-bar active\" role=\"progressbar\" style=\"min-width: 15px; width: 100%;\"> \
+                    <span class=\"countdown-holder\"></span> \
                   </div> \
-                </div>'
+                </div>"
         : "";
 
       // Create timeout warning dialog
       $("body").append(
-        '<div class="modal fade" id="session-timeout-dialog"> \
-              <div class="modal-dialog"> \
-                <div class="modal-content"> \
-                  <div class="modal-header"> \
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> \
-                    <h4 class="modal-title">' +
+        "<div class=\"modal fade\" id=\"session-timeout-dialog\"> \
+              <div class=\"modal-dialog\"> \
+                <div class=\"modal-content\"> \
+                  <div class=\"modal-header\"> \
+                    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button> \
+                    <h4 class=\"modal-title\">" +
           opt.title +
-          '</h4> \
+          "</h4> \
                   </div> \
-                  <div class="modal-body"> \
-                    <p>' +
+                  <div class=\"modal-body\"> \
+                    <p>" +
           opt.message +
           "</p> \
                     " +
@@ -89,13 +89,13 @@
           " \
                     " +
           coundownBarHtml +
-          ' \
+          " \
                   </div> \
-                  <div class="modal-footer"> \
-                    <button id="session-timeout-dialog-logout" type="button" class="btn btn-default">' +
+                  <div class=\"modal-footer\"> \
+                    <button id=\"session-timeout-dialog-logout\" type=\"button\" class=\"btn btn-default\">" +
           opt.logoutButton +
-          '</button> \
-                    <button id="session-timeout-dialog-keepalive" type="button" class="btn btn-primary" data-dismiss="modal">' +
+          "</button> \
+                    <button id=\"session-timeout-dialog-keepalive\" type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">" +
           opt.keepAliveButton +
           "</button> \
                   </div> \

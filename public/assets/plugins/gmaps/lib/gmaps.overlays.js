@@ -75,32 +75,32 @@ GMaps.prototype.drawOverlay = function (options) {
       content_width = content.clientWidth;
 
     switch (options.verticalAlign) {
-      case "top":
-        el.style.top = pixel.y - content_height + options.verticalOffset + "px";
-        break;
-      default:
-      case "middle":
-        el.style.top =
+    case "top":
+      el.style.top = pixel.y - content_height + options.verticalOffset + "px";
+      break;
+    default:
+    case "middle":
+      el.style.top =
           pixel.y - content_height / 2 + options.verticalOffset + "px";
-        break;
-      case "bottom":
-        el.style.top = pixel.y + options.verticalOffset + "px";
-        break;
+      break;
+    case "bottom":
+      el.style.top = pixel.y + options.verticalOffset + "px";
+      break;
     }
 
     switch (options.horizontalAlign) {
-      case "left":
-        el.style.left =
+    case "left":
+      el.style.left =
           pixel.x - content_width + options.horizontalOffset + "px";
-        break;
-      default:
-      case "center":
-        el.style.left =
+      break;
+    default:
+    case "center":
+      el.style.left =
           pixel.x - content_width / 2 + options.horizontalOffset + "px";
-        break;
-      case "right":
-        el.style.left = pixel.x + options.horizontalOffset + "px";
-        break;
+      break;
+    case "right":
+      el.style.left = pixel.x + options.horizontalOffset + "px";
+      break;
     }
 
     el.style.display = auto_show ? "block" : "none";

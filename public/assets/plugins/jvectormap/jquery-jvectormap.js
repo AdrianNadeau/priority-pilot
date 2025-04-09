@@ -403,7 +403,7 @@ if (!Array.prototype.indexOf) {
     // 1. Let O be the result of calling ToObject passing
     //    the this value as the argument.
     if (this == null) {
-      throw new TypeError('"this" is null or not defined');
+      throw new TypeError("\"this\" is null or not defined");
     }
 
     var O = Object(this);
@@ -945,7 +945,7 @@ jvm.VMLElement.initializeVML = function () {
      * @returns DOMElement
      */
     jvm.VMLElement.prototype.createElement = function (tagName) {
-      return document.createElement("<rvml:" + tagName + ' class="rvml">');
+      return document.createElement("<rvml:" + tagName + " class=\"rvml\">");
     };
   } catch (e) {
     /**
@@ -953,7 +953,7 @@ jvm.VMLElement.initializeVML = function () {
      */
     jvm.VMLElement.prototype.createElement = function (tagName) {
       return document.createElement(
-        "<" + tagName + ' xmlns="urn:schemas-microsoft.com:vml" class="rvml">',
+        "<" + tagName + " xmlns=\"urn:schemas-microsoft.com:vml\" class=\"rvml\">",
       );
     };
   }
@@ -1087,39 +1087,39 @@ jvm.mixin(jvm.VMLShapeElement, jvm.AbstractShapeElement);
 
 jvm.VMLShapeElement.prototype.applyAttr = function (attr, value) {
   switch (attr) {
-    case "fill":
-      this.node.fillcolor = value;
-      break;
-    case "fill-opacity":
-      this.fillElement.node.opacity = Math.round(value * 100) + "%";
-      break;
-    case "stroke":
-      if (value === "none") {
-        this.node.stroked = false;
-      } else {
-        this.node.stroked = true;
-      }
-      this.node.strokecolor = value;
-      break;
-    case "stroke-opacity":
-      this.strokeElement.node.opacity = Math.round(value * 100) + "%";
-      break;
-    case "stroke-width":
-      if (parseInt(value, 10) === 0) {
-        this.node.stroked = false;
-      } else {
-        this.node.stroked = true;
-      }
-      this.node.strokeweight = value;
-      break;
-    case "d":
-      this.node.path = jvm.VMLPathElement.pathSvgToVml(value);
-      break;
-    default:
-      jvm.VMLShapeElement.parentClass.prototype.applyAttr.apply(
-        this,
-        arguments,
-      );
+  case "fill":
+    this.node.fillcolor = value;
+    break;
+  case "fill-opacity":
+    this.fillElement.node.opacity = Math.round(value * 100) + "%";
+    break;
+  case "stroke":
+    if (value === "none") {
+      this.node.stroked = false;
+    } else {
+      this.node.stroked = true;
+    }
+    this.node.strokecolor = value;
+    break;
+  case "stroke-opacity":
+    this.strokeElement.node.opacity = Math.round(value * 100) + "%";
+    break;
+  case "stroke-width":
+    if (parseInt(value, 10) === 0) {
+      this.node.stroked = false;
+    } else {
+      this.node.stroked = true;
+    }
+    this.node.strokeweight = value;
+    break;
+  case "d":
+    this.node.path = jvm.VMLPathElement.pathSvgToVml(value);
+    break;
+  default:
+    jvm.VMLShapeElement.parentClass.prototype.applyAttr.apply(
+      this,
+      arguments,
+    );
   }
 };
 jvm.VMLPathElement = function (config, style) {
@@ -1170,62 +1170,62 @@ jvm.VMLPathElement.pathSvgToVml = function (path) {
           coords[i] = Math.round(100 * coords[i]);
         }
         switch (letter) {
-          case "m":
-            cx += coords[0];
-            cy += coords[1];
-            return "t" + coords.join(",");
-          case "M":
-            cx = coords[0];
-            cy = coords[1];
-            return "m" + coords.join(",");
-          case "l":
-            cx += coords[0];
-            cy += coords[1];
-            return "r" + coords.join(",");
-          case "L":
-            cx = coords[0];
-            cy = coords[1];
-            return "l" + coords.join(",");
-          case "h":
-            cx += coords[0];
-            return "r" + coords[0] + ",0";
-          case "H":
-            cx = coords[0];
-            return "l" + cx + "," + cy;
-          case "v":
-            cy += coords[0];
-            return "r0," + coords[0];
-          case "V":
-            cy = coords[0];
-            return "l" + cx + "," + cy;
-          case "c":
-            ctrlx = cx + coords[coords.length - 4];
-            ctrly = cy + coords[coords.length - 3];
-            cx += coords[coords.length - 2];
-            cy += coords[coords.length - 1];
-            return "v" + coords.join(",");
-          case "C":
-            ctrlx = coords[coords.length - 4];
-            ctrly = coords[coords.length - 3];
-            cx = coords[coords.length - 2];
-            cy = coords[coords.length - 1];
-            return "c" + coords.join(",");
-          case "s":
-            coords.unshift(cy - ctrly);
-            coords.unshift(cx - ctrlx);
-            ctrlx = cx + coords[coords.length - 4];
-            ctrly = cy + coords[coords.length - 3];
-            cx += coords[coords.length - 2];
-            cy += coords[coords.length - 1];
-            return "v" + coords.join(",");
-          case "S":
-            coords.unshift(cy + cy - ctrly);
-            coords.unshift(cx + cx - ctrlx);
-            ctrlx = coords[coords.length - 4];
-            ctrly = coords[coords.length - 3];
-            cx = coords[coords.length - 2];
-            cy = coords[coords.length - 1];
-            return "c" + coords.join(",");
+        case "m":
+          cx += coords[0];
+          cy += coords[1];
+          return "t" + coords.join(",");
+        case "M":
+          cx = coords[0];
+          cy = coords[1];
+          return "m" + coords.join(",");
+        case "l":
+          cx += coords[0];
+          cy += coords[1];
+          return "r" + coords.join(",");
+        case "L":
+          cx = coords[0];
+          cy = coords[1];
+          return "l" + coords.join(",");
+        case "h":
+          cx += coords[0];
+          return "r" + coords[0] + ",0";
+        case "H":
+          cx = coords[0];
+          return "l" + cx + "," + cy;
+        case "v":
+          cy += coords[0];
+          return "r0," + coords[0];
+        case "V":
+          cy = coords[0];
+          return "l" + cx + "," + cy;
+        case "c":
+          ctrlx = cx + coords[coords.length - 4];
+          ctrly = cy + coords[coords.length - 3];
+          cx += coords[coords.length - 2];
+          cy += coords[coords.length - 1];
+          return "v" + coords.join(",");
+        case "C":
+          ctrlx = coords[coords.length - 4];
+          ctrly = coords[coords.length - 3];
+          cx = coords[coords.length - 2];
+          cy = coords[coords.length - 1];
+          return "c" + coords.join(",");
+        case "s":
+          coords.unshift(cy - ctrly);
+          coords.unshift(cx - ctrlx);
+          ctrlx = cx + coords[coords.length - 4];
+          ctrly = cy + coords[coords.length - 3];
+          cx += coords[coords.length - 2];
+          cy += coords[coords.length - 1];
+          return "v" + coords.join(",");
+        case "S":
+          coords.unshift(cy + cy - ctrly);
+          coords.unshift(cx + cx - ctrlx);
+          ctrlx = coords[coords.length - 4];
+          ctrly = coords[coords.length - 3];
+          cx = coords[coords.length - 2];
+          cy = coords[coords.length - 1];
+          return "c" + coords.join(",");
         }
         return "";
       },
@@ -1240,30 +1240,30 @@ jvm.inherits(jvm.VMLCircleElement, jvm.VMLShapeElement);
 
 jvm.VMLCircleElement.prototype.applyAttr = function (attr, value) {
   switch (attr) {
-    case "r":
-      this.node.style.width = value * 2 + "px";
-      this.node.style.height = value * 2 + "px";
-      this.applyAttr("cx", this.get("cx") || 0);
-      this.applyAttr("cy", this.get("cy") || 0);
-      break;
-    case "cx":
-      if (!value) {
-        return;
-      }
-      this.node.style.left = value - (this.get("r") || 0) + "px";
-      break;
-    case "cy":
-      if (!value) {
-        return;
-      }
-      this.node.style.top = value - (this.get("r") || 0) + "px";
-      break;
-    default:
-      jvm.VMLCircleElement.parentClass.prototype.applyAttr.call(
-        this,
-        attr,
-        value,
-      );
+  case "r":
+    this.node.style.width = value * 2 + "px";
+    this.node.style.height = value * 2 + "px";
+    this.applyAttr("cx", this.get("cx") || 0);
+    this.applyAttr("cy", this.get("cy") || 0);
+    break;
+  case "cx":
+    if (!value) {
+      return;
+    }
+    this.node.style.left = value - (this.get("r") || 0) + "px";
+    break;
+  case "cy":
+    if (!value) {
+      return;
+    }
+    this.node.style.top = value - (this.get("r") || 0) + "px";
+    break;
+  default:
+    jvm.VMLCircleElement.parentClass.prototype.applyAttr.call(
+      this,
+      attr,
+      value,
+    );
   }
 }; /**
  * Class for vector images manipulations.
@@ -1610,38 +1610,38 @@ jvm.Legend.prototype.render = function () {
     sample = jvm.$("<div/>").addClass("jvectormap-legend-tick-sample");
 
     switch (this.series.params.attribute) {
-      case "fill":
-        if (jvm.isImageUrl(ticks[i].value)) {
-          sample.css("background", "url(" + ticks[i].value + ")");
-        } else {
-          sample.css("background", ticks[i].value);
-        }
-        break;
-      case "stroke":
+    case "fill":
+      if (jvm.isImageUrl(ticks[i].value)) {
+        sample.css("background", "url(" + ticks[i].value + ")");
+      } else {
         sample.css("background", ticks[i].value);
-        break;
-      case "image":
-        sample.css(
-          "background",
-          "url(" + ticks[i].value + ") no-repeat center center",
-        );
-        break;
-      case "r":
-        jvm
-          .$("<div/>")
-          .css({
-            "border-radius": ticks[i].value,
-            border:
+      }
+      break;
+    case "stroke":
+      sample.css("background", ticks[i].value);
+      break;
+    case "image":
+      sample.css(
+        "background",
+        "url(" + ticks[i].value + ") no-repeat center center",
+      );
+      break;
+    case "r":
+      jvm
+        .$("<div/>")
+        .css({
+          "border-radius": ticks[i].value,
+          border:
               this.map.params.markerStyle.initial["stroke-width"] +
               "px " +
               this.map.params.markerStyle.initial["stroke"] +
               " solid",
-            width: ticks[i].value * 2 + "px",
-            height: ticks[i].value * 2 + "px",
-            background: this.map.params.markerStyle.initial["fill"],
-          })
-          .appendTo(sample);
-        break;
+          width: ticks[i].value * 2 + "px",
+          height: ticks[i].value * 2 + "px",
+          background: this.map.params.markerStyle.initial["fill"],
+        })
+        .appendTo(sample);
+      break;
     }
     tick.append(sample);
     label = ticks[i].label;

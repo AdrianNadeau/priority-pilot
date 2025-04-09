@@ -45,11 +45,11 @@
       ? fallbackColor && typeof fallbackColor.h !== "undefined"
         ? fallbackColor
         : (this.value = {
-            h: 0,
-            s: 0,
-            b: 0,
-            a: 1,
-          })
+          h: 0,
+          s: 0,
+          b: 0,
+          a: 1,
+        })
       : null;
 
     this.fallbackFormat = fallbackFormat ? fallbackFormat : "rgba";
@@ -571,40 +571,40 @@
       var c = false;
 
       switch (format) {
-        case "rgb":
-          {
-            c = this.toRGB();
-            if (this.rgbaIsTransparent(c)) {
-              return "transparent";
-            }
-            return "rgb(" + c.r + "," + c.g + "," + c.b + ")";
+      case "rgb":
+        {
+          c = this.toRGB();
+          if (this.rgbaIsTransparent(c)) {
+            return "transparent";
           }
-          break;
-        case "rgba":
-          {
-            c = this.toRGB();
-            return "rgba(" + c.r + "," + c.g + "," + c.b + "," + c.a + ")";
-          }
-          break;
-        case "hsl":
-          {
-            c = this.toHSL();
-            return (
-              "hsl(" +
+          return "rgb(" + c.r + "," + c.g + "," + c.b + ")";
+        }
+        break;
+      case "rgba":
+        {
+          c = this.toRGB();
+          return "rgba(" + c.r + "," + c.g + "," + c.b + "," + c.a + ")";
+        }
+        break;
+      case "hsl":
+        {
+          c = this.toHSL();
+          return (
+            "hsl(" +
               Math.round(c.h * 360) +
               "," +
               Math.round(c.s * 100) +
               "%," +
               Math.round(c.l * 100) +
               "%)"
-            );
-          }
-          break;
-        case "hsla":
-          {
-            c = this.toHSL();
-            return (
-              "hsla(" +
+          );
+        }
+        break;
+      case "hsla":
+        {
+          c = this.toHSL();
+          return (
+            "hsla(" +
               Math.round(c.h * 360) +
               "," +
               Math.round(c.s * 100) +
@@ -613,36 +613,36 @@
               "%," +
               c.a +
               ")"
-            );
-          }
-          break;
-        case "hex":
-          {
-            return this.toHex(forceRawValue);
-          }
-          break;
-        case "alias": {
-          c = this.toAlias();
+          );
+        }
+        break;
+      case "hex":
+        {
+          return this.toHex(forceRawValue);
+        }
+        break;
+      case "alias": {
+        c = this.toAlias();
 
-          if (c === false) {
-            return this.toString(forceRawValue, this.getValidFallbackFormat());
-          }
+        if (c === false) {
+          return this.toString(forceRawValue, this.getValidFallbackFormat());
+        }
 
-          if (
-            translateAlias &&
+        if (
+          translateAlias &&
             !(c in Color.webColors) &&
             c in this.predefinedColors
-          ) {
-            return this.predefinedColors[c];
-          }
+        ) {
+          return this.predefinedColors[c];
+        }
 
+        return c;
+      }
+      default:
+        {
           return c;
         }
-        default:
-          {
-            return c;
-          }
-          break;
+        break;
       }
     },
     // a set of RE's that can match strings and generate color tuples.
@@ -799,12 +799,12 @@
       },
     },
     template:
-      '<div class="colorpicker dropdown-menu">' +
-      '<div class="colorpicker-saturation"><i><b></b></i></div>' +
-      '<div class="colorpicker-hue"><i></i></div>' +
-      '<div class="colorpicker-alpha"><i></i></div>' +
-      '<div class="colorpicker-color"><div /></div>' +
-      '<div class="colorpicker-selectors"></div>' +
+      "<div class=\"colorpicker dropdown-menu\">" +
+      "<div class=\"colorpicker-saturation\"><i><b></b></i></div>" +
+      "<div class=\"colorpicker-hue\"><i></i></div>" +
+      "<div class=\"colorpicker-alpha\"><i></i></div>" +
+      "<div class=\"colorpicker-color\"><div /></div>" +
+      "<div class=\"colorpicker-selectors\"></div>" +
       "</div>",
     align: "right",
     customClass: null, // custom class added to the colorpicker element

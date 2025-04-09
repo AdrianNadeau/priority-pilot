@@ -1943,14 +1943,14 @@
           self.onclick = cap.isios
             ? false
             : function (e) {
-                // it needs to check IE11 ???
-                if (self.lastmouseup) {
-                  self.lastmouseup = false;
-                  return self.cancelEvent(e);
-                } else {
-                  return true;
-                }
-              };
+              // it needs to check IE11 ???
+              if (self.lastmouseup) {
+                self.lastmouseup = false;
+                return self.cancelEvent(e);
+              } else {
+                return true;
+              }
+            };
 
           if (opt.grabcursorenabled && cap.cursorgrabvalue) {
             self.css(self.ispage ? self.doc : self.win, {
@@ -2348,70 +2348,70 @@
 
             var ret = false;
             switch (key) {
-              case 38:
-              case 63233: //safari
-                self.doScrollBy(24 * 3);
+            case 38:
+            case 63233: //safari
+              self.doScrollBy(24 * 3);
+              ret = true;
+              break;
+            case 40:
+            case 63235: //safari
+              self.doScrollBy(-24 * 3);
+              ret = true;
+              break;
+            case 37:
+            case 63232: //safari
+              if (self.railh) {
+                ctrl ? self.doScrollLeft(0) : self.doScrollLeftBy(24 * 3);
                 ret = true;
-                break;
-              case 40:
-              case 63235: //safari
-                self.doScrollBy(-24 * 3);
+              }
+              break;
+            case 39:
+            case 63234: //safari
+              if (self.railh) {
+                ctrl
+                  ? self.doScrollLeft(self.page.maxw)
+                  : self.doScrollLeftBy(-24 * 3);
                 ret = true;
-                break;
-              case 37:
-              case 63232: //safari
-                if (self.railh) {
-                  ctrl ? self.doScrollLeft(0) : self.doScrollLeftBy(24 * 3);
-                  ret = true;
-                }
-                break;
-              case 39:
-              case 63234: //safari
-                if (self.railh) {
-                  ctrl
-                    ? self.doScrollLeft(self.page.maxw)
-                    : self.doScrollLeftBy(-24 * 3);
-                  ret = true;
-                }
-                break;
-              case 33:
-              case 63276: // safari
-                self.doScrollBy(self.view.h);
+              }
+              break;
+            case 33:
+            case 63276: // safari
+              self.doScrollBy(self.view.h);
+              ret = true;
+              break;
+            case 34:
+            case 63277: // safari
+              self.doScrollBy(-self.view.h);
+              ret = true;
+              break;
+            case 36:
+            case 63273: // safari
+              self.railh && ctrl
+                ? self.doScrollPos(0, 0)
+                : self.doScrollTo(0);
+              ret = true;
+              break;
+            case 35:
+            case 63275: // safari
+              self.railh && ctrl
+                ? self.doScrollPos(self.page.maxw, self.page.maxh)
+                : self.doScrollTo(self.page.maxh);
+              ret = true;
+              break;
+            case 32:
+              if (opt.spacebarenabled) {
+                shift
+                  ? self.doScrollBy(self.view.h)
+                  : self.doScrollBy(-self.view.h);
                 ret = true;
-                break;
-              case 34:
-              case 63277: // safari
-                self.doScrollBy(-self.view.h);
+              }
+              break;
+            case 27: // ESC
+              if (self.zoomactive) {
+                self.doZoom();
                 ret = true;
-                break;
-              case 36:
-              case 63273: // safari
-                self.railh && ctrl
-                  ? self.doScrollPos(0, 0)
-                  : self.doScrollTo(0);
-                ret = true;
-                break;
-              case 35:
-              case 63275: // safari
-                self.railh && ctrl
-                  ? self.doScrollPos(self.page.maxw, self.page.maxh)
-                  : self.doScrollTo(self.page.maxh);
-                ret = true;
-                break;
-              case 32:
-                if (opt.spacebarenabled) {
-                  shift
-                    ? self.doScrollBy(self.view.h)
-                    : self.doScrollBy(-self.view.h);
-                  ret = true;
-                }
-                break;
-              case 27: // ESC
-                if (self.zoomactive) {
-                  self.doZoom();
-                  ret = true;
-                }
-                break;
+              }
+              break;
             }
             if (ret) {
               return self.cancelEvent(e);
@@ -2763,30 +2763,30 @@
 
     this.getContentSize = self.ispage
       ? function () {
-          return {
-            w: Math.max(
-              _doc.body.scrollWidth,
-              _doc.documentElement.scrollWidth,
-            ),
-            h: Math.max(
-              _doc.body.scrollHeight,
-              _doc.documentElement.scrollHeight,
-            ),
-          };
-        }
+        return {
+          w: Math.max(
+            _doc.body.scrollWidth,
+            _doc.documentElement.scrollWidth,
+          ),
+          h: Math.max(
+            _doc.body.scrollHeight,
+            _doc.documentElement.scrollHeight,
+          ),
+        };
+      }
       : self.haswrapper
         ? function () {
-            return {
-              w: self.doc[0].offsetWidth,
-              h: self.doc[0].offsetHeight,
-            };
-          }
-        : function () {
-            return {
-              w: self.docscroll[0].scrollWidth,
-              h: self.docscroll[0].scrollHeight,
-            };
+          return {
+            w: self.doc[0].offsetWidth,
+            h: self.doc[0].offsetHeight,
           };
+        }
+        : function () {
+          return {
+            w: self.docscroll[0].scrollWidth,
+            h: self.docscroll[0].scrollHeight,
+          };
+        };
 
     this.onResize = function (e, page) {
       if (!self || !self.win) {

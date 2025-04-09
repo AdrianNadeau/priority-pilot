@@ -39,7 +39,8 @@
       href="/public/assets/images/favicons/site.webmanifest"
     />
 
-    <%- HeaderCss %> <% include ./Partials/HeaderStyle %>
+    <%- HeaderCss %> 
+    <%- include('./Partials/HeaderStyle') %>
   </head>
   <body class="fixed-left">
     <!-- Loader -->
@@ -49,21 +50,23 @@
 
     <div id="wrapper">
       <% if (typeof errorMessage === 'undefined' && typeof statusCode === 'undefined') { %>
-      <% include ./Partials/Header %>
+        <%- include('./Partials/Header') %>
       <% } %>
       <div class="content-page">
-        <div class="content"><% include ./Partials/Sidebar %> <%- body %></div>
-        <% include ./Partials/Footer %>
+        <div class="content">
+          <%- include('./Partials/Sidebar') %> 
+          <%- body %>
+        </div>
+        <%- include('./Partials/Footer') %>
       </div>
     </div>
 
-    <% include ./Partials/FooterScript %> <%- FooterJs %>
+    <%- include('./Partials/FooterScript') %> 
+    <%- FooterJs %>
 
     <script src="/public/assets/js/app.js"></script>
     <script src="/utils/dateUtils.js"></script>
 
     <%- BottomJs %>
-
-
   </body>
 </html>

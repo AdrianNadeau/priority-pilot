@@ -50,7 +50,7 @@ asynctest(
           {},
           [
             sAssertUnlink(
-              '<p><a href="#">a</a></p>',
+              "<p><a href=\"#\">a</a></p>",
               [0, 0, 0],
               0,
               [0, 0, 0],
@@ -58,7 +58,7 @@ asynctest(
               "<p>a</p>",
             ),
             sAssertUnlink(
-              '<p><a href="#">a</a>b</p>',
+              "<p><a href=\"#\">a</a>b</p>",
               [0, 0, 0],
               0,
               [0, 1],
@@ -66,15 +66,15 @@ asynctest(
               "<p>ab</p>",
             ),
             sAssertUnlink(
-              '<p><a href="#">a</a><p><a href="#">b</a>',
+              "<p><a href=\"#\">a</a><p><a href=\"#\">b</a>",
               [0, 0, 0],
               0,
               [0, 0, 0],
               1,
-              '<p>a</p>\n<p><a href="#">b</a></p>',
+              "<p>a</p>\n<p><a href=\"#\">b</a></p>",
             ),
             sAssertUnlink(
-              '<p><a href="#">a</a><p><a href="#">b</a>',
+              "<p><a href=\"#\">a</a><p><a href=\"#\">b</a>",
               [0, 0, 0],
               0,
               [1, 0, 0],

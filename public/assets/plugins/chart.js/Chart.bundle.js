@@ -1127,18 +1127,18 @@
               v = 255 * v;
 
             switch (hi) {
-              case 0:
-                return [v, t, p];
-              case 1:
-                return [q, v, p];
-              case 2:
-                return [p, v, t];
-              case 3:
-                return [p, q, v];
-              case 4:
-                return [t, p, v];
-              case 5:
-                return [v, p, q];
+            case 0:
+              return [v, t, p];
+            case 1:
+              return [q, v, p];
+            case 2:
+              return [p, v, t];
+            case 3:
+              return [p, q, v];
+            case 4:
+              return [t, p, v];
+            case 5:
+              return [v, p, q];
             }
           }
 
@@ -1195,38 +1195,38 @@
             n = wh + f * (v - wh); // linear interpolation
 
             switch (i) {
-              default:
-              case 6:
-              case 0:
-                r = v;
-                g = n;
-                b = wh;
-                break;
-              case 1:
-                r = n;
-                g = v;
-                b = wh;
-                break;
-              case 2:
-                r = wh;
-                g = v;
-                b = n;
-                break;
-              case 3:
-                r = wh;
-                g = n;
-                b = v;
-                break;
-              case 4:
-                r = n;
-                g = wh;
-                b = v;
-                break;
-              case 5:
-                r = v;
-                g = wh;
-                b = n;
-                break;
+            default:
+            case 6:
+            case 0:
+              r = v;
+              g = n;
+              b = wh;
+              break;
+            case 1:
+              r = n;
+              g = v;
+              b = wh;
+              break;
+            case 2:
+              r = wh;
+              g = v;
+              b = n;
+              break;
+            case 3:
+              r = wh;
+              g = n;
+              b = v;
+              break;
+            case 4:
+              r = n;
+              g = wh;
+              b = v;
+              break;
+            case 5:
+              r = v;
+              g = wh;
+              b = n;
+              break;
             }
 
             return [r * 255, g * 255, b * 255];
@@ -2608,8 +2608,8 @@
               regexes[token] = isFunction(regex)
                 ? regex
                 : function (isStrict, localeData) {
-                    return isStrict && strictRegex ? strictRegex : regex;
-                  };
+                  return isStrict && strictRegex ? strictRegex : regex;
+                };
             }
 
             function getParseRegexForToken(token, config) {
@@ -2915,10 +2915,10 @@
               return isArray(this._months)
                 ? this._months[m.month()]
                 : this._months[
-                    (this._months.isFormat || MONTHS_IN_FORMAT).test(format)
-                      ? "format"
-                      : "standalone"
-                  ][m.month()];
+                  (this._months.isFormat || MONTHS_IN_FORMAT).test(format)
+                    ? "format"
+                    : "standalone"
+                ][m.month()];
             }
 
             var defaultLocaleMonthsShort =
@@ -2932,8 +2932,8 @@
               return isArray(this._monthsShort)
                 ? this._monthsShort[m.month()]
                 : this._monthsShort[
-                    MONTHS_IN_FORMAT.test(format) ? "format" : "standalone"
-                  ][m.month()];
+                  MONTHS_IN_FORMAT.test(format) ? "format" : "standalone"
+                ][m.month()];
             }
 
             function handleStrictParse(monthName, format, strict) {
@@ -3435,10 +3435,10 @@
               return isArray(this._weekdays)
                 ? this._weekdays[m.day()]
                 : this._weekdays[
-                    this._weekdays.isFormat.test(format)
-                      ? "format"
-                      : "standalone"
-                  ][m.day()];
+                  this._weekdays.isFormat.test(format)
+                    ? "format"
+                    : "standalone"
+                ][m.day()];
             }
 
             var defaultLocaleWeekdaysShort =
@@ -5609,32 +5609,32 @@
               units = normalizeUnits(units);
 
               switch (units) {
-                case "year":
-                  output = monthDiff(this, that) / 12;
-                  break;
-                case "month":
-                  output = monthDiff(this, that);
-                  break;
-                case "quarter":
-                  output = monthDiff(this, that) / 3;
-                  break;
-                case "second":
-                  output = (this - that) / 1e3;
-                  break; // 1000
-                case "minute":
-                  output = (this - that) / 6e4;
-                  break; // 1000 * 60
-                case "hour":
-                  output = (this - that) / 36e5;
-                  break; // 1000 * 60 * 60
-                case "day":
-                  output = (this - that - zoneDelta) / 864e5;
-                  break; // 1000 * 60 * 60 * 24, negate dst
-                case "week":
-                  output = (this - that - zoneDelta) / 6048e5;
-                  break; // 1000 * 60 * 60 * 24 * 7, negate dst
-                default:
-                  output = this - that;
+              case "year":
+                output = monthDiff(this, that) / 12;
+                break;
+              case "month":
+                output = monthDiff(this, that);
+                break;
+              case "quarter":
+                output = monthDiff(this, that) / 3;
+                break;
+              case "second":
+                output = (this - that) / 1e3;
+                break; // 1000
+              case "minute":
+                output = (this - that) / 6e4;
+                break; // 1000 * 60
+              case "hour":
+                output = (this - that) / 36e5;
+                break; // 1000 * 60 * 60
+              case "day":
+                output = (this - that - zoneDelta) / 864e5;
+                break; // 1000 * 60 * 60 * 24, negate dst
+              case "week":
+                output = (this - that - zoneDelta) / 6048e5;
+                break; // 1000 * 60 * 60 * 24 * 7, negate dst
+              default:
+                output = this - that;
               }
 
               return asFloat ? output : absFloor(output);
@@ -5721,11 +5721,11 @@
                   this.utcOffset() === 0 ? "moment.utc" : "moment.parseZone";
                 zone = "Z";
               }
-              var prefix = "[" + func + '("]';
+              var prefix = "[" + func + "(\"]";
               var year =
                 0 <= this.year() && this.year() <= 9999 ? "YYYY" : "YYYYYY";
               var datetime = "-MM-DD[T]HH:mm:ss.SSS";
-              var suffix = zone + '[")]';
+              var suffix = zone + "[\")]";
 
               return this.format(prefix + year + datetime + suffix);
             }
@@ -5813,27 +5813,27 @@
               // the following switch intentionally omits break keywords
               // to utilize falling through the cases.
               switch (units) {
-                case "year":
-                  this.month(0);
+              case "year":
+                this.month(0);
                 /* falls through */
-                case "quarter":
-                case "month":
-                  this.date(1);
+              case "quarter":
+              case "month":
+                this.date(1);
                 /* falls through */
-                case "week":
-                case "isoWeek":
-                case "day":
-                case "date":
-                  this.hours(0);
+              case "week":
+              case "isoWeek":
+              case "day":
+              case "date":
+                this.hours(0);
                 /* falls through */
-                case "hour":
-                  this.minutes(0);
+              case "hour":
+                this.minutes(0);
                 /* falls through */
-                case "minute":
-                  this.seconds(0);
+              case "minute":
+                this.seconds(0);
                 /* falls through */
-                case "second":
-                  this.milliseconds(0);
+              case "second":
+                this.milliseconds(0);
               }
 
               // weeks are a special case
@@ -6658,21 +6658,21 @@
                 // handle milliseconds separately because of floating point math errors (issue #1867)
                 days = this._days + Math.round(monthsToDays(this._months));
                 switch (units) {
-                  case "week":
-                    return days / 7 + milliseconds / 6048e5;
-                  case "day":
-                    return days + milliseconds / 864e5;
-                  case "hour":
-                    return days * 24 + milliseconds / 36e5;
-                  case "minute":
-                    return days * 1440 + milliseconds / 6e4;
-                  case "second":
-                    return days * 86400 + milliseconds / 1000;
+                case "week":
+                  return days / 7 + milliseconds / 6048e5;
+                case "day":
+                  return days + milliseconds / 864e5;
+                case "hour":
+                  return days * 24 + milliseconds / 36e5;
+                case "minute":
+                  return days * 1440 + milliseconds / 6e4;
+                case "second":
+                  return days * 86400 + milliseconds / 1000;
                   // Math.floor prevents floating point math errors here
-                  case "millisecond":
-                    return Math.floor(days * 864e5) + milliseconds;
-                  default:
-                    throw new Error("Unknown unit " + units);
+                case "millisecond":
+                  return Math.floor(days * 864e5) + milliseconds;
+                default:
+                  throw new Error("Unknown unit " + units);
                 }
               }
             }
@@ -7517,24 +7517,24 @@
                   backgroundColor: custom.backgroundColor
                     ? custom.backgroundColor
                     : helpers.valueAtIndexOrDefault(
-                        dataset.backgroundColor,
-                        index,
-                        rectangleOptions.backgroundColor,
-                      ),
+                      dataset.backgroundColor,
+                      index,
+                      rectangleOptions.backgroundColor,
+                    ),
                   borderColor: custom.borderColor
                     ? custom.borderColor
                     : helpers.valueAtIndexOrDefault(
-                        dataset.borderColor,
-                        index,
-                        rectangleOptions.borderColor,
-                      ),
+                      dataset.borderColor,
+                      index,
+                      rectangleOptions.borderColor,
+                    ),
                   borderWidth: custom.borderWidth
                     ? custom.borderWidth
                     : helpers.valueAtIndexOrDefault(
-                        dataset.borderWidth,
-                        index,
-                        rectangleOptions.borderWidth,
-                      ),
+                      dataset.borderWidth,
+                      index,
+                      rectangleOptions.borderWidth,
+                    ),
                 };
 
                 me.updateElementGeometry(rectangle, index, reset);
@@ -7905,10 +7905,10 @@
                 var x = reset
                   ? xScale.getPixelForDecimal(0.5)
                   : xScale.getPixelForValue(
-                      typeof data === "object" ? data : NaN,
-                      index,
-                      dsIndex,
-                    );
+                    typeof data === "object" ? data : NaN,
+                    index,
+                    dsIndex,
+                  );
                 var y = reset
                   ? yScale.getBasePixel()
                   : yScale.getPixelForValue(data, index, dsIndex);
@@ -8044,7 +8044,7 @@
             },
             legendCallback: function (chart) {
               var text = [];
-              text.push('<ul class="' + chart.id + '-legend">');
+              text.push("<ul class=\"" + chart.id + "-legend\">");
 
               var data = chart.data;
               var datasets = data.datasets;
@@ -8053,9 +8053,9 @@
               if (datasets.length) {
                 for (var i = 0; i < datasets[0].data.length; ++i) {
                   text.push(
-                    '<li><span style="background-color:' +
+                    "<li><span style=\"background-color:" +
                       datasets[0].backgroundColor[i] +
-                      '"></span>',
+                      "\"></span>",
                   );
                   if (labels[i]) {
                     text.push(labels[i]);
@@ -8082,24 +8082,24 @@
                       var fill = custom.backgroundColor
                         ? custom.backgroundColor
                         : valueAtIndexOrDefault(
-                            ds.backgroundColor,
-                            i,
-                            arcOpts.backgroundColor,
-                          );
+                          ds.backgroundColor,
+                          i,
+                          arcOpts.backgroundColor,
+                        );
                       var stroke = custom.borderColor
                         ? custom.borderColor
                         : valueAtIndexOrDefault(
-                            ds.borderColor,
-                            i,
-                            arcOpts.borderColor,
-                          );
+                          ds.borderColor,
+                          i,
+                          arcOpts.borderColor,
+                        );
                       var bw = custom.borderWidth
                         ? custom.borderWidth
                         : valueAtIndexOrDefault(
-                            ds.borderWidth,
-                            i,
-                            arcOpts.borderWidth,
-                          );
+                          ds.borderWidth,
+                          i,
+                          arcOpts.borderWidth,
+                        );
 
                       return {
                         text: label,
@@ -8256,29 +8256,29 @@
                       x: contains180
                         ? -1
                         : Math.min(
-                            start.x * (start.x < 0 ? 1 : cutout),
-                            end.x * (end.x < 0 ? 1 : cutout),
-                          ),
+                          start.x * (start.x < 0 ? 1 : cutout),
+                          end.x * (end.x < 0 ? 1 : cutout),
+                        ),
                       y: contains270
                         ? -1
                         : Math.min(
-                            start.y * (start.y < 0 ? 1 : cutout),
-                            end.y * (end.y < 0 ? 1 : cutout),
-                          ),
+                          start.y * (start.y < 0 ? 1 : cutout),
+                          end.y * (end.y < 0 ? 1 : cutout),
+                        ),
                     };
                     var max = {
                       x: contains0
                         ? 1
                         : Math.max(
-                            start.x * (start.x > 0 ? 1 : cutout),
-                            end.x * (end.x > 0 ? 1 : cutout),
-                          ),
+                          start.x * (start.x > 0 ? 1 : cutout),
+                          end.x * (end.x > 0 ? 1 : cutout),
+                        ),
                       y: contains90
                         ? 1
                         : Math.max(
-                            start.y * (start.y > 0 ? 1 : cutout),
-                            end.y * (end.y > 0 ? 1 : cutout),
-                          ),
+                          start.y * (start.y > 0 ? 1 : cutout),
+                          end.y * (end.y > 0 ? 1 : cutout),
+                        ),
                     };
                     var size = {
                       width: (max.x - min.x) * 0.5,
@@ -8381,24 +8381,24 @@
                   model.backgroundColor = custom.backgroundColor
                     ? custom.backgroundColor
                     : valueOrDefault(
-                        dataset.backgroundColor,
-                        index,
-                        elementOpts.backgroundColor,
-                      );
+                      dataset.backgroundColor,
+                      index,
+                      elementOpts.backgroundColor,
+                    );
                   model.borderColor = custom.borderColor
                     ? custom.borderColor
                     : valueOrDefault(
-                        dataset.borderColor,
-                        index,
-                        elementOpts.borderColor,
-                      );
+                      dataset.borderColor,
+                      index,
+                      elementOpts.borderColor,
+                    );
                   model.borderWidth = custom.borderWidth
                     ? custom.borderWidth
                     : valueOrDefault(
-                        dataset.borderWidth,
-                        index,
-                        elementOpts.borderWidth,
-                      );
+                      dataset.borderWidth,
+                      index,
+                      elementOpts.borderWidth,
+                    );
 
                   // Set correct angles if not resetting
                   if (!reset || !animationOpts.animateRotate) {
@@ -8457,7 +8457,7 @@
                       : 0;
                     hoverWidth = arcs[i]._chart
                       ? arcs[i]._chart.config.data.datasets[index]
-                          .hoverBorderWidth
+                        .hoverBorderWidth
                       : 0;
 
                     max = borderWidth > max ? borderWidth : max;
@@ -8556,9 +8556,9 @@
                     tension: custom.tension
                       ? custom.tension
                       : helpers.valueOrDefault(
-                          dataset.lineTension,
-                          lineElementOptions.tension,
-                        ),
+                        dataset.lineTension,
+                        lineElementOptions.tension,
+                      ),
                     backgroundColor: custom.backgroundColor
                       ? custom.backgroundColor
                       : dataset.backgroundColor ||
@@ -8592,15 +8592,15 @@
                     steppedLine: custom.steppedLine
                       ? custom.steppedLine
                       : helpers.valueOrDefault(
-                          dataset.steppedLine,
-                          lineElementOptions.stepped,
-                        ),
+                        dataset.steppedLine,
+                        lineElementOptions.stepped,
+                      ),
                     cubicInterpolationMode: custom.cubicInterpolationMode
                       ? custom.cubicInterpolationMode
                       : helpers.valueOrDefault(
-                          dataset.cubicInterpolationMode,
-                          lineElementOptions.cubicInterpolationMode,
-                        ),
+                        dataset.cubicInterpolationMode,
+                        lineElementOptions.cubicInterpolationMode,
+                      ),
                   };
 
                   line.pivot();
@@ -9003,7 +9003,7 @@
             startAngle: -0.5 * Math.PI,
             legendCallback: function (chart) {
               var text = [];
-              text.push('<ul class="' + chart.id + '-legend">');
+              text.push("<ul class=\"" + chart.id + "-legend\">");
 
               var data = chart.data;
               var datasets = data.datasets;
@@ -9012,9 +9012,9 @@
               if (datasets.length) {
                 for (var i = 0; i < datasets[0].data.length; ++i) {
                   text.push(
-                    '<li><span style="background-color:' +
+                    "<li><span style=\"background-color:" +
                       datasets[0].backgroundColor[i] +
-                      '"></span>',
+                      "\"></span>",
                   );
                   if (labels[i]) {
                     text.push(labels[i]);
@@ -9041,24 +9041,24 @@
                       var fill = custom.backgroundColor
                         ? custom.backgroundColor
                         : valueAtIndexOrDefault(
-                            ds.backgroundColor,
-                            i,
-                            arcOpts.backgroundColor,
-                          );
+                          ds.backgroundColor,
+                          i,
+                          arcOpts.backgroundColor,
+                        );
                       var stroke = custom.borderColor
                         ? custom.borderColor
                         : valueAtIndexOrDefault(
-                            ds.borderColor,
-                            i,
-                            arcOpts.borderColor,
-                          );
+                          ds.borderColor,
+                          i,
+                          arcOpts.borderColor,
+                        );
                       var bw = custom.borderWidth
                         ? custom.borderWidth
                         : valueAtIndexOrDefault(
-                            ds.borderWidth,
-                            i,
-                            arcOpts.borderWidth,
-                          );
+                          ds.borderWidth,
+                          i,
+                          arcOpts.borderWidth,
+                        );
 
                       return {
                         text: label,
@@ -9233,24 +9233,24 @@
                 model.backgroundColor = custom.backgroundColor
                   ? custom.backgroundColor
                   : valueOrDefault(
-                      dataset.backgroundColor,
-                      index,
-                      elementOpts.backgroundColor,
-                    );
+                    dataset.backgroundColor,
+                    index,
+                    elementOpts.backgroundColor,
+                  );
                 model.borderColor = custom.borderColor
                   ? custom.borderColor
                   : valueOrDefault(
-                      dataset.borderColor,
-                      index,
-                      elementOpts.borderColor,
-                    );
+                    dataset.borderColor,
+                    index,
+                    elementOpts.borderColor,
+                  );
                 model.borderWidth = custom.borderWidth
                   ? custom.borderWidth
                   : valueOrDefault(
-                      dataset.borderWidth,
-                      index,
-                      elementOpts.borderWidth,
-                    );
+                    dataset.borderWidth,
+                    index,
+                    elementOpts.borderWidth,
+                  );
 
                 arc.pivot();
               },
@@ -9359,9 +9359,9 @@
                     tension: custom.tension
                       ? custom.tension
                       : helpers.valueOrDefault(
-                          dataset.lineTension,
-                          lineElementOptions.tension,
-                        ),
+                        dataset.lineTension,
+                        lineElementOptions.tension,
+                      ),
                     backgroundColor: custom.backgroundColor
                       ? custom.backgroundColor
                       : dataset.backgroundColor ||
@@ -9449,60 +9449,60 @@
                     tension: custom.tension
                       ? custom.tension
                       : helpers.valueOrDefault(
-                          dataset.lineTension,
-                          me.chart.options.elements.line.tension,
-                        ),
+                        dataset.lineTension,
+                        me.chart.options.elements.line.tension,
+                      ),
                     radius: custom.radius
                       ? custom.radius
                       : helpers.valueAtIndexOrDefault(
-                          dataset.pointRadius,
-                          index,
-                          pointElementOptions.radius,
-                        ),
+                        dataset.pointRadius,
+                        index,
+                        pointElementOptions.radius,
+                      ),
                     backgroundColor: custom.backgroundColor
                       ? custom.backgroundColor
                       : helpers.valueAtIndexOrDefault(
-                          dataset.pointBackgroundColor,
-                          index,
-                          pointElementOptions.backgroundColor,
-                        ),
+                        dataset.pointBackgroundColor,
+                        index,
+                        pointElementOptions.backgroundColor,
+                      ),
                     borderColor: custom.borderColor
                       ? custom.borderColor
                       : helpers.valueAtIndexOrDefault(
-                          dataset.pointBorderColor,
-                          index,
-                          pointElementOptions.borderColor,
-                        ),
+                        dataset.pointBorderColor,
+                        index,
+                        pointElementOptions.borderColor,
+                      ),
                     borderWidth: custom.borderWidth
                       ? custom.borderWidth
                       : helpers.valueAtIndexOrDefault(
-                          dataset.pointBorderWidth,
-                          index,
-                          pointElementOptions.borderWidth,
-                        ),
+                        dataset.pointBorderWidth,
+                        index,
+                        pointElementOptions.borderWidth,
+                      ),
                     pointStyle: custom.pointStyle
                       ? custom.pointStyle
                       : helpers.valueAtIndexOrDefault(
-                          dataset.pointStyle,
-                          index,
-                          pointElementOptions.pointStyle,
-                        ),
+                        dataset.pointStyle,
+                        index,
+                        pointElementOptions.pointStyle,
+                      ),
                     rotation: custom.rotation
                       ? custom.rotation
                       : helpers.valueAtIndexOrDefault(
-                          dataset.pointRotation,
-                          index,
-                          pointElementOptions.rotation,
-                        ),
+                        dataset.pointRotation,
+                        index,
+                        pointElementOptions.rotation,
+                      ),
 
                     // Tooltip
                     hitRadius: custom.hitRadius
                       ? custom.hitRadius
                       : helpers.valueAtIndexOrDefault(
-                          dataset.pointHitRadius,
-                          index,
-                          pointElementOptions.hitRadius,
-                        ),
+                        dataset.pointHitRadius,
+                        index,
+                        pointElementOptions.hitRadius,
+                      ),
                   },
                 });
 
@@ -9564,31 +9564,31 @@
                 model.radius = custom.hoverRadius
                   ? custom.hoverRadius
                   : helpers.valueAtIndexOrDefault(
-                      dataset.pointHoverRadius,
-                      index,
-                      this.chart.options.elements.point.hoverRadius,
-                    );
+                    dataset.pointHoverRadius,
+                    index,
+                    this.chart.options.elements.point.hoverRadius,
+                  );
                 model.backgroundColor = custom.hoverBackgroundColor
                   ? custom.hoverBackgroundColor
                   : helpers.valueAtIndexOrDefault(
-                      dataset.pointHoverBackgroundColor,
-                      index,
-                      helpers.getHoverColor(model.backgroundColor),
-                    );
+                    dataset.pointHoverBackgroundColor,
+                    index,
+                    helpers.getHoverColor(model.backgroundColor),
+                  );
                 model.borderColor = custom.hoverBorderColor
                   ? custom.hoverBorderColor
                   : helpers.valueAtIndexOrDefault(
-                      dataset.pointHoverBorderColor,
-                      index,
-                      helpers.getHoverColor(model.borderColor),
-                    );
+                    dataset.pointHoverBorderColor,
+                    index,
+                    helpers.getHoverColor(model.borderColor),
+                  );
                 model.borderWidth = custom.hoverBorderWidth
                   ? custom.hoverBorderWidth
                   : helpers.valueAtIndexOrDefault(
-                      dataset.pointHoverBorderWidth,
-                      index,
-                      model.borderWidth,
-                    );
+                    dataset.pointHoverBorderWidth,
+                    index,
+                    model.borderWidth,
+                  );
               },
             });
           };
@@ -10223,7 +10223,7 @@
                         var ControllerClass = Chart.controllers[meta.type];
                         if (ControllerClass === undefined) {
                           throw new Error(
-                            '"' + meta.type + '" is not a chart type.',
+                            "\"" + meta.type + "\" is not a chart type.",
                           );
                         }
 
@@ -11216,24 +11216,24 @@
                 model.backgroundColor = custom.hoverBackgroundColor
                   ? custom.hoverBackgroundColor
                   : valueOrDefault(
-                      dataset.hoverBackgroundColor,
-                      index,
-                      getHoverColor(model.backgroundColor),
-                    );
+                    dataset.hoverBackgroundColor,
+                    index,
+                    getHoverColor(model.backgroundColor),
+                  );
                 model.borderColor = custom.hoverBorderColor
                   ? custom.hoverBorderColor
                   : valueOrDefault(
-                      dataset.hoverBorderColor,
-                      index,
-                      getHoverColor(model.borderColor),
-                    );
+                    dataset.hoverBorderColor,
+                    index,
+                    getHoverColor(model.borderColor),
+                  );
                 model.borderWidth = custom.hoverBorderWidth
                   ? custom.hoverBorderWidth
                   : valueOrDefault(
-                      dataset.hoverBorderWidth,
-                      index,
-                      model.borderWidth,
-                    );
+                    dataset.hoverBorderWidth,
+                    index,
+                    model.borderWidth,
+                  );
               },
 
               /**
@@ -11554,17 +11554,17 @@
             };
             helpers.findIndex = Array.prototype.findIndex
               ? function (array, callback, scope) {
-                  return array.findIndex(callback, scope);
-                }
+                return array.findIndex(callback, scope);
+              }
               : function (array, callback, scope) {
-                  scope = scope === undefined ? array : scope;
-                  for (var i = 0, ilen = array.length; i < ilen; ++i) {
-                    if (callback.call(scope, array[i], i, array)) {
-                      return i;
-                    }
+                scope = scope === undefined ? array : scope;
+                for (var i = 0, ilen = array.length; i < ilen; ++i) {
+                  if (callback.call(scope, array[i], i, array)) {
+                    return i;
                   }
-                  return -1;
-                };
+                }
+                return -1;
+              };
             helpers.findNextWhere = function (
               arrayToSearch,
               filterCallback,
@@ -11627,28 +11627,28 @@
             };
             helpers.sign = Math.sign
               ? function (x) {
-                  return Math.sign(x);
-                }
+                return Math.sign(x);
+              }
               : function (x) {
-                  x = +x; // convert to a number
-                  if (x === 0 || isNaN(x)) {
-                    return x;
-                  }
-                  return x > 0 ? 1 : -1;
-                };
+                x = +x; // convert to a number
+                if (x === 0 || isNaN(x)) {
+                  return x;
+                }
+                return x > 0 ? 1 : -1;
+              };
             helpers.log10 = Math.log10
               ? function (x) {
-                  return Math.log10(x);
-                }
+                return Math.log10(x);
+              }
               : function (x) {
-                  var exponent = Math.log(x) * Math.LOG10E; // Math.LOG10E = 1 / Math.LN10.
-                  // Check for whole powers of 10,
-                  // which due to floating point rounding error should be corrected.
-                  var powerOf10 = Math.round(exponent);
-                  var isPowerOf10 = x === Math.pow(10, powerOf10);
+                var exponent = Math.log(x) * Math.LOG10E; // Math.LOG10E = 1 / Math.LN10.
+                // Check for whole powers of 10,
+                // which due to floating point rounding error should be corrected.
+                var powerOf10 = Math.round(exponent);
+                var isPowerOf10 = x === Math.pow(10, powerOf10);
 
-                  return isPowerOf10 ? powerOf10 : exponent;
-                };
+                return isPowerOf10 ? powerOf10 : exponent;
+              };
             helpers.toRadians = function (degrees) {
               return degrees * (Math.PI / 180);
             };
@@ -12010,17 +12010,17 @@
                 return Math.min(
                   hasCNode
                     ? parseMaxStyle(
-                        constrainedNode,
-                        domNode,
-                        percentageProperty,
-                      )
+                      constrainedNode,
+                      domNode,
+                      percentageProperty,
+                    )
                     : infinity,
                   hasCContainer
                     ? parseMaxStyle(
-                        constrainedContainer,
-                        parentNode,
-                        percentageProperty,
-                      )
+                      constrainedContainer,
+                      parentNode,
+                      percentageProperty,
+                    )
                     : infinity,
                 );
               }
@@ -12115,8 +12115,8 @@
               return el.currentStyle
                 ? el.currentStyle[property]
                 : document.defaultView
-                    .getComputedStyle(el, null)
-                    .getPropertyValue(property);
+                  .getComputedStyle(el, null)
+                  .getPropertyValue(property);
             };
             helpers.retinaScale = function (chart, forceRatio) {
               var pixelRatio = (chart.currentDevicePixelRatio =
@@ -12224,27 +12224,27 @@
 
             helpers.color = !color
               ? function (value) {
-                  console.error("Color.js not found!");
-                  return value;
-                }
+                console.error("Color.js not found!");
+                return value;
+              }
               : function (value) {
-                  /* global CanvasGradient */
-                  if (value instanceof CanvasGradient) {
-                    value = defaults.global.defaultColor;
-                  }
+                /* global CanvasGradient */
+                if (value instanceof CanvasGradient) {
+                  value = defaults.global.defaultColor;
+                }
 
-                  return color(value);
-                };
+                return color(value);
+              };
 
             helpers.getHoverColor = function (colorValue) {
               /* global CanvasPattern */
               return colorValue instanceof CanvasPattern
                 ? colorValue
                 : helpers
-                    .color(colorValue)
-                    .saturate(0.5)
-                    .darken(0.1)
-                    .rgbString();
+                  .color(colorValue)
+                  .saturate(0.5)
+                  .darken(0.1)
+                  .rgbString();
             };
           };
         },
@@ -16581,84 +16581,84 @@
               ctx.beginPath();
 
               switch (style) {
-                // Default includes circle
-                default:
-                  ctx.arc(0, 0, radius, 0, Math.PI * 2);
-                  ctx.closePath();
-                  break;
-                case "triangle":
-                  edgeLength = (3 * radius) / Math.sqrt(3);
-                  height = (edgeLength * Math.sqrt(3)) / 2;
-                  ctx.moveTo(-edgeLength / 2, height / 3);
-                  ctx.lineTo(edgeLength / 2, height / 3);
-                  ctx.lineTo(0, (-2 * height) / 3);
-                  ctx.closePath();
-                  break;
-                case "rect":
-                  size = (1 / Math.SQRT2) * radius;
-                  ctx.rect(-size, -size, 2 * size, 2 * size);
-                  break;
-                case "rectRounded":
-                  var offset = radius / Math.SQRT2;
-                  var leftX = -offset;
-                  var topY = -offset;
-                  var sideSize = Math.SQRT2 * radius;
+              // Default includes circle
+              default:
+                ctx.arc(0, 0, radius, 0, Math.PI * 2);
+                ctx.closePath();
+                break;
+              case "triangle":
+                edgeLength = (3 * radius) / Math.sqrt(3);
+                height = (edgeLength * Math.sqrt(3)) / 2;
+                ctx.moveTo(-edgeLength / 2, height / 3);
+                ctx.lineTo(edgeLength / 2, height / 3);
+                ctx.lineTo(0, (-2 * height) / 3);
+                ctx.closePath();
+                break;
+              case "rect":
+                size = (1 / Math.SQRT2) * radius;
+                ctx.rect(-size, -size, 2 * size, 2 * size);
+                break;
+              case "rectRounded":
+                var offset = radius / Math.SQRT2;
+                var leftX = -offset;
+                var topY = -offset;
+                var sideSize = Math.SQRT2 * radius;
 
-                  // NOTE(SB) the rounded rect implementation changed to use `arcTo`
-                  // instead of `quadraticCurveTo` since it generates better results
-                  // when rect is almost a circle. 0.425 (instead of 0.5) produces
-                  // results visually closer to the previous impl.
-                  this.roundedRect(
-                    ctx,
-                    leftX,
-                    topY,
-                    sideSize,
-                    sideSize,
-                    radius * 0.425,
-                  );
-                  break;
-                case "rectRot":
-                  size = (1 / Math.SQRT2) * radius;
-                  ctx.moveTo(-size, 0);
-                  ctx.lineTo(0, size);
-                  ctx.lineTo(size, 0);
-                  ctx.lineTo(0, -size);
-                  ctx.closePath();
-                  break;
-                case "cross":
-                  ctx.moveTo(0, radius);
-                  ctx.lineTo(0, -radius);
-                  ctx.moveTo(-radius, 0);
-                  ctx.lineTo(radius, 0);
-                  break;
-                case "crossRot":
-                  xOffset = Math.cos(Math.PI / 4) * radius;
-                  yOffset = Math.sin(Math.PI / 4) * radius;
-                  ctx.moveTo(-xOffset, -yOffset);
-                  ctx.lineTo(xOffset, yOffset);
-                  ctx.moveTo(-xOffset, yOffset);
-                  ctx.lineTo(xOffset, -yOffset);
-                  break;
-                case "star":
-                  ctx.moveTo(0, radius);
-                  ctx.lineTo(0, -radius);
-                  ctx.moveTo(-radius, 0);
-                  ctx.lineTo(radius, 0);
-                  xOffset = Math.cos(Math.PI / 4) * radius;
-                  yOffset = Math.sin(Math.PI / 4) * radius;
-                  ctx.moveTo(-xOffset, -yOffset);
-                  ctx.lineTo(xOffset, yOffset);
-                  ctx.moveTo(-xOffset, yOffset);
-                  ctx.lineTo(xOffset, -yOffset);
-                  break;
-                case "line":
-                  ctx.moveTo(-radius, 0);
-                  ctx.lineTo(radius, 0);
-                  break;
-                case "dash":
-                  ctx.moveTo(0, 0);
-                  ctx.lineTo(radius, 0);
-                  break;
+                // NOTE(SB) the rounded rect implementation changed to use `arcTo`
+                // instead of `quadraticCurveTo` since it generates better results
+                // when rect is almost a circle. 0.425 (instead of 0.5) produces
+                // results visually closer to the previous impl.
+                this.roundedRect(
+                  ctx,
+                  leftX,
+                  topY,
+                  sideSize,
+                  sideSize,
+                  radius * 0.425,
+                );
+                break;
+              case "rectRot":
+                size = (1 / Math.SQRT2) * radius;
+                ctx.moveTo(-size, 0);
+                ctx.lineTo(0, size);
+                ctx.lineTo(size, 0);
+                ctx.lineTo(0, -size);
+                ctx.closePath();
+                break;
+              case "cross":
+                ctx.moveTo(0, radius);
+                ctx.lineTo(0, -radius);
+                ctx.moveTo(-radius, 0);
+                ctx.lineTo(radius, 0);
+                break;
+              case "crossRot":
+                xOffset = Math.cos(Math.PI / 4) * radius;
+                yOffset = Math.sin(Math.PI / 4) * radius;
+                ctx.moveTo(-xOffset, -yOffset);
+                ctx.lineTo(xOffset, yOffset);
+                ctx.moveTo(-xOffset, yOffset);
+                ctx.lineTo(xOffset, -yOffset);
+                break;
+              case "star":
+                ctx.moveTo(0, radius);
+                ctx.lineTo(0, -radius);
+                ctx.moveTo(-radius, 0);
+                ctx.lineTo(radius, 0);
+                xOffset = Math.cos(Math.PI / 4) * radius;
+                yOffset = Math.sin(Math.PI / 4) * radius;
+                ctx.moveTo(-xOffset, -yOffset);
+                ctx.lineTo(xOffset, yOffset);
+                ctx.moveTo(-xOffset, yOffset);
+                ctx.lineTo(xOffset, -yOffset);
+                break;
+              case "line":
+                ctx.moveTo(-radius, 0);
+                ctx.lineTo(radius, 0);
+                break;
+              case "dash":
+                ctx.moveTo(0, 0);
+                ctx.lineTo(radius, 0);
+                break;
               }
 
               ctx.fill();
@@ -16785,10 +16785,10 @@
             isArray: Array.isArray
               ? Array.isArray
               : function (value) {
-                  return (
-                    Object.prototype.toString.call(value) === "[object Array]"
-                  );
-                },
+                return (
+                  Object.prototype.toString.call(value) === "[object Array]"
+                );
+              },
 
             /**
              * Returns true if `value` is an object (excluding null), else returns false.
@@ -17035,8 +17035,8 @@
                 extensions && extensions.hasOwnProperty("constructor")
                   ? extensions.constructor
                   : function () {
-                      return me.apply(this, arguments);
-                    };
+                    return me.apply(this, arguments);
+                  };
 
               var Surrogate = function () {
                 this.constructor = ChartElement;
@@ -17405,13 +17405,13 @@
               value = +matches[2];
 
               switch (matches[3]) {
-                case "px":
-                  return value;
-                case "%":
-                  value /= 100;
-                  break;
-                default:
-                  break;
+              case "px":
+                return value;
+              case "%":
+                value /= 100;
+                break;
+              default:
+                break;
               }
 
               return size * value;
@@ -17703,12 +17703,12 @@
             resizer.style.cssText = style;
             resizer.className = cls;
             resizer.innerHTML =
-              '<div class="' +
+              "<div class=\"" +
               cls +
-              '-expand" style="' +
+              "-expand\" style=\"" +
               style +
-              '">' +
-              '<div style="' +
+              "\">" +
+              "<div style=\"" +
               "position:absolute;" +
               "width:" +
               maxSize +
@@ -17717,20 +17717,20 @@
               maxSize +
               "px;" +
               "left:0;" +
-              'top:0">' +
+              "top:0\">" +
               "</div>" +
               "</div>" +
-              '<div class="' +
+              "<div class=\"" +
               cls +
-              '-shrink" style="' +
+              "-shrink\" style=\"" +
               style +
-              '">' +
-              '<div style="' +
+              "\">" +
+              "<div style=\"" +
               "position:absolute;" +
               "width:200%;" +
               "height:200%;" +
               "left:0; " +
-              'top:0">' +
+              "top:0\">" +
               "</div>" +
               "</div>";
 
@@ -18134,8 +18134,8 @@
               return !length
                 ? null
                 : function (point, i) {
-                    return (i < length && points[i]._view) || null;
-                  };
+                  return (i < length && points[i]._view) || null;
+                };
             },
 
             boundary: function (source) {
@@ -18184,21 +18184,21 @@
             }
 
             switch (fill) {
-              // compatibility
-              case "bottom":
-                return "start";
-              case "top":
-                return "end";
-              case "zero":
-                return "origin";
+            // compatibility
+            case "bottom":
+              return "start";
+            case "top":
+              return "end";
+            case "zero":
+              return "origin";
               // supported boundaries
-              case "origin":
-              case "start":
-              case "end":
-                return fill;
+            case "origin":
+            case "start":
+            case "end":
+              return fill;
               // invalid fill values
-              default:
-                return false;
+            default:
+              return false;
             }
           }
 
@@ -18482,24 +18482,24 @@
                   var data = chart.data;
                   return helpers.isArray(data.datasets)
                     ? data.datasets.map(function (dataset, i) {
-                        return {
-                          text: dataset.label,
-                          fillStyle: !helpers.isArray(dataset.backgroundColor)
-                            ? dataset.backgroundColor
-                            : dataset.backgroundColor[0],
-                          hidden: !chart.isDatasetVisible(i),
-                          lineCap: dataset.borderCapStyle,
-                          lineDash: dataset.borderDash,
-                          lineDashOffset: dataset.borderDashOffset,
-                          lineJoin: dataset.borderJoinStyle,
-                          lineWidth: dataset.borderWidth,
-                          strokeStyle: dataset.borderColor,
-                          pointStyle: dataset.pointStyle,
+                      return {
+                        text: dataset.label,
+                        fillStyle: !helpers.isArray(dataset.backgroundColor)
+                          ? dataset.backgroundColor
+                          : dataset.backgroundColor[0],
+                        hidden: !chart.isDatasetVisible(i),
+                        lineCap: dataset.borderCapStyle,
+                        lineDash: dataset.borderDash,
+                        lineDashOffset: dataset.borderDashOffset,
+                        lineJoin: dataset.borderJoinStyle,
+                        lineWidth: dataset.borderWidth,
+                        strokeStyle: dataset.borderColor,
+                        pointStyle: dataset.pointStyle,
 
-                          // Below is extra data used for toggling the datasets
-                          datasetIndex: i,
-                        };
-                      }, this)
+                        // Below is extra data used for toggling the datasets
+                        datasetIndex: i,
+                      };
+                    }, this)
                     : [];
                 },
               },
@@ -18507,12 +18507,12 @@
 
             legendCallback: function (chart) {
               var text = [];
-              text.push('<ul class="' + chart.id + '-legend">');
+              text.push("<ul class=\"" + chart.id + "-legend\">");
               for (var i = 0; i < chart.data.datasets.length; i++) {
                 text.push(
-                  '<li><span style="background-color:' +
+                  "<li><span style=\"background-color:" +
                     chart.data.datasets[i].backgroundColor +
-                    '"></span>',
+                    "\"></span>",
                 );
                 if (chart.data.datasets[i].label) {
                   text.push(chart.data.datasets[i].label);
@@ -21781,20 +21781,20 @@
                 var i, ilen, timestamp;
 
                 switch (options.ticks.source) {
-                  case "data":
-                    timestamps = me._timestamps.data;
-                    break;
-                  case "labels":
-                    timestamps = me._timestamps.labels;
-                    break;
-                  case "auto":
-                  default:
-                    timestamps = generate(
-                      min,
-                      max,
-                      me.getLabelCapacity(min),
-                      options,
-                    );
+                case "data":
+                  timestamps = me._timestamps.data;
+                  break;
+                case "labels":
+                  timestamps = me._timestamps.labels;
+                  break;
+                case "auto":
+                default:
+                  timestamps = generate(
+                    min,
+                    max,
+                    me.getLabelCapacity(min),
+                    options,
+                  );
                 }
 
                 if (options.bounds === "ticks" && timestamps.length) {

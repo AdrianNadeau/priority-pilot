@@ -903,7 +903,7 @@
       overflowY: "auto",
 
       closeMarkup:
-        '<button title="%title%" type="button" class="mfp-close">&#215;</button>',
+        "<button title=\"%title%\" type=\"button\" class=\"mfp-close\">&#215;</button>",
 
       tClose: "Close (Esc)",
 
@@ -1053,7 +1053,7 @@
     options: {
       settings: null,
       cursor: "mfp-ajax-cur",
-      tError: '<a href="%url%">The content</a> could not be loaded.',
+      tError: "<a href=\"%url%\">The content</a> could not be loaded.",
     },
 
     proto: {
@@ -1141,14 +1141,14 @@
   $.magnificPopup.registerModule("image", {
     options: {
       markup:
-        '<div class="mfp-figure">' +
-        '<div class="mfp-close"></div>' +
+        "<div class=\"mfp-figure\">" +
+        "<div class=\"mfp-close\"></div>" +
         "<figure>" +
-        '<div class="mfp-img"></div>' +
+        "<div class=\"mfp-img\"></div>" +
         "<figcaption>" +
-        '<div class="mfp-bottom-bar">' +
-        '<div class="mfp-title"></div>' +
-        '<div class="mfp-counter"></div>' +
+        "<div class=\"mfp-bottom-bar\">" +
+        "<div class=\"mfp-title\"></div>" +
+        "<div class=\"mfp-counter\"></div>" +
         "</div>" +
         "</figcaption>" +
         "</figure>" +
@@ -1156,7 +1156,7 @@
       cursor: "mfp-zoom-out-cur",
       titleSrc: "title",
       verticalFit: true,
-      tError: '<a href="%url%">The image</a> could not be loaded.',
+      tError: "<a href=\"%url%\">The image</a> could not be loaded.",
     },
 
     proto: {
@@ -1587,9 +1587,9 @@
   $.magnificPopup.registerModule(IFRAME_NS, {
     options: {
       markup:
-        '<div class="mfp-iframe-scaler">' +
-        '<div class="mfp-close"></div>' +
-        '<iframe class="mfp-iframe" src="//about:blank" frameborder="0" allowfullscreen></iframe>' +
+        "<div class=\"mfp-iframe-scaler\">" +
+        "<div class=\"mfp-close\"></div>" +
+        "<iframe class=\"mfp-iframe\" src=\"//about:blank\" frameborder=\"0\" allowfullscreen></iframe>" +
         "</div>",
 
       srcAction: "iframe_src",
@@ -1691,7 +1691,7 @@
     options: {
       enabled: false,
       arrowMarkup:
-        '<button title="%title%" type="button" class="mfp-arrow mfp-arrow-%dir%"></button>',
+        "<button title=\"%title%\" type=\"button\" class=\"mfp-arrow mfp-arrow-%dir%\"></button>",
       preload: [0, 2],
       navigateByImgClick: true,
       arrows: true,
@@ -1834,7 +1834,7 @@
         _mfpTrigger("LazyLoad", item);
 
         if (item.type === "image") {
-          item.img = $('<img class="mfp-img" />')
+          item.img = $("<img class=\"mfp-img\" />")
             .on("load.mfploader", function () {
               item.hasSize = true;
             })

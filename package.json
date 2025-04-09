@@ -7,7 +7,10 @@
     "dev": "nodemon index.js",
     "prod": "node index.js",
     "test": "nodemon index.js",
-    "lint": "eslint .",
+    "lint": "eslint . > lint-results.txt || true",
+    "lint:fix": "eslint . --fix",
+    "lint:ejs": "eslint 'views/**/*.ejs' --fix",
+    "lint:check": "eslint .",
     "prettier:check": "prettier  '/**/*.{js,ejs}'",
     "prettier:fix": "prettier --write 'styles/**/*.scss' 'scripts/**/*.{js,jsx,ts,tsx}'"
   },

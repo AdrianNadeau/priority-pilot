@@ -65,20 +65,20 @@
       // Build the rating control.
       for (var i = 1; i <= this._rateToIndex(this.options.stop); i++) {
         // Create the rating symbol container.
-        var $symbol = $('<div class="rating-symbol"></div>').css({
+        var $symbol = $("<div class=\"rating-symbol\"></div>").css({
           display: "inline-block",
           position: "relative",
         });
         // Add background symbol to the symbol container.
         $(
-          '<div class="rating-symbol-background ' +
+          "<div class=\"rating-symbol-background " +
             this.options.empty +
-            '"></div>',
+            "\"></div>",
         ).appendTo($symbol);
         // Add foreground symbol to the symbol container.
         // The filled icon is wrapped with a div to allow fractional selection.
-        $('<div class="rating-symbol-foreground"></div>')
-          .append('<span class="' + this.options.filled + '"></span>')
+        $("<div class=\"rating-symbol-foreground\"></div>")
+          .append("<span class=\"" + this.options.filled + "\"></span>")
           .css({
             display: "inline-block",
             position: "absolute",

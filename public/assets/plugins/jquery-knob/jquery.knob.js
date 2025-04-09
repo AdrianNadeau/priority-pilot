@@ -189,14 +189,14 @@
       // wraps all elements in a div
       // add to DOM before Canvas init is triggered
       this.$div = $(
-        '<div style="' +
+        "<div style=\"" +
           (this.o.inline ? "display:inline;" : "") +
           "width:" +
           this.o.width +
           "px;height:" +
           this.o.height +
           "px;" +
-          '"></div>',
+          "\"></div>",
       );
 
       this.$.wrap(this.$div).before(this.$c);

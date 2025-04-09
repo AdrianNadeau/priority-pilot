@@ -76,7 +76,7 @@
     Array.prototype.indexOf = function (searchElement, fromIndex) {
       var k;
       if (this == null) {
-        throw new TypeError('"this" is null or not defined');
+        throw new TypeError("\"this\" is null or not defined");
       }
       var O = Object(this);
       var len = O.length >>> 0;
@@ -105,26 +105,26 @@
   // Template
 
   var base_html =
-    '<span class="irs">' +
-    '<span class="irs-line" tabindex="0"></span>' +
-    '<span class="irs-min">0</span><span class="irs-max">1</span>' +
-    '<span class="irs-from">0</span><span class="irs-to">0</span><span class="irs-single">0</span>' +
+    "<span class=\"irs\">" +
+    "<span class=\"irs-line\" tabindex=\"0\"></span>" +
+    "<span class=\"irs-min\">0</span><span class=\"irs-max\">1</span>" +
+    "<span class=\"irs-from\">0</span><span class=\"irs-to\">0</span><span class=\"irs-single\">0</span>" +
     "</span>" +
-    '<span class="irs-grid"></span>';
+    "<span class=\"irs-grid\"></span>";
 
   var single_html =
-    '<span class="irs-bar irs-bar--single"></span>' +
-    '<span class="irs-shadow shadow-single"></span>' +
-    '<span class="irs-handle single"><i></i><i></i><i></i></span>';
+    "<span class=\"irs-bar irs-bar--single\"></span>" +
+    "<span class=\"irs-shadow shadow-single\"></span>" +
+    "<span class=\"irs-handle single\"><i></i><i></i><i></i></span>";
 
   var double_html =
-    '<span class="irs-bar"></span>' +
-    '<span class="irs-shadow shadow-from"></span>' +
-    '<span class="irs-shadow shadow-to"></span>' +
-    '<span class="irs-handle from"><i></i><i></i><i></i></span>' +
-    '<span class="irs-handle to"><i></i><i></i><i></i></span>';
+    "<span class=\"irs-bar\"></span>" +
+    "<span class=\"irs-shadow shadow-from\"></span>" +
+    "<span class=\"irs-shadow shadow-to\"></span>" +
+    "<span class=\"irs-handle from\"><i></i><i></i><i></i></span>" +
+    "<span class=\"irs-handle to\"><i></i><i></i><i></i></span>";
 
-  var disable_html = '<span class="irs-disable-mask"></span>';
+  var disable_html = "<span class=\"irs-disable-mask\"></span>";
 
   // =================================================================================================================
   // Core
@@ -485,13 +485,13 @@
      */
     append: function () {
       var container_html =
-        '<span class="irs irs--' +
+        "<span class=\"irs irs--" +
         this.options.skin +
         " js-irs-" +
         this.plugin_count +
         " " +
         this.options.extra_classes +
-        '"></span>';
+        "\"></span>";
       this.$cache.input.before(container_html);
       this.$cache.input.prop("readonly", true);
       this.$cache.cont = this.$cache.input.prev();
@@ -582,38 +582,38 @@
      */
     changeLevel: function (target) {
       switch (target) {
-        case "single":
-          this.coords.p_gap = this.toFixed(
-            this.coords.p_pointer - this.coords.p_single_fake,
-          );
-          this.$cache.s_single.addClass("state_hover");
-          break;
-        case "from":
-          this.coords.p_gap = this.toFixed(
-            this.coords.p_pointer - this.coords.p_from_fake,
-          );
-          this.$cache.s_from.addClass("state_hover");
-          this.$cache.s_from.addClass("type_last");
-          this.$cache.s_to.removeClass("type_last");
-          break;
-        case "to":
-          this.coords.p_gap = this.toFixed(
-            this.coords.p_pointer - this.coords.p_to_fake,
-          );
-          this.$cache.s_to.addClass("state_hover");
-          this.$cache.s_to.addClass("type_last");
-          this.$cache.s_from.removeClass("type_last");
-          break;
-        case "both":
-          this.coords.p_gap_left = this.toFixed(
-            this.coords.p_pointer - this.coords.p_from_fake,
-          );
-          this.coords.p_gap_right = this.toFixed(
-            this.coords.p_to_fake - this.coords.p_pointer,
-          );
-          this.$cache.s_to.removeClass("type_last");
-          this.$cache.s_from.removeClass("type_last");
-          break;
+      case "single":
+        this.coords.p_gap = this.toFixed(
+          this.coords.p_pointer - this.coords.p_single_fake,
+        );
+        this.$cache.s_single.addClass("state_hover");
+        break;
+      case "from":
+        this.coords.p_gap = this.toFixed(
+          this.coords.p_pointer - this.coords.p_from_fake,
+        );
+        this.$cache.s_from.addClass("state_hover");
+        this.$cache.s_from.addClass("type_last");
+        this.$cache.s_to.removeClass("type_last");
+        break;
+      case "to":
+        this.coords.p_gap = this.toFixed(
+          this.coords.p_pointer - this.coords.p_to_fake,
+        );
+        this.$cache.s_to.addClass("state_hover");
+        this.$cache.s_to.addClass("type_last");
+        this.$cache.s_from.removeClass("type_last");
+        break;
+      case "both":
+        this.coords.p_gap_left = this.toFixed(
+          this.coords.p_pointer - this.coords.p_from_fake,
+        );
+        this.coords.p_gap_right = this.toFixed(
+          this.coords.p_to_fake - this.coords.p_pointer,
+        );
+        this.$cache.s_to.removeClass("type_last");
+        this.$cache.s_from.removeClass("type_last");
+        break;
       }
     },
 
@@ -1009,21 +1009,21 @@
       }
 
       switch (e.which) {
-        case 83: // W
-        case 65: // A
-        case 40: // DOWN
-        case 37: // LEFT
-          e.preventDefault();
-          this.moveByKey(false);
-          break;
+      case 83: // W
+      case 65: // A
+      case 40: // DOWN
+      case 37: // LEFT
+        e.preventDefault();
+        this.moveByKey(false);
+        break;
 
-        case 87: // S
-        case 68: // D
-        case 38: // UP
-        case 39: // RIGHT
-          e.preventDefault();
-          this.moveByKey(true);
-          break;
+      case 87: // S
+      case 68: // D
+      case 38: // UP
+      case 39: // RIGHT
+        e.preventDefault();
+        this.moveByKey(true);
+        break;
       }
 
       return true;
@@ -1157,217 +1157,217 @@
       }
 
       switch (this.target) {
-        case "base":
-          var w = (this.options.max - this.options.min) / 100,
-            f = (this.result.from - this.options.min) / w,
-            t = (this.result.to - this.options.min) / w;
+      case "base":
+        var w = (this.options.max - this.options.min) / 100,
+          f = (this.result.from - this.options.min) / w,
+          t = (this.result.to - this.options.min) / w;
 
-          this.coords.p_single_real = this.toFixed(f);
-          this.coords.p_from_real = this.toFixed(f);
-          this.coords.p_to_real = this.toFixed(t);
+        this.coords.p_single_real = this.toFixed(f);
+        this.coords.p_from_real = this.toFixed(f);
+        this.coords.p_to_real = this.toFixed(t);
 
-          this.coords.p_single_real = this.checkDiapason(
-            this.coords.p_single_real,
-            this.options.from_min,
-            this.options.from_max,
-          );
-          this.coords.p_from_real = this.checkDiapason(
-            this.coords.p_from_real,
-            this.options.from_min,
-            this.options.from_max,
-          );
-          this.coords.p_to_real = this.checkDiapason(
-            this.coords.p_to_real,
-            this.options.to_min,
-            this.options.to_max,
-          );
+        this.coords.p_single_real = this.checkDiapason(
+          this.coords.p_single_real,
+          this.options.from_min,
+          this.options.from_max,
+        );
+        this.coords.p_from_real = this.checkDiapason(
+          this.coords.p_from_real,
+          this.options.from_min,
+          this.options.from_max,
+        );
+        this.coords.p_to_real = this.checkDiapason(
+          this.coords.p_to_real,
+          this.options.to_min,
+          this.options.to_max,
+        );
 
-          this.coords.p_single_fake = this.convertToFakePercent(
-            this.coords.p_single_real,
-          );
-          this.coords.p_from_fake = this.convertToFakePercent(
-            this.coords.p_from_real,
-          );
-          this.coords.p_to_fake = this.convertToFakePercent(
-            this.coords.p_to_real,
-          );
+        this.coords.p_single_fake = this.convertToFakePercent(
+          this.coords.p_single_real,
+        );
+        this.coords.p_from_fake = this.convertToFakePercent(
+          this.coords.p_from_real,
+        );
+        this.coords.p_to_fake = this.convertToFakePercent(
+          this.coords.p_to_real,
+        );
 
-          this.target = null;
+        this.target = null;
 
+        break;
+
+      case "single":
+        if (this.options.from_fixed) {
           break;
+        }
 
-        case "single":
-          if (this.options.from_fixed) {
-            break;
-          }
+        this.coords.p_single_real = this.convertToRealPercent(handle_x);
+        this.coords.p_single_real = this.calcWithStep(
+          this.coords.p_single_real,
+        );
+        this.coords.p_single_real = this.checkDiapason(
+          this.coords.p_single_real,
+          this.options.from_min,
+          this.options.from_max,
+        );
 
-          this.coords.p_single_real = this.convertToRealPercent(handle_x);
-          this.coords.p_single_real = this.calcWithStep(
-            this.coords.p_single_real,
-          );
-          this.coords.p_single_real = this.checkDiapason(
-            this.coords.p_single_real,
-            this.options.from_min,
-            this.options.from_max,
-          );
+        this.coords.p_single_fake = this.convertToFakePercent(
+          this.coords.p_single_real,
+        );
 
-          this.coords.p_single_fake = this.convertToFakePercent(
-            this.coords.p_single_real,
-          );
+        break;
 
+      case "from":
+        if (this.options.from_fixed) {
           break;
+        }
 
-        case "from":
-          if (this.options.from_fixed) {
-            break;
-          }
+        this.coords.p_from_real = this.convertToRealPercent(handle_x);
+        this.coords.p_from_real = this.calcWithStep(this.coords.p_from_real);
+        if (this.coords.p_from_real > this.coords.p_to_real) {
+          this.coords.p_from_real = this.coords.p_to_real;
+        }
+        this.coords.p_from_real = this.checkDiapason(
+          this.coords.p_from_real,
+          this.options.from_min,
+          this.options.from_max,
+        );
+        this.coords.p_from_real = this.checkMinInterval(
+          this.coords.p_from_real,
+          this.coords.p_to_real,
+          "from",
+        );
+        this.coords.p_from_real = this.checkMaxInterval(
+          this.coords.p_from_real,
+          this.coords.p_to_real,
+          "from",
+        );
 
-          this.coords.p_from_real = this.convertToRealPercent(handle_x);
-          this.coords.p_from_real = this.calcWithStep(this.coords.p_from_real);
-          if (this.coords.p_from_real > this.coords.p_to_real) {
-            this.coords.p_from_real = this.coords.p_to_real;
-          }
-          this.coords.p_from_real = this.checkDiapason(
-            this.coords.p_from_real,
-            this.options.from_min,
-            this.options.from_max,
-          );
-          this.coords.p_from_real = this.checkMinInterval(
-            this.coords.p_from_real,
-            this.coords.p_to_real,
-            "from",
-          );
-          this.coords.p_from_real = this.checkMaxInterval(
-            this.coords.p_from_real,
-            this.coords.p_to_real,
-            "from",
-          );
+        this.coords.p_from_fake = this.convertToFakePercent(
+          this.coords.p_from_real,
+        );
 
-          this.coords.p_from_fake = this.convertToFakePercent(
-            this.coords.p_from_real,
-          );
+        break;
 
+      case "to":
+        if (this.options.to_fixed) {
           break;
+        }
 
-        case "to":
-          if (this.options.to_fixed) {
-            break;
-          }
+        this.coords.p_to_real = this.convertToRealPercent(handle_x);
+        this.coords.p_to_real = this.calcWithStep(this.coords.p_to_real);
+        if (this.coords.p_to_real < this.coords.p_from_real) {
+          this.coords.p_to_real = this.coords.p_from_real;
+        }
+        this.coords.p_to_real = this.checkDiapason(
+          this.coords.p_to_real,
+          this.options.to_min,
+          this.options.to_max,
+        );
+        this.coords.p_to_real = this.checkMinInterval(
+          this.coords.p_to_real,
+          this.coords.p_from_real,
+          "to",
+        );
+        this.coords.p_to_real = this.checkMaxInterval(
+          this.coords.p_to_real,
+          this.coords.p_from_real,
+          "to",
+        );
 
-          this.coords.p_to_real = this.convertToRealPercent(handle_x);
-          this.coords.p_to_real = this.calcWithStep(this.coords.p_to_real);
-          if (this.coords.p_to_real < this.coords.p_from_real) {
-            this.coords.p_to_real = this.coords.p_from_real;
-          }
-          this.coords.p_to_real = this.checkDiapason(
-            this.coords.p_to_real,
-            this.options.to_min,
-            this.options.to_max,
-          );
-          this.coords.p_to_real = this.checkMinInterval(
-            this.coords.p_to_real,
-            this.coords.p_from_real,
-            "to",
-          );
-          this.coords.p_to_real = this.checkMaxInterval(
-            this.coords.p_to_real,
-            this.coords.p_from_real,
-            "to",
-          );
+        this.coords.p_to_fake = this.convertToFakePercent(
+          this.coords.p_to_real,
+        );
 
-          this.coords.p_to_fake = this.convertToFakePercent(
-            this.coords.p_to_real,
-          );
+        break;
 
+      case "both":
+        if (this.options.from_fixed || this.options.to_fixed) {
           break;
+        }
 
-        case "both":
-          if (this.options.from_fixed || this.options.to_fixed) {
-            break;
-          }
+        handle_x = this.toFixed(handle_x + this.coords.p_handle * 0.001);
 
-          handle_x = this.toFixed(handle_x + this.coords.p_handle * 0.001);
-
-          this.coords.p_from_real =
+        this.coords.p_from_real =
             this.convertToRealPercent(handle_x) - this.coords.p_gap_left;
-          this.coords.p_from_real = this.calcWithStep(this.coords.p_from_real);
-          this.coords.p_from_real = this.checkDiapason(
-            this.coords.p_from_real,
-            this.options.from_min,
-            this.options.from_max,
-          );
-          this.coords.p_from_real = this.checkMinInterval(
-            this.coords.p_from_real,
-            this.coords.p_to_real,
-            "from",
-          );
-          this.coords.p_from_fake = this.convertToFakePercent(
-            this.coords.p_from_real,
-          );
+        this.coords.p_from_real = this.calcWithStep(this.coords.p_from_real);
+        this.coords.p_from_real = this.checkDiapason(
+          this.coords.p_from_real,
+          this.options.from_min,
+          this.options.from_max,
+        );
+        this.coords.p_from_real = this.checkMinInterval(
+          this.coords.p_from_real,
+          this.coords.p_to_real,
+          "from",
+        );
+        this.coords.p_from_fake = this.convertToFakePercent(
+          this.coords.p_from_real,
+        );
 
-          this.coords.p_to_real =
+        this.coords.p_to_real =
             this.convertToRealPercent(handle_x) + this.coords.p_gap_right;
-          this.coords.p_to_real = this.calcWithStep(this.coords.p_to_real);
-          this.coords.p_to_real = this.checkDiapason(
-            this.coords.p_to_real,
-            this.options.to_min,
-            this.options.to_max,
-          );
-          this.coords.p_to_real = this.checkMinInterval(
-            this.coords.p_to_real,
-            this.coords.p_from_real,
-            "to",
-          );
-          this.coords.p_to_fake = this.convertToFakePercent(
-            this.coords.p_to_real,
-          );
+        this.coords.p_to_real = this.calcWithStep(this.coords.p_to_real);
+        this.coords.p_to_real = this.checkDiapason(
+          this.coords.p_to_real,
+          this.options.to_min,
+          this.options.to_max,
+        );
+        this.coords.p_to_real = this.checkMinInterval(
+          this.coords.p_to_real,
+          this.coords.p_from_real,
+          "to",
+        );
+        this.coords.p_to_fake = this.convertToFakePercent(
+          this.coords.p_to_real,
+        );
 
+        break;
+
+      case "both_one":
+        if (this.options.from_fixed || this.options.to_fixed) {
           break;
+        }
 
-        case "both_one":
-          if (this.options.from_fixed || this.options.to_fixed) {
-            break;
-          }
+        var real_x = this.convertToRealPercent(handle_x),
+          from = this.result.from_percent,
+          to = this.result.to_percent,
+          full = to - from,
+          half = full / 2,
+          new_from = real_x - half,
+          new_to = real_x + half;
 
-          var real_x = this.convertToRealPercent(handle_x),
-            from = this.result.from_percent,
-            to = this.result.to_percent,
-            full = to - from,
-            half = full / 2,
-            new_from = real_x - half,
-            new_to = real_x + half;
+        if (new_from < 0) {
+          new_from = 0;
+          new_to = new_from + full;
+        }
 
-          if (new_from < 0) {
-            new_from = 0;
-            new_to = new_from + full;
-          }
+        if (new_to > 100) {
+          new_to = 100;
+          new_from = new_to - full;
+        }
 
-          if (new_to > 100) {
-            new_to = 100;
-            new_from = new_to - full;
-          }
+        this.coords.p_from_real = this.calcWithStep(new_from);
+        this.coords.p_from_real = this.checkDiapason(
+          this.coords.p_from_real,
+          this.options.from_min,
+          this.options.from_max,
+        );
+        this.coords.p_from_fake = this.convertToFakePercent(
+          this.coords.p_from_real,
+        );
 
-          this.coords.p_from_real = this.calcWithStep(new_from);
-          this.coords.p_from_real = this.checkDiapason(
-            this.coords.p_from_real,
-            this.options.from_min,
-            this.options.from_max,
-          );
-          this.coords.p_from_fake = this.convertToFakePercent(
-            this.coords.p_from_real,
-          );
+        this.coords.p_to_real = this.calcWithStep(new_to);
+        this.coords.p_to_real = this.checkDiapason(
+          this.coords.p_to_real,
+          this.options.to_min,
+          this.options.to_max,
+        );
+        this.coords.p_to_fake = this.convertToFakePercent(
+          this.coords.p_to_real,
+        );
 
-          this.coords.p_to_real = this.calcWithStep(new_to);
-          this.coords.p_to_real = this.checkDiapason(
-            this.coords.p_to_real,
-            this.options.to_min,
-            this.options.to_max,
-          );
-          this.coords.p_to_fake = this.convertToFakePercent(
-            this.coords.p_to_real,
-          );
-
-          break;
+        break;
       }
 
       if (this.options.type === "single") {
@@ -2556,13 +2556,13 @@
           small_w = this.toFixed(big_w - small_p * z);
 
           html +=
-            '<span class="irs-grid-pol small" style="left: ' +
+            "<span class=\"irs-grid-pol small\" style=\"left: " +
             small_w +
-            '%"></span>';
+            "%\"></span>";
         }
 
         html +=
-          '<span class="irs-grid-pol" style="left: ' + big_w + '%"></span>';
+          "<span class=\"irs-grid-pol\" style=\"left: " + big_w + "%\"></span>";
 
         result = this.convertToValue(big_w);
         if (o.values.length) {
@@ -2572,11 +2572,11 @@
         }
 
         html +=
-          '<span class="irs-grid-text js-grid-text-' +
+          "<span class=\"irs-grid-text js-grid-text-" +
           i +
-          '" style="left: ' +
+          "\" style=\"left: " +
           big_w +
-          '%">' +
+          "%\">" +
           result +
           "</span>";
       }

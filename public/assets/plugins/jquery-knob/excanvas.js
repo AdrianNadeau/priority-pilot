@@ -174,14 +174,14 @@ if (!document.createElement("canvas").getContext) {
       var el = e.srcElement;
 
       switch (e.propertyName) {
-        case "width":
-          el.style.width = el.attributes.width.nodeValue + "px";
-          el.getContext().clearRect();
-          break;
-        case "height":
-          el.style.height = el.attributes.height.nodeValue + "px";
-          el.getContext().clearRect();
-          break;
+      case "width":
+        el.style.width = el.attributes.width.nodeValue + "px";
+        el.getContext().clearRect();
+        break;
+      case "height":
+        el.style.height = el.attributes.height.nodeValue + "px";
+        el.getContext().clearRect();
+        break;
       }
     }
 
@@ -272,13 +272,13 @@ if (!document.createElement("canvas").getContext) {
 
     function processLineCap(lineCap) {
       switch (lineCap) {
-        case "butt":
-          return "flat";
-        case "round":
-          return "round";
-        case "square":
-        default:
-          return "square";
+      case "butt":
+        return "flat";
+      case "round":
+        return "round";
+      case "square":
+      default:
+        return "square";
       }
     }
 
@@ -552,13 +552,13 @@ if (!document.createElement("canvas").getContext) {
       // For some reason that I've now forgotten, using divs didn't work
       vmlStr.push(
         " <g_vml_:group",
-        ' coordsize="',
+        " coordsize=\"",
         Z * W,
         ",",
         Z * H,
-        '"',
-        ' coordorigin="0,0"',
-        ' style="width:',
+        "\"",
+        " coordorigin=\"0,0\"",
+        " style=\"width:",
         W,
         "px;height:",
         H,
@@ -619,28 +619,28 @@ if (!document.createElement("canvas").getContext) {
       }
 
       vmlStr.push(
-        ' ">',
-        '<g_vml_:image src="',
+        " \">",
+        "<g_vml_:image src=\"",
         image.src,
-        '"',
-        ' style="width:',
+        "\"",
+        " style=\"width:",
         Z * dw,
         "px;",
         " height:",
         Z * dh,
-        'px;"',
-        ' cropleft="',
+        "px;\"",
+        " cropleft=\"",
         sx / w,
-        '"',
-        ' croptop="',
+        "\"",
+        " croptop=\"",
         sy / h,
-        '"',
-        ' cropright="',
+        "\"",
+        " cropright=\"",
         (w - sx - sw) / w,
-        '"',
-        ' cropbottom="',
+        "\"",
+        " cropbottom=\"",
         (h - sy - sh) / h,
-        '"',
+        "\"",
         " />",
         "</g_vml_:group>",
       );
@@ -660,23 +660,23 @@ if (!document.createElement("canvas").getContext) {
 
       lineStr.push(
         "<g_vml_:shape",
-        ' filled="',
+        " filled=\"",
         !!aFill,
-        '"',
-        ' style="position:absolute;width:',
+        "\"",
+        " style=\"position:absolute;width:",
         W,
         "px;height:",
         H,
-        'px;"',
-        ' coordorigin="0 0" coordsize="',
+        "px;\"",
+        " coordorigin=\"0 0\" coordsize=\"",
         Z * W,
         " ",
         Z * H,
-        '"',
-        ' stroked="',
+        "\"",
+        " stroked=\"",
         !aFill,
-        '"',
-        ' path="',
+        "\"",
+        " path=\"",
       );
 
       var newSeq = false;
@@ -688,56 +688,56 @@ if (!document.createElement("canvas").getContext) {
         var c;
 
         switch (p.type) {
-          case "moveTo":
-            c = p;
-            lineStr.push(" m ", mr(p.x), ",", mr(p.y));
-            break;
-          case "lineTo":
-            lineStr.push(" l ", mr(p.x), ",", mr(p.y));
-            break;
-          case "close":
-            lineStr.push(" x ");
-            p = null;
-            break;
-          case "bezierCurveTo":
-            lineStr.push(
-              " c ",
-              mr(p.cp1x),
-              ",",
-              mr(p.cp1y),
-              ",",
-              mr(p.cp2x),
-              ",",
-              mr(p.cp2y),
-              ",",
-              mr(p.x),
-              ",",
-              mr(p.y),
-            );
-            break;
-          case "at":
-          case "wa":
-            lineStr.push(
-              " ",
-              p.type,
-              " ",
-              mr(p.x - this.arcScaleX_ * p.radius),
-              ",",
-              mr(p.y - this.arcScaleY_ * p.radius),
-              " ",
-              mr(p.x + this.arcScaleX_ * p.radius),
-              ",",
-              mr(p.y + this.arcScaleY_ * p.radius),
-              " ",
-              mr(p.xStart),
-              ",",
-              mr(p.yStart),
-              " ",
-              mr(p.xEnd),
-              ",",
-              mr(p.yEnd),
-            );
-            break;
+        case "moveTo":
+          c = p;
+          lineStr.push(" m ", mr(p.x), ",", mr(p.y));
+          break;
+        case "lineTo":
+          lineStr.push(" l ", mr(p.x), ",", mr(p.y));
+          break;
+        case "close":
+          lineStr.push(" x ");
+          p = null;
+          break;
+        case "bezierCurveTo":
+          lineStr.push(
+            " c ",
+            mr(p.cp1x),
+            ",",
+            mr(p.cp1y),
+            ",",
+            mr(p.cp2x),
+            ",",
+            mr(p.cp2y),
+            ",",
+            mr(p.x),
+            ",",
+            mr(p.y),
+          );
+          break;
+        case "at":
+        case "wa":
+          lineStr.push(
+            " ",
+            p.type,
+            " ",
+            mr(p.x - this.arcScaleX_ * p.radius),
+            ",",
+            mr(p.y - this.arcScaleY_ * p.radius),
+            " ",
+            mr(p.x + this.arcScaleX_ * p.radius),
+            ",",
+            mr(p.y + this.arcScaleY_ * p.radius),
+            " ",
+            mr(p.xStart),
+            ",",
+            mr(p.yStart),
+            " ",
+            mr(p.xEnd),
+            ",",
+            mr(p.yEnd),
+          );
+          break;
         }
 
         // TODO: Following is broken for curves due to
@@ -760,7 +760,7 @@ if (!document.createElement("canvas").getContext) {
           }
         }
       }
-      lineStr.push(' ">');
+      lineStr.push(" \">");
 
       if (!aFill) {
         var lineWidth = this.lineScale_ * this.lineWidth;
@@ -773,24 +773,24 @@ if (!document.createElement("canvas").getContext) {
 
         lineStr.push(
           "<g_vml_:stroke",
-          ' opacity="',
+          " opacity=\"",
           opacity,
-          '"',
-          ' joinstyle="',
+          "\"",
+          " joinstyle=\"",
           this.lineJoin,
-          '"',
-          ' miterlimit="',
+          "\"",
+          " miterlimit=\"",
           this.miterLimit,
-          '"',
-          ' endcap="',
+          "\"",
+          " endcap=\"",
           processLineCap(this.lineCap),
-          '"',
-          ' weight="',
+          "\"",
+          " weight=\"",
           lineWidth,
-          'px"',
-          ' color="',
+          "px\"",
+          " color=\"",
           color,
-          '" />',
+          "\" />",
         );
       } else if (typeof this.fillStyle === "object") {
         var fillStyle = this.fillStyle;
@@ -861,41 +861,41 @@ if (!document.createElement("canvas").getContext) {
         // When colors attribute is used, the meanings of opacity and o:opacity2
         // are reversed.
         lineStr.push(
-          '<g_vml_:fill type="',
+          "<g_vml_:fill type=\"",
           fillStyle.type_,
-          '"',
-          ' method="none" focus="100%"',
-          ' color="',
+          "\"",
+          " method=\"none\" focus=\"100%\"",
+          " color=\"",
           color1,
-          '"',
-          ' color2="',
+          "\"",
+          " color2=\"",
           color2,
-          '"',
-          ' colors="',
+          "\"",
+          " colors=\"",
           colors.join(","),
-          '"',
-          ' opacity="',
+          "\"",
+          " opacity=\"",
           opacity2,
-          '"',
-          ' g_o_:opacity2="',
+          "\"",
+          " g_o_:opacity2=\"",
           opacity1,
-          '"',
-          ' angle="',
+          "\"",
+          " angle=\"",
           angle,
-          '"',
-          ' focusposition="',
+          "\"",
+          " focusposition=\"",
           focus.x,
           ",",
           focus.y,
-          '" />',
+          "\" />",
         );
       } else {
         lineStr.push(
-          '<g_vml_:fill color="',
+          "<g_vml_:fill color=\"",
           color,
-          '" opacity="',
+          "\" opacity=\"",
           opacity,
-          '" />',
+          "\" />",
         );
       }
 

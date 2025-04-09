@@ -164,7 +164,7 @@
       context.memo("button.specialchars", function () {
         return ui
           .button({
-            contents: '<i class="fa fa-font fa-flip-vertical">',
+            contents: "<i class=\"fa fa-font fa-flip-vertical\">",
             tooltip: lang.specialChar.specialChar,
             click: function () {
               self.show();
@@ -220,7 +220,7 @@
         var $container = options.dialogsInBody ? $(document.body) : $editor;
 
         var body =
-          '<div class="form-group row-fluid">' +
+          "<div class=\"form-group row-fluid\">" +
           this.makeSpecialCharSetTable()[0].outerHTML +
           "</div>";
 

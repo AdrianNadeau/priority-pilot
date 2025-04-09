@@ -18,7 +18,9 @@ const { persons: Person, companies: Company } = db;
 const authenticateUser = async (email, password) => {
   try {
     const person = await Person.findOne({ where: { email } });
-    if (!person) return null;
+    if (!person) {
+      return null;
+    }
 
     const isMatch = await bcrypt.compare(
       password.trim(),
@@ -88,7 +90,9 @@ exports.create = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   try {
     const company_id_fk = req.session.company?.id;
-    if (!company_id_fk) return res.redirect("/pages-500");
+    if (!company_id_fk) {
+      return res.redirect("/pages-500");
+    }
 
     const data = await Person.findAll({
       where: { company_id_fk },
@@ -119,10 +123,34 @@ exports.login = async (req, res, next) => {
     if (!company) {
       return res.redirect("/login");
     } else {
-      console.log("Company:", company.company_name);
+      console.log("Portfolio name:", company.company_name);
       console.log("Person:", person.email);
       req.session.company = company;
-      req.session.person = person;
+      // const {
+      //   password, // excluded
+      //   salt, // another excluded field
+      //   first_name: firstName, // renamed
+      //   last_name: lastName, // renamed
+      //   emailAddress: person.email,
+      //   company_id_fk: person.company_id_fk,
+      //   isAdmin: person.isAdmin,
+      //   ...otherData // keep other fields as they are (id, email, company_id_fk, isAdmin)
+      // } = person;
+      req.session.person = {
+        id: person.id,
+        firstName: person.first_name,
+        lastName: person.last_name,
+        email: person.email,
+        company_id_fk: person.company_id_fk,
+        isAdmin: person.isAdmin,
+        // Do not include the password
+      };
+      // req.session.person = {
+      //   firstName, // use renamed variable
+      //   lastName, // use renamed variable
+      //   ...otherData, // spread the rest
+      // };
+      console.log("req.session.person:", req.session.person);
       req.session.save((err) => {
         if (err) {
           console.error("Session save error:", err);

@@ -312,11 +312,11 @@
             var option = options[i];
 
             html +=
-              '<li><a id="' +
+              "<li><a id=\"" +
               control +
               "_" +
               i +
-              '" href="#">' +
+              "\" href=\"#\">" +
               option.title +
               "</a></li>";
           }
@@ -976,33 +976,33 @@
         content_width = content.clientWidth;
 
       switch (options.verticalAlign) {
-        case "top":
-          el.style.top =
+      case "top":
+        el.style.top =
             pixel.y - content_height + options.verticalOffset + "px";
-          break;
-        default:
-        case "middle":
-          el.style.top =
+        break;
+      default:
+      case "middle":
+        el.style.top =
             pixel.y - content_height / 2 + options.verticalOffset + "px";
-          break;
-        case "bottom":
-          el.style.top = pixel.y + options.verticalOffset + "px";
-          break;
+        break;
+      case "bottom":
+        el.style.top = pixel.y + options.verticalOffset + "px";
+        break;
       }
 
       switch (options.horizontalAlign) {
-        case "left":
-          el.style.left =
+      case "left":
+        el.style.left =
             pixel.x - content_width + options.horizontalOffset + "px";
-          break;
-        default:
-        case "center":
-          el.style.left =
+        break;
+      default:
+      case "center":
+        el.style.left =
             pixel.x - content_width / 2 + options.horizontalOffset + "px";
-          break;
-        case "right":
-          el.style.left = pixel.x + options.horizontalOffset + "px";
-          break;
+        break;
+      case "right":
+        el.style.left = pixel.x + options.horizontalOffset + "px";
+        break;
       }
 
       el.style.display = auto_show ? "block" : "none";
@@ -1362,78 +1362,78 @@
     var layer;
 
     switch (layerName) {
-      case "weather":
-        this.singleLayers.weather = layer =
+    case "weather":
+      this.singleLayers.weather = layer =
           new google.maps.weather.WeatherLayer();
-        break;
-      case "clouds":
-        this.singleLayers.clouds = layer = new google.maps.weather.CloudLayer();
-        break;
-      case "traffic":
-        this.singleLayers.traffic = layer = new google.maps.TrafficLayer();
-        break;
-      case "transit":
-        this.singleLayers.transit = layer = new google.maps.TransitLayer();
-        break;
-      case "bicycling":
-        this.singleLayers.bicycling = layer = new google.maps.BicyclingLayer();
-        break;
-      case "panoramio":
-        this.singleLayers.panoramio = layer =
+      break;
+    case "clouds":
+      this.singleLayers.clouds = layer = new google.maps.weather.CloudLayer();
+      break;
+    case "traffic":
+      this.singleLayers.traffic = layer = new google.maps.TrafficLayer();
+      break;
+    case "transit":
+      this.singleLayers.transit = layer = new google.maps.TransitLayer();
+      break;
+    case "bicycling":
+      this.singleLayers.bicycling = layer = new google.maps.BicyclingLayer();
+      break;
+    case "panoramio":
+      this.singleLayers.panoramio = layer =
           new google.maps.panoramio.PanoramioLayer();
-        layer.setTag(options.filter);
-        delete options.filter;
+      layer.setTag(options.filter);
+      delete options.filter;
 
-        //click event
-        if (options.click) {
-          google.maps.event.addListener(layer, "click", function (event) {
-            options.click(event);
-            delete options.click;
-          });
-        }
-        break;
-      case "places":
-        this.singleLayers.places = layer = new google.maps.places.PlacesService(
-          this.map,
-        );
+      //click event
+      if (options.click) {
+        google.maps.event.addListener(layer, "click", function (event) {
+          options.click(event);
+          delete options.click;
+        });
+      }
+      break;
+    case "places":
+      this.singleLayers.places = layer = new google.maps.places.PlacesService(
+        this.map,
+      );
 
-        //search, nearbySearch, radarSearch callback, Both are the same
-        if (options.search || options.nearbySearch || options.radarSearch) {
-          var placeSearchRequest = {
-            bounds: options.bounds || null,
-            keyword: options.keyword || null,
-            location: options.location || null,
-            name: options.name || null,
-            radius: options.radius || null,
-            rankBy: options.rankBy || null,
-            types: options.types || null,
-          };
+      //search, nearbySearch, radarSearch callback, Both are the same
+      if (options.search || options.nearbySearch || options.radarSearch) {
+        var placeSearchRequest = {
+          bounds: options.bounds || null,
+          keyword: options.keyword || null,
+          location: options.location || null,
+          name: options.name || null,
+          radius: options.radius || null,
+          rankBy: options.rankBy || null,
+          types: options.types || null,
+        };
 
-          if (options.radarSearch) {
-            layer.radarSearch(placeSearchRequest, options.radarSearch);
-          }
-
-          if (options.search) {
-            layer.search(placeSearchRequest, options.search);
-          }
-
-          if (options.nearbySearch) {
-            layer.nearbySearch(placeSearchRequest, options.nearbySearch);
-          }
+        if (options.radarSearch) {
+          layer.radarSearch(placeSearchRequest, options.radarSearch);
         }
 
-        //textSearch callback
-        if (options.textSearch) {
-          var textSearchRequest = {
-            bounds: options.bounds || null,
-            location: options.location || null,
-            query: options.query || null,
-            radius: options.radius || null,
-          };
-
-          layer.textSearch(textSearchRequest, options.textSearch);
+        if (options.search) {
+          layer.search(placeSearchRequest, options.search);
         }
-        break;
+
+        if (options.nearbySearch) {
+          layer.nearbySearch(placeSearchRequest, options.nearbySearch);
+        }
+      }
+
+      //textSearch callback
+      if (options.textSearch) {
+        var textSearchRequest = {
+          bounds: options.bounds || null,
+          location: options.location || null,
+          query: options.query || null,
+          radius: options.radius || null,
+        };
+
+        layer.textSearch(textSearchRequest, options.textSearch);
+      }
+      break;
     }
 
     if (layer !== undefined) {
@@ -1469,18 +1469,18 @@
 
   GMaps.prototype.getRoutes = function (options) {
     switch (options.travelMode) {
-      case "bicycling":
-        travelMode = google.maps.TravelMode.BICYCLING;
-        break;
-      case "transit":
-        travelMode = google.maps.TravelMode.TRANSIT;
-        break;
-      case "driving":
-        travelMode = google.maps.TravelMode.DRIVING;
-        break;
-      default:
-        travelMode = google.maps.TravelMode.WALKING;
-        break;
+    case "bicycling":
+      travelMode = google.maps.TravelMode.BICYCLING;
+      break;
+    case "transit":
+      travelMode = google.maps.TravelMode.TRANSIT;
+      break;
+    case "driving":
+      travelMode = google.maps.TravelMode.DRIVING;
+      break;
+    default:
+      travelMode = google.maps.TravelMode.WALKING;
+      break;
     }
 
     if (options.unitSystem === "imperial") {

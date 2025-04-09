@@ -263,11 +263,11 @@
         var downhtml,
           uphtml,
           prefixhtml =
-            '<span class="input-group-addon input-group-prepend bootstrap-touchspin-prefix input-group-prepend bootstrap-touchspin-injected"><span class="input-group-text">' +
+            "<span class=\"input-group-addon input-group-prepend bootstrap-touchspin-prefix input-group-prepend bootstrap-touchspin-injected\"><span class=\"input-group-text\">" +
             settings.prefix +
             "</span></span>",
           postfixhtml =
-            '<span class="input-group-addon input-group-append bootstrap-touchspin-postfix input-group-append bootstrap-touchspin-injected"><span class="input-group-text">' +
+            "<span class=\"input-group-addon input-group-append bootstrap-touchspin-postfix input-group-append bootstrap-touchspin-injected\"><span class=\"input-group-text\">" +
             settings.postfix +
             "</span></span>";
 
@@ -276,17 +276,17 @@
           prev.hasClass("input-group-prepend")
         ) {
           downhtml =
-            '<button class="' +
+            "<button class=\"" +
             settings.buttondown_class +
-            ' bootstrap-touchspin-down bootstrap-touchspin-injected" type="button">' +
+            " bootstrap-touchspin-down bootstrap-touchspin-injected\" type=\"button\">" +
             settings.buttondown_txt +
             "</button>";
           prev.append(downhtml);
         } else {
           downhtml =
-            '<span class="input-group-btn input-group-prepend bootstrap-touchspin-injected"><button class="' +
+            "<span class=\"input-group-btn input-group-prepend bootstrap-touchspin-injected\"><button class=\"" +
             settings.buttondown_class +
-            ' bootstrap-touchspin-down" type="button">' +
+            " bootstrap-touchspin-down\" type=\"button\">" +
             settings.buttondown_txt +
             "</button></span>";
           $(downhtml).insertBefore(originalinput);
@@ -297,17 +297,17 @@
           next.hasClass("input-group-append")
         ) {
           uphtml =
-            '<button class="' +
+            "<button class=\"" +
             settings.buttonup_class +
-            ' bootstrap-touchspin-up bootstrap-touchspin-injected" type="button">' +
+            " bootstrap-touchspin-up bootstrap-touchspin-injected\" type=\"button\">" +
             settings.buttonup_txt +
             "</button>";
           next.prepend(uphtml);
         } else {
           uphtml =
-            '<span class="input-group-btn input-group-append bootstrap-touchspin-injected"><button class="' +
+            "<span class=\"input-group-btn input-group-append bootstrap-touchspin-injected\"><button class=\"" +
             settings.buttonup_class +
-            ' bootstrap-touchspin-up" type="button">' +
+            " bootstrap-touchspin-up\" type=\"button\">" +
             settings.buttonup_txt +
             "</button></span>";
           $(uphtml).insertAfter(originalinput);
@@ -333,38 +333,38 @@
 
         if (settings.verticalbuttons) {
           html =
-            '<div class="input-group ' +
+            "<div class=\"input-group " +
             inputGroupSize +
-            ' bootstrap-touchspin bootstrap-touchspin-injected"><span class="input-group-addon input-group-prepend bootstrap-touchspin-prefix"><span class="input-group-text">' +
+            " bootstrap-touchspin bootstrap-touchspin-injected\"><span class=\"input-group-addon input-group-prepend bootstrap-touchspin-prefix\"><span class=\"input-group-text\">" +
             settings.prefix +
-            '</span></span><span class="input-group-addon bootstrap-touchspin-postfix input-group-append"><span class="input-group-text">' +
+            "</span></span><span class=\"input-group-addon bootstrap-touchspin-postfix input-group-append\"><span class=\"input-group-text\">" +
             settings.postfix +
-            '</span></span><span class="input-group-btn-vertical"><button class="' +
+            "</span></span><span class=\"input-group-btn-vertical\"><button class=\"" +
             settings.buttondown_class +
             " bootstrap-touchspin-up " +
             settings.verticalupclass +
-            '" type="button">' +
+            "\" type=\"button\">" +
             settings.verticalup +
-            '</button><button class="' +
+            "</button><button class=\"" +
             settings.buttonup_class +
             " bootstrap-touchspin-down " +
             settings.verticaldownclass +
-            '" type="button">' +
+            "\" type=\"button\">" +
             settings.verticaldown +
             "</button></span></div>";
         } else {
           html =
-            '<div class="input-group bootstrap-touchspin bootstrap-touchspin-injected"><span class="input-group-btn input-group-prepend"><button class="' +
+            "<div class=\"input-group bootstrap-touchspin bootstrap-touchspin-injected\"><span class=\"input-group-btn input-group-prepend\"><button class=\"" +
             settings.buttondown_class +
-            ' bootstrap-touchspin-down" type="button">' +
+            " bootstrap-touchspin-down\" type=\"button\">" +
             settings.buttondown_txt +
-            '</button></span><span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">' +
+            "</button></span><span class=\"input-group-addon bootstrap-touchspin-prefix input-group-prepend\"><span class=\"input-group-text\">" +
             settings.prefix +
-            '</span></span><span class="input-group-addon bootstrap-touchspin-postfix input-group-append"><span class="input-group-text">' +
+            "</span></span><span class=\"input-group-addon bootstrap-touchspin-postfix input-group-append\"><span class=\"input-group-text\">" +
             settings.postfix +
-            '</span></span><span class="input-group-btn input-group-append"><button class="' +
+            "</span></span><span class=\"input-group-btn input-group-append\"><button class=\"" +
             settings.buttonup_class +
-            ' bootstrap-touchspin-up" type="button">' +
+            " bootstrap-touchspin-up\" type=\"button\">" +
             settings.buttonup_txt +
             "</button></span></div>";
         }
@@ -642,20 +642,20 @@
 
       function _forcestepdivisibility(value) {
         switch (settings.forcestepdivisibility) {
-          case "round":
-            return (Math.round(value / settings.step) * settings.step).toFixed(
-              settings.decimals,
-            );
-          case "floor":
-            return (Math.floor(value / settings.step) * settings.step).toFixed(
-              settings.decimals,
-            );
-          case "ceil":
-            return (Math.ceil(value / settings.step) * settings.step).toFixed(
-              settings.decimals,
-            );
-          default:
-            return value;
+        case "round":
+          return (Math.round(value / settings.step) * settings.step).toFixed(
+            settings.decimals,
+          );
+        case "floor":
+          return (Math.floor(value / settings.step) * settings.step).toFixed(
+            settings.decimals,
+          );
+        case "ceil":
+          return (Math.ceil(value / settings.step) * settings.step).toFixed(
+            settings.decimals,
+          );
+        default:
+          return value;
         }
       }
 
@@ -832,14 +832,14 @@
         clearInterval(upSpinTimer);
 
         switch (spinning) {
-          case "up":
-            originalinput.trigger("touchspin.on.stopupspin");
-            originalinput.trigger("touchspin.on.stopspin");
-            break;
-          case "down":
-            originalinput.trigger("touchspin.on.stopdownspin");
-            originalinput.trigger("touchspin.on.stopspin");
-            break;
+        case "up":
+          originalinput.trigger("touchspin.on.stopupspin");
+          originalinput.trigger("touchspin.on.stopspin");
+          break;
+        case "down":
+          originalinput.trigger("touchspin.on.stopdownspin");
+          originalinput.trigger("touchspin.on.stopspin");
+          break;
         }
 
         spincount = 0;
