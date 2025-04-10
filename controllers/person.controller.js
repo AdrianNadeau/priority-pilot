@@ -259,14 +259,6 @@ exports.sendWelcomeEmail = async (req, res) => {
     res.status(500).send("Error sending welcome email");
   }
 };
-exports.changePassword = async (req, res) => {
-  console.log(".....Sending setCheckPassword....");
-  const token = req.parameter.token;
-  console.log("token:", token);
-  res.render("pages-reset-password", {
-    token: token,
-  });
-};
 exports.sendResetPasswordEmail = async (req, res) => {
   const email = req.body.email;
 
@@ -302,7 +294,10 @@ exports.sendResetPasswordEmail = async (req, res) => {
       templateData,
     );
 
-    console.log("Reset password email sent successfully.");
+    console.log(
+      "Reset password email sent successfully... add token record to db",
+    );
+    console.log("resetToken:", resetToken);
     //add 10 minutes before the token expires
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
     const changedPasswordToken = await ChangedPasswordToken.create({

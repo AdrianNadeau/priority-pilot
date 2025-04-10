@@ -1,10 +1,10 @@
+const db = require("../models");
 const nodemailer = require("nodemailer");
 const ejs = require("ejs");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
-// Ensure environment variables are set
-// console.log("process.env.SG_SMTP_USER_NAME", process.env.SG_SMTP_USER_NAME);
-// console.log("process.env.SENDGRID_SMTP_API_KEY", process.env.SENDGRID_API_KEY);
+const Person = db.persons;
+
 if (!process.env.SG_SMTP_USER_NAME || !process.env.SENDGRID_API_KEY) {
   throw new Error("Missing environment variables for SMTP credentials");
 }
@@ -27,13 +27,13 @@ const sendEmail = async (to, subject, templateName, templateData) => {
     //add value with by person with email  = to req.body.email
     console.log("redirectURL", redirectURL);
     // Check if the email exists in the database
-    // const person = await Person.findOne({ where: { email: req.body.email } });
-    // if (!person) {
-    //   return res.status(404).send("Email not found.");
-    // }
+    const person = await Person.findOne({ where: { email: to } });
+    if (!person) {
+      return res.status(404).send("Email not found.");
+    }
     const templateData = {
       // first_name: person.first_name || "Friend",
-      first_name: personalbar.first_name || "Friend",
+      first_name: person.first_name || "Friend",
       redirectURL, // Pass the redirect URL to the template
     };
     // Render the email template

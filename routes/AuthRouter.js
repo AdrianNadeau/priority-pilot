@@ -104,7 +104,7 @@ Authrouter.get("/session-expired", function (req, res) {
 });
 
 Authrouter.get("/auth/reset-password/:token", function (req, res) {
-  console.log("LOAD WITH TOKEN");
+  console.log("Rendering reset password page with token:", req.params.token);
   res.render("Pages/pages-reset-password");
 });
 Authrouter.get("/recover-password", function (req, res) {
@@ -117,8 +117,12 @@ Authrouter.get("/email-status", function (req, res) {
   req.session.emailStatus = null;
   res.render("Pages/pages-email-status", { emailStatus });
 });
-Authrouter.get("/auth/pages-change-password/:token", function (req, res) {
-  res.render("Pages/pages-reset-password");
+
+Authrouter.get("/auth/changePassword", (req, res) => {
+  console.log("Route hit: /auth/changePassword");
+  const token = req.query.token;
+  console.log("Token:", token);
+  res.render("Pages/pages-reset-password", { token });
 });
 Authrouter.post("/auth/login", persons.login);
 

@@ -11,9 +11,6 @@ module.exports = (app) => {
   // Route to send reset email
   router.post("/send-reset-email", persons.sendResetPasswordEmail);
 
-  // Route to change password (no session required)
-  router.get("/changePassword/:token", persons.changePassword);
-
   // Create a new Person
   router.post("/", sessionMiddleware, companyPortfolioName, persons.create);
 
@@ -58,6 +55,12 @@ module.exports = (app) => {
     companyPortfolioName,
     persons.deleteAll,
   );
+  router.get("/persons/changePassword", (req, res) => {
+    console.log("Route hit: /persons/changePassword");
+    const token = req.query.token;
+    console.log("Token:", token);
+    res.render("Pages/pages-reset-password", { token });
+  });
 
   app.use("/persons", router);
 };
