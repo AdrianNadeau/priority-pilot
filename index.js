@@ -105,6 +105,6 @@ require("./routes/changed_password_token.routes.js")(app);
 app.use((req, res, next) => {
   res.status(404).render("Pages/pages-404");
 });
-http.listen(8080, function () {
+http.listen(process.env.PORT || 8080, function () {
   console.log("listening on *:8080");
 });
