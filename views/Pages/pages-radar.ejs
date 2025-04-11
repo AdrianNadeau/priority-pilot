@@ -93,7 +93,16 @@
 <%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
 
 <script type="text/javascript">
-
+    function parseFormattedCost(cost) {
+                       if (typeof cost === "string") {
+                         if (cost.endsWith("K")) {
+                           return parseFloat(cost.replace("K", "")) * 1000;
+                         } else if (cost.endsWith("M")) {
+                           return parseFloat(cost.replace("M", "")) * 1000000;
+                         }
+                       }
+                       return parseFloat(cost);
+                     }
   // Load the Visualization API and the corechart package.
   google.charts.load('current', {'packages':['corechart']});
 
@@ -536,14 +545,4 @@
       chart.draw(data, options);
     })
     .catch((err) => console.error(err));
-    function parseFormattedCost(cost) {
-                       if (typeof cost === "string") {
-                         if (cost.endsWith("K")) {
-                           return parseFloat(cost.replace("K", "")) * 1000;
-                         } else if (cost.endsWith("M")) {
-                           return parseFloat(cost.replace("M", "")) * 1000000;
-                         }
-                       }
-                       return parseFloat(cost);
-                     }
 </script>
