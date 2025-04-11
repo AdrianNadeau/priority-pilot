@@ -59,7 +59,6 @@ app.use("/", Authrouter);
 app.use("/control", DashboardRouter);
 app.use(authMiddleware);
 app.use(companyPortfolioName);
-app.use(errorHandler);
 
 // Set up storage engine
 const storage = multer.diskStorage({
@@ -106,6 +105,8 @@ require("./routes/changed_password_token.routes.js")(app);
 // app.use((req, res, next) => {
 //   res.status(404).render("Pages/pages-404");
 // });
+app.use(errorHandler);
+
 http.listen(process.env.PORT || 8080, function () {
   console.log("listening on *:8080");
 });
