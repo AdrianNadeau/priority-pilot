@@ -57,7 +57,8 @@ module.exports = (app) => {
   );
   router.get("/changePassword/:token", (req, res) => {
     console.log("Route hit: /persons/changePassword");
-    const token = req.query.token; // Extract the token from the query string
+    const token = req.params.token; // Extract the token from the query string
+    //confirm token is valid and hasn't expired
     console.log("Token:", token);
     res.render("Pages/pages-reset-password", { token });
   });
