@@ -16,7 +16,7 @@ const router = require("./router.js");
 const Authrouter = require("./routes/AuthRouter.js");
 const DashboardRouter = require("./routes/DashboardRouter.js");
 
-// const errorHandler = require("./middleware/errorHandler");
+const errorHandler = require("./middleware/errorHandler");
 const authMiddleware = require("./middleware/authMiddleware.js");
 const companyPortfolioName = require("./middleware/companyPortfolioName");
 
@@ -59,6 +59,7 @@ app.use("/", Authrouter);
 app.use("/control", DashboardRouter);
 app.use(authMiddleware);
 app.use(companyPortfolioName);
+app.use(errorHandler);
 
 // Set up storage engine
 const storage = multer.diskStorage({
@@ -101,10 +102,10 @@ require("./routes/change_reason.routes.js")(app);
 require("./routes/changed_project.routes.js")(app);
 require("./routes/changed_password_token.routes.js")(app);
 // Handle 404 errors
-// app.use(errorHandler);
-app.use((req, res, next) => {
-  res.status(404).render("Pages/pages-404");
-});
+
+// app.use((req, res, next) => {
+//   res.status(404).render("Pages/pages-404");
+// });
 http.listen(process.env.PORT || 8080, function () {
   console.log("listening on *:8080");
 });

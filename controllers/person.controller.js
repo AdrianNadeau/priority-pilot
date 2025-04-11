@@ -145,12 +145,7 @@ exports.login = async (req, res, next) => {
         isAdmin: person.isAdmin,
         // Do not include the password
       };
-      // req.session.person = {
-      //   firstName, // use renamed variable
-      //   lastName, // use renamed variable
-      //   ...otherData, // spread the rest
-      // };
-      console.log("req.session.person:", req.session.person);
+
       req.session.save((err) => {
         if (err) {
           console.error("Session save error:", err);
