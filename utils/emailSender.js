@@ -22,8 +22,10 @@ const transporter = nodemailer.createTransport({
 // Function to send email
 const sendEmail = async (to, subject, templateName, templateData) => {
   try {
-    const resetToken = uuidv4();
-    const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca"}?token=${resetToken}`;
+    console.log("token: ", templateData.resetToken);
+    console.log("sendEmail: ", templateName);
+
+    const redirectURL = `${process.env.REDIRECT_URL || "https://www.prioritypilot.ca"}/${templateData.resetToken}`;
     //add value with by person with email  = to req.body.email
     console.log("redirectURL", redirectURL);
     // Check if the email exists in the database
@@ -31,11 +33,11 @@ const sendEmail = async (to, subject, templateName, templateData) => {
     if (!person) {
       return res.status(404).send("Email not found.");
     }
-    const templateData = {
-      // first_name: person.first_name || "Friend",
-      first_name: person.first_name || "Friend",
-      redirectURL, // Pass the redirect URL to the template
-    };
+    // const templateData = {
+    //   // first_name: person.first_name || "Friend",
+    //   first_name: person.first_name || "Friend",
+    //   redirectURL, // Pass the redirect URL to the template
+    // };
     // Render the email template
     const templatePath = path.join(
       __dirname,
@@ -44,6 +46,7 @@ const sendEmail = async (to, subject, templateName, templateData) => {
       "emailTemplates",
       `${templateName}.ejs`,
     );
+    console.log("templatePath", templatePath);
     const html = await ejs.renderFile(templatePath, templateData);
 
     // Define the email options

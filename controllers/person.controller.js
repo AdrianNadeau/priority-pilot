@@ -278,26 +278,28 @@ exports.sendResetPasswordEmail = async (req, res) => {
     const resetToken = uuidv4();
 
     // Generate the redirect URL
-    const redirectURL = `${process.env.REDIRECT_URL}?token=${resetToken}`;
+    const redirectURL = `${process.env.REDIRECT_URL}/${resetToken}`;
 
     // Prepare email template data
     const templateData = {
       first_name: person.first_name || "Friend",
       redirectURL, // Pass the redirect URL to the template
+      resetToken,
     };
-
+    console.log("templateData:", templateData);
     // Send the reset password email
     await sendEmail(
       email,
       "Reset Your Password",
       "reset-email-password",
       templateData,
+      resetToken,
     );
 
     console.log(
       "Reset password email sent successfully... add token record to db",
     );
-    console.log("resetToken:", resetToken);
+
     //add 10 minutes before the token expires
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
     const changedPasswordToken = await ChangedPasswordToken.create({

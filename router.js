@@ -16,15 +16,9 @@ function formatToKMB(num) {
   }
   const isNegative = num < 0;
   num = Math.abs(num);
-  if (num >= 1e9) {
-    return (isNegative ? "-" : "") + (num / 1e9).toFixed(2) + "B";
-  }
-  if (num >= 1e6) {
-    return (isNegative ? "-" : "") + (num / 1e6).toFixed(2) + "M";
-  }
-  if (num >= 1e3) {
-    return (isNegative ? "-" : "") + (num / 1e3).toFixed(2) + "K";
-  }
+  if (num >= 1e9) return (isNegative ? "-" : "") + (num / 1e9).toFixed(2) + "B";
+  if (num >= 1e6) return (isNegative ? "-" : "") + (num / 1e6).toFixed(2) + "M";
+  if (num >= 1e3) return (isNegative ? "-" : "") + (num / 1e3).toFixed(2) + "K";
   return (isNegative ? "-" : "") + num.toFixed(2);
 }
 
@@ -50,6 +44,7 @@ router.get("/", isAdminMiddleware, async (req, res) => {
   }
 
   if (!company_id_fk) {
+    console.log("Company ID is undefined");
     return res.redirect("/login");
   }
 

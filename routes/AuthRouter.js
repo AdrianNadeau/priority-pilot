@@ -117,13 +117,6 @@ Authrouter.get("/email-status", function (req, res) {
   req.session.emailStatus = null;
   res.render("Pages/pages-email-status", { emailStatus });
 });
-
-Authrouter.get("/auth/changePassword", (req, res) => {
-  console.log("Route hit: /auth/changePassword");
-  const token = req.query.token;
-  console.log("Token:", token);
-  res.render("Pages/pages-reset-password", { token });
-});
 Authrouter.post("/auth/login", persons.login);
 
 // Authrouter.get("/test", function (req, res) {

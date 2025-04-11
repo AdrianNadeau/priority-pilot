@@ -55,9 +55,9 @@ module.exports = (app) => {
     companyPortfolioName,
     persons.deleteAll,
   );
-  router.get("/persons/changePassword", (req, res) => {
+  router.get("/changePassword/:token", (req, res) => {
     console.log("Route hit: /persons/changePassword");
-    const token = req.query.token;
+    const token = req.query.token; // Extract the token from the query string
     console.log("Token:", token);
     res.render("Pages/pages-reset-password", { token });
   });
