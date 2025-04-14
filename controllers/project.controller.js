@@ -1197,7 +1197,7 @@ exports.findFunnel = async (req, res) => {
 
     data.forEach((project) => {
       pitchTotalCost = parseFloat(project.project_cost.replace(/,/g, "")) || 0;
-      console.log("pitchTotalCost:", pitchTotalCost);
+      // console.log("pitchTotalCost:", pitchTotalCost);
       pitchTotalPH += parseFloat(project.effort) || 0;
     });
     // console.log("pitchTotalCost:", pitchTotalCost);
@@ -1215,7 +1215,7 @@ exports.findFunnel = async (req, res) => {
     const sponsors = persons.filter((person) => person.role === "sponsor");
     const primes = persons.filter((person) => person.role === "prime");
     pitchTotalCost = formatCost(pitchTotalCost);
-    console.log("pitchTotalCost:", pitchTotalCost);
+    // console.log("pitchTotalCost:", pitchTotalCost);
     pitchTotalPH = formatCost(pitchTotalPH);
     const portfolioName = await returnPortfolioName(company_id_fk);
     // Render the funnel page with the retrieved data

@@ -197,12 +197,12 @@ console.log("STATUS DATA: ", data);
                     <%= new Date(status.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
                   </a>
                 <% } %>
-                <div style="width:100% !important;"><hr/></div>
+                <br/>
               <% }); %>
             <% } else { %>
               <p>No status updates available</p>
             <% } %>
-            
+            <br/>
             <% if (project[0].phase_id_fk != "1" && project[0].phase_id_fk != "2") { %>
               <button type="button" class="btn btn-primary waves-effect waves-light" style="padding-top:5px;" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
             <% } %>
@@ -436,15 +436,11 @@ console.log("STATUS DATA: ", data);
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <script> 
   document.addEventListener("DOMContentLoaded", function() {
-    $(".modal-dialog").draggable({
-      handle: ".modal-header", // Allow dragging by the modal header
-      containment: "window", // Keep the modal within the window bounds
-    });
     flatpickr("#status_date", {
       dateFormat: "Y-m-d",
       defaultDate: new Date(), // Set the default date to today
       onChange: function(selectedDates, dateStr, instance) {
-        console.log("Status Date:", dateStr);
+        
       }
     });
 

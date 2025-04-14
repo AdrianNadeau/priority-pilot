@@ -12,13 +12,14 @@ exports.create = async (req, res) => {
     if (!prime_id) {
       prime_id = null;
     }
+    console.log("req.body.issue", req.body.issues);
     // Create a Status
     const status = {
       project_id_fk: req.body.project_id,
       prime_id_fk: req.body.prime_id_fk,
       progress: req.body.progress,
       health: req.body.health,
-      issue: req.body.issue,
+      issue: req.body.issues,
       actions: req.body.actions,
       accomplishments: req.body.status_accomplishments,
       attachments: req.body.attachment,
@@ -76,7 +77,6 @@ exports.findAllByProjectId = (req, res) => {
     order: [["createdAt", "DESC"]],
   })
     .then((data) => {
-      console.log("data for project:", data);
       res.send(data);
     })
     .catch((err) => {
