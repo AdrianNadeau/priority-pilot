@@ -311,7 +311,7 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
     function getStatusUpdates(project_id_fk){
-      event.preventDefault();
+      
 
      console.log("get status for id:",project_id_fk)
       var modalBody = document.getElementById("statusUpdates");
@@ -349,6 +349,7 @@ document.addEventListener("DOMContentLoaded", function() {
           }
         // Open the modal
         $('#StatusUpdatesModal').modal('show');
+        event.preventDefault();
       
       })
       .catch(err => console.error(err));
@@ -372,6 +373,7 @@ document.addEventListener("DOMContentLoaded", function() {
         
        // Open the modal
        $('#viewStatusModal').modal('show');
+       event.preventDefault();
      
     })
     .catch(err => console.error(err));
