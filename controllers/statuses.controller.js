@@ -12,14 +12,14 @@ exports.create = async (req, res) => {
     if (!prime_id) {
       prime_id = null;
     }
-    console.log("req.body.issue", req.body.issues);
+    console.log("req.body.issue", req.body.issue);
     // Create a Status
     const status = {
       project_id_fk: req.body.project_id,
       prime_id_fk: req.body.prime_id_fk,
       progress: req.body.progress,
       health: req.body.health,
-      issue: req.body.issues,
+      issue: req.body.issue,
       actions: req.body.actions,
       accomplishments: req.body.status_accomplishments,
       attachments: req.body.attachment,

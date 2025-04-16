@@ -1,5 +1,6 @@
 <%- contentFor('HeaderCss') %>
-<!-- Bootstrap CSS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <style>
   #pitch_message {
       display: none;
@@ -39,43 +40,6 @@
   .datepicker {
     cursor: pointer;
   }
-
-  /* Responsive design for mobile */
-  @media (max-width: 768px) {
-    .table-responsive {
-      overflow-x: auto;
-    }
-    .table th, .table td {
-      white-space: nowrap;
-    }
-    .mdi-eye, .mdi-note-plus {
-      font-size: 1.5em;
-    }
-    .table th, .table td {
-      display: block;
-      width: 100%;
-    }
-    .table thead {
-      display: none;
-    }
-    .table tbody tr {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 5px; /* Reduced margin */
-      border: 1px solid #ddd;
-      padding: 5px; /* Reduced padding */
-    }
-    .table tbody tr td {
-      border: none;
-      padding: 2px 0; /* Reduced padding */
-    }
-    .table tbody tr td:before {
-      content: attr(data-label);
-      font-weight: bold;
-      display: inline-block;
-      width: 100px;
-    }
-  }
 </style>
 
 <%- contentFor('breadcrumb') %>
@@ -113,24 +77,21 @@
                             <tbody>
                                 <% projects.forEach(function (project) { %>
                                 <tr>
-                                    <td data-label="Name"><%= project.project_name %></td>
-                                    <td data-label="Prime"><%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %></td>
-                                    <td data-label="Sponsor"><%= project.sponsor_last_name ? `${project.sponsor_last_name}, ${project.sponsor_first_name}` : "N/A" %></td>
-                                    <td data-label="Start"><%= project.start_date ? project.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
-                                    <td data-label="End"><%= project.end_date ? project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
-                                    <td data-label="Phase"><%= project.phase_name %></td>
-                                    <td data-label="Cost"><%= project.project_cost %></td>
+                                    <td><%= project.project_name %></td>
+                                    <td><%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %></td>
+                                    <td><%= project.sponsor_last_name ? `${project.sponsor_last_name}, ${project.sponsor_first_name}` : "N/A" %></td>
+                                    <td><%= project.start_date ? project.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
+                                    <td><%= project.end_date ? project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
+                                    <td><%= project.phase_name %></td>
+                                    <td><%= project.project_cost %></td>
                                     <% if (project.prime_id_fk === person.id) { %>
-                                    <td data-label="Status">
+                                    <td>
                                         <i data-toggle="modal" data-target="#myModal_<%= project.id %>" class="mdi mdi-note-plus"></i> <i data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal" class="mdi mdi-eye"></i>
                                     </td>
                                     <% } else { %>
-                                      
-                                    <td data-label="Status">
-                                        <a href="#" data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
-                                            <i style="cursor: pointer;" class="mdi mdi-eye"></i>
-                                        </a>
-                                    </td>
+                                    <a href="#"><td data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
+                                        <i style="cursor: pointer;" class="mdi mdi-eye"></i>
+                                    </td></a>
                                     <% } %>
                                 </tr>
 
@@ -277,11 +238,6 @@
             </div>
         </div>
     </div>
-    <!-- Add the missing input elements -->
-    <input type="text" id="view_status_accomplishments" class="form-control no-border" style="background-color:#f5f5f5;height:0px;" disabled>
-    <input type="text" id="view_status_issue" class="form-control no-border" style="background-color:#f5f5f5;height:0px;" disabled>
-    <input type="text" id="view_status_action" class="form-control no-border" style="background-color:#f5f5f5;height:0px;"  disabled>
-    <input type="text" id="view_status_date" class="form-control no-border" style="background-color:#f5f5f5;height:0px;"  disabled>
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -311,16 +267,13 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
     function getStatusUpdates(project_id_fk){
-      
-
-     console.log("get status for id:",project_id_fk)
       var modalBody = document.getElementById("statusUpdates");
       // Clear previous content
       modalBody.innerHTML = '';
       fetch(`/statuses/projects/${project_id_fk}`)
       .then(response => response.json())
       .then(data => {
-        console.log("status data: ", data);
+      
           if (data && data.length > 0) {
               data.forEach(function(status) {
                 console.log("STATUS: ", status);
@@ -337,7 +290,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 if (status.status_date) {
                 
-                    modalBody.innerHTML += `<a href="#" onClick="getStatus(${status.id})" data-target="#viewStatusModal" id="viewStatusLink">
+                    modalBody.innerHTML += `<a href="#" onClick='getStatus(${status.id}, event)' data-target="#viewStatusModal" id="viewStatusLink">
                         ${new Date(status.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </a>`;
                 }
@@ -349,17 +302,22 @@ document.addEventListener("DOMContentLoaded", function() {
           }
         // Open the modal
         $('#StatusUpdatesModal').modal('show');
-        event.preventDefault();
       
       })
       .catch(err => console.error(err));
   }
 
     function getStatus(id) {
+      event.preventDefault();
     fetch(`/statuses/${id}`)
     .then(response => response.json())
     .then(data => {
-      console.log("status data: ", data);
+      console.log("status Accomplishments: ", data.accomplishments);
+      console.log("status Issue: ", data.issue);
+      console.log("status Actions: ", data.actions);
+      console.log("status Progress: ", data.progress);
+      console.log("status Health: ", data.health);
+      console.log("status Date: ", data.status_date);
       // all working
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;
@@ -373,6 +331,7 @@ document.addEventListener("DOMContentLoaded", function() {
         
        // Open the modal
        $('#viewStatusModal').modal('show');
+       
        event.preventDefault();
      
     })
