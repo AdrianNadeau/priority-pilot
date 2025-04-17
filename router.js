@@ -9,7 +9,6 @@ const { Op, fn, col, literal, where } = require("sequelize");
 const { format } = require("sequelize/lib/utils");
 
 // Function to format numbers with K, M, B
-// Function to format numbers with K, M, B
 function formatToKMB(num) {
   if (typeof num !== "number") {
     num = parseFloat(num) || 0;
@@ -87,8 +86,10 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
+
     if (!data || data.length === 0) {
       console.log("No data found for company_id_fk:", company_id_fk);
+      console.log("data:", data);
       return res.redirect("/projects");
     }
 

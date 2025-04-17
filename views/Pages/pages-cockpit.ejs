@@ -516,7 +516,16 @@ console.log("STATUS DATA: ", data);
       if (data.progress) document.getElementById('view_status_progress').value = data.progress;
       if (data.health) document.getElementById('view_status_health').value = data.health;
       if (data.status_date) {
-        document.getElementById('view_status_date').innerText = new Date(data.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        // Add 1 day to the status_date
+        const originalDate = new Date(data.status_date);
+        const updatedDate = new Date(originalDate);
+        updatedDate.setDate(originalDate.getDate());
+
+        document.getElementById('view_status_date').innerText = updatedDate.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        });
       }
 
       // Open the modal
