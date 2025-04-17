@@ -21,10 +21,7 @@
   .red-circle {
     background-color: red;
   }
-  .mdi-eye, .mdi-note-plus {
-    cursor: pointer;
-  }
-
+ 
   .form-group-inline {
     display: flex;
     align-items: center;
@@ -40,8 +37,19 @@
   .datepicker {
     cursor: pointer;
   }
-</style>
+  .mdi-note-plus {
+  color: #34b871  !important;
+  transform: scale(1.2);
+  cursor: pointer;
 
+}
+.mdi-eye:hover {
+  color: red  !important;
+  transform: scale(1.2);
+  cursor: pointer;
+
+} 
+</style>
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
     <li class="list-inline-item">
@@ -86,11 +94,11 @@
                                     <td><%= project.project_cost %></td>
                                     <% if (project.prime_id_fk === person.id) { %>
                                     <td>
-                                        <i data-toggle="modal" data-target="#myModal_<%= project.id %>" class="mdi mdi-note-plus"></i> <i data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal" class="mdi mdi-eye"></i>
+                                        <i data-toggle="modal" data-target="#myModal_<%= project.id %>" style="cursor:pointer;color:#34b871 !important;"  class="mdi mdi-note-plus"></i> <i data-toggle="modal" style="cursor:pointer;color:#34b871 !important;" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal" class="mdi mdi-eye"></i>
                                     </td>
                                     <% } else { %>
                                     <a href="#"><td data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
-                                        <i style="cursor: pointer;" class="mdi mdi-eye"></i>
+                                        <i style="cursor:pointer;color:#34b871 !important;" class="mdi mdi-eye"></i>
                                     </td></a>
                                     <% } %>
                                 </tr>

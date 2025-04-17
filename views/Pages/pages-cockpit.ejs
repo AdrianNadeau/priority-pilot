@@ -381,6 +381,7 @@ console.log("STATUS DATA: ", data);
         </div>
         <div class="modal-body">
           <!-- Modal content goes here -->
+          <strong>Project Name:</strong> <%= project[0].project_name %><br/>
           <strong>Date: </strong><span id="view_status_date" style="width:100px"></span><br/>
           
             <% if(project[0].status_date) %>
@@ -452,7 +453,6 @@ console.log("STATUS DATA: ", data);
 
 
     submitButton.onclick = function() {
-      console.log("Submit Button Clicked");
       let isValid = true;
       // Get the form
       const form = document.querySelector('#addStatus form');
@@ -505,8 +505,8 @@ console.log("STATUS DATA: ", data);
     .then(data => {
       
       //get company timezone
-      const companyTimezone = req.session.company.timezone || 'America/New_York'; // Default to 'America/New_York' if not set
-      console.log("Company Timezone: ", companyTimezone);
+      // const companyTimezone = req.session.company.timezone || 'America/New_York'; // Default to 'America/New_York' if not set
+      // console.log("Company Timezone: ", companyTimezone);
       // Populate modal fields
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;

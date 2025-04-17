@@ -12,7 +12,8 @@ exports.create = async (req, res) => {
     if (!prime_id) {
       prime_id = null;
     }
-    console.log("req.body.issue", req.body.issue);
+    const projectId = req.body.id;
+    console.log("projectId", projectId);
     // Create a Status
     const status = {
       project_id_fk: req.body.project_id,
