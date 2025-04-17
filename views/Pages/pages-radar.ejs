@@ -93,6 +93,7 @@
 <%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
 
 <script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
     function parseFormattedCost(cost) {
                        if (typeof cost === "string") {
                          if (cost.endsWith("K")) {
@@ -102,7 +103,7 @@
                          }
                        }
                        return parseFloat(cost);
-                     }
+      }
   // Load the Visualization API and the corechart package.
   google.charts.load('current', {'packages':['corechart']});
 
@@ -545,4 +546,6 @@
       chart.draw(data, options);
     })
     .catch((err) => console.error(err));
+
+  });
 </script>
