@@ -326,11 +326,12 @@ exports.cockpit = async (req, res) => {
     where: {
       [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
     },
-    order: [["id", "ASC"]],
+    order: [["id", "DESC"]],
   });
   //COCKPIT QUERY
+  let query = null;
   try {
-    const query = `
+    query = `
     SELECT 
   proj.tag_1,
   tag1.tag_name AS tag_1_name,
@@ -372,21 +373,24 @@ exports.cockpit = async (req, res) => {
       replacements: [company_id_fk, project_id],
       type: db.sequelize.QueryTypes.SELECT,
     });
-
-    let changed_projects;
-    try {
-      changed_projects = await db.changed_projects.findAll({
-        where: {
-          project_id_fk: project_id,
-        },
-        order: [["change_date", "DESC"]],
-      });
-      if (changed_projects) {
-      }
-    } catch (error) {
-      console.log("Cockpit Changed Projects error:", error);
+    if (!data || data.length === 0) {
+      return res.status(404).send({ message: "Project not found" });
     }
+    query = `
+    SELECT 
+      changed_projects.change_date,
+      change_reasons.change_reason AS change_reason
+    FROM changed_projects
+    LEFT JOIN change_reasons ON change_reasons.id = changed_projects.change_reason_id_fk
+    WHERE changed_projects.project_id_fk = ?
+    ORDER BY changed_projects.change_date DESC
+    `;
 
+    const changedProjects = await db.sequelize.query(query, {
+      replacements: [project_id], // Replace `project_id` with the actual project ID
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+    console.log("changedProjects:", changedProjects);
     const statuses = await Status.findAll({
       where: { project_id_fk: project_id },
       order: [["status_date", "DESC"]],
@@ -416,7 +420,7 @@ exports.cockpit = async (req, res) => {
       formattedCost: data[0].project_cost,
       statuses: statuses,
       statusColor: statusColor,
-      changed_projects,
+      changed_projects: changedProjects,
       // tags: tagsData,
     });
   } catch (error) {
@@ -508,6 +512,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
           },
         },
       });
+      console.log("change_reasons:", change_reasons);
       const tagsData = await Tag.findAll({
         where: {
           [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
