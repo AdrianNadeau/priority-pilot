@@ -40,9 +40,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    IS this the right page?
                                     <% let currentPhase = ''; %>
                                     <% projects.forEach(project => { %>
-                                        <% if (project.phase_name === 'Delivery' || project.phase_name === 'Discovery') { %>
+                                        
+                                        <% if (project.phase_name === 'Planning' || === 'Delivery' || project.phase_name === 'Discovery') { %>
                                         <% if (project.phase_name !== currentPhase) { %>
                                             <% currentPhase = project.phase_name; %>
                                             <tr>

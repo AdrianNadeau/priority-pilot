@@ -377,20 +377,38 @@ exports.cockpit = async (req, res) => {
       return res.status(404).send({ message: "Project not found" });
     }
     query = `
-    SELECT 
-      changed_projects.change_date,
-      change_reasons.change_reason AS change_reason
-    FROM changed_projects
-    LEFT JOIN change_reasons ON change_reasons.id = changed_projects.change_reason_id_fk
-    WHERE changed_projects.project_id_fk = ?
-    ORDER BY changed_projects.change_date DESC
-    `;
+  SELECT 
+  changed_projects.id,
+  changed_projects.change_date,
+  changed_projects.change_reason_id_fk,
+  change_reasons.change_reason AS change_reason
+FROM changed_projects
+LEFT JOIN change_reasons 
+  ON change_reasons.id = changed_projects.change_reason_id_fk
+WHERE changed_projects.project_id_fk = ?
+ORDER BY changed_projects.change_date 
+`;
 
     const changedProjects = await db.sequelize.query(query, {
-      replacements: [project_id], // Replace `project_id` with the actual project ID
+      replacements: [project_id],
       type: db.sequelize.QueryTypes.SELECT,
     });
     console.log("changedProjects:", changedProjects);
+    // query = `
+    // SELECT
+    //   changed_projects.change_date, changed_projects.id AS change_id,
+    //   change_reasons.change_reason AS change_reason
+    // FROM changed_projects
+    // LEFT JOIN change_reasons ON change_reasons.id = changed_projects.change_reason_id_fk
+    // WHERE changed_projects.project_id_fk = ?
+    // ORDER BY changed_projects.change_date ASC
+    // `;
+
+    // const changedProjects = await db.sequelize.query(query, {
+    //   replacements: [project_id], // Replace `project_id` with the actual project ID
+    //   type: db.sequelize.QueryTypes.SELECT,
+    // });
+    // console.log("changedProjects:", changedProjects);
     const statuses = await Status.findAll({
       where: { project_id_fk: project_id },
       order: [["status_date", "DESC"]],
@@ -421,7 +439,6 @@ exports.cockpit = async (req, res) => {
       statuses: statuses,
       statusColor: statusColor,
       changed_projects: changedProjects,
-      // tags: tagsData,
     });
   } catch (error) {
     console.log("Database Query Error: ", error);
@@ -512,7 +529,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
           },
         },
       });
-      console.log("change_reasons:", change_reasons);
+
       const tagsData = await Tag.findAll({
         where: {
           [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],

@@ -207,22 +207,21 @@ console.log("STATUS DATA: ", data);
               <button type="button" class="btn btn-primary waves-effect waves-light" style="padding-top:5px;" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
             <% } %>
                  <br/><br/>
-            <strong>Change Log:</strong>
-            <% if (changed_projects ) { %>
-              <br/>
-              <% changed_projects.forEach(function(change) { %>
-                
-                <% if (change.id) { %>
-                  
-                  <a href="#" onClick="getChange(event, <%= change.id %>)" data-target="#viewChangeModal" id="viewChangeLink">
-                    <%= change.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                  </a>
-                  <br/>
-                  - <%= change.h %>
-                  
-                <% } %>
-              <% }); %>
-            <% } %>
+                 <strong>Change Log:</strong>
+                 <% if (changed_projects && changed_projects.length > 0) { %>
+                   <br/>
+                   <% changed_projects.forEach(function(change) { %>
+                     <a href="#" onClick="getChange(event, <%= change.id %>)" data-target="#viewChangeModal" id="viewChangeLink">
+                       <%= new Date(change.change_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                     </a>
+                     <a href="#" ></a><%= change.change_reason %>  
+                    </a>
+                    
+                     <br/>
+                   <% }); %>
+                 <% } else { %>
+                   <p>No change log available</p>
+                 <% } %>
             <br/>
             <div class="row">
    
