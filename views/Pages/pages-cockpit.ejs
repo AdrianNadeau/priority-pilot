@@ -213,7 +213,7 @@ console.log("STATUS DATA: ", data);
                    
                    <% changed_projects.forEach(function(change) { %>
                      <a href="#" onClick="getChange(event, <%= change.id %>)" data-target="#viewChangeModal" id="viewChangeLink">
-                       <%= new Date(change.change_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                       <%= new Date(change.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
                      </a>
                      <a href="#" ></a><%= change.change_reason %>  
                     </a>

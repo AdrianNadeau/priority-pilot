@@ -382,9 +382,11 @@ exports.cockpit = async (req, res) => {
   changed_projects.id,
   changed_projects.change_date,
   changed_projects.change_reason_id_fk,
+  changed_projects."createdAt",
+
   change_reasons.change_reason AS change_reason
 FROM changed_projects
-LEFT JOIN change_reasons 
+LEFT JOIN change_reasons
   ON change_reasons.id = changed_projects.change_reason_id_fk
 WHERE changed_projects.project_id_fk = ?
 ORDER BY changed_projects.change_date DESC
