@@ -75,7 +75,7 @@ exports.create = (req, res) => {
     }).catch((error) => {
       console.log("Error fetching phasesData:", error);
     });
-
+    console.log("new Date():", new Date());
     const newChangedProject = {
       company_id_fk,
       project_id_fk: createdProject.id,
@@ -102,6 +102,7 @@ exports.create = (req, res) => {
       tag_3: req.body.tag_3,
       change_reason_id_fk: 1,
       change_explanation: "Initial Entry",
+      change_date: new Date(),
     };
 
     const changedProject = await ChangeProject.create(newChangedProject);
@@ -393,22 +394,8 @@ ORDER BY changed_projects.change_date
       replacements: [project_id],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    console.log("changedProjects:", changedProjects);
-    // query = `
-    // SELECT
-    //   changed_projects.change_date, changed_projects.id AS change_id,
-    //   change_reasons.change_reason AS change_reason
-    // FROM changed_projects
-    // LEFT JOIN change_reasons ON change_reasons.id = changed_projects.change_reason_id_fk
-    // WHERE changed_projects.project_id_fk = ?
-    // ORDER BY changed_projects.change_date ASC
-    // `;
 
-    // const changedProjects = await db.sequelize.query(query, {
-    //   replacements: [project_id], // Replace `project_id` with the actual project ID
-    //   type: db.sequelize.QueryTypes.SELECT,
-    // });
-    // console.log("changedProjects:", changedProjects);
+    console.log("changedProjects:", changedProjects);
     const statuses = await Status.findAll({
       where: { project_id_fk: project_id },
       order: [["status_date", "DESC"]],
@@ -1211,14 +1198,16 @@ exports.findFunnel = async (req, res) => {
       replacements: [company_id_fk, person_id_fk, person_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-
+    // console.log("data:", data);
     // Calculate pitch count, total cost, and total effort
     const pitchCount = data.length;
     let pitchTotalCost = 0;
     let pitchTotalPH = 0;
 
     data.forEach((project) => {
-      pitchTotalCost = parseFloat(project.project_cost.replace(/,/g, "")) || 0;
+      pitchTotalCost =
+        parseFloat(project.project_cost.replace(/,/g, "")) ||
+        project.project_cost;
       // console.log("pitchTotalCost:", pitchTotalCost);
       pitchTotalPH += parseFloat(project.effort) || 0;
     });
@@ -1236,6 +1225,7 @@ exports.findFunnel = async (req, res) => {
 
     const sponsors = persons.filter((person) => person.role === "sponsor");
     const primes = persons.filter((person) => person.role === "prime");
+    console.log("pitchTotalCost:", pitchTotalCost);
     pitchTotalCost = formatCost(pitchTotalCost);
     // console.log("pitchTotalCost:", pitchTotalCost);
     pitchTotalPH = formatCost(pitchTotalPH);

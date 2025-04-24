@@ -210,6 +210,7 @@ console.log("STATUS DATA: ", data);
                  <strong>Change Log:</strong>
                  <% if (changed_projects && changed_projects.length > 0) { %>
                    <br/>
+                   
                    <% changed_projects.forEach(function(change) { %>
                      <a href="#" onClick="getChange(event, <%= change.id %>)" data-target="#viewChangeModal" id="viewChangeLink">
                        <%= new Date(change.change_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
