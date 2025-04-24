@@ -75,7 +75,7 @@ exports.create = (req, res) => {
     }).catch((error) => {
       console.log("Error fetching phasesData:", error);
     });
-    console.log("new Date():", new Date());
+    console.log("Today:", new Date());
     const newChangedProject = {
       company_id_fk,
       project_id_fk: createdProject.id,
@@ -395,7 +395,7 @@ ORDER BY changed_projects.change_date
       type: db.sequelize.QueryTypes.SELECT,
     });
 
-    console.log("changedProjects:", changedProjects);
+    // console.log("changedProjects:", changedProjects);
     const statuses = await Status.findAll({
       where: { project_id_fk: project_id },
       order: [["status_date", "DESC"]],
