@@ -387,7 +387,7 @@ FROM changed_projects
 LEFT JOIN change_reasons 
   ON change_reasons.id = changed_projects.change_reason_id_fk
 WHERE changed_projects.project_id_fk = ?
-ORDER BY changed_projects.change_date 
+ORDER BY changed_projects.change_date DESC
 `;
 
     const changedProjects = await db.sequelize.query(query, {
