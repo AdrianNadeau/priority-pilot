@@ -1141,19 +1141,6 @@ exports.findFunnel = async (req, res) => {
     const company_id_fk = req.session.company.id;
     const person_id_fk = req.session.person.id;
 
-    const personsData = await Person.findAll({
-      where: {
-        company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
-      },
-    });
-
-    const tagsData = await Tag.findAll({
-      where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
-      },
-      order: [["id", "ASC"]],
-    });
-    // Custom SQL query to retrieve project data
     const query = `
     SELECT 
       proj.company_id_fk,
@@ -1197,51 +1184,91 @@ exports.findFunnel = async (req, res) => {
   `;
 
     const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk, person_id_fk, person_id_fk],
+      replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    // console.log("data:", data);
-    // Calculate pitch count, total cost, and total effort
-    const pitchCount = data.length;
-    let pitchTotalCost = 0;
-    let pitchTotalPH = 0;
 
-    data.forEach((project) => {
-      pitchTotalCost =
-        parseFloat(project.project_cost.replace(/,/g, "")) ||
-        project.project_cost;
-      // console.log("pitchTotalCost:", pitchTotalCost);
-      pitchTotalPH += parseFloat(project.effort) || 0;
+    const pitchPhaseId = 1;
+
+    const totals = await db.projects.findOne({
+      where: {
+        company_id_fk: company_id_fk,
+        phase_id_fk: pitchPhaseId,
+      },
+      attributes: [
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn(
+                  "REPLACE",
+                  db.Sequelize.col("project_cost"),
+                  ",",
+                  "",
+                ),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "total_cost", // Alias for project_cost
+        ],
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn("REPLACE", db.Sequelize.col("effort"), ",", ""),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "total_effort", // Alias for effort
+        ],
+      ],
+      raw: true, // Return raw data
     });
-    // console.log("pitchTotalCost:", pitchTotalCost);
-    // Retrieve phases and priorities
+
+    console.log("Total Pitch Cost:", totals.total_cost);
+    console.log("Total Pitch Effort:", totals.total_effort);
+
+    const pitchTotalCost = formatCost(totals.total_cost || 0);
+    const pitchTotalPH = formatCost(totals.total_effort || 0);
+
+    const pitchCount = data.length;
+
     const phases = await Phase.findAll({
       order: [["id", "ASC"]],
     });
     const priorities = await Priority.findAll();
 
-    // Retrieve sponsors and primes
     const persons = await Person.findAll({
       where: { company_id_fk: company_id_fk },
     });
 
-    const sponsors = persons.filter((person) => person.role === "sponsor");
-    const primes = persons.filter((person) => person.role === "prime");
-    console.log("pitchTotalCost:", pitchTotalCost);
-    pitchTotalCost = formatCost(pitchTotalCost);
-    // console.log("pitchTotalCost:", pitchTotalCost);
-    pitchTotalPH = formatCost(pitchTotalPH);
+    const tagsData = await Tag.findAll({
+      where: {
+        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      },
+      order: [["id", "ASC"]],
+    });
+
     const portfolioName = await returnPortfolioName(company_id_fk);
+
     // Render the funnel page with the retrieved data
     res.render("Pages/pages-funnel", {
       phases: phases,
       priorities: priorities,
       projects: data,
-      sponsors: personsData,
-      primes: personsData,
+      sponsors: persons,
+      primes: persons,
       pitchCount: pitchCount,
-      pitchTotalCost: formatCost(pitchTotalCost),
-      pitchTotalPH: formatCost(pitchTotalPH),
+      pitchTotalCost: pitchTotalCost,
+      pitchTotalPH: pitchTotalPH,
       tags: tagsData,
       portfolioName,
     });
