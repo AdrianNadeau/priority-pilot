@@ -20,26 +20,53 @@ const pgSession = require("connect-pg-simple")(session);
 // Create and Save a new Project
 exports.create = (req, res) => {
   const funnelPage = req.body.funnelPage;
-  company_id_fk = req.session.company.id;
+  const company_id_fk = req.session.company.id;
 
   // Convert dates
-  let startDateTest = null;
-  let endDateTest = null;
-  let nextMilestoneDateTest = null;
-  const pitch_message = "";
-  let projectCost = null;
+  const startDateTest = insertValidDate(req.body.start_date);
+  const endDateTest = insertValidDate(req.body.end_date);
+  const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
 
-  startDateTest = insertValidDate(req.body.start_date);
-  endDateTest = insertValidDate(req.body.end_date);
-  nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
-  try {
-    projectCost = removeCommasAndConvertToNumber(req.body.project_cost);
-  } catch (error) {
-    projectCost = 0;
-  }
-  if (isNaN(projectCost)) {
-    projectCost = 0;
-  }
+  // Sanitize numeric fields
+  const sanitizedProjectCost = req.body.project_cost
+    ? removeCommasAndConvertToNumber(req.body.project_cost)
+    : 0;
+
+  const sanitizedEffort = req.body.effort
+    ? removeCommasAndConvertToNumber(req.body.effort)
+    : 0;
+
+  const sanitizedBenefit = req.body.benefit
+    ? removeCommasAndConvertToNumber(req.body.benefit)
+    : 0;
+
+  const sanitizedTag1 = req.body.tag_1
+    ? parseInt(req.body.tag_1.replace(/,/g, ""), 10)
+    : null;
+
+  const sanitizedTag2 = req.body.tag_2
+    ? parseInt(req.body.tag_2.replace(/,/g, ""), 10)
+    : null;
+
+  const sanitizedTag3 = req.body.tag_3
+    ? parseInt(req.body.tag_3.replace(/,/g, ""), 10)
+    : null;
+
+  const sanitizedPhaseId = req.body.phase_id_fk
+    ? parseInt(req.body.phase_id_fk, 10)
+    : null;
+
+  const sanitizedPriorityId = req.body.priority_id_fk
+    ? parseInt(req.body.priority_id_fk, 10)
+    : null;
+
+  const sanitizedSponsorId = req.body.sponsor_id_fk
+    ? parseInt(req.body.sponsor_id_fk, 10)
+    : null;
+
+  const sanitizedPrimeId = req.body.prime_id_fk
+    ? parseInt(req.body.prime_id_fk, 10)
+    : null;
 
   // Create a Project
   const project = {
@@ -52,112 +79,46 @@ exports.create = (req, res) => {
     start_date: startDateTest,
     end_date: endDateTest,
     next_milestone_date: nextMilestoneDateTest,
-    priority_id_fk: req.body.priority_id_fk,
-    sponsor_id_fk: req.body.sponsor_id_fk,
-    prime_id_fk: req.body.prime_id_fk,
-    phase_id_fk: req.body.phase_id_fk,
-    project_cost: req.body.project_cost,
-    effort: req.body.effort,
-    benefit: req.body.benefit,
-    impact: req.body.impact,
-    complexity: req.body.complexity,
-    pitch_message: pitch_message,
-    tag_1: req.body.tag_1,
-    tag_2: req.body.tag_2,
-    tag_3: req.body.tag_3,
-    reference: req.body.reference,
+    priority_id_fk: sanitizedPriorityId,
+    sponsor_id_fk: sanitizedSponsorId,
+    prime_id_fk: sanitizedPrimeId,
+    phase_id_fk: sanitizedPhaseId,
+    project_cost: sanitizedProjectCost,
+    effort: sanitizedEffort,
+    benefit: sanitizedBenefit,
+    pitch_message: req.body.pitch_message || "",
+    tag_1: sanitizedTag1,
+    tag_2: sanitizedTag2,
+    tag_3: sanitizedTag3,
+    reference: req.body.reference || "",
   };
 
   // Save Project in the database
-  Project.create(project).then(async (createdProject) => {
-    const phasesData = await Phase.findAll({
-      order: [["id", "ASC"]],
-    }).catch((error) => {
-      console.log("Error fetching phasesData:", error);
-    });
-    console.log("Today:", new Date());
-    const newChangedProject = {
-      company_id_fk,
-      project_id_fk: createdProject.id,
-      project_name: req.body.project_name,
-      project_headline: req.body.headline,
-      project_description: req.body.project_description,
-      project_why: req.body.why,
-      project_what: req.body.what,
-      start_date: startDateTest,
-      end_date: endDateTest,
-      next_milestone_date: nextMilestoneDateTest,
-      priority_id_fk: req.body.priority_id_fk,
-      sponsor_id_fk: req.body.sponsor_id_fk,
-      prime_id_fk: req.body.prime_id_fk,
-      phase_id_fk: req.body.phase_id_fk,
-      project_cost: req.body.project_cost,
-      effort: req.body.effort,
-      benefit: req.body.benefit,
-      impact: req.body.impact,
-      complexity: req.body.complexity,
-      pitch_message: pitch_message,
-      tag_1: req.body.tag_1,
-      tag_2: req.body.tag_2,
-      tag_3: req.body.tag_3,
-      change_reason_id_fk: 1,
-      change_explanation: "Initial Entry",
-      change_date: new Date(),
-    };
-
-    const changedProject = await ChangeProject.create(newChangedProject);
-
-    let tagsData = await Tag.findAll({
-      where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
-      },
-      order: [["id", "ASC"]],
-    });
-
-    // Add "None" option at the top of the tags list
-    tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
-
-    const [prioritiesData, personsData, projectsData] = await Promise.all([
-      Priority.findAll(),
-      Person.findAll({
-        where: {
-          company_id_fk: company_id_fk,
-        },
-      }),
-      Project.findAll(),
-    ]);
-
-    if (funnelPage == "n") {
-      const query =
-        "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
-
-      await db.sequelize
-        .query(query, {
-          replacements: [company_id_fk],
-          type: db.sequelize.QueryTypes.SELECT,
-        })
-        .then((data) => {
-          res.render("Pages/pages-projects", {
-            projects: data,
-            phases: phasesData,
-            priorities: prioritiesData,
-            sponsors: personsData,
-            primes: personsData,
-            tags: tagsData,
-            company_id: company_id_fk,
-          });
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while retrieving data.",
-          });
+  if (funnelPage === "y") {
+    Project.create(project)
+      .then((createdProject) => {
+        res.redirect("/projects/funnel/view/");
+      })
+      .catch((err) => {
+        console.error("Error creating project:", err);
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while creating the project.",
         });
-    } else {
-      //send back to http://localhost:8080/projects/funnel/view/
-      res.redirect("/projects/funnel/view/");
-    }
-  });
+      });
+  } else {
+    Project.create(project)
+      .then((createdProject) => {
+        res.redirect("/projects");
+      })
+      .catch((err) => {
+        console.error("Error creating project:", err);
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while creating the project.",
+        });
+      });
+  }
 };
 
 exports.findAllRadar = async (req, res) => {
@@ -1279,32 +1240,48 @@ exports.findFunnel = async (req, res) => {
 };
 exports.findFreezer = async (req, res) => {
   const company_id_fk = req.session.company.id;
-  const projects = await db.projects.findAll({
-    where: {
-      company_id_fk: company_id_fk,
-      phase_id_fk: 6,
-    },
-    attributes: ["id", "project_name", "project_cost", "effort"],
-  });
 
-  const archivedCount = projects.length;
+  try {
+    // Fetch projects in the "archived" phase (phase ID 6)
+    const projects = await db.projects.findAll({
+      where: {
+        company_id_fk: company_id_fk,
+        phase_id_fk: 6,
+      },
+      attributes: ["id", "project_name", "project_cost", "effort"],
+    });
 
-  let archivedTotalPH = 0;
-  let archivedTotalCost = 0;
+    const archivedCount = projects.length;
 
-  projects.forEach((project) => {
-    archivedTotalCost = formatCost(Number(project.project_cost) || 0);
-    archivedTotalPH += parseFloat(project.effort) || 0;
-  });
-  const portfolioName = await returnPortfolioName(company_id_fk);
-  // Render the funnel page with the retrieved data
-  res.render("Pages/pages-freezer", {
-    projects,
-    archivedTotalCost,
-    archivedCount,
-    archivedTotalPH,
-    portfolioName,
-  });
+    // Initialize totals
+    let archivedTotalPH = 0;
+    let archivedTotalCost = 0;
+
+    // Calculate totals for cost and effort
+    projects.forEach((project) => {
+      archivedTotalCost +=
+        removeCommasAndConvertToNumber(project.project_cost) || 0;
+      archivedTotalPH += removeCommasAndConvertToNumber(project.effort) || 0;
+    });
+
+    // Format totals for display
+    const formattedArchivedTotalCost = formatCost(archivedTotalCost);
+    const formattedArchivedTotalPH = formatCost(archivedTotalPH);
+
+    const portfolioName = await returnPortfolioName(company_id_fk);
+
+    // Render the freezer page with the retrieved data
+    res.render("Pages/pages-freezer", {
+      projects,
+      archivedTotalCost: formattedArchivedTotalCost,
+      archivedCount,
+      archivedTotalPH: formattedArchivedTotalPH,
+      portfolioName,
+    });
+  } catch (error) {
+    console.error("Error retrieving archived projects:", error);
+    res.status(500).json({ message: "Error retrieving archived projects." });
+  }
 };
 exports.update = async (req, res) => {
   try {

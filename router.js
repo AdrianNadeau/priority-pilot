@@ -5,6 +5,7 @@ const isAdminMiddleware = require("./middleware/isAdminMiddleware");
 const db = require("./models");
 const Project = db.projects;
 const Company = db.companies;
+const Tag = db.tags;
 const { Op, fn, col, literal, where } = require("sequelize");
 const { format } = require("sequelize/lib/utils");
 
@@ -114,10 +115,14 @@ router.get("/", isAdminMiddleware, async (req, res) => {
 
     // Process data and calculate totals
     data.forEach((project) => {
+      // Parse project cost and effort
       const projectCost = project.project_cost
         ? removeCommasAndConvert(project.project_cost) || 0
         : 0;
-      const projectEffortPH = parseInt(project.effort) || 0;
+
+      const projectEffortPH = project.effort
+        ? removeCommasAndConvert(project.effort) || 0
+        : 0;
 
       // Categorize by phase name and accumulate values
       const phase = project.phase_name?.toLowerCase() || "unknown";
@@ -126,6 +131,12 @@ router.get("/", isAdminMiddleware, async (req, res) => {
         phaseData[phase].count++;
         phaseData[phase].cost += projectCost;
         phaseData[phase].ph += projectEffortPH;
+
+        // Debug logs
+        // console.log(`Project Effort (PH): ${projectEffortPH}`);
+        // console.log(
+        //   `Phase: ${phase}, Count: ${phaseData[phase].count}, Cost: ${phaseData[phase].cost}, PH: ${phaseData[phase].ph}`,
+        // );
       } else {
         console.warn("Unknown phase:", project.phase_name);
       }
@@ -152,7 +163,6 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       isNaN(totalAvailPH) || totalAvailPH < 0 ? "red" : "green";
     const availableCostColor =
       isNaN(availableCost) || availableCost < 0 ? "red" : "green";
-
     // Format data for response
     const formattedData = {
       totalPH: formatToKMB(portfolio_effort),
@@ -166,27 +176,27 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       planning: {
         count: phaseData.planning.count,
         cost: formatToKMB(phaseData.planning.cost),
-        ph: phaseData.planning.ph.toLocaleString(),
+        ph: formatToKMB(phaseData.planning.ph),
       },
       discovery: {
         count: phaseData.discovery.count,
         cost: formatToKMB(phaseData.discovery.cost),
-        ph: phaseData.discovery.ph.toLocaleString(),
+        ph: formatToKMB(phaseData.discovery.ph),
       },
       delivery: {
         count: phaseData.delivery.count,
         cost: formatToKMB(phaseData.delivery.cost),
-        ph: phaseData.delivery.ph.toLocaleString(),
+        ph: formatToKMB(phaseData.delivery.ph),
       },
       operations: {
         count: phaseData.done.count,
         cost: formatToKMB(phaseData.done.cost),
-        ph: phaseData.done.ph.toLocaleString(),
+        ph: formatToKMB(phaseData.done.ph),
       },
       archived: {
         count: phaseData.archived.count,
         cost: formatToKMB(phaseData.archived.cost),
-        ph: formatToKMB(phaseData.archived.ph.toLocaleString()),
+        ph: formatToKMB(phaseData.archived.ph),
       },
 
       totalCost: formatToKMB(portfolio_budget),
@@ -194,13 +204,23 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       availableCost: formatToKMB(availableCost),
       usedEffort: formatToKMB(usedEffort),
     };
+
     //get all phases for add project modal
     const phases = await db.phases.findAll({});
     //get all priorities for add project modal
     const priorities = await db.priorities.findAll({});
     //get all persons for primes and sponsors add project modal
     const persons = await db.persons.findAll({ where: { company_id_fk } });
-    const tags = await db.tags.findAll({ where: { company_id_fk } });
+    // Fetch tags
+    let tagsData = await Tag.findAll({
+      where: {
+        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      },
+      order: [["id", "ASC"]],
+    });
+
+    // Add "None" option at the top of the tags list
+    tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
     // Render dashboard with all calculated values
     const portfolioName = req.session.company.company_headline;
     res.render("Dashboard/dashboard1", {
@@ -214,7 +234,7 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       priorities,
       sponsors: persons,
       primes: persons,
-      tags,
+      tags: tagsData,
     });
   } catch (error) {
     console.error("Error executing query:", error);
