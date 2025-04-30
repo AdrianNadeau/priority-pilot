@@ -12,8 +12,8 @@ exports.create = async (req, res) => {
     if (!prime_id) {
       prime_id = null;
     }
-    const projectId = req.body.id;
-    console.log("projectId", projectId);
+    const project_id = req.body.project_id;
+    console.log("project_id", project_id);
     // Create a Status
     const status = {
       project_id_fk: req.body.project_id,
@@ -30,10 +30,8 @@ exports.create = async (req, res) => {
     // Save Status in the database
     const data = await Status.create(status);
 
-    const id = req.body.project_id;
-
-    const project = await Project.findByPk(id, {
-      where: { project_id: id },
+    const project = await Project.findByPk(project_id, {
+      where: { project_id: project_id },
     });
 
     const primeOnly = req.body.prime_only;
@@ -48,10 +46,12 @@ exports.create = async (req, res) => {
       });
     }
   } catch (err) {
-    res.status(500).send({
-      message: "Error updating Project with id=" + req.body.project_id,
-      error: err.message,
-    });
+    res
+      .status(500)
+      .send({
+        message: "Error updating Project with id=" + req.body.project_id,
+        error: err.message,
+      });
   }
 };
 
@@ -63,28 +63,29 @@ exports.findAll = (req, res) => {
       res.send(data);
     })
     .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving companies.",
-      });
+      res
+        .status(500)
+        .send({
+          message:
+            err.message || "Some error occurred while retrieving companies.",
+        });
     });
 };
 
 // Retrieve all by projectId from the database.
 exports.findAllByProjectId = (req, res) => {
   const project_id_fk = req.params.project_id_fk;
-  Status.findAll({
-    where: { project_id_fk },
-    order: [["createdAt", "DESC"]],
-  })
+  Status.findAll({ where: { project_id_fk }, order: [["createdAt", "DESC"]] })
     .then((data) => {
       res.send(data);
     })
     .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving companies.",
-      });
+      res
+        .status(500)
+        .send({
+          message:
+            err.message || "Some error occurred while retrieving companies.",
+        });
     });
 };
 
@@ -97,15 +98,13 @@ exports.findOne = (req, res) => {
       if (data) {
         res.send(data);
       } else {
-        res.status(404).send({
-          message: `Cannot find Status with id=${id}.`,
-        });
+        res.status(404).send({ message: `Cannot find Status with id=${id}.` });
       }
     })
     .catch((err) => {
-      res.status(500).send({
-        message: "Error retrieving Status with id=" + id,
-      });
+      res
+        .status(500)
+        .send({ message: "Error retrieving Status with id=" + id });
     });
 };
 
@@ -113,14 +112,10 @@ exports.findOne = (req, res) => {
 exports.update = (req, res) => {
   const id = req.params.id;
 
-  Status.update(req.body, {
-    where: { id: id },
-  })
+  Status.update(req.body, { where: { id: id } })
     .then((num) => {
       if (num == 1) {
-        res.send({
-          message: "Status was updated successfully.",
-        });
+        res.send({ message: "Status was updated successfully." });
       } else {
         res.send({
           message: `Cannot update Status with id=${id}. Maybe Status was not found or req.body is empty or violates foreign key contstraint!`,
@@ -128,9 +123,7 @@ exports.update = (req, res) => {
       }
     })
     .catch((err) => {
-      res.status(500).send({
-        message: "Error updating Status with id=" + id,
-      });
+      res.status(500).send({ message: "Error updating Status with id=" + id });
     });
 };
 
@@ -138,14 +131,10 @@ exports.update = (req, res) => {
 exports.delete = (req, res) => {
   const id = req.params.id;
 
-  Status.destroy({
-    where: { id: id },
-  })
+  Status.destroy({ where: { id: id } })
     .then((num) => {
       if (num == 1) {
-        res.send({
-          message: "Status was deleted successfully!",
-        });
+        res.send({ message: "Status was deleted successfully!" });
       } else {
         res.send({
           message: `Cannot delete Status with id=${id}. Maybe Status was not found!`,
@@ -153,25 +142,24 @@ exports.delete = (req, res) => {
       }
     })
     .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete Status with id=" + id,
-      });
+      res
+        .status(500)
+        .send({ message: "Could not delete Status with id=" + id });
     });
 };
 
 // Delete all  from the database.
 exports.deleteAll = (req, res) => {
-  Status.destroy({
-    where: {},
-    truncate: false,
-  })
+  Status.destroy({ where: {}, truncate: false })
     .then((nums) => {
       res.send({ message: `${nums} Companies were deleted successfully!` });
     })
     .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while removing all companies.",
-      });
+      res
+        .status(500)
+        .send({
+          message:
+            err.message || "Some error occurred while removing all companies.",
+        });
     });
 };

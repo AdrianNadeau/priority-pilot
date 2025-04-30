@@ -100,6 +100,11 @@ module.exports = (app) => {
     companyPortfolioName,
     projects.deleteAll,
   );
-
+  router.get(
+    "/export/export-project-list/",
+    sessionMiddleware,
+    projects.exportProjectsWithStatusToCSV,
+  );
+  router.get("/export/health-data", projects.exportHealthDataToCSV);
   app.use("/projects", router);
 };

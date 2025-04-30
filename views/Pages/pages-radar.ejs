@@ -20,6 +20,28 @@
   #tag3Chart {
     cursor: pointer;
   }
+  @media print {
+    /* Hide buttons and other unnecessary elements */
+    #btnPrintPage,
+    #btnExportHealth {
+      display: none;
+    }
+
+    /* Ensure the table and charts fit within the page */
+    .table-responsive {
+      overflow: visible !important;
+    }
+
+    .page-content-wrapper {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Adjust font sizes for better readability */
+    body {
+      font-size: 12px;
+    }
+  }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -31,6 +53,13 @@
       <i class="ion-navicon"></i>
     </button>
     <h3 class="page-title">Radar</h3>
+    <button
+      type="button"
+      class="btn btn-primary waves-effect waves-light"
+      id="btnPrintPage"
+    >
+      Print Page
+    </button>
   </div>
   <div class="col-md-4">
     <h3 class="page-title" style="color: #34b871; min-width: 600px">
@@ -43,6 +72,7 @@
 </div>
 
 <%- contentFor('body') %>
+
 <div class="page-content-wrapper">
   <div class="container" style="margin-left: 0.5em">
     <div class="row">
@@ -469,5 +499,8 @@
         })
         .catch((err) => console.error(err));
     }
+  });
+  document.getElementById("btnPrintPage").addEventListener("click", function () {
+    window.print();
   });
 </script>

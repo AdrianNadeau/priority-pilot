@@ -203,7 +203,7 @@ console.log("STATUS DATA: ", data);
               <p>No status updates available</p>
             <% } %>
             <br/>
-            <% if (project[0].phase_id_fk != "1" && project[0].phase_id_fk != "2") { %>
+            <% if (project[0].phase_id_fk != "1") { %>
               <button type="button" class="btn btn-primary waves-effect waves-light" style="padding-top:5px;" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
             <% } %>
                  <br/><br/>
@@ -261,7 +261,7 @@ console.log("STATUS DATA: ", data);
                 <div class="modal-body">
                     <form action="/statuses" class="needs-validation" novalidate method="POST">
                       <input type="hidden" name="prime_only" value="n">
-                      <input type="hidden" name="project_id" id="project_id" value="<%=project[0].id %>"/>
+                      <input type="hidden" name="project_id" name = "project_id" id="project_id" value="<%=project[0].id %>"/>
                       <input type="hidden" name="prime_id_fk" id="prime_id_fk" value="<%=project[0].prime_id_fk %>"/>
                         <div class="row">
                             <div class="col-md-12">
@@ -515,18 +515,18 @@ console.log("STATUS DATA: ", data);
       if (data.progress) document.getElementById('view_status_progress').value = data.progress;
       if (data.health) document.getElementById('view_status_health').value = data.health;
       if (data.status_date) {
-  const utcDate = new Date(data.status_date);
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric'
-  });
+      const utcDate = new Date(data.status_date);
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric'
+      });
 
-  const estDate = formatter.format(utcDate);
-  document.getElementById('view_status_date').innerText = estDate;
+      const estDate = formatter.format(utcDate);
+      document.getElementById('view_status_date').innerText = estDate;
 }
 
       // Open the modal

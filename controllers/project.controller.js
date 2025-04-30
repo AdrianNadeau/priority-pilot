@@ -15,6 +15,7 @@ const moment = require("moment");
 const pg = require("pg");
 const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
+const { Parser } = require("json2csv");
 // const sendEmail = require("../utils/emailSender");
 
 // Create and Save a new Project
@@ -101,10 +102,12 @@ exports.create = (req, res) => {
       })
       .catch((err) => {
         console.error("Error creating project:", err);
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while creating the project.",
-        });
+        res
+          .status(500)
+          .send({
+            message:
+              err.message || "Some error occurred while creating the project.",
+          });
       });
   } else {
     Project.create(project)
@@ -113,10 +116,12 @@ exports.create = (req, res) => {
       })
       .catch((err) => {
         console.error("Error creating project:", err);
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while creating the project.",
-        });
+        res
+          .status(500)
+          .send({
+            message:
+              err.message || "Some error occurred while creating the project.",
+          });
       });
   }
 };
@@ -173,9 +178,7 @@ exports.findAll = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
 
-    const phasesData = await Phase.findAll({
-      order: [["id", "ASC"]],
-    });
+    const phasesData = await Phase.findAll({ order: [["id", "ASC"]] });
     const priorities = await Priority.findAll();
 
     const personsData = await Person.findAll({
@@ -240,9 +243,12 @@ exports.findAll = async (req, res) => {
       })
 
       .catch((err) => {
-        res.status(500).send({
-          message: err.message || "Some error occurred while retrieving data.",
-        });
+        res
+          .status(500)
+          .send({
+            message:
+              err.message || "Some error occurred while retrieving data.",
+          });
       });
   } catch (error) {
     console.log("error:", error);
@@ -259,15 +265,15 @@ exports.findOne = (req, res) => {
         if (data) {
           res.status(200).send(data);
         } else {
-          res.status(404).send({
-            message: `Cannot find Project with id=${id}.`,
-          });
+          res
+            .status(404)
+            .send({ message: `Cannot find Project with id=${id}.` });
         }
       })
       .catch((err) => {
-        res.status(500).send({
-          message: "Error retrieving Project with id=" + id,
-        });
+        res
+          .status(500)
+          .send({ message: "Error retrieving Project with id=" + id });
       });
   }
 };
@@ -392,9 +398,9 @@ ORDER BY changed_projects.change_date DESC
     });
   } catch (error) {
     console.log("Database Query Error: ", error);
-    res.status(500).send({
-      message: "An error occurred while retrieving project data.",
-    });
+    res
+      .status(500)
+      .send({ message: "An error occurred while retrieving project data." });
   }
 };
 exports.findOneForEdit = async (req, res) => {
@@ -496,9 +502,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
         lastStartDate = statuses[0].status_date;
         statusColor = statuses[0].health;
       }
-      const phasesData = await Phase.findAll({
-        order: [["id", "ASC"]],
-      });
+      const phasesData = await Phase.findAll({ order: [["id", "ASC"]] });
       const [prioritiesData] = await Promise.all([
         Priority.findAll(),
         Project.findAll(),
@@ -527,16 +531,16 @@ proj.company_id_fk = ? AND proj.id = ?`;
       });
     } catch (err) {
       console.error("Error retrieving data:", err);
-      res.status(500).send({
-        message: err.message || "Error occurred while retrieving data.",
-      });
+      res
+        .status(500)
+        .send({
+          message: err.message || "Error occurred while retrieving data.",
+        });
     }
     let formattedTag;
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).send({
-      message: "An unexpected error occurred.",
-    });
+    res.status(500).send({ message: "An unexpected error occurred." });
   }
 };
 
@@ -594,9 +598,7 @@ exports.findOneForPrime = async (req, res) => {
       statusColor = statuses[0].health;
     }
 
-    const phasesData = await Phase.findAll({
-      order: [["id", "ASC"]],
-    });
+    const phasesData = await Phase.findAll({ order: [["id", "ASC"]] });
 
     const prioritiesData = await Priority.findAll();
 
@@ -624,9 +626,7 @@ exports.findOneForPrime = async (req, res) => {
     });
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).send({
-      message: "An unexpected error occurred.",
-    });
+    res.status(500).send({ message: "An unexpected error occurred." });
   }
 };
 
@@ -881,11 +881,7 @@ exports.countProjectsByTag1 = async (req, res) => {
 
     // Fetch tag names for each tag_1
     const tag1Names = await db.tags.findAll({
-      where: {
-        id: {
-          [Op.in]: tag1Counts.map((tag) => tag.tag_1),
-        },
-      },
+      where: { id: { [Op.in]: tag1Counts.map((tag) => tag.tag_1) } },
       attributes: ["id", "tag_name"],
     });
 
@@ -937,11 +933,7 @@ exports.countProjectsByTag2 = async (req, res) => {
 
     // Fetch tag names for each tag_1
     const tag2Names = await db.tags.findAll({
-      where: {
-        id: {
-          [Op.in]: tag2Counts.map((tag) => tag.tag_2),
-        },
-      },
+      where: { id: { [Op.in]: tag2Counts.map((tag) => tag.tag_2) } },
       attributes: ["id", "tag_name"],
     });
 
@@ -992,11 +984,7 @@ exports.countProjectsByTag3 = async (req, res) => {
 
     // Fetch tag names for each tag_3
     const tag3Names = await db.tags.findAll({
-      where: {
-        id: {
-          [Op.in]: tag3Counts.map((tag) => tag.tag_3),
-        },
-      },
+      where: { id: { [Op.in]: tag3Counts.map((tag) => tag.tag_3) } },
       attributes: ["id", "tag_name"],
     });
 
@@ -1152,10 +1140,7 @@ exports.findFunnel = async (req, res) => {
     const pitchPhaseId = 1;
 
     const totals = await db.projects.findOne({
-      where: {
-        company_id_fk: company_id_fk,
-        phase_id_fk: pitchPhaseId,
-      },
+      where: { company_id_fk: company_id_fk, phase_id_fk: pitchPhaseId },
       attributes: [
         [
           db.Sequelize.fn(
@@ -1202,9 +1187,7 @@ exports.findFunnel = async (req, res) => {
 
     const pitchCount = data.length;
 
-    const phases = await Phase.findAll({
-      order: [["id", "ASC"]],
-    });
+    const phases = await Phase.findAll({ order: [["id", "ASC"]] });
     const priorities = await Priority.findAll();
 
     const persons = await Person.findAll({
@@ -1244,10 +1227,7 @@ exports.findFreezer = async (req, res) => {
   try {
     // Fetch projects in the "archived" phase (phase ID 6)
     const projects = await db.projects.findAll({
-      where: {
-        company_id_fk: company_id_fk,
-        phase_id_fk: 6,
-      },
+      where: { company_id_fk: company_id_fk, phase_id_fk: 6 },
       attributes: ["id", "project_name", "project_cost", "effort"],
     });
 
@@ -1340,17 +1320,17 @@ exports.update = async (req, res) => {
         tag_3: sanitizedTag3,
         reference,
       },
-      {
-        where: { id },
-      },
+      { where: { id } },
     );
 
     if (num === 1) {
       res.redirect("/projects/");
     } else {
-      res.status(404).send({
-        message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
-      });
+      res
+        .status(404)
+        .send({
+          message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
+        });
     }
   } catch (error) {
     console.error("Error updating project:", error.message, error.stack);
@@ -1547,9 +1527,7 @@ exports.update = async (req, res) => {
         tag_3: sanitizedTag3, // Use sanitized value
         reference,
       },
-      {
-        where: { id },
-      },
+      { where: { id } },
     );
 
     if (num === 1) {
@@ -1584,9 +1562,11 @@ exports.update = async (req, res) => {
         res.redirect("/projects/");
       }
     } else {
-      res.status(404).send({
-        message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
-      });
+      res
+        .status(404)
+        .send({
+          message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
+        });
     }
   } catch (error) {
     console.error("Error updating project:", error.message, error.stack);
@@ -1598,9 +1578,7 @@ exports.update = async (req, res) => {
 exports.delete = (req, res) => {
   const id = req.params.id;
 
-  Project.destroy({
-    where: { id: id },
-  })
+  Project.destroy({ where: { id: id } })
     .then((num) => {
       if (num == 1) {
       } else {
@@ -1610,34 +1588,31 @@ exports.delete = (req, res) => {
       }
     })
     .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete Project with id=" + id,
-      });
+      res
+        .status(500)
+        .send({ message: "Could not delete Project with id=" + id });
     });
 };
 
 // Delete all  from the database.
 exports.deleteAll = (req, res) => {
-  Project.destroy({
-    where: {},
-    truncate: false,
-  })
+  Project.destroy({ where: {}, truncate: false })
     .then((nums) => {
       res.send({ message: `${nums} Companies were deleted successfully!` });
     })
     .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while removing all companies.",
-      });
+      res
+        .status(500)
+        .send({
+          message:
+            err.message || "Some error occurred while removing all companies.",
+        });
     });
 };
 exports.archvive = (req, res) => {
   const id = req.params.id;
   console.log("archvive id:", id);
-  Project.update({
-    where: { id: id },
-  })
+  Project.update({ where: { id: id } })
     .then((num) => {
       if (num == 1) {
       } else {
@@ -1647,12 +1622,281 @@ exports.archvive = (req, res) => {
       }
     })
     .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete Project with id=" + id,
-      });
+      res
+        .status(500)
+        .send({ message: "Could not delete Project with id=" + id });
     });
 };
+exports.exportProjectsWithStatusToCSV = async (req, res) => {
+  try {
+    const company_id_fk = req.session.company.id;
 
+    // Fetch projects
+    const projects = await db.projects.findAll({
+      where: { company_id_fk },
+      attributes: [
+        "id",
+        "project_name",
+        "project_headline",
+        "project_cost",
+        "effort",
+        "benefit",
+        "start_date",
+        "end_date",
+        "next_milestone_date",
+      ],
+      raw: true,
+    });
+
+    const statuses = await db.sequelize.query(
+      `
+      SELECT s.project_id_fk, s.status_date, s.progress, s.health, s.accomplishments, s.issue, s.actions
+      FROM statuses s
+      INNER JOIN (
+        SELECT project_id_fk, MAX(status_date) AS max_status_date
+        FROM statuses
+        GROUP BY project_id_fk
+      ) latest_status
+      ON s.project_id_fk = latest_status.project_id_fk AND s.status_date = latest_status.max_status_date
+      `,
+      { type: db.Sequelize.QueryTypes.SELECT },
+    );
+    console.log("CHECK STATUS");
+    // Map statuses to their corresponding projects
+    const statusMap = {};
+    statuses.forEach((status) => {
+      // console.log("status:", status);
+      // Map health values
+      if (status.health === "Black") {
+        status.health = "N/A";
+      } else if (status.health === "Green") {
+        status.health = "Healthy";
+      } else if (status.health === "Yellow") {
+        status.health = "Caution";
+      } else if (status.health === "Red") {
+        status.health = "Danger";
+        console.log("status:", status.health);
+      }
+
+      statusMap[status.project_id_fk] = status;
+    });
+
+    // Combine project and status data
+    const combinedData = projects.map((project) => {
+      const status = statusMap[project.id] || {
+        status_date: "N/A",
+        progress: "N/A",
+        health: "N/A",
+        accomplishments: "N/A",
+        issue: "N/A",
+        actions: "N/A",
+      };
+      // Format dates in yyyy-dd-mm format
+      const formattedStartDate = project.start_date
+        ? moment(project.start_date).format("YYYY-DD-MM")
+        : "N/A";
+      const formattedEndDate = project.end_date
+        ? moment(project.end_date).format("YYYY-DD-MM")
+        : "N/A";
+      const formattedNMSDate = project.next_milestone_date
+        ? moment(project.next_milestone_date).format("YYYY-DD-MM")
+        : "N/A";
+      if (status.health == null || status.health == undefined) {
+        status.health = "N/A";
+      }
+      if (status.progress == null || status.progress == undefined) {
+        status.progress = "N/A";
+      }
+      if (status.status_date == null || status.status_date == undefined) {
+        status.status_date = "N/A";
+      }
+      if (
+        status.accomplishments == null ||
+        status.accomplishments == undefined
+      ) {
+        status.accomplishments = "N/A";
+      }
+      if (status.issue == null || status.issue == undefined) {
+        status.issue = "N/A";
+      }
+      if (status.actions == null || status.actions == undefined) {
+        status.actions = "N/A";
+      }
+      if (status.health === "Black") {
+        status.health = "N/A";
+      } else if (status.health === "Green") {
+        status.health = "Healthy";
+      } else if (status.health === "Yellow") {
+        status.health = "Caution";
+      } else if (status.health === "Red") {
+        status.health = "Danger";
+        console.log("status:", status.health);
+      }
+      return {
+        Name: project.project_name,
+        Headline: project.project_headline,
+        Cost: project.project_cost || 0,
+        Effort: project.effort || 0,
+        Benefit: project.benefit || 0,
+        "Start Date": formattedStartDate,
+        "End Date": formattedEndDate,
+        "NMS Date": formattedNMSDate,
+        "Status Date": status.status_date,
+        Progress: status.progress,
+        Health: status.health,
+        Accomplishments: status.accomplishments,
+        Issues: status.issue,
+        Actions: status.actions,
+      };
+    });
+
+    // Define the fields for the CSV
+    const fields = [
+      "Name",
+      "Headline",
+      "Cost",
+      "Effort",
+      "Benefit",
+      "Start Date",
+      "End Date",
+      "NMS Date",
+      "Status Date",
+      "Progress",
+      "Health",
+      "Accomplishments",
+      "Issues",
+      "Actions",
+    ];
+
+    // Convert JSON to CSV
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(combinedData);
+
+    // Set headers and send the CSV file
+    res.header("Content-Type", "text/csv");
+    res.attachment("projects_with_status.csv");
+    res.send(csv);
+  } catch (error) {
+    console.error("Error exporting projects with status to CSV:", error);
+    res
+      .status(500)
+      .send({ message: "Error exporting projects with status to CSV." });
+  }
+};
+exports.exportHealthDataToCSV = async (req, res) => {
+  console.log("Exporting health data to CSV...");
+  try {
+    const company_id_fk = req.session.company.id;
+
+    // Fetch projects
+    const projects = await db.projects.findAll({
+      where: { company_id_fk },
+      attributes: [
+        "id",
+        "project_name",
+        "project_headline",
+        "project_cost",
+        "effort",
+        "benefit",
+        "start_date",
+        "end_date",
+        "next_milestone_date",
+      ],
+      raw: true,
+    });
+
+    const statuses = await db.sequelize.query(
+      `
+      SELECT s.project_id_fk, s.status_date, s.progress, s.health, s.accomplishments, s.issue, s.actions
+      FROM statuses s
+      INNER JOIN (
+        SELECT project_id_fk, MAX(status_date) AS max_status_date
+        FROM statuses
+        GROUP BY project_id_fk
+      ) latest_status
+      ON s.project_id_fk = latest_status.project_id_fk AND s.status_date = latest_status.max_status_date
+      `,
+      { type: db.Sequelize.QueryTypes.SELECT },
+    );
+
+    // Map statuses to their corresponding projects
+    const statusMap = {};
+    statuses.forEach((status) => {
+      statusMap[status.project_id_fk] = status;
+    });
+
+    // Combine project and status data
+    const combinedData = projects.map((project) => {
+      const status = statusMap[project.id] || {
+        status_date: "N/A",
+        progress: "N/A",
+        health: "N/A",
+        accomplishments: "N/A",
+        issue: "N/A",
+        actions: "N/A",
+      };
+      // Format dates in yyyy-dd-mm format
+      const formattedStartDate = project.start_date
+        ? moment(project.start_date).format("YYYY-DD-MM")
+        : "N/A";
+      const formattedEndDate = project.end_date
+        ? moment(project.end_date).format("YYYY-DD-MM")
+        : "N/A";
+      const formattedNMSDate = project.next_milestone_date
+        ? moment(project.next_milestone_date).format("YYYY-DD-MM")
+        : "N/A";
+
+      return {
+        Name: project.project_name,
+        Headline: project.project_headline,
+        Cost: project.project_cost || 0,
+        Effort: project.effort || 0,
+        Benefit: project.benefit || 0,
+        "Start Date": formattedStartDate,
+        "End Date": formattedEndDate,
+        "NMS Date": formattedNMSDate,
+        "Status Date": status.status_date,
+        Progress: status.progress,
+        Health: status.health,
+        Accomplishments: status.accomplishments,
+        Issues: status.issue,
+        Actions: status.actions,
+      };
+    });
+
+    // Define the fields for the CSV
+    const fields = [
+      "Name",
+      "Headline",
+      "Cost",
+      "Effort",
+      "Benefit",
+      "Start Date",
+      "End Date",
+      "NMS Date",
+      "Status Date",
+      "Progress",
+      "Health",
+      "Accomplishments",
+      "Issues",
+      "Actions",
+    ];
+
+    // Convert JSON to CSV
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(combinedData);
+
+    // Set headers and send the CSV file
+    res.header("Content-Type", "text/csv");
+    res.attachment("projects_with_status.csv");
+    res.send(csv);
+  } catch (error) {
+    console.error("Error exporting projects with status to CSV:", error);
+    res
+      .status(500)
+      .send({ message: "Error exporting projects with status to CSV." });
+  }
+};
 // Helper function to insert valid date
 function insertValidDate(date) {
   return date ? moment(date, "YYYY-MM-DD").toDate() : null;
