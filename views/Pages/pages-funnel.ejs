@@ -215,6 +215,13 @@
                               </select>
                             </div>
                           </div>
+                          <div class="form-group">
+                            <label for="reference">Reference:</label>
+                            <input type="text" class="form-control" id="reference" name="reference">
+                            <div class="invalid-feedback">
+                              Please enter project name.
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -248,16 +255,25 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-      const form = document.querySelector('form');
-      if (form) {
-          form.addEventListener('submit', function(event) {
-              if (!form.checkValidity()) {
-                  event.preventDefault();
-                  event.stopPropagation();
-              }
-              form.classList.add('was-validated');
-          }, false);
-      }
+     'use strict';
+   var forms = document.querySelectorAll(".needs-validation");
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach(function (form) {
+      form.addEventListener(
+        "submit",
+        function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+
+          form.classList.add("was-validated");
+        },
+        false,
+      );
+    });
+
   });
   function loadProject(project_id) {
     window.location.replace("/projects/cockpit/" + project_id);

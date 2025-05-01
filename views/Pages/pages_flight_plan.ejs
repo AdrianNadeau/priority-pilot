@@ -50,17 +50,6 @@
 <%- contentFor('body') %>
 <div class="page-content-wrapper">
   <div class="container-fluid">
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <button
-          type="button"
-          class="btn btn-primary waves-effect waves-light"
-          id="btnExportFlightPlan"
-        >
-          Export Flight Plan Data
-        </button>
-      </div>
-    </div>
     <div id="gantt_here" style="width: 1200px; height: 400px"></div>
   </div>
 </div>
@@ -68,13 +57,12 @@
 <%- contentFor('FooterJs') %>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    let tasks = []; // Store tasks data for export
-
     // Fetch project data from your API
     fetch("/projects/flightview/ganttChart/")
       .then((response) => response.json())
       .then((pData) => {
         const projects = pData.companyProjects;
+        console.log("Fetched Projects:", projects);
 
         const phaseMapping = {
           2: { id: 2, text: "Planning", open: true, type: "phase" },
@@ -92,66 +80,29 @@
         );
 
         const colorMapping = {
-          Green: "Healthy",
-          Yellow: "Caution",
-          Red: "Danger",
-          Black: "Unknown", // Default for #000000 or undefined health
+          Green: "#28a745",
+          Yellow: "#ffc107",
+          Red: "#dc3545",
         };
 
-        tasks = {
+        const tasks = {
           data: filteredProjects.map((project) => {
-            console.log("Raw Start Date:", project.start_date); // Debugging
-            console.log("Raw End Date:", project.end_date); // Debugging
-
             const phaseId = phaseMapping[project.phase_id_fk]?.id;
-
-            // Format dates to yyyy-dd-mm
-            const formatDate = (date) => {
-              if (!date) return "N/A"; // Handle null or undefined dates
-
-              // Use moment to parse and format the date
-              const formattedDate = moment(date, moment.ISO_8601, true).format(
-                "YYYY-MM-DD",
-              );
-              if (!formattedDate || formattedDate === "Invalid date") {
-                console.error("Invalid date:", date); // Log invalid dates for debugging
-                return "N/A"; // Return "N/A" for invalid dates
-              }
-
-              return formattedDate;
-            };
-
-            tasks = {
-              data: filteredProjects.map((project) => {
-                console.log("RAW Start Date:", project.start_date); // Debugging
-                console.log("RAW End Date:", project.end_date); // Debugging
-
-                const phaseId = phaseMapping[project.phase_id_fk]?.id;
-
-                return {
-                  id: project.id + 1000,
-                  text: project.project_name,
-                  start_date: project.start_date
-                    ? formatDate(project.start_date)
-                    : "N/A",
-                  end_date: project.end_date
-                    ? formatDate(project.end_date)
-                    : "N/A",
-                  parent: phaseId || null,
-                  health: colorMapping[project.health] || "Unknown", // Use color name instead of color code
-                  type: "task",
-                };
-              }),
-              links: [],
-            };
+            console.log(
+              `Mapping Project: ${project.project_name}, Phase: ${project.phase_id_fk}, Mapped Parent ID: ${phaseId}`,
+            );
             return {
               id: project.id + 1000,
               text: project.project_name,
-              start_date: project.start_date
-                ? formatDate(project.start_date)
-                : "N/A",
+              start_date: new Date(project.start_date).toLocaleDateString(
+                "en-GB",
+              ),
+              duration: Math.ceil(
+                (new Date(project.end_date) - new Date(project.start_date)) /
+                  (1000 * 60 * 60 * 24),
+              ),
               parent: phaseId || null,
-              health: colorMapping[project.health] || "Unknown", // Use color name instead of color code
+              color: colorMapping[project.health] || "#000000",
               type: "task",
             };
           }),
@@ -161,28 +112,7 @@
         const sortedData = [...categories, ...tasks.data].sort((a, b) =>
           a.id === 2 ? -1 : 1,
         );
-        gantt.config.columns = [
-          {
-            name: "text",
-            label: "Project",
-            width: "*",
-            tree: true,
-            width: 200,
-          },
-          {
-            name: "start_date",
-            label: "Start Date",
-            align: "center",
-            width: 120,
-          }, // Update label here
-          {
-            name: "duration",
-            label: "Duration (Days)",
-            align: "center",
-            width: 110,
-          },
-        ];
-        gantt.config.readonly = true; // Make the Gantt chart read-only
+
         gantt.init("gantt_here");
         gantt.parse({ data: sortedData });
 
@@ -197,6 +127,25 @@
         };
       });
   });
+
+  gantt.config.scales = [
+    { unit: "month", step: 1, format: "%M %Y" },
+    {
+      unit: "quarter",
+      step: 1,
+      format: function (date) {
+        const quarter = Math.floor(date.getMonth() / 3) + 1;
+        return "Q" + quarter;
+      },
+    },
+  ];
+
+  gantt.config.scale_height = 60;
+  gantt.config.readonly = true;
+  gantt.config.columns = [
+    { name: "text", label: "Project Name", tree: true, width: "200" },
+    { name: "start_date", label: "Start Date", align: "center" },
+  ];
 </script>
 
 <%- contentFor('BottomJs') %>
