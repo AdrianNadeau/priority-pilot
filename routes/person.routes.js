@@ -55,13 +55,11 @@ module.exports = (app) => {
     companyPortfolioName,
     persons.deleteAll,
   );
-  router.get("/changePassword/:token", (req, res) => {
-    console.log("Route hit: /persons/changePassword");
-    const token = req.params.token; // Extract the token from the query string
-    //confirm token is valid and hasn't expired
-    console.log("Token:", token);
-    res.render("Pages/pages-reset-password", { token });
-  });
+  router.get(
+    "/password/getChangePassword/:token",
+    companyPortfolioName,
+    persons.getChangePassword,
+  );
 
   app.use("/persons", router);
 };

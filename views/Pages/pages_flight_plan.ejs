@@ -45,7 +45,7 @@
       class="btn btn-primary waves-effect waves-light"
       id="btnPrintPage"
     >
-      Print Page
+      Download Report
     </button> -->
   </div>
   <div class="col-md-4">
@@ -163,7 +163,6 @@
   document
     .getElementById("btnPrintPage")
     .addEventListener("click", function () {
-      console.log("Print button clicked!");
       const portfolioTitleElement = document.querySelector(".portfolio-title");
 
       if (!portfolioTitleElement) {
@@ -181,7 +180,7 @@
       // Add CSS for the print header
       const css = `
       @page {
-         size: landscape; /* Set the page orientation to landscape */
+        margin-top: 3cm; /* Adjust top margin to make space for the header */
       }
       body::before {
         content: "${portfolioName}";

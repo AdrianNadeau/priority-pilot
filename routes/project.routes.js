@@ -59,6 +59,7 @@ module.exports = (app) => {
     companyPortfolioName,
     projects.radar,
   );
+
   router.get("/radar/progress/", sessionMiddleware, projects.progress);
   router.get(
     "/radar/countProjectsByTag1/",

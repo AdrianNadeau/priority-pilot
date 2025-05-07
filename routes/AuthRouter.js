@@ -106,6 +106,9 @@ Authrouter.get("/auth/reset-password/:token", function (req, res) {
   console.log("Rendering reset password page with token:", req.params.token);
   res.render("Pages/pages-reset-password");
 });
+Authrouter.get("/pages-change-password", function (req, res) {
+  res.render("Pages/pages-recoverpw");
+});
 Authrouter.get("/recover-password", function (req, res) {
   res.render("Pages/pages-recoverpw");
 });

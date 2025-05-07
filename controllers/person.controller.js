@@ -317,3 +317,72 @@ exports.sendResetPasswordEmail = async (req, res) => {
     });
   }
 };
+exports.getChangePassword = async (req, res) => {
+  const token = req.params.token;
+  console.log("getChangePassword", token);
+  try {
+    // Find the token in the database
+    const tokenRecord = await ChangedPasswordToken.findOne({
+      where: { token },
+    });
+    if (!tokenRecord) {
+      return res.status(404).send("Invalid or expired token.");
+    }
+    const person = await Person.findByPk(tokenRecord.person_id_fk);
+    console.log("person:", person);
+    const person_id_fk = tokenRecord.person_id_fk;
+    console.log("person_id_fk:", person_id_fk);
+
+    // Check if the token has expired
+    const currentTime = new Date();
+    if (currentTime > tokenRecord.expires_at) {
+      return res.status(400).send("Token has expired.");
+    }
+  } catch (error) {
+    console.error("Error retrieving change password page:", error);
+    res.status(500).send("Internal Server Error");
+  }
+  try {
+    // // Find the person by email
+    // const person = await Person.findOne({ where: { email } });
+    // if (!person) {
+    //   return res.status(404).send("Email not found.");
+    // }
+    // console.log("person:", person.id);
+
+    // // Generate a unique reset token
+    // const resetToken = uuidv4();
+
+    // // Generate the redirect URL
+    // const redirectURL = `${process.env.REDIRECT_URL}/${resetToken}`;
+
+    // // Prepare email template data
+    // const templateData = {
+    //   first_name: person.first_name || "Friend",
+    //   redirectURL, // Pass the redirect URL to the template
+    //   resetToken,
+    // };
+    // console.log("templateData:", templateData);
+    // // Send the reset password email
+    // await sendEmail(
+    //   email,
+    //   "Reset Your Password",
+    //   "reset-email-password",
+    //   templateData,
+    //   resetToken,
+    // );
+
+    //add 10 minutes before the token expires
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+    const changedPasswordToken = await ChangedPasswordToken.findAll({
+      where: { token: token },
+    });
+    res.render("Pages/pages-change-password", { token });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    req.session.emailStatus = "Error resetting password.";
+    req.session.save(() => {
+      res.redirect("/email-status");
+    });
+  }
+};
