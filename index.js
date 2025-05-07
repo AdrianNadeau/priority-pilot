@@ -63,7 +63,7 @@ app.use(companyPortfolioName);
 // Set up storage engine
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "/resources/static/assets/uploads/company_logos"); // Directory to store files
+    cb(null, "/resources/static/assets/uploads/company_logos");
   },
   filename: function (req, file, cb) {
     cb(
@@ -81,6 +81,7 @@ var expressLayouts = require("express-ejs-layouts");
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(expressLayouts);
+
 // Add Route file with app
 app.use("/", router);
 
@@ -100,11 +101,7 @@ require("./routes/priority.routes")(app);
 require("./routes/change_reason.routes.js")(app);
 require("./routes/changed_project.routes.js")(app);
 require("./routes/changed_password_token.routes.js")(app);
-// Handle 404 errors
 
-// app.use((req, res, next) => {
-//   res.status(404).render("Pages/pages-404");
-// });
 app.use(errorHandler);
 
 http.listen(process.env.PORT || 8080, function () {

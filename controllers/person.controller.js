@@ -5,7 +5,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../routes/JWTRouter");
 const sendEmail = require("../utils/emailSender");
-const changed = require("../utils/emailSender");
 const sgMail = require("@sendgrid/mail");
 const ejs = require("ejs");
 const { v4: uuidv4 } = require("uuid");
@@ -18,9 +17,7 @@ const { persons: Person, companies: Company } = db;
 const authenticateUser = async (email, password) => {
   try {
     const person = await Person.findOne({ where: { email } });
-    if (!person) {
-      return null;
-    }
+    if (!person) return null;
 
     const isMatch = await bcrypt.compare(
       password.trim(),
@@ -47,11 +44,7 @@ exports.create = async (req, res, next) => {
     const company_id_fk = req.session.company?.id;
 
     const company = await Company.findByPk(company_id_fk);
-    if (!company) {
-      const error = new Error("Company not found.");
-      error.statusCode = 404;
-      throw error;
-    }
+    if (!company) throw new Error("Company not found.");
 
     if (!email || !password) {
       const error = new Error("Email and password are required.");
@@ -67,10 +60,9 @@ exports.create = async (req, res, next) => {
     }
 
     const isAdminStatus = isAdmin === "true" || register_yn === "y";
-    console.log("isAdminStatus:", isAdminStatus);
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newPerson = await Person.create({
+    await Person.create({
       email,
       first_name,
       last_name,
@@ -90,10 +82,6 @@ exports.create = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   try {
     const company_id_fk = req.session.company?.id;
-    if (!company_id_fk) {
-      return res.redirect("/pages-500");
-    }
-
     const data = await Person.findAll({
       where: { company_id_fk },
       order: [
@@ -111,7 +99,6 @@ exports.findAll = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
     const person = await authenticateUser(email, password);
     if (!person) {
       const error = new Error("Invalid username or password.");
@@ -120,40 +107,25 @@ exports.login = async (req, res, next) => {
     }
 
     const company = await Company.findByPk(person.company_id_fk);
-    if (!company) {
-      return res.redirect("/login");
-    } else {
-      console.log("Portfolio name:", company.company_name);
-      console.log("Person:", person.email);
-      req.session.company = company;
-      // const {
-      //   password, // excluded
-      //   salt, // another excluded field
-      //   first_name: firstName, // renamed
-      //   last_name: lastName, // renamed
-      //   emailAddress: person.email,
-      //   company_id_fk: person.company_id_fk,
-      //   isAdmin: person.isAdmin,
-      //   ...otherData // keep other fields as they are (id, email, company_id_fk, isAdmin)
-      // } = person;
-      req.session.person = {
-        id: person.id,
-        firstName: person.first_name,
-        lastName: person.last_name,
-        email: person.email,
-        company_id_fk: person.company_id_fk,
-        isAdmin: person.isAdmin,
-        // Do not include the password
-      };
+    if (!company) return res.redirect("/login");
 
-      req.session.save((err) => {
-        if (err) {
-          console.error("Session save error:", err);
-          return res.status(500).send("Internal Server Error");
-        }
-        res.redirect("/");
-      });
-    }
+    req.session.company = company;
+    req.session.person = {
+      id: person.id,
+      firstName: person.first_name,
+      lastName: person.last_name,
+      email: person.email,
+      company_id_fk: person.company_id_fk,
+      isAdmin: person.isAdmin,
+    };
+
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).send("Internal Server Error");
+      }
+      res.redirect("/");
+    });
   } catch (error) {
     next(error);
   }
@@ -235,18 +207,14 @@ exports.deleteAll = async (req, res, next) => {
   }
 };
 
+// Send Welcome Email
 exports.sendWelcomeEmail = async (req, res) => {
-  console.log(".....Sending WelcomeEmail....");
-  const pesronFirstName = req.session.person?.first_name;
+  const personFirstName = req.session.person?.firstName;
   const personEmail = req.session.person?.email;
 
-  console.log("person:", pesronFirstName);
-  console.log("personEmail:", personEmail);
-
-  // const email = "adrian@prioritypilot.ca";
   try {
-    await sendEmail(email, "Welcome to Priority Pilot!", "welcome", {
-      first_name: pesronFirstName,
+    await sendEmail(personEmail, "Welcome to Priority Pilot!", "welcome", {
+      first_name: personFirstName,
     });
     res.status(200).send("Welcome email sent successfully");
   } catch (error) {
@@ -254,66 +222,70 @@ exports.sendWelcomeEmail = async (req, res) => {
     res.status(500).send("Error sending welcome email");
   }
 };
+
+// Send Reset Password Email
 exports.sendResetPasswordEmail = async (req, res) => {
   const email = req.body.email;
-
-  if (!email) {
-    return res.status(400).send("Email is required.");
-  }
+  if (!email) return res.status(400).send("Email is required.");
 
   try {
-    // Find the person by email
     const person = await Person.findOne({ where: { email } });
-    if (!person) {
-      return res.status(404).send("Email not found.");
-    }
-    console.log("person:", person.id);
+    if (!person) return res.status(404).send("Email not found.");
 
-    // Generate a unique reset token
     const resetToken = uuidv4();
-
-    // Generate the redirect URL
     const redirectURL = `${process.env.REDIRECT_URL}/${resetToken}`;
 
-    // Prepare email template data
-    const templateData = {
+    await sendEmail(email, "Reset Your Password", "reset-email-password", {
       first_name: person.first_name || "Friend",
-      redirectURL, // Pass the redirect URL to the template
+      redirectURL,
       resetToken,
-    };
-    console.log("templateData:", templateData);
-    // Send the reset password email
-    await sendEmail(
-      email,
-      "Reset Your Password",
-      "reset-email-password",
-      templateData,
-      resetToken,
-    );
+    });
 
-    console.log(
-      "Reset password email sent successfully... add token record to db",
-    );
-
-    //add 10 minutes before the token expires
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
-    const changedPasswordToken = await ChangedPasswordToken.create({
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    await ChangedPasswordToken.create({
       person_id_fk: person.id,
       token: resetToken,
       email: person.email,
       created_at: new Date(),
       expires_at: expiresAt,
     });
-    // Render the email status page
+
     req.session.emailStatus = "Reset password email sent successfully.";
-    req.session.save(() => {
-      res.redirect("/email-status");
-    });
+    req.session.save(() => res.redirect("/email-status"));
   } catch (error) {
     console.error("Error resetting password:", error);
     req.session.emailStatus = "Error resetting password.";
-    req.session.save(() => {
-      res.redirect("/email-status");
+    req.session.save(() => res.redirect("/email-status"));
+  }
+};
+
+// Get Change Password Page
+exports.getChangePassword = async (req, res) => {
+  const token = req.params.token;
+  try {
+    const tokenRecord = await ChangedPasswordToken.findOne({
+      where: { token },
     });
+    if (!tokenRecord || new Date() > tokenRecord.expires_at) {
+      const error = new Error(
+        "Invalid or expired token. Click here to try again.",
+      );
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const person = await Person.findByPk(tokenRecord.person_id_fk);
+    if (!person) {
+      return res.status(404).send("User not found.");
+    }
+
+    res.render("Pages/pages-change-password", {
+      email: person.email,
+      token: token,
+      layout: "layout-public",
+    });
+  } catch (error) {
+    console.error("Error retrieving change password page:", error);
+    res.status(500).send("Internal Server Error");
   }
 };

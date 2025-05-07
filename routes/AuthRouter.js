@@ -34,7 +34,7 @@ const persons = require("../controllers/person.controller");
 // };
 //Authentications all TABs.
 Authrouter.get("/login", function (req, res) {
-  res.render("Pages/pages-login");
+  res.render("Pages/pages-login", { layout: "layout-public" });
 });
 Authrouter.post("/login", function (req, res) {
   res.render("Pages/pages-login");
@@ -61,11 +61,6 @@ Authrouter.get("/help", function (req, res) {
   let sessionValid = false;
   const company_id_fk = req.session.company.id;
   const person_id_fk = req.session.person.id;
-  // if (!req.session || !req.session.company || !req.session.person) {
-  //   return res.redirect("/pages-500");
-  // } else {
-  //   sessionValid = true;
-  // }
 
   res.render("Pages/pages-help", {
     person_id_fk: person_id_fk,
@@ -77,11 +72,6 @@ Authrouter.get("/pages-maintenance", function (req, res) {
   res.render("Pages/pages-maintenance");
 });
 Authrouter.get("Pages/pages-roadmap", function (req, res) {
-  //get company id
-  if (!req.session || !req.session.company || !req.session.person) {
-    return res.redirect("/pages-500");
-  }
-
   const company_id_fk = req.session.company.id;
   const person_id_fk = req.session.person.id;
 
@@ -91,8 +81,10 @@ Authrouter.get("Pages/pages-roadmap", function (req, res) {
   });
 });
 Authrouter.post("/register", companies.create);
-Authrouter.post("/auth/login", persons.login);
-
+// Authrouter.post("/auth/login", persons.login);
+Authrouter.get("/auth/login", function (req, res) {
+  res.render("Pages/pages-login", { layout: "layout-public" });
+});
 Authrouter.get("/pages-maintenance", function (req, res) {
   res.render("Pages/pages-maintenance");
 });
@@ -105,6 +97,10 @@ Authrouter.get("/session-expired", function (req, res) {
 Authrouter.get("/auth/reset-password/:token", function (req, res) {
   console.log("Rendering reset password page with token:", req.params.token);
   res.render("Pages/pages-reset-password");
+});
+Authrouter.get("/pages-change-password", function (req, res) {
+  res.render("Pages/pages-login", { layout: "layout-public" });
+  res.render("Pages/pages-recoverpw");
 });
 Authrouter.get("/recover-password", function (req, res) {
   res.render("Pages/pages-recoverpw");

@@ -102,12 +102,10 @@ exports.create = (req, res) => {
       })
       .catch((err) => {
         console.error("Error creating project:", err);
-        res
-          .status(500)
-          .send({
-            message:
-              err.message || "Some error occurred while creating the project.",
-          });
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while creating the project.",
+        });
       });
   } else {
     Project.create(project)
@@ -116,12 +114,10 @@ exports.create = (req, res) => {
       })
       .catch((err) => {
         console.error("Error creating project:", err);
-        res
-          .status(500)
-          .send({
-            message:
-              err.message || "Some error occurred while creating the project.",
-          });
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while creating the project.",
+        });
       });
   }
 };
@@ -243,12 +239,9 @@ exports.findAll = async (req, res) => {
       })
 
       .catch((err) => {
-        res
-          .status(500)
-          .send({
-            message:
-              err.message || "Some error occurred while retrieving data.",
-          });
+        res.status(500).send({
+          message: err.message || "Some error occurred while retrieving data.",
+        });
       });
   } catch (error) {
     console.log("error:", error);
@@ -279,17 +272,8 @@ exports.findOne = (req, res) => {
 };
 exports.cockpit = async (req, res) => {
   const project_id = req.params.id;
-  let company_id_fk;
-  try {
-    if (!req.session) {
-      return res.redirect("/pages-500");
-    } else {
-      company_id_fk = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("error:", error);
-    return res.redirect("/pages-500");
-  }
+  const company_id_fk = req.session.company.id;
+
   const tagsData = await Tag.findAll({
     where: {
       [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
@@ -531,11 +515,9 @@ proj.company_id_fk = ? AND proj.id = ?`;
       });
     } catch (err) {
       console.error("Error retrieving data:", err);
-      res
-        .status(500)
-        .send({
-          message: err.message || "Error occurred while retrieving data.",
-        });
+      res.status(500).send({
+        message: err.message || "Error occurred while retrieving data.",
+      });
     }
     let formattedTag;
   } catch (error) {
@@ -547,12 +529,6 @@ proj.company_id_fk = ? AND proj.id = ?`;
 exports.findOneForPrime = async (req, res) => {
   try {
     const project_id = req.params.id;
-
-    // Ensure session exists and fetch company ID
-    if (!req.session || !req.session.company) {
-      return res.redirect("/pages-500");
-    }
-
     const company_id_fk = req.session.company.id;
 
     // Query to fetch project details
@@ -840,19 +816,7 @@ exports.progress = async (req, res) => {
 };
 
 exports.countProjectsByTag1 = async (req, res) => {
-  let companyId;
-
-  // Ensure session exists and extract company information
-  try {
-    if (!req.session || !req.session.company) {
-      return res.redirect("/pages-500");
-    } else {
-      companyId = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("Error extracting company information:", error);
-    return res.status(500).send({ message: "Server error" });
-  }
+  const companyId = req.session.company.id;
 
   try {
     // Count projects grouped by tag_1 and ensure tag_1 is not 0
@@ -1326,11 +1290,9 @@ exports.update = async (req, res) => {
     if (num === 1) {
       res.redirect("/projects/");
     } else {
-      res
-        .status(404)
-        .send({
-          message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
-        });
+      res.status(404).send({
+        message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
+      });
     }
   } catch (error) {
     console.error("Error updating project:", error.message, error.stack);
@@ -1562,11 +1524,9 @@ exports.update = async (req, res) => {
         res.redirect("/projects/");
       }
     } else {
-      res
-        .status(404)
-        .send({
-          message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
-        });
+      res.status(404).send({
+        message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
+      });
     }
   } catch (error) {
     console.error("Error updating project:", error.message, error.stack);
@@ -1601,12 +1561,10 @@ exports.deleteAll = (req, res) => {
       res.send({ message: `${nums} Companies were deleted successfully!` });
     })
     .catch((err) => {
-      res
-        .status(500)
-        .send({
-          message:
-            err.message || "Some error occurred while removing all companies.",
-        });
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while removing all companies.",
+      });
     });
 };
 exports.archvive = (req, res) => {
