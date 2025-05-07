@@ -43,9 +43,9 @@ Authrouter.get("/pages-login-2", function (req, res) {
   res.render("Pages/pages-login-2");
 });
 
-// Authrouter.get("/register", function (req, res) {
-//   res.render("Pages/pages-register");
-// });
+Authrouter.get("/register", function (req, res) {
+  res.render("Pages/pages-register");
+});
 Authrouter.get("/confirm", function (req, res) {
   res.render("Pages/pages-register-confirm");
 });
@@ -59,14 +59,13 @@ Authrouter.get("/terms", function (req, res) {
 Authrouter.get("/help", function (req, res) {
   //get company id
   let sessionValid = false;
-  if (!req.session || !req.session.company || !req.session.person) {
-    return res.redirect("/pages-500");
-  } else {
-    sessionValid = true;
-  }
-
   const company_id_fk = req.session.company.id;
   const person_id_fk = req.session.person.id;
+  // if (!req.session || !req.session.company || !req.session.person) {
+  //   return res.redirect("/pages-500");
+  // } else {
+  //   sessionValid = true;
+  // }
 
   res.render("Pages/pages-help", {
     person_id_fk: person_id_fk,
@@ -91,7 +90,7 @@ Authrouter.get("Pages/pages-roadmap", function (req, res) {
     company_id_fk: company_id_fk,
   });
 });
-// Authrouter.post("/register", companies.create);
+Authrouter.post("/register", companies.create);
 Authrouter.post("/auth/login", persons.login);
 
 Authrouter.get("/pages-maintenance", function (req, res) {

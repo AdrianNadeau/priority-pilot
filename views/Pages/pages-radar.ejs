@@ -62,7 +62,10 @@
     </button>
   </div>
   <div class="col-md-4">
-    <h3 class="page-title" style="color: #34b871; min-width: 600px">
+    <h3
+      class="page-title portfolio-title"
+      style="color: #34b871; min-width: 600px"
+    >
       <%= portfolio_name %>
     </h3>
   </div>
@@ -123,384 +126,423 @@
 <%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
 
 <script type="text/javascript">
-  document.addEventListener("DOMContentLoaded", function() {
-    console.error("DRAW!");
-    const barCtx = document.getElementById("barChart")?.getContext("2d");
-    if (!barCtx) {
-      console.error("Canvas element with ID 'barChart' not found!");
-      return;
-    }
-
-    function parseFormattedCost(cost) {
-      if (typeof cost === "string") {
-        if (cost.endsWith("K")) {
-          return parseFloat(cost.replace("K", "")) * 1000;
-        } else if (cost.endsWith("M")) {
-          return parseFloat(cost.replace("M", "")) * 1000000;
-        }
+    document.addEventListener("DOMContentLoaded", function() {
+      const portfolioTitle = document.getElementById("portfolioTitle");
+      console.error("DRAW!");
+      const barCtx = document.getElementById("barChart")?.getContext("2d");
+      if (!barCtx) {
+        console.error("Canvas element with ID 'barChart' not found!");
+        return;
       }
-      return parseFloat(cost);
-    }
 
-    google.charts.load('current', { packages: ['corechart'] });
-    google.charts.setOnLoadCallback(drawCharts);
+      function parseFormattedCost(cost) {
+        if (typeof cost === "string") {
+          if (cost.endsWith("K")) {
+            return parseFloat(cost.replace("K", "")) * 1000;
+          } else if (cost.endsWith("M")) {
+            return parseFloat(cost.replace("M", "")) * 1000000;
+          }
+        }
+        return parseFloat(cost);
+      }
 
-    function drawCharts() {
-      // Draw all charts
-      drawProgressBarChart();
-      drawProjectsByPhaseChart();
-      drawCostByPhaseChart();
-      drawTagCharts();
-    }
+      google.charts.load('current', { packages: ['corechart'] });
+      google.charts.setOnLoadCallback(drawCharts);
 
-    function drawProgressBarChart() {
-      // ---------------------------------------------
-      // 1) Progress Data & Bar Chart
-      // ---------------------------------------------
-      fetch(`/projects/radar/progress`)
-        .then((response) => response.json())
-        .then((progressData) => {
-          console.log("Progress Headline:", progressData);
-          if (
-            progressData &&
-            progressData.progress &&
-            Array.isArray(progressData.progress)
-          ) {
-            const colorMapping = {
-              Green: "#28a745",
-              Yellow: "#ffc107",
-              Red: "#dc3545",
-            };
+      function drawCharts() {
+        // Draw all charts
+        drawProgressBarChart();
+        drawProjectsByPhaseChart();
+        drawCostByPhaseChart();
+        drawTagCharts();
+      }
 
-            const validProgressData = progressData.progress.filter(
-              (_, i) => progressData.colors[i].trim() !== "No status available"
-            );
-            const validColors = progressData.colors.filter(
-              (color) => color.trim() !== "No status available"
-            );
-            const validProjectNames = progressData.project_names.filter(
-              (_, i) => progressData.colors[i].trim() !== "No status available"
-            );
-            const mappedColors = validColors.map(
-              (color) => colorMapping[color.trim()] || "#000000"
-            );
+      function drawProgressBarChart() {
+        // ---------------------------------------------
+        // 1) Progress Data & Bar Chart
+        // ---------------------------------------------
+        fetch(`/projects/radar/progress`)
+          .then((response) => response.json())
+          .then((progressData) => {
+            console.log("Progress Headline:", progressData);
+            if (
+              progressData &&
+              progressData.progress &&
+              Array.isArray(progressData.progress)
+            ) {
+              const colorMapping = {
+                Green: "#28a745",
+                Yellow: "#ffc107",
+                Red: "#dc3545",
+              };
 
-            const barCtx = document.getElementById("barChart")?.getContext("2d");
-            console.log(barCtx); // Should log the 2D context or `null` if not found
-            new Chart(barCtx, {
-              type: "bar",
-              data: {
-                labels: validProjectNames,
-                datasets: [{
-                  label: "",
-                  data: validProgressData,
-                  backgroundColor: mappedColors,
-                  borderWidth: 1,
-                }],
-              },
-              options: {
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: { stepSize: 10 },
-                    title: {
-                      display: true,
-                      text: "Progress (%)",
+              const validProgressData = progressData.progress.filter(
+                (_, i) => progressData.colors[i].trim() !== "No status available"
+              );
+              const validColors = progressData.colors.filter(
+                (color) => color.trim() !== "No status available"
+              );
+              const validProjectNames = progressData.project_names.filter(
+                (_, i) => progressData.colors[i].trim() !== "No status available"
+              );
+              const mappedColors = validColors.map(
+                (color) => colorMapping[color.trim()] || "#000000"
+              );
+
+              const barCtx = document.getElementById("barChart")?.getContext("2d");
+              console.log(barCtx); // Should log the 2D context or `null` if not found
+              new Chart(barCtx, {
+                type: "bar",
+                data: {
+                  labels: validProjectNames,
+                  datasets: [{
+                    label: "",
+                    data: validProgressData,
+                    backgroundColor: mappedColors,
+                    borderWidth: 1,
+                  }],
+                },
+                options: {
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      max: 100,
+                      ticks: { stepSize: 10 },
+                      title: {
+                        display: true,
+                        text: "Progress (%)",
+                      },
+                    },
+                  },
+                  plugins: {
+                    title: { display: false },
+                    legend: { display: false },
+                    tooltip: {
+                      callbacks: {
+                        label: (tooltipItem) =>
+                          `Progress: ${Math.round(validProgressData[tooltipItem.dataIndex])}%`,
+                      },
+                    },
+                    datalabels: {
+                      anchor: "end",
+                      align: "end",
+                      formatter: (value) => Math.round(value) + "%",
+                      color: "#000",
+                      font: { weight: "bold" },
                     },
                   },
                 },
-                plugins: {
-                  title: { display: false },
-                  legend: { display: false },
-                  tooltip: {
-                    callbacks: {
-                      label: (tooltipItem) =>
-                        `Progress: ${Math.round(validProgressData[tooltipItem.dataIndex])}%`,
-                    },
-                  },
-                  datalabels: {
-                    anchor: "end",
-                    align: "end",
-                    formatter: (value) => Math.round(value) + "%",
-                    color: "#000",
-                    font: { weight: "bold" },
-                  },
-                },
-              },
-              plugins: [ChartDataLabels],
-            });
+                plugins: [ChartDataLabels],
+              });
 
-            // ---------------------------------------------
-            // 2) Portfolio Health Pie Chart
-            // ---------------------------------------------
-            const colorCounts = { Green: 0, Yellow: 0, Red: 0 };
-            validColors.forEach((color) => {
-              if (colorCounts[color.trim()] !== undefined) {
-                colorCounts[color.trim()] += 1;
+              // ---------------------------------------------
+              // 2) Portfolio Health Pie Chart
+              // ---------------------------------------------
+              const colorCounts = { Green: 0, Yellow: 0, Red: 0 };
+              validColors.forEach((color) => {
+                if (colorCounts[color.trim()] !== undefined) {
+                  colorCounts[color.trim()] += 1;
+                }
+              });
+
+              const labels = Object.keys(colorCounts);
+              const counts = Object.values(colorCounts);
+              const chartColors = ["#28a745", "#ffc107", "#dc3545"];
+              const total = counts.reduce((sum, count) => sum + count, 0);
+              const percentages = counts.map((count) =>
+                Math.round((count / total) * 100)
+              );
+              const customLabels = ["Healthy", "Caution", "In Trouble"];
+
+              const chartDataArray = [
+                ["Status", "Count", { role: "tooltip", p: { html: false } }],
+              ];
+              labels.forEach((label, i) => {
+                chartDataArray.push([
+                  customLabels[i],
+                  { v: counts[i], f: percentages[i] + "%" },
+                  `${customLabels[i]}\n${counts[i]} (${percentages[i]}%)`,
+                ]);
+              });
+
+              const data = google.visualization.arrayToDataTable(chartDataArray);
+              const options = {
+                title: "Portfolio Health",
+                pieHole: 0.4,
+                backgroundColor: "transparent",
+                width: 600,
+                height: 400,
+                colors: chartColors,
+                legend: {
+                  position: "right",
+                  textStyle: { color: "#333", fontSize: 14 },
+                },
+                pieSliceText: "value",
+                tooltip: { isHtml: false },
+              };
+
+              const pieChart = new google.visualization.PieChart(
+                document.getElementById("pieChart")
+              );
+              pieChart.draw(data, options);
+            } else {
+              console.error("Expected an array but got:", progressData);
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+
+      function drawProjectsByPhaseChart() {
+        // ---------------------------------------------
+        // 4) Static Projects by Phase Column Chart
+        // ---------------------------------------------
+        const data = google.visualization.arrayToDataTable([
+          ["Element", "Projects", { role: "style" }],
+          ["Funnel", <%= pitchCount %>, "blue"],
+          ["Planning", <%= priorityCount %>, "blue"],
+          ["Discovery", <%= discoveryCount %>, "blue"],
+          ["Delivery", <%= deliveryCount %>, "blue"],
+          ["Done", <%= operationsCount %>, "blue"],
+        ]);
+
+        const view = new google.visualization.DataView(data);
+        view.setColumns([
+          0, 1,
+          {
+            calc: "stringify",
+            sourceColumn: 1,
+            type: "string",
+            role: "annotation",
+          },
+          2,
+        ]);
+
+        const options = {
+          title: "Projects by Phase",
+          width: 400,
+          height: 200,
+          bar: { groupWidth: "95%" },
+          legend: { position: "none" },
+          backgroundColor: "transparent",
+          textStyle: { fontSize: 40 },
+        };
+
+        const chart = new google.visualization.ColumnChart(
+          document.getElementById("columnchart_values")
+        );
+        chart.draw(view, options);
+      }
+
+      function drawCostByPhaseChart() {
+        // ---------------------------------------------
+        // 5) Estimated Cost by Phase Column Chart
+        // ---------------------------------------------
+        var costData = google.visualization.arrayToDataTable([
+          ["Element", "Cost", { role: "style" }],
+          ["Funnel", parseFormattedCost("<%= pitchCost %>"), "green"],
+          ["Planning", parseFormattedCost("<%= priorityCost %>"), "green"],
+          ["Discovery", parseFormattedCost("<%= discoveryCost %>"), "green"],
+          ["Delivery", parseFormattedCost("<%= deliveryCost %>"), "green"],
+          ["Done", parseFormattedCost("<%= operationsTotalCost %>"), "green"],
+        ]);
+
+        var costView = new google.visualization.DataView(costData);
+        costView.setColumns([
+          0,
+          1,
+          {
+            calc: "stringify",
+            sourceColumn: 1,
+            type: "string",
+            role: "annotation",
+          },
+          2,
+        ]);
+
+        var costOptions = {
+          title: "Estimated Cost by Phase",
+          width: 400,
+          height: 200,
+          bar: { groupWidth: "95%" },
+          legend: { position: "none" },
+          backgroundColor: "transparent",
+          textStyle: {
+            fontSize: 40,
+          },
+        };
+        var costChart = new google.visualization.ColumnChart(
+          document.getElementById("columnChartCost_values")
+        );
+        costChart.draw(costView, costOptions);
+      }
+
+      function drawTagCharts() {
+        // Tag 1 Chart
+        fetch(`/projects/radar/countProjectsByTag1`)
+          .then((response) => response.json())
+          .then((tagsData) => {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById("tag1NoTags").innerText =
+                "No data found for tag 1";
+              return;
+            }
+
+            console.log("Tag 1 Data:", tagsData); // Debugging log
+
+            const chartData = [["Tag", "Count"]];
+            tagsData.forEach((tag) => {
+              if (tag.tag_name && tag.project_count > 0) {
+                chartData.push([tag.tag_name, parseInt(tag.project_count)]);
               }
             });
 
-            const labels = Object.keys(colorCounts);
-            const counts = Object.values(colorCounts);
-            const chartColors = ["#28a745", "#ffc107", "#dc3545"];
-            const total = counts.reduce((sum, count) => sum + count, 0);
-            const percentages = counts.map((count) =>
-              Math.round((count / total) * 100)
-            );
-            const customLabels = ["Healthy", "Caution", "In Trouble"];
+            const data = google.visualization.arrayToDataTable(chartData);
 
-            const chartDataArray = [
-              ["Status", "Count", { role: "tooltip", p: { html: false } }],
-            ];
-            labels.forEach((label, i) => {
-              chartDataArray.push([
-                customLabels[i],
-                { v: counts[i], f: percentages[i] + "%" },
-                `${customLabels[i]}\n${counts[i]} (${percentages[i]}%)`,
-              ]);
-            });
-
-            const data = google.visualization.arrayToDataTable(chartDataArray);
             const options = {
-              title: "Portfolio Health",
+              title: "Projects by Tag 1",
               pieHole: 0.4,
               backgroundColor: "transparent",
               width: 600,
               height: 400,
-              colors: chartColors,
-              legend: {
-                position: "right",
-                textStyle: { color: "#333", fontSize: 14 },
-              },
-              pieSliceText: "value",
-              tooltip: { isHtml: false },
             };
 
-            const pieChart = new google.visualization.PieChart(
-              document.getElementById("pieChart")
+            const chart = new google.visualization.PieChart(
+              document.getElementById("tag1Chart")
             );
-            pieChart.draw(data, options);
-          } else {
-            console.error("Expected an array but got:", progressData);
-          }
-        })
-        .catch((err) => console.error(err));
-    }
+            chart.draw(data, options);
+          })
+          .catch((err) => console.error("Error loading Tag 1 Chart:", err));
 
-    function drawProjectsByPhaseChart() {
-      // ---------------------------------------------
-      // 4) Static Projects by Phase Column Chart
-      // ---------------------------------------------
-      const data = google.visualization.arrayToDataTable([
-        ["Element", "Projects", { role: "style" }],
-        ["Funnel", <%= pitchCount %>, "blue"],
-        ["Planning", <%= priorityCount %>, "blue"],
-        ["Discovery", <%= discoveryCount %>, "blue"],
-        ["Delivery", <%= deliveryCount %>, "blue"],
-        ["Done", <%= operationsCount %>, "blue"],
-      ]);
-
-      const view = new google.visualization.DataView(data);
-      view.setColumns([
-        0, 1,
-        {
-          calc: "stringify",
-          sourceColumn: 1,
-          type: "string",
-          role: "annotation",
-        },
-        2,
-      ]);
-
-      const options = {
-        title: "Projects by Phase",
-        width: 400,
-        height: 200,
-        bar: { groupWidth: "95%" },
-        legend: { position: "none" },
-        backgroundColor: "transparent",
-        textStyle: { fontSize: 40 },
-      };
-
-      const chart = new google.visualization.ColumnChart(
-        document.getElementById("columnchart_values")
-      );
-      chart.draw(view, options);
-    }
-
-    function drawCostByPhaseChart() {
-      // ---------------------------------------------
-      // 5) Estimated Cost by Phase Column Chart
-      // ---------------------------------------------
-      var costData = google.visualization.arrayToDataTable([
-        ["Element", "Cost", { role: "style" }],
-        ["Funnel", parseFormattedCost("<%= pitchCost %>"), "green"],
-        ["Planning", parseFormattedCost("<%= priorityCost %>"), "green"],
-        ["Discovery", parseFormattedCost("<%= discoveryCost %>"), "green"],
-        ["Delivery", parseFormattedCost("<%= deliveryCost %>"), "green"],
-        ["Done", parseFormattedCost("<%= operationsTotalCost %>"), "green"],
-      ]);
-
-      var costView = new google.visualization.DataView(costData);
-      costView.setColumns([
-        0,
-        1,
-        {
-          calc: "stringify",
-          sourceColumn: 1,
-          type: "string",
-          role: "annotation",
-        },
-        2,
-      ]);
-
-      var costOptions = {
-        title: "Estimated Cost by Phase",
-        width: 400,
-        height: 200,
-        bar: { groupWidth: "95%" },
-        legend: { position: "none" },
-        backgroundColor: "transparent",
-        textStyle: {
-          fontSize: 40,
-        },
-      };
-      var costChart = new google.visualization.ColumnChart(
-        document.getElementById("columnChartCost_values")
-      );
-      costChart.draw(costView, costOptions);
-    }
-
-    function drawTagCharts() {
-      // Tag 1 Chart
-      fetch(`/projects/radar/countProjectsByTag1`)
-        .then((response) => response.json())
-        .then((tagsData) => {
-          if (!tagsData || tagsData.length === 0) {
-            document.getElementById("tag1NoTags").innerText =
-              "No data found for tag 1";
-            return;
-          }
-
-          console.log("Tag 1 Data:", tagsData); // Debugging log
-
-          const chartData = [["Tag", "Count"]];
-          tagsData.forEach((tag) => {
-            if (tag.tag_name && tag.project_count > 0) {
-              chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+        // Tag 2 Chart
+        fetch(`/projects/radar/countProjectsByTag2`)
+          .then((response) => response.json())
+          .then((tagsData) => {
+            console.log("Tag 2 Data:", tagsData); // Debugging log
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById("tag2NoTags").innerText =
+                "No data found for tag 2";
+              return;
             }
-          });
 
-          const data = google.visualization.arrayToDataTable(chartData);
+            const chartData = [["Tag", "Count"]];
+            tagsData.forEach((tag) => {
+              if (tag.tag_name && tag.project_count > 0) {
+                chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+              }
+            });
 
-          const options = {
-            title: "Projects by Tag 1",
-            pieHole: 0.4,
-            backgroundColor: "transparent",
-            width: 600,
-            height: 400,
-          };
+            const data = google.visualization.arrayToDataTable(chartData);
 
-          const chart = new google.visualization.PieChart(
-            document.getElementById("tag1Chart")
-          );
-          chart.draw(data, options);
-        })
-        .catch((err) => console.error("Error loading Tag 1 Chart:", err));
+            const options = {
+              title: "Projects by Tag 2",
+              pieHole: 0.4,
+              backgroundColor: "transparent",
+              width: 600,
+              height: 400,
+            };
 
-      // Tag 2 Chart
-      fetch(`/projects/radar/countProjectsByTag2`)
-        .then((response) => response.json())
-        .then((tagsData) => {
-          console.log("Tag 2 Data:", tagsData); // Debugging log
-          if (!tagsData || tagsData.length === 0) {
-            document.getElementById("tag2NoTags").innerText =
-              "No data found for tag 2";
-            return;
-          }
+            const chart = new google.visualization.PieChart(
+              document.getElementById("tag2Chart")
+            );
+            chart.draw(data, options);
+          })
+          .catch((err) => console.error("Error loading Tag 2 Chart:", err));
 
-          const chartData = [["Tag", "Count"]];
-          tagsData.forEach((tag) => {
-            if (tag.tag_name && tag.project_count > 0) {
-              chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+        // Tag 3 Chart
+        fetch(`/projects/radar/countProjectsByTag3`)
+          .then((response) => response.json())
+          .then((tagsData) => {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById("tag3NoTags").innerText =
+                "No data found for tag 3";
+              return;
             }
-          });
 
-          const data = google.visualization.arrayToDataTable(chartData);
+            const chartData = [["Tag 3", "Percentage"]];
+            let total = 0;
 
-          const options = {
-            title: "Projects by Tag 2",
-            pieHole: 0.4,
-            backgroundColor: "transparent",
-            width: 600,
-            height: 400,
-          };
+            tagsData.forEach((tag) => {
+              if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
+                const count = parseInt(tag.project_count);
+                chartData.push([tag.tag_name, count]);
+                total += count;
+              }
+            });
 
-          const chart = new google.visualization.PieChart(
-            document.getElementById("tag2Chart")
-          );
-          chart.draw(data, options);
-        })
-        .catch((err) => console.error("Error loading Tag 2 Chart:", err));
+            const roundedChartData = chartData.slice(1).map((row) => {
+              const roundedValue = Math.round((row[1] / total) * 100);
+              const tooltipText = row[0] + "\n" + roundedValue + "%";
+              return [
+                row[0],
+                { v: roundedValue, f: `${roundedValue}%` },
+                tooltipText,
+              ];
+            });
 
-      // Tag 3 Chart
-      fetch(`/projects/radar/countProjectsByTag3`)
-        .then((response) => response.json())
-        .then((tagsData) => {
-          if (!tagsData || tagsData.length === 0) {
-            document.getElementById("tag3NoTags").innerText =
-              "No data found for tag 3";
-            return;
-          }
-
-          const chartData = [["Tag 3", "Percentage"]];
-          let total = 0;
-
-          tagsData.forEach((tag) => {
-            if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
-              const count = parseInt(tag.project_count);
-              chartData.push([tag.tag_name, count]);
-              total += count;
-            }
-          });
-
-          const roundedChartData = chartData.slice(1).map((row) => {
-            const roundedValue = Math.round((row[1] / total) * 100);
-            const tooltipText = row[0] + "\n" + roundedValue + "%";
-            return [
-              row[0],
-              { v: roundedValue, f: `${roundedValue}%` },
-              tooltipText,
+            const formattedData = [
+              ["Tag 3", "Percentage", { role: "tooltip", p: { html: false } }],
+              ...roundedChartData,
             ];
-          });
 
-          const formattedData = [
-            ["Tag 3", "Percentage", { role: "tooltip", p: { html: false } }],
-            ...roundedChartData,
-          ];
+            const data = google.visualization.arrayToDataTable(formattedData);
 
-          const data = google.visualization.arrayToDataTable(formattedData);
+            const options = {
+              title: "Projects by Tag 3",
+              pieHole: 0.4,
+              backgroundColor: "transparent",
+              width: 600,
+              height: 400,
+              tooltip: { text: "value" },
+              pieSliceText: "value",
+            };
 
-          const options = {
-            title: "Projects by Tag 3",
-            pieHole: 0.4,
-            backgroundColor: "transparent",
-            width: 600,
-            height: 400,
-            tooltip: { text: "value" },
-            pieSliceText: "value",
-          };
+            const chart = new google.visualization.PieChart(
+              document.getElementById("tag3Chart")
+            );
+            chart.draw(data, options);
+          })
+          .catch((err) => console.error(err));
+      }
+    });
+    document.getElementById("btnPrintPage").addEventListener("click", function () {
+    const portfolioTitleElement = document.querySelector(".portfolio-title");
 
-          const chart = new google.visualization.PieChart(
-            document.getElementById("tag3Chart")
-          );
-          chart.draw(data, options);
-        })
-        .catch((err) => console.error(err));
+    if (!portfolioTitleElement) {
+      console.error("Portfolio title element not found!");
+      return;
     }
-  });
-  document.getElementById("btnPrintPage").addEventListener("click", function () {
+
+    const portfolioName = portfolioTitleElement.textContent.trim();
+
+    // Create a style element for the print header
+    const style = document.createElement("style");
+    style.setAttribute("type", "text/css");
+    style.setAttribute("media", "print");
+
+    // Add CSS for the print header
+    const css = `
+      @page {
+        margin-top: 3cm; /* Adjust top margin to make space for the header */
+      }
+      body::before {
+        content: "${portfolioName}";
+        display: block;
+        text-align: center; /* Center the header */
+        font-weight: bold;
+        font-size: 1.5em;
+        margin-bottom: 1cm; /* Add space between the header and content */
+      }
+    `;
+
+    style.appendChild(document.createTextNode(css));
+    document.head.appendChild(style);
+
+    // Trigger the print dialog
     window.print();
+
+    // Remove the style element after printing
+    setTimeout(() => {
+      document.head.removeChild(style);
+    }, 100); // Short delay to ensure the print dialog is handled
   });
 </script>

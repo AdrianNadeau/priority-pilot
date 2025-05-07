@@ -57,8 +57,9 @@ exports.create = async (req, res) => {
 
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
-  Status.findAll({})
-    .orderBy("createdAt", "DESC")
+  Status.findAll({
+    order: [["createdAt", "DESC"]], // Corrected syntax for ordering
+  })
     .then((data) => {
       res.send(data);
     })
@@ -67,7 +68,7 @@ exports.findAll = (req, res) => {
         .status(500)
         .send({
           message:
-            err.message || "Some error occurred while retrieving companies.",
+            err.message || "Some error occurred while retrieving statuses.",
         });
     });
 };

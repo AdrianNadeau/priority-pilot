@@ -4,7 +4,7 @@ const companyPortfolioName = async (req, res, next) => {
   try {
     // Ensure the session contains the company ID
     if (!req.session || !req.session.company || !req.session.company.id) {
-      res.locals.portfolio_name = "Unknown Portfolio";
+      res.locals.portfolio_name = "Portfolio";
       return next();
     }
 

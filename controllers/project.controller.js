@@ -1628,29 +1628,48 @@ exports.archvive = (req, res) => {
     });
 };
 exports.exportProjectsWithStatusToCSV = async (req, res) => {
+  console.log("Exporting projects with status to CSV...");
   try {
     const company_id_fk = req.session.company.id;
 
-    // Fetch projects
-    const projects = await db.projects.findAll({
-      where: { company_id_fk },
-      attributes: [
-        "id",
-        "project_name",
-        "project_headline",
-        "project_cost",
-        "effort",
-        "benefit",
-        "start_date",
-        "end_date",
-        "next_milestone_date",
-      ],
-      raw: true,
-    });
+    // Fetch projects with phase_name, prime, sponsor, and benefit details
+    const projects = await db.sequelize.query(
+      `
+      SELECT 
+        proj.id,
+        proj.project_name,
+        proj.project_headline,
+        proj.project_cost,
+        proj.effort,
+        proj.benefit, -- Include benefit field
+        proj.start_date,
+        proj.end_date,
+        proj.next_milestone_date,
+        phases.phase_name,
+        prime_person.first_name AS prime_first_name,
+        prime_person.last_name AS prime_last_name,
+        sponsor_person.first_name AS sponsor_first_name,
+        sponsor_person.last_name AS sponsor_last_name
+      FROM projects proj
+      LEFT JOIN phases ON proj.phase_id_fk = phases.id
+      LEFT JOIN persons prime_person ON proj.prime_id_fk = prime_person.id
+      LEFT JOIN persons sponsor_person ON proj.sponsor_id_fk = sponsor_person.id
+      WHERE proj.company_id_fk = ?
+      `,
+      { replacements: [company_id_fk], type: db.Sequelize.QueryTypes.SELECT },
+    );
 
+    // Fetch statuses for the projects
     const statuses = await db.sequelize.query(
       `
-      SELECT s.project_id_fk, s.status_date, s.progress, s.health, s.accomplishments, s.issue, s.actions
+      SELECT 
+        s.project_id_fk, 
+        s.status_date, 
+        s.progress, 
+        s.health, 
+        s.accomplishments, 
+        s.issue, 
+        s.actions
       FROM statuses s
       INNER JOIN (
         SELECT project_id_fk, MAX(status_date) AS max_status_date
@@ -1661,87 +1680,67 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
       `,
       { type: db.Sequelize.QueryTypes.SELECT },
     );
-    console.log("CHECK STATUS");
+
     // Map statuses to their corresponding projects
     const statusMap = {};
     statuses.forEach((status) => {
-      // console.log("status:", status);
-      // Map health values
       if (status.health === "Black") {
-        status.health = "N/A";
+        status.health = "";
       } else if (status.health === "Green") {
         status.health = "Healthy";
       } else if (status.health === "Yellow") {
         status.health = "Caution";
       } else if (status.health === "Red") {
         status.health = "Danger";
-        console.log("status:", status.health);
       }
-
       statusMap[status.project_id_fk] = status;
     });
 
     // Combine project and status data
     const combinedData = projects.map((project) => {
       const status = statusMap[project.id] || {
-        status_date: "N/A",
-        progress: "N/A",
-        health: "N/A",
-        accomplishments: "N/A",
-        issue: "N/A",
-        actions: "N/A",
+        status_date: "",
+        progress: "",
+        health: "",
+        accomplishments: "",
+        issue: "",
+        actions: "",
       };
+
       // Format dates in yyyy-dd-mm format
       const formattedStartDate = project.start_date
         ? moment(project.start_date).format("YYYY-DD-MM")
-        : "N/A";
+        : "";
       const formattedEndDate = project.end_date
         ? moment(project.end_date).format("YYYY-DD-MM")
-        : "N/A";
+        : "";
       const formattedNMSDate = project.next_milestone_date
         ? moment(project.next_milestone_date).format("YYYY-DD-MM")
-        : "N/A";
-      if (status.health == null || status.health == undefined) {
-        status.health = "N/A";
-      }
-      if (status.progress == null || status.progress == undefined) {
-        status.progress = "N/A";
-      }
-      if (status.status_date == null || status.status_date == undefined) {
-        status.status_date = "N/A";
-      }
-      if (
-        status.accomplishments == null ||
-        status.accomplishments == undefined
-      ) {
-        status.accomplishments = "N/A";
-      }
-      if (status.issue == null || status.issue == undefined) {
-        status.issue = "N/A";
-      }
-      if (status.actions == null || status.actions == undefined) {
-        status.actions = "N/A";
-      }
-      if (status.health === "Black") {
-        status.health = "N/A";
-      } else if (status.health === "Green") {
-        status.health = "Healthy";
-      } else if (status.health === "Yellow") {
-        status.health = "Caution";
-      } else if (status.health === "Red") {
-        status.health = "Danger";
-        console.log("status:", status.health);
-      }
+        : "";
+      const formattedStatusDate = status.status_date
+        ? moment(status.status_date, "YYYY-MM-DD", true).isValid()
+          ? moment(status.status_date).format("YYYY-DD-MM")
+          : ""
+        : "";
+
       return {
         Name: project.project_name,
         Headline: project.project_headline,
-        Cost: project.project_cost || 0,
-        Effort: project.effort || 0,
-        Benefit: project.benefit || 0,
+        Phase: project.phase_name || "", // Include phase_name
+        Sponsor: project.sponsor_first_name
+          ? `${project.sponsor_last_name}, ${project.sponsor_first_name}`
+          : "", // Include sponsor details
+        Prime: project.prime_first_name
+          ? `${project.prime_last_name}, ${project.prime_first_name}`
+          : "", // Include prime details
+        Effort: project.effort || 0 + " %",
+        Cost: "$" + project.project_cost || 0,
+
+        Benefit: project.benefit || "", // Map benefit field
         "Start Date": formattedStartDate,
         "End Date": formattedEndDate,
         "NMS Date": formattedNMSDate,
-        "Status Date": status.status_date,
+        "Status Date": formattedStatusDate,
         Progress: status.progress,
         Health: status.health,
         Accomplishments: status.accomplishments,
@@ -1754,9 +1753,12 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
     const fields = [
       "Name",
       "Headline",
+      "Phase",
+      "Prime",
+      "Sponsor",
       "Cost",
       "Effort",
-      "Benefit",
+      "Benefit", // Add Benefit column
       "Start Date",
       "End Date",
       "NMS Date",
@@ -1801,6 +1803,7 @@ exports.exportHealthDataToCSV = async (req, res) => {
         "start_date",
         "end_date",
         "next_milestone_date",
+        "benefit",
       ],
       raw: true,
     });
@@ -1828,39 +1831,42 @@ exports.exportHealthDataToCSV = async (req, res) => {
     // Combine project and status data
     const combinedData = projects.map((project) => {
       const status = statusMap[project.id] || {
-        status_date: "N/A",
-        progress: "N/A",
-        health: "N/A",
-        accomplishments: "N/A",
-        issue: "N/A",
-        actions: "N/A",
+        status_date: "",
+        progress: "",
+        health: "",
+        accomplishments: "",
+        issue: "",
+        actions: "",
       };
       // Format dates in yyyy-dd-mm format
       const formattedStartDate = project.start_date
         ? moment(project.start_date).format("YYYY-DD-MM")
-        : "N/A";
+        : "";
       const formattedEndDate = project.end_date
         ? moment(project.end_date).format("YYYY-DD-MM")
-        : "N/A";
+        : "";
       const formattedNMSDate = project.next_milestone_date
         ? moment(project.next_milestone_date).format("YYYY-DD-MM")
-        : "N/A";
+        : "";
+      const formattedStatusDate = status.status_date
+        ? moment(project.next_milestone_date).format("YYYY-DD-MM")
+        : "";
 
       return {
         Name: project.project_name,
         Headline: project.project_headline,
-        Cost: project.project_cost || 0,
-        Effort: project.effort || 0,
-        Benefit: project.benefit || 0,
         "Start Date": formattedStartDate,
         "End Date": formattedEndDate,
         "NMS Date": formattedNMSDate,
-        "Status Date": status.status_date,
-        Progress: status.progress,
+        "Status Date": formattedStatusDate,
+        Benefit: project.benefit,
+        Progress: status.progress + " %",
         Health: status.health,
         Accomplishments: status.accomplishments,
         Issues: status.issue,
         Actions: status.actions,
+        Cost: "$" + project.project_cost || 0,
+        Effort: project.effort || 0,
       };
     });
 
@@ -1868,8 +1874,7 @@ exports.exportHealthDataToCSV = async (req, res) => {
     const fields = [
       "Name",
       "Headline",
-      "Cost",
-      "Effort",
+
       "Benefit",
       "Start Date",
       "End Date",
@@ -1880,6 +1885,8 @@ exports.exportHealthDataToCSV = async (req, res) => {
       "Accomplishments",
       "Issues",
       "Actions",
+      "Cost",
+      "Effort",
     ];
 
     // Convert JSON to CSV
@@ -1902,20 +1909,20 @@ function insertValidDate(date) {
   return date ? moment(date, "YYYY-MM-DD").toDate() : null;
 }
 
-function formatNumberWithCommas(input) {
-  if (input && typeof input.value === "string") {
-    // Remove non-numeric characters
-    let value = input.value.replace(/\D/g, "");
+// function formatNumberWithCommas(input) {
+//   if (input && typeof input.value === "string") {
+//     // Remove non-numeric characters
+//     let value = input.value.replace(/\D/g, "");
 
-    // Format the number with commas
-    value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+//     // Format the number with commas
+//     value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-    // Set the formatted value back to the input
-    input.value = value;
-  } else {
-    console.error("Invalid input or input value:", input);
-  }
-}
+//     // Set the formatted value back to the input
+//     input.value = value;
+//   } else {
+//     console.error("Invalid input or input value:", input);
+//   }
+// }
 
 function removeCommasAndConvertToNumber(value) {
   if (typeof value === "string") {

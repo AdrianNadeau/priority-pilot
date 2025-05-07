@@ -40,8 +40,22 @@
       <i class="ion-navicon"></i>
     </button>
     <h3 class="page-title">Flight Plan</h3>
+    <!-- <button
+      type="button"
+      class="btn btn-primary waves-effect waves-light"
+      id="btnPrintPage"
+    >
+      Print Page
+    </button> -->
   </div>
-  <% include ../Partials/portfolio_name %>
+  <div class="col-md-4">
+    <h3
+      class="page-title portfolio-title"
+      style="color: #34b871; min-width: 600px"
+    >
+      <%= portfolio_name %>
+    </h3>
+  </div>
   <div class="col-md-4 text-right">
     <!-- Add any additional content here -->
   </div>
@@ -65,9 +79,9 @@
         console.log("Fetched Projects:", projects);
 
         const phaseMapping = {
-          2: { id: 2, text: "Planning", open: true, type: "phase" },
-          3: { id: 3, text: "Discovery", open: true, type: "phase" },
-          4: { id: 4, text: "Delivery", open: true, type: "phase" },
+          2: { id: 2, text: "Planning", open: false, type: "phase" },
+          3: { id: 3, text: "Discovery", open: false, type: "phase" },
+          4: { id: 4, text: "Delivery", open: false, type: "phase" },
         };
 
         const categories = Object.values(phaseMapping);
@@ -146,6 +160,50 @@
     { name: "text", label: "Project Name", tree: true, width: "200" },
     { name: "start_date", label: "Start Date", align: "center" },
   ];
+  document
+    .getElementById("btnPrintPage")
+    .addEventListener("click", function () {
+      console.log("Print button clicked!");
+      const portfolioTitleElement = document.querySelector(".portfolio-title");
+
+      if (!portfolioTitleElement) {
+        console.error("Portfolio title element not found!");
+        return;
+      }
+
+      const portfolioName = portfolioTitleElement.textContent.trim();
+
+      // Create a style element for the print header
+      const style = document.createElement("style");
+      style.setAttribute("type", "text/css");
+      style.setAttribute("media", "print");
+
+      // Add CSS for the print header
+      const css = `
+      @page {
+         size: landscape; /* Set the page orientation to landscape */
+      }
+      body::before {
+        content: "${portfolioName}";
+        display: block;
+        text-align: center; /* Center the header */
+        font-weight: bold;
+        font-size: 1.5em;
+        margin-bottom: 1cm; /* Add space between the header and content */
+      }
+    `;
+
+      style.appendChild(document.createTextNode(css));
+      document.head.appendChild(style);
+
+      // Trigger the print dialog
+      window.print();
+
+      // Remove the style element after printing
+      setTimeout(() => {
+        document.head.removeChild(style);
+      }, 100); // Short delay to ensure the print dialog is handled
+    });
 </script>
 
 <%- contentFor('BottomJs') %>
