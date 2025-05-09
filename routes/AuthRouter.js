@@ -102,6 +102,9 @@ Authrouter.get("/pages-change-password", function (req, res) {
   res.render("Pages/pages-login", { layout: "layout-public" });
   res.render("Pages/pages-recoverpw");
 });
+Authrouter.get("/pages-change-password", function (req, res) {
+  res.render("Pages/pages-recoverpw");
+});
 Authrouter.get("/recover-password", function (req, res) {
   res.render("Pages/pages-recoverpw");
 });
