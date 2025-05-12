@@ -331,10 +331,12 @@ exports.getChangePassword = async (req, res) => {
   }
 };
 exports.updatePassword = async (req, res) => {
-  const token = req.params.token;
-  const person_id_fk = req.params.person_id;
-  console.log("UPDATE PASSWORD", token);
-  console.log("UPDATE PASSWORD", req.params.person_id);
+  console.log("UPDATE PASSWORD", req.body);
+  console.log("UPDATE PASSWORD", req.params);
+  const token = req.body.token;
+  const person_id_fk = req.body.person_id;
+  console.log("UPDATE PASSWORD TOKEN", token);
+  console.log("UPDATE PASSWORD", req.body.person_id);
 
   const { password } = req.body;
   console.log("UPDATE PASSWORD", password);
@@ -365,7 +367,7 @@ exports.updatePassword = async (req, res) => {
     // Update the person's password
     const [updated] = await Person.update(
       { password: hashedPassword }, // Update the password field
-      { where: { id: tokenRecord.person_id_fk } }, // Match the person by ID
+      { where: { id: person_id_fk } }, // Match the person by ID
     );
 
     if (!updated) {
@@ -378,10 +380,10 @@ exports.updatePassword = async (req, res) => {
       "Password updated successfully for person_id:",
       tokenRecord.person_id_fk,
     );
-
+    onsole.log("Delete token record for :", tokenRecord);
     // Optionally, delete the token after successful password update
     await ChangedPasswordToken.destroy({
-      where: { person_id_fk: tokenRecord.person_id },
+      where: { id: tokenRecord.id },
     });
     req.session.emailStatus = "Password updated successfully.";
     req.session.save(() => res.redirect("/emailSuccess"));
