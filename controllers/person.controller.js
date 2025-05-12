@@ -309,13 +309,22 @@ exports.getChangePassword = async (req, res) => {
     if (currentTime > tokenRecord.expires_at) {
       return res.status(400).send("Token has expired.");
     }
-
-    res.render("Pages/pages-change-password", {
-      token,
-      person_id: person_id_fk,
-      email: person.email,
-      layout: "layout-public",
-    });
+    console.log("person:", person.email);
+    if (!person) {
+      res.render("Pages/pages-change-password", {
+        token,
+        person_id: person_id_fk,
+        email: person.email,
+        layout: "layout-public",
+      });
+    } else {
+      res.render("Pages/pages-change-password", {
+        token,
+        person_id: person_id_fk,
+        email: person.email,
+        layout: "layout-public",
+      });
+    }
   } catch (error) {
     console.error("Error retrieving change password page:", error);
     res.status(500).send("Internal Server Error");
