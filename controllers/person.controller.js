@@ -9,9 +9,9 @@ const sgMail = require("@sendgrid/mail");
 const ejs = require("ejs");
 const { v4: uuidv4 } = require("uuid");
 const e = require("express");
-const ChangedPasswordToken = db.ChangePasswordToken;
-
-const { persons: Person, companies: Company } = db;
+const Person = db.persons;
+const Company = db.companies;
+const ChangedPasswordToken = db.changed_password_token;
 
 // Helper function to authenticate user credentials
 const authenticateUser = async (email, password) => {
@@ -229,26 +229,53 @@ exports.sendResetPasswordEmail = async (req, res) => {
   if (!email) return res.status(400).send("Email is required.");
 
   try {
-    const person = await Person.findOne({ where: { email } });
+    // Find the person by email only - don't use person.id in the search criteria
+    const person = await Person.findOne({
+      where: { email },
+    });
+
     if (!person) return res.status(404).send("Email not found.");
 
+    const { v4: uuidv4 } = require("uuid"); // Make sure uuid is imported
     const resetToken = uuidv4();
     const redirectURL = `${process.env.REDIRECT_URL}/${resetToken}`;
 
+    // Uncomment when ready to send emails
     await sendEmail(email, "Reset Your Password", "reset-email-password", {
       first_name: person.first_name || "Friend",
       redirectURL,
       resetToken,
     });
 
+    // console.log("VALUES:, person_id:", person.id);
+    // console.log("VALUES:, resetToken:", resetToken);
+    // console.log("VALUES:, person_id:", person.id);
+
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
-    await ChangedPasswordToken.create({
-      person_id_fk: person.id,
-      token: resetToken,
-      email: person.email,
-      created_at: new Date(),
-      expires_at: expiresAt,
-    });
+    console.log("VALUES:, expiresAt:", expiresAt);
+
+    // Log the model and table name for debugging
+    // console.log("Model tableName:", ChangedPasswordToken.tableName);
+    // console.log("Creating token with data:", {
+    //   person_id_fk: person.id,
+    //   token: resetToken,
+    //   email: person.email,
+    //   expires_at: expiresAt,
+    // });
+
+    try {
+      await ChangedPasswordToken.create({
+        person_id_fk: person.id,
+        token: resetToken,
+        email: person.email,
+        expires_at: expiresAt,
+        // Let Sequelize handle timestamps automatically
+      });
+      console.log("Token created successfully");
+    } catch (tokenError) {
+      console.error("Error creating token:", tokenError);
+      throw tokenError; // Re-throw to be caught by outer catch block
+    }
 
     req.session.emailStatus = "Reset password email sent successfully.";
     req.session.save(() => res.redirect("/email-status"));
@@ -262,35 +289,7 @@ exports.sendResetPasswordEmail = async (req, res) => {
 // Get Change Password Page
 exports.getChangePassword = async (req, res) => {
   const token = req.params.token;
-  try {
-    const tokenRecord = await ChangedPasswordToken.findOne({
-      where: { token },
-    });
-    if (!tokenRecord || new Date() > tokenRecord.expires_at) {
-      const error = new Error(
-        "Invalid or expired token. Click here to try again.",
-      );
-      error.statusCode = 401;
-      throw error;
-    }
-
-    const person = await Person.findByPk(tokenRecord.person_id_fk);
-    if (!person) {
-      return res.status(404).send("User not found.");
-    }
-
-    res.render("Pages/pages-change-password", {
-      email: person.email,
-      token: token,
-      layout: "layout-public",
-    });
-  } catch (error) {
-    console.error("Error retrieving change password page:", error);
-    res.status(500).send("Internal Server Error");
-  }
-};
-exports.getChangePassword = async (req, res) => {
-  const token = req.params.token;
+  let person_id_fk = ""; // Use let instead of const
   console.log("getChangePassword", token);
   try {
     // Find the token in the database
@@ -301,8 +300,8 @@ exports.getChangePassword = async (req, res) => {
       return res.status(404).send("Invalid or expired token.");
     }
     const person = await Person.findByPk(tokenRecord.person_id_fk);
-    console.log("person:", person);
-    const person_id_fk = tokenRecord.person_id_fk;
+
+    person_id_fk = tokenRecord.person_id_fk; // Reassign the value
     console.log("person_id_fk:", person_id_fk);
 
     // Check if the token has expired
@@ -310,51 +309,77 @@ exports.getChangePassword = async (req, res) => {
     if (currentTime > tokenRecord.expires_at) {
       return res.status(400).send("Token has expired.");
     }
+
+    res.render("Pages/pages-change-password", {
+      token,
+      person_id: person_id_fk,
+      email: person.email,
+      layout: "layout-public",
+    });
   } catch (error) {
     console.error("Error retrieving change password page:", error);
     res.status(500).send("Internal Server Error");
   }
+};
+exports.updatePassword = async (req, res) => {
+  const token = req.params.token;
+  const person_id_fk = req.params.person_id;
+  console.log("UPDATE PASSWORD", token);
+  console.log("UPDATE PASSWORD", req.params.person_id);
+
+  const { password } = req.body;
+  console.log("UPDATE PASSWORD", password);
+
+  if (!password) {
+    return res.status(400).send("Password is required.");
+  }
+
   try {
-    // // Find the person by email
-    // const person = await Person.findOne({ where: { email } });
-    // if (!person) {
-    //   return res.status(404).send("Email not found.");
-    // }
-    // console.log("person:", person.id);
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // // Generate a unique reset token
-    // const resetToken = uuidv4();
-
-    // // Generate the redirect URL
-    // const redirectURL = `${process.env.REDIRECT_URL}/${resetToken}`;
-
-    // // Prepare email template data
-    // const templateData = {
-    //   first_name: person.first_name || "Friend",
-    //   redirectURL, // Pass the redirect URL to the template
-    //   resetToken,
-    // };
-    // console.log("templateData:", templateData);
-    // // Send the reset password email
-    // await sendEmail(
-    //   email,
-    //   "Reset Your Password",
-    //   "reset-email-password",
-    //   templateData,
-    //   resetToken,
-    // );
-
-    //add 10 minutes before the token expires
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
-    const changedPasswordToken = await ChangedPasswordToken.findAll({
-      where: { token: token },
+    // Find the token in the database
+    const tokenRecord = await ChangedPasswordToken.findOne({
+      where: { token },
     });
-    res.render("Pages/pages-change-password", { token });
+
+    if (!tokenRecord) {
+      return res.status(404).send("Invalid or expired token.");
+    }
+
+    // Check if the token has expired
+    const currentTime = new Date();
+    if (currentTime > tokenRecord.expires_at) {
+      return res.status(400).send("Token has expired.");
+    }
+    console.log("hashedPassword", hashedPassword);
+    // Update the person's password
+    const [updated] = await Person.update(
+      { password: hashedPassword }, // Update the password field
+      { where: { id: tokenRecord.person_id_fk } }, // Match the person by ID
+    );
+
+    if (!updated) {
+      return res
+        .status(404)
+        .send("Person not found or password update failed.");
+    }
+
+    console.log(
+      "Password updated successfully for person_id:",
+      tokenRecord.person_id_fk,
+    );
+
+    // Optionally, delete the token after successful password update
+    await ChangedPasswordToken.destroy({
+      where: { person_id_fk: tokenRecord.person_id },
+    });
+    req.session.emailStatus = "Password updated successfully.";
+    req.session.save(() => res.redirect("/emailSuccess"));
+    // render success page with login button.
+    // res.status(200).send("Password updated successfully.");
   } catch (error) {
-    console.error("Error resetting password:", error);
-    req.session.emailStatus = "Error resetting password.";
-    req.session.save(() => {
-      res.redirect("/email-status");
-    });
+    console.error("Error updating password:", error);
+    res.status(500).send("Internal Server Error");
   }
 };

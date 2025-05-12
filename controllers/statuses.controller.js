@@ -6,15 +6,17 @@ const Op = db.Sequelize.Op;
 // Create and Save a new Status
 exports.create = async (req, res) => {
   try {
-    let prime_id = req.body.prime_id_fk;
-    const status_date = req.body.status_date;
+    const statusDate = req.body.status_date;
 
-    if (!prime_id) {
-      prime_id = null;
+    if (!statusDate || isNaN(new Date(statusDate).getTime())) {
+      return res.status(400).send({ message: "Invalid status date provided." });
     }
-    const project_id = req.body.project_id;
-    console.log("project_id", project_id);
-    // Create a Status
+
+    const parsedStatusDate = new Date(statusDate);
+    const adjustedStatusDate = new Date(
+      parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
+    );
+
     const status = {
       project_id_fk: req.body.project_id,
       prime_id_fk: req.body.prime_id_fk,
@@ -24,34 +26,16 @@ exports.create = async (req, res) => {
       actions: req.body.actions,
       accomplishments: req.body.status_accomplishments,
       attachments: req.body.attachment,
-      status_date: req.body.status_date,
+      status_date: adjustedStatusDate, // Save the adjusted date
     };
 
-    // Save Status in the database
     const data = await Status.create(status);
-
-    const project = await Project.findByPk(project_id, {
-      where: { project_id: project_id },
-    });
-
-    const primeOnly = req.body.prime_only;
-    if (project) {
-      console.log("update project health: ", req.body.health);
-      await project.update({ health: req.body.health });
-      //back to dashboard if not admin
-      res.redirect("/");
-    } else {
-      res.send({
-        message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
-      });
-    }
+    res.redirect("/");
   } catch (err) {
+    console.error("Error creating status:", err);
     res
       .status(500)
-      .send({
-        message: "Error updating Project with id=" + req.body.project_id,
-        error: err.message,
-      });
+      .send({ message: "Error creating status.", error: err.message });
   }
 };
 
@@ -64,12 +48,10 @@ exports.findAll = (req, res) => {
       res.send(data);
     })
     .catch((err) => {
-      res
-        .status(500)
-        .send({
-          message:
-            err.message || "Some error occurred while retrieving statuses.",
-        });
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving statuses.",
+      });
     });
 };
 
@@ -81,12 +63,10 @@ exports.findAllByProjectId = (req, res) => {
       res.send(data);
     })
     .catch((err) => {
-      res
-        .status(500)
-        .send({
-          message:
-            err.message || "Some error occurred while retrieving companies.",
-        });
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving companies.",
+      });
     });
 };
 
@@ -156,11 +136,9 @@ exports.deleteAll = (req, res) => {
       res.send({ message: `${nums} Companies were deleted successfully!` });
     })
     .catch((err) => {
-      res
-        .status(500)
-        .send({
-          message:
-            err.message || "Some error occurred while removing all companies.",
-        });
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while removing all companies.",
+      });
     });
 };

@@ -31,14 +31,11 @@ db.changed_projects = require("./changed_project.model.js")(
   sequelize,
   Sequelize.DataTypes,
 );
-
-const ChangePasswordToken = require("./changed_password_token.model")(
+db.changed_password_token = require("./changed_password_token.model.js")(
   sequelize,
   Sequelize.DataTypes,
 );
-
-db.ChangePasswordToken = ChangePasswordToken;
-
+console.log(db.changed_password_token);
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

@@ -194,7 +194,13 @@ console.log("STATUS DATA: ", data);
                 [%<%= status.progress %>]
                 <% if (status.status_date) { %>
                   <a href="#" onClick="getStatus(event, '<%= status.id %>')" data-target="#viewStatusModal" id="viewStatusLink">
-                    <%= new Date(status.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                    <%= (() => {
+                      const parsedStatusDate = new Date(status.status_date);
+                      const adjustedStatusDate = new Date(
+                        parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000
+                      );
+                      return adjustedStatusDate.toISOString().split("T")[0]; // Format to yyyy-mm-dd
+                    })() %>
                   </a>
                 <% } %>
                 <br/>
@@ -289,7 +295,7 @@ console.log("STATUS DATA: ", data);
                               </div>
                               <div class="form-group needs-validation" novalidate>
                                 <strong>Issues:</strong><br/>
-                                <textarea class="form-control" id="issues" required name="issues" rows="3"></textarea>
+                                <textarea class="form-control" id="issue" required name="issue" rows="3"></textarea>
                                 <div class="invalid-feedback">
                                   Please enter Issues.
                                 </div>
@@ -458,11 +464,18 @@ console.log("STATUS DATA: ", data);
       // Get the form
       const form = document.querySelector('#addStatus form');
       const statusDate = form.querySelector('#status_date');
+      console.log("statusDate: ", statusDate);
       const statusAccomplishments = form.querySelector('#status_accomplishments');
       const statusActions = form.querySelector('#actions');
-      const statusIssue = form.querySelector('#issues');
+      const statusIssue = form.querySelector('#issue');
+
+      // Parse and adjust the status_date to ensure correct timezone handling
+    const parsedStatusDate = new Date(statusDate);
+    const adjustedStatusDate = new Date(
+      parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
+    );
      
-    
+    console.log("Adjusted Status Date: ", adjustedStatusDate);
       if (!statusDate.value) {
         // alert("Please select a date");
         isValid = false;
@@ -477,7 +490,6 @@ console.log("STATUS DATA: ", data);
       if (!statusIssue.value) {
         isValid = false;
       }
-      console.lo
       // Form validation
       if (isValid) {
         
@@ -504,33 +516,27 @@ console.log("STATUS DATA: ", data);
       return response.json();
     })
     .then(data => {
-      
-      //get company timezone
-      // const companyTimezone = req.session.company.timezone || 'America/New_York'; // Default to 'America/New_York' if not set
-      // console.log("Company Timezone: ", companyTimezone);
-      // Populate modal fields
+      console.log("--------------------------- Status Data ---------------------------", data.status_date);
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;
       if (data.actions) document.getElementById('view_status_action').value = data.actions;
       if (data.progress) document.getElementById('view_status_progress').value = data.progress;
       if (data.health) document.getElementById('view_status_health').value = data.health;
       if (data.status_date) {
-      const utcDate = new Date(data.status_date);
-      const formatter = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'America/New_York',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
-      });
+        // Parse and adjust the status_date to ensure correct timezone handling
+        const parsedStatusDate = new Date(data.status_date);
+        const adjustedStatusDate = new Date(
+          parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
+        );
 
-      const estDate = formatter.format(utcDate);
-      document.getElementById('view_status_date').innerText = estDate;
-}
+        // Format adjustedStatusDate to yyyy-mm-dd
+        const formattedStatusDate = adjustedStatusDate.toISOString().split("T")[0];
+        console.log("Formatted Status Date: ", formattedStatusDate);
+
+        document.getElementById('view_status_date').innerText = formattedStatusDate;
+      }
 
       // Open the modal
-      
       $('#viewStatusModal').modal('show');
     })
     .catch(err => console.error("Error fetching status data:", err));

@@ -60,6 +60,18 @@ module.exports = (app) => {
     companyPortfolioName,
     persons.getChangePassword,
   );
-
+  router.post(
+    "/password/updatePassword",
+    companyPortfolioName,
+    persons.updatePassword,
+  );
+  router.get(
+    "/password/resetPassword",
+    companyPortfolioName,
+    persons.updatePassword,
+  );
+  router.get("/password/emailSuccess", function (req, res) {
+    res.render("Pages/pages-login", { layout: "layout-public" });
+  });
   app.use("/persons", router);
 };

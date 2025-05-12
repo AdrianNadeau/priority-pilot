@@ -2,41 +2,33 @@ module.exports = (sequelize, DataTypes) => {
   const ChangedPasswordToken = sequelize.define(
     "ChangedPasswordToken",
     {
-      id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-      },
       person_id_fk: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-          model: "persons",
-          key: "id",
-        },
+        allowNull: false,
       },
       token: {
         type: DataTypes.STRING,
-
-        unique: true,
+        allowNull: false,
       },
       email: {
         type: DataTypes.STRING,
+        allowNull: false,
       },
-      created_at: {
+      createdAt: {
         type: DataTypes.DATE,
-
-        defaultValue: DataTypes.NOW,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
       },
       expires_at: {
         type: DataTypes.DATE,
-
-        defaultValue: () => new Date(Date.now() + 3600000), // 1 hour from now
+        allowNull: false,
       },
     },
     {
-      timestamps: false,
-      tableName: "changed_password_tokens",
+      tableName: "changed_password_tokens", // Explicitly specify the table name
     },
   );
 

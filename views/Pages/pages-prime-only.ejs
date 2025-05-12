@@ -120,7 +120,15 @@
                                                     <div class="row">
                                                         <div class="col-md-12">
                                                             <div class="form-group">
-                                                              <i class="bi bi-calendar-check"></i><input type="text" required class="form-control datepicker" id="status_date" name="start_date" placeholder="Status Date">
+                                                              <i class="bi bi-calendar-check"></i>
+                                                              <input
+                                                                  type="text"
+                                                                  required
+                                                                  class="form-control datepicker"
+                                                                  id="status_date"
+                                                                  name="status_date"
+                                                                  placeholder="Status Date"
+                                                                />
                                                               
                                                                 <strong>Prime:</strong> <%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %>
                                                             </div>
@@ -251,10 +259,9 @@
 document.addEventListener("DOMContentLoaded", function() {
   'use strict';
   flatpickr(".datepicker", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true,     // Allow manual input if needed
-      allowInvalidPreload: true, // Allow invalid dates to be preloaded
-    });
+    dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+    allowInput: true,    // Allow manual input if needed
+  });
   // Fetch all the forms we want to apply custom Bootstrap validation styles to
   var forms = document.querySelectorAll(".needs-validation");
 
@@ -274,6 +281,10 @@ document.addEventListener("DOMContentLoaded", function() {
     );
   });
 });
+document.getElementById("addStatusForm").addEventListener("submit", function (event) {
+    const statusDateInput = document.getElementById("status_date");
+    console.log("Selected Status Date:", statusDateInput.value);
+    });
     function getStatusUpdates(project_id_fk){
       var modalBody = document.getElementById("statusUpdates");
       // Clear previous content
@@ -284,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function() {
       
           if (data && data.length > 0) {
               data.forEach(function(status) {
-                console.log("STATUS: ", status);
+        
                 let healthStatus = status.health ? status.health.trim().toLowerCase() : '';
                 if (healthStatus === 'green') { 
                     modalBody.innerHTML += `<span class="green-circle"></span>`;

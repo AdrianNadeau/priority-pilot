@@ -1,145 +1,139 @@
+const session = require("express-session");
 const db = require("../models");
-const changed_password_token = db.changed_password_token;
+const ChangedPasswordToken = db.changed_password_token;
+
 const Op = db.Sequelize.Op;
 
-// Create and Save a new ChangeReason
+// Create and Save a new
 exports.create = async (req, res) => {
-  const { email } = req.body;
-  const company_id_fk = req.session.company?.id;
-  console.log("company_id_fk", company_id_fk);
-  const person_id_fk = req.session.person?.id;
-  console.log("person_id_fk", person_id_fk);
-
-  const company = await Company.findByPk(company_id_fk);
-  if (!company) {
-    const error = new Error("Company not found.");
-    error.statusCode = 404;
-    throw error;
-  }
-
-  if (!email || !password) {
-    const error = new Error("Email and password are required.");
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const existingPerson = await Person.findOne({ where: { email } });
-  if (existingPerson) {
-    const error = new Error("User with this email already exists.");
-    error.statusCode = 409;
-    throw error;
-  }
-
-  // Save ChangeReason in the database
-  ChangeReason.create(phase)
+  console.log("CREATE CHANGED PASSWORD TOKEN", req.body);
+  person = req.session.person;
+  console.log("SESSION PERSON", person);
+  // Create a Token Record
+  const newChangedToken = {
+    person_id_fk: req.body.change_date,
+    token: req.body.change_reason,
+    person_id_fk: person.id,
+    created_at: new Date(),
+  };
+  exports.create = async (req, res) => {
+    try {
+      // Create a new record in the ChangePasswordToken table
+      const changed_password_token = await ChangedPasswordToken.create(
+        req.body,
+      );
+      res.send(changed_password_token);
+    } catch (err) {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while creating the changed_password_token.",
+      });
+    }
+  };
+};
+// Retrieve all  from the database.
+exports.findAll = (req, res) => {
+  ChangedPasswordToken.findAll({ where: condition })
     .then((data) => {
       res.send(data);
     })
     .catch((err) => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while creating the ChangeReason.",
+          err.message ||
+          "Some error occurred while retrieving changed_password_token.",
       });
     });
 };
 
-// Retrieve all ChangeReasons from the database.
-exports.findAll = (req, res) => {
-  ChangeReason.findAll({})
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving phases.",
-      });
-    });
-};
-
-// Find a single ChangeReason with an id
+// Find a single  with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
 
-  ChangeReason.findByPk(id)
+  ChangedPasswordToken.findByPk(id)
     .then((data) => {
       if (data) {
         res.send(data);
       } else {
         res.status(404).send({
-          message: `Cannot find ChangeReason with id=${id}.`,
+          message: `Cannot find changed_password_token with id=${id}.`,
         });
       }
     })
     .catch((err) => {
       res.status(500).send({
-        message: "Error retrieving ChangeReason with id=" + id,
+        message: "Error retrieving changed_password_token with id=" + id,
       });
     });
 };
 
-// Update a ChangeReason by the id in the request
+// Update a  by the id in the request
 exports.update = (req, res) => {
   const id = req.params.id;
 
-  ChangeReason.update(req.body, {
+  ChangedPasswordToken.update(req.body, {
     where: { id: id },
   })
     .then((num) => {
       if (num == 1) {
         res.send({
-          message: "ChangeReason was updated successfully.",
+          message: "changed_password_token was updated successfully.",
         });
       } else {
         res.send({
-          message: `Cannot update ChangeReason with id=${id}. Maybe ChangeReason was not found or req.body is empty!`,
+          message: `Cannot update changed_password_token with id=${id}. Maybe changed_password_token was not found or req.body is empty!`,
         });
       }
     })
     .catch((err) => {
       res.status(500).send({
-        message: "Error updating ChangeReason with id=" + id,
+        message: "Error updating  with id=" + id,
       });
     });
 };
 
-// Delete a ChangeReason with the specified id in the request
+// Delete a  with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
 
-  ChangeReason.destroy({
+  ChangedPasswordToken.destroy({
     where: { id: id },
   })
     .then((num) => {
       if (num == 1) {
         res.send({
-          message: "ChangeReason was deleted successfully!",
+          message: "changed_password_token was deleted successfully!",
         });
       } else {
         res.send({
-          message: `Cannot delete ChangeReason with id=${id}. Maybe ChangeReason was not found!`,
+          message: `Cannot delete Company with id=${id}. Maybe changed_password_token was not found!`,
         });
       }
     })
     .catch((err) => {
       res.status(500).send({
-        message: "Could not delete ChangeReason with id=" + id,
+        message: "Could not delete changed_password_token with id=" + id,
       });
     });
 };
 
 // Delete all  from the database.
 exports.deleteAll = (req, res) => {
-  ChangeReason.destroy({
+  ChangedPasswordToken.destroy({
     where: {},
     truncate: false,
   })
     .then((nums) => {
-      res.send({ message: `${nums} Companies were deleted successfully!` });
+      res.send({
+        message: `${nums} changed_password_token were deleted successfully!`,
+      });
     })
     .catch((err) => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while removing all companies.",
+          err.message ||
+          "Some error occurred while removing all changed_password_token.",
       });
     });
 };

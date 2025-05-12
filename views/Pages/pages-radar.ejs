@@ -524,18 +524,25 @@
 
     // Add CSS for the print header
     const css = `
-      @page {
-        margin-top: 3cm; /* Adjust top margin to make space for the header */
-      }
-      body::before {
-        content: "${portfolioName}";
-        display: block;
-        text-align: center; /* Center the header */
-        font-weight: bold;
-        font-size: 1.5em;
-        margin-bottom: 1cm; /* Add space between the header and content */
-      }
-    `;
+    @page {
+      size: landscape; /* Set page orientation to landscape */
+      margin-top: 3cm; /* Adjust top margin to make space for the header */
+    }
+    body::before {
+      content: "${portfolioName}";
+      display: block;
+      text-align: center; /* Center the header */
+      font-weight: bold;
+      font-size: 1.5em;
+      margin-bottom: 1cm; /* Add space between the header and content */
+    }
+    #btnPrintPage,
+    .button-menu-mobile,
+    .page-title,
+    .portfolio-title {
+      display: none !important; /* Hide these elements during print */
+    }
+  `;
 
     style.appendChild(document.createTextNode(css));
     document.head.appendChild(style);
