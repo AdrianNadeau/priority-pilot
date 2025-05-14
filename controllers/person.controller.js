@@ -256,16 +256,6 @@ exports.sendResetPasswordEmail = async (req, res) => {
     console.log("VALUES:, resetToken:", resetToken);
 
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
-
-    // Log the model and table name for debugging
-    // console.log("Model tableName:", ChangedPasswordToken.tableName);
-    // console.log("Creating token with data:", {
-    //   person_id_fk: person.id,
-    //   token: resetToken,
-    //   email: person.email,
-    //   expires_at: expiresAt,
-    // });
-
     try {
       await ChangedPasswordToken.create({
         person_id_fk: person.id,
@@ -304,7 +294,6 @@ exports.getChangePassword = async (req, res) => {
       return res.status(404).send("Invalid or expired token.");
     }
     person_id_fk = tokenRecord.person_id_fk;
-    console.log("person_id_fk:", person_id_fk);
     const person = await Person.findByPk(tokenRecord.person_id_fk);
     console.log("tokenRecord", tokenRecord);
     person_id_fk = tokenRecord.person_id_fk; // Reassign the value

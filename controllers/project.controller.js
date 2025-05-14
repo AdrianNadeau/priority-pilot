@@ -1336,6 +1336,7 @@ exports.update = async (req, res) => {
         const reasonRecord = await ChangeReason.findOne({
           where: { id: req.body.change_reason },
         });
+        console.log("reasonRecord", reasonRecord);
         if (reasonRecord) {
           // Use the correct field name for the reason text
           changeReasonText =
