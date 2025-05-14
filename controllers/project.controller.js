@@ -15,59 +15,31 @@ const moment = require("moment");
 const pg = require("pg");
 const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
-const { Parser } = require("json2csv");
 // const sendEmail = require("../utils/emailSender");
 
 // Create and Save a new Project
 exports.create = (req, res) => {
   const funnelPage = req.body.funnelPage;
-  const company_id_fk = req.session.company.id;
+  company_id_fk = req.session.company.id;
 
   // Convert dates
-  const startDateTest = insertValidDate(req.body.start_date);
-  const endDateTest = insertValidDate(req.body.end_date);
-  const nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
+  let startDateTest = null;
+  let endDateTest = null;
+  let nextMilestoneDateTest = null;
+  let pitch_message = "";
+  let projectCost = null;
 
-  // Sanitize numeric fields
-  const sanitizedProjectCost = req.body.project_cost
-    ? removeCommasAndConvertToNumber(req.body.project_cost)
-    : 0;
-
-  const sanitizedEffort = req.body.effort
-    ? removeCommasAndConvertToNumber(req.body.effort)
-    : 0;
-
-  const sanitizedBenefit = req.body.benefit
-    ? removeCommasAndConvertToNumber(req.body.benefit)
-    : 0;
-
-  const sanitizedTag1 = req.body.tag_1
-    ? parseInt(req.body.tag_1.replace(/,/g, ""), 10)
-    : null;
-
-  const sanitizedTag2 = req.body.tag_2
-    ? parseInt(req.body.tag_2.replace(/,/g, ""), 10)
-    : null;
-
-  const sanitizedTag3 = req.body.tag_3
-    ? parseInt(req.body.tag_3.replace(/,/g, ""), 10)
-    : null;
-
-  const sanitizedPhaseId = req.body.phase_id_fk
-    ? parseInt(req.body.phase_id_fk, 10)
-    : null;
-
-  const sanitizedPriorityId = req.body.priority_id_fk
-    ? parseInt(req.body.priority_id_fk, 10)
-    : null;
-
-  const sanitizedSponsorId = req.body.sponsor_id_fk
-    ? parseInt(req.body.sponsor_id_fk, 10)
-    : null;
-
-  const sanitizedPrimeId = req.body.prime_id_fk
-    ? parseInt(req.body.prime_id_fk, 10)
-    : null;
+  startDateTest = insertValidDate(req.body.start_date);
+  endDateTest = insertValidDate(req.body.end_date);
+  nextMilestoneDateTest = insertValidDate(req.body.next_milestone_date);
+  try {
+    projectCost = removeCommasAndConvertToNumber(req.body.project_cost);
+  } catch (error) {
+    projectCost = 0;
+  }
+  if (isNaN(projectCost)) {
+    projectCost = 0;
+  }
 
   // Create a Project
   const project = {
@@ -80,46 +52,111 @@ exports.create = (req, res) => {
     start_date: startDateTest,
     end_date: endDateTest,
     next_milestone_date: nextMilestoneDateTest,
-    priority_id_fk: sanitizedPriorityId,
-    sponsor_id_fk: sanitizedSponsorId,
-    prime_id_fk: sanitizedPrimeId,
-    phase_id_fk: sanitizedPhaseId,
-    project_cost: sanitizedProjectCost,
-    effort: sanitizedEffort,
-    benefit: sanitizedBenefit,
-    pitch_message: req.body.pitch_message || "",
-    tag_1: sanitizedTag1,
-    tag_2: sanitizedTag2,
-    tag_3: sanitizedTag3,
-    reference: req.body.reference || "",
+    priority_id_fk: req.body.priority_id_fk,
+    sponsor_id_fk: req.body.sponsor_id_fk,
+    prime_id_fk: req.body.prime_id_fk,
+    phase_id_fk: req.body.phase_id_fk,
+    project_cost: req.body.project_cost,
+    effort: req.body.effort,
+    benefit: req.body.benefit,
+    impact: req.body.impact,
+    complexity: req.body.complexity,
+    pitch_message: pitch_message,
+    tag_1: req.body.tag_1,
+    tag_2: req.body.tag_2,
+    tag_3: req.body.tag_3,
+    reference: req.body.reference,
   };
 
   // Save Project in the database
-  if (funnelPage === "y") {
-    Project.create(project)
-      .then((createdProject) => {
-        res.redirect("/projects/funnel/view/");
-      })
-      .catch((err) => {
-        console.error("Error creating project:", err);
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while creating the project.",
+  Project.create(project).then(async (createdProject) => {
+    const phasesData = await Phase.findAll({
+      order: [["id", "ASC"]],
+    }).catch((error) => {
+      console.log("Error fetching phasesData:", error);
+    });
+
+    const newChangedProject = {
+      company_id_fk,
+      project_id_fk: createdProject.id,
+      project_name: createdProject.project_name,
+      project_headline: createdProject.headline,
+      project_description: createdProject.project_description,
+      project_why: createdProject.why,
+      project_what: createdProject.what,
+      start_date: startDateTest,
+      end_date: endDateTest,
+      next_milestone_date: nextMilestoneDateTest,
+      priority_id_fk: createdProject.priority_id_fk,
+      sponsor_id_fk: createdProject.sponsor_id_fk,
+      prime_id_fk: createdProject.prime_id_fk,
+      phase_id_fk: createdProject.phase_id_fk,
+      project_cost: createdProject.project_cost,
+      effort: createdProject.effort,
+      benefit: createdProject.benefit,
+      impact: createdProject.impact,
+      complexity: createdProject.complexity,
+      pitch_message: pitch_message,
+      tag_1: createdProject.tag_1,
+      tag_2: createdProject.tag_2,
+      tag_3: createdProject.tag_3,
+      change_reason_id_fk: 1,
+      change_explanation: "Initial Entry",
+    };
+
+    const changedProject = await ChangeProject.create(newChangedProject);
+
+    let tagsData = await Tag.findAll({
+      where: {
+        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      },
+      order: [["id", "ASC"]],
+    });
+
+    // Add "None" option at the top of the tags list
+    tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
+
+    const [prioritiesData, personsData, projectsData] = await Promise.all([
+      Priority.findAll(),
+      Person.findAll({
+        where: {
+          company_id_fk: company_id_fk,
+        },
+      }),
+      Project.findAll(),
+    ]);
+
+    if (funnelPage == "n") {
+      const query =
+        "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
+
+      await db.sequelize
+        .query(query, {
+          replacements: [company_id_fk],
+          type: db.sequelize.QueryTypes.SELECT,
+        })
+        .then((data) => {
+          res.render("Pages/pages-projects", {
+            projects: data,
+            phases: phasesData,
+            priorities: prioritiesData,
+            sponsors: personsData,
+            primes: personsData,
+            tags: tagsData,
+            company_id: company_id_fk,
+          });
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message:
+              err.message || "Some error occurred while retrieving data.",
+          });
         });
-      });
-  } else {
-    Project.create(project)
-      .then((createdProject) => {
-        res.redirect("/projects");
-      })
-      .catch((err) => {
-        console.error("Error creating project:", err);
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while creating the project.",
-        });
-      });
-  }
+    } else {
+      //send back to http://localhost:8080/projects/funnel/view/
+      res.redirect("/projects/funnel/view/");
+    }
+  });
 };
 
 exports.findAllRadar = async (req, res) => {
@@ -174,8 +211,10 @@ exports.findAll = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
 
-    const phasesData = await Phase.findAll({ order: [["id", "ASC"]] });
-    const priorities = await Priority.findAll();
+    const phasesData = await Phase.findAll({
+      order: [["id", "ASC"]],
+    });
+    let priorities = await Priority.findAll();
 
     const personsData = await Person.findAll({
       where: {
@@ -258,32 +297,41 @@ exports.findOne = (req, res) => {
         if (data) {
           res.status(200).send(data);
         } else {
-          res
-            .status(404)
-            .send({ message: `Cannot find Project with id=${id}.` });
+          res.status(404).send({
+            message: `Cannot find Project with id=${id}.`,
+          });
         }
       })
       .catch((err) => {
-        res
-          .status(500)
-          .send({ message: "Error retrieving Project with id=" + id });
+        res.status(500).send({
+          message: "Error retrieving Project with id=" + id,
+        });
       });
   }
 };
 exports.cockpit = async (req, res) => {
   const project_id = req.params.id;
-  const company_id_fk = req.session.company.id;
-
-  const tagsData = await Tag.findAll({
+  console.log("project_id:", project_id);
+  let company_id_fk;
+  try {
+    if (!req.session) {
+      return res.redirect("/pages-500");
+    } else {
+      company_id_fk = req.session.company.id;
+    }
+  } catch (error) {
+    console.log("error:", error);
+    return res.redirect("/pages-500");
+  }
+  let tagsData = await Tag.findAll({
     where: {
       [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
     },
-    order: [["id", "DESC"]],
+    order: [["id", "ASC"]],
   });
   //COCKPIT QUERY
-  let query = null;
   try {
-    query = `
+    const query = `
     SELECT 
   proj.tag_1,
   tag1.tag_name AS tag_1_name,
@@ -325,30 +373,21 @@ exports.cockpit = async (req, res) => {
       replacements: [company_id_fk, project_id],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    if (!data || data.length === 0) {
-      return res.status(404).send({ message: "Project not found" });
+
+    let changed_projects;
+    try {
+      changed_projects = await db.changed_projects.findAll({
+        where: {
+          project_id_fk: project_id,
+        },
+        order: [["change_date", "DESC"]],
+      });
+      if (changed_projects) {
+      }
+    } catch (error) {
+      console.log("Cockpit Changed Projects error:", error);
     }
-    query = `
-  SELECT 
-  changed_projects.id,
-  changed_projects.change_date,
-  changed_projects.change_reason_id_fk,
-  changed_projects."createdAt",
 
-  change_reasons.change_reason AS change_reason
-FROM changed_projects
-LEFT JOIN change_reasons
-  ON change_reasons.id = changed_projects.change_reason_id_fk
-WHERE changed_projects.project_id_fk = ?
-ORDER BY changed_projects.change_date DESC
-`;
-
-    const changedProjects = await db.sequelize.query(query, {
-      replacements: [project_id],
-      type: db.sequelize.QueryTypes.SELECT,
-    });
-
-    // console.log("changedProjects:", changedProjects);
     const statuses = await Status.findAll({
       where: { project_id_fk: project_id },
       order: [["status_date", "DESC"]],
@@ -365,7 +404,7 @@ ORDER BY changed_projects.change_date DESC
       }
     }
 
-    const tagsData = await Tag.findAll({
+    let tagsData = await Tag.findAll({
       where: {
         [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
       },
@@ -378,13 +417,14 @@ ORDER BY changed_projects.change_date DESC
       formattedCost: data[0].project_cost,
       statuses: statuses,
       statusColor: statusColor,
-      changed_projects: changedProjects,
+      changed_projects,
+      // tags: tagsData,
     });
   } catch (error) {
     console.log("Database Query Error: ", error);
-    res
-      .status(500)
-      .send({ message: "An error occurred while retrieving project data." });
+    res.status(500).send({
+      message: "An error occurred while retrieving project data.",
+    });
   }
 };
 exports.findOneForEdit = async (req, res) => {
@@ -452,10 +492,14 @@ proj.company_id_fk = ? AND proj.id = ?`;
       //format dates for pickers
       try {
         startDateTest = moment.utc(data[0].start_date).format("YYYY-MM-DD");
+        console.log("startDateTest", startDateTest);
+
         endDateTest = moment.utc(data[0].end_date).format("YYYY-MM-DD");
+        console.log("endDateTest", endDateTest);
         nextMilestoneDateTest = moment
           .utc(data[0].next_milestone_date)
           .format("YYYY-MM-DD");
+        console.log("nextMilestoneDateTest", nextMilestoneDateTest);
       } catch (error) {
         startDateTest = null;
         endDateTest = null;
@@ -469,8 +513,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
           },
         },
       });
-
-      const tagsData = await Tag.findAll({
+      let tagsData = await Tag.findAll({
         where: {
           [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
         },
@@ -486,7 +529,9 @@ proj.company_id_fk = ? AND proj.id = ?`;
         lastStartDate = statuses[0].status_date;
         statusColor = statuses[0].health;
       }
-      const phasesData = await Phase.findAll({ order: [["id", "ASC"]] });
+      const phasesData = await Phase.findAll({
+        order: [["id", "ASC"]],
+      });
       const [prioritiesData] = await Promise.all([
         Priority.findAll(),
         Project.findAll(),
@@ -522,13 +567,21 @@ proj.company_id_fk = ? AND proj.id = ?`;
     let formattedTag;
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).send({ message: "An unexpected error occurred." });
+    res.status(500).send({
+      message: "An unexpected error occurred.",
+    });
   }
 };
 
 exports.findOneForPrime = async (req, res) => {
   try {
     const project_id = req.params.id;
+
+    // Ensure session exists and fetch company ID
+    if (!req.session || !req.session.company) {
+      return res.redirect("/pages-500");
+    }
+
     const company_id_fk = req.session.company.id;
 
     // Query to fetch project details
@@ -574,11 +627,13 @@ exports.findOneForPrime = async (req, res) => {
       statusColor = statuses[0].health;
     }
 
-    const phasesData = await Phase.findAll({ order: [["id", "ASC"]] });
+    const phasesData = await Phase.findAll({
+      order: [["id", "ASC"]],
+    });
 
     const prioritiesData = await Priority.findAll();
 
-    const tagsData = await Tag.findAll({
+    let tagsData = await Tag.findAll({
       where: {
         [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
       },
@@ -602,7 +657,9 @@ exports.findOneForPrime = async (req, res) => {
     });
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).send({ message: "An unexpected error occurred." });
+    res.status(500).send({
+      message: "An unexpected error occurred.",
+    });
   }
 };
 
@@ -710,7 +767,7 @@ exports.radar = async (req, res) => {
       operationsTotalCost;
 
     const in_flight_cost = discoveryTotalCost + deliveryTotalCost;
-
+    console.log("portfolioName", portfolioName);
     // Render the radar page with the retrieved data
     res.render("Pages/pages-radar", {
       projects: projectsWithPhaseNames,
@@ -776,27 +833,21 @@ exports.progress = async (req, res) => {
           where: { id: project.tag_1 },
           attributes: ["tag_name"],
         });
-        if (tag1) {
-          tags.tag_1.push(tag1.tag_name);
-        }
+        if (tag1) tags.tag_1.push(tag1.tag_name);
       }
       if (project.tag_2) {
         const tag2 = await db.tags.findOne({
           where: { id: project.tag_2 },
           attributes: ["tag_name"],
         });
-        if (tag2) {
-          tags.tag_2.push(tag2.tag_name);
-        }
+        if (tag2) tags.tag_2.push(tag2.tag_name);
       }
       if (project.tag_3) {
         const tag3 = await db.tags.findOne({
           where: { id: project.tag_3 },
           attributes: ["tag_name"],
         });
-        if (tag3) {
-          tags.tag_3.push(tag3.tag_name);
-        }
+        if (tag3) tags.tag_3.push(tag3.tag_name);
       }
     }
 
@@ -816,7 +867,19 @@ exports.progress = async (req, res) => {
 };
 
 exports.countProjectsByTag1 = async (req, res) => {
-  const companyId = req.session.company.id;
+  let companyId;
+
+  // Ensure session exists and extract company information
+  try {
+    if (!req.session || !req.session.company) {
+      return res.redirect("/pages-500");
+    } else {
+      companyId = req.session.company.id;
+    }
+  } catch (error) {
+    console.log("Error extracting company information:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
 
   try {
     // Count projects grouped by tag_1 and ensure tag_1 is not 0
@@ -845,7 +908,11 @@ exports.countProjectsByTag1 = async (req, res) => {
 
     // Fetch tag names for each tag_1
     const tag1Names = await db.tags.findAll({
-      where: { id: { [Op.in]: tag1Counts.map((tag) => tag.tag_1) } },
+      where: {
+        id: {
+          [Op.in]: tag1Counts.map((tag) => tag.tag_1),
+        },
+      },
       attributes: ["id", "tag_name"],
     });
 
@@ -897,7 +964,11 @@ exports.countProjectsByTag2 = async (req, res) => {
 
     // Fetch tag names for each tag_1
     const tag2Names = await db.tags.findAll({
-      where: { id: { [Op.in]: tag2Counts.map((tag) => tag.tag_2) } },
+      where: {
+        id: {
+          [Op.in]: tag2Counts.map((tag) => tag.tag_2),
+        },
+      },
       attributes: ["id", "tag_name"],
     });
 
@@ -948,7 +1019,11 @@ exports.countProjectsByTag3 = async (req, res) => {
 
     // Fetch tag names for each tag_3
     const tag3Names = await db.tags.findAll({
-      where: { id: { [Op.in]: tag3Counts.map((tag) => tag.tag_3) } },
+      where: {
+        id: {
+          [Op.in]: tag3Counts.map((tag) => tag.tag_3),
+        },
+      },
       attributes: ["id", "tag_name"],
     });
 
@@ -1022,6 +1097,7 @@ exports.flight = async (req, res) => {
       proj.phase_id_fk;
   `;
   const portfolioName = await returnPortfolioName(companyId);
+  console.log("portfolioName", portfolioName);
   const data = await db.sequelize.query(query, {
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
@@ -1054,6 +1130,19 @@ exports.findFunnel = async (req, res) => {
     const company_id_fk = req.session.company.id;
     const person_id_fk = req.session.person.id;
 
+    const personsData = await Person.findAll({
+      where: {
+        company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
+      },
+    });
+
+    let tagsData = await Tag.findAll({
+      where: {
+        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      },
+      order: [["id", "ASC"]],
+    });
+    // Custom SQL query to retrieve project data
     const query = `
     SELECT 
       proj.company_id_fk,
@@ -1097,86 +1186,49 @@ exports.findFunnel = async (req, res) => {
   `;
 
     const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk],
+      replacements: [company_id_fk, person_id_fk, person_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
 
-    const pitchPhaseId = 1;
+    // Calculate pitch count, total cost, and total effort
+    const pitchCount = data.length;
+    let pitchTotalCost = 0;
+    let pitchTotalPH = 0;
 
-    const totals = await db.projects.findOne({
-      where: { company_id_fk: company_id_fk, phase_id_fk: pitchPhaseId },
-      attributes: [
-        [
-          db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.cast(
-              db.Sequelize.fn(
-                "NULLIF",
-                db.Sequelize.fn(
-                  "REPLACE",
-                  db.Sequelize.col("project_cost"),
-                  ",",
-                  "",
-                ),
-                "",
-              ),
-              "NUMERIC",
-            ),
-          ),
-          "total_cost", // Alias for project_cost
-        ],
-        [
-          db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.cast(
-              db.Sequelize.fn(
-                "NULLIF",
-                db.Sequelize.fn("REPLACE", db.Sequelize.col("effort"), ",", ""),
-                "",
-              ),
-              "NUMERIC",
-            ),
-          ),
-          "total_effort", // Alias for effort
-        ],
-      ],
-      raw: true, // Return raw data
+    data.forEach((project) => {
+      pitchTotalCost = parseFloat(project.project_cost.replace(/,/g, "")) || 0;
+      // pitchTotalCost += parseFloat(project.project_cost) || 0;
+
+      pitchTotalPH += parseFloat(project.effort) || 0;
     });
 
-    console.log("Total Pitch Cost:", totals.total_cost);
-    console.log("Total Pitch Effort:", totals.total_effort);
-
-    const pitchTotalCost = formatCost(totals.total_cost || 0);
-    const pitchTotalPH = formatCost(totals.total_effort || 0);
-
-    const pitchCount = data.length;
-
-    const phases = await Phase.findAll({ order: [["id", "ASC"]] });
+    // Retrieve phases and priorities
+    const phases = await Phase.findAll({
+      order: [["id", "ASC"]],
+    });
     const priorities = await Priority.findAll();
 
+    // Retrieve sponsors and primes
     const persons = await Person.findAll({
       where: { company_id_fk: company_id_fk },
     });
 
-    const tagsData = await Tag.findAll({
-      where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
-      },
-      order: [["id", "ASC"]],
-    });
-
+    const sponsors = persons.filter((person) => person.role === "sponsor");
+    const primes = persons.filter((person) => person.role === "prime");
+    pitchTotalCost = formatCost(pitchTotalCost);
+    pitchTotalPH = formatCost(pitchTotalPH);
     const portfolioName = await returnPortfolioName(company_id_fk);
-
+    console.log("portfolioName", portfolioName);
     // Render the funnel page with the retrieved data
     res.render("Pages/pages-funnel", {
       phases: phases,
       priorities: priorities,
       projects: data,
-      sponsors: persons,
-      primes: persons,
+      sponsors: personsData,
+      primes: personsData,
       pitchCount: pitchCount,
-      pitchTotalCost: pitchTotalCost,
-      pitchTotalPH: pitchTotalPH,
+      pitchTotalCost: formatCost(pitchTotalCost),
+      pitchTotalPH: formatCost(pitchTotalPH),
       tags: tagsData,
       portfolioName,
     });
@@ -1187,45 +1239,35 @@ exports.findFunnel = async (req, res) => {
 };
 exports.findFreezer = async (req, res) => {
   const company_id_fk = req.session.company.id;
+  console.log("company_id_fk", company_id_fk);
+  const projects = await db.projects.findAll({
+    where: {
+      company_id_fk: company_id_fk,
+      phase_id_fk: 6,
+    },
+    attributes: ["id", "project_name", "project_cost", "effort"],
+  });
+  console.log("total projects", projects.length);
+  const archivedCount = projects.length;
 
-  try {
-    // Fetch projects in the "archived" phase (phase ID 6)
-    const projects = await db.projects.findAll({
-      where: { company_id_fk: company_id_fk, phase_id_fk: 6 },
-      attributes: ["id", "project_name", "project_cost", "effort"],
-    });
+  let archivedTotalPH = 0;
+  let archivedTotalCost = 0;
 
-    const archivedCount = projects.length;
-
-    // Initialize totals
-    let archivedTotalPH = 0;
-    let archivedTotalCost = 0;
-
-    // Calculate totals for cost and effort
-    projects.forEach((project) => {
-      archivedTotalCost +=
-        removeCommasAndConvertToNumber(project.project_cost) || 0;
-      archivedTotalPH += removeCommasAndConvertToNumber(project.effort) || 0;
-    });
-
-    // Format totals for display
-    const formattedArchivedTotalCost = formatCost(archivedTotalCost);
-    const formattedArchivedTotalPH = formatCost(archivedTotalPH);
-
-    const portfolioName = await returnPortfolioName(company_id_fk);
-
-    // Render the freezer page with the retrieved data
-    res.render("Pages/pages-freezer", {
-      projects,
-      archivedTotalCost: formattedArchivedTotalCost,
-      archivedCount,
-      archivedTotalPH: formattedArchivedTotalPH,
-      portfolioName,
-    });
-  } catch (error) {
-    console.error("Error retrieving archived projects:", error);
-    res.status(500).json({ message: "Error retrieving archived projects." });
-  }
+  projects.forEach((project) => {
+    archivedTotalCost = formatCost(Number(project.project_cost) || 0);
+    archivedTotalPH += parseFloat(project.effort) || 0;
+  });
+  console.log("archivedTotalCost", archivedTotalCost);
+  console.log("archivedTotalPH", archivedTotalPH);
+  const portfolioName = await returnPortfolioName(company_id_fk);
+  // Render the funnel page with the retrieved data
+  res.render("Pages/pages-freezer", {
+    projects,
+    archivedTotalCost,
+    archivedCount,
+    archivedTotalPH,
+    portfolioName,
+  });
 };
 exports.update = async (req, res) => {
   try {
@@ -1244,8 +1286,6 @@ exports.update = async (req, res) => {
       benefit,
       phase_id_fk,
       next_milestone_date,
-      change_reason,
-      change_explanation,
       tag_1,
       tag_2,
       tag_3,
@@ -1284,10 +1324,47 @@ exports.update = async (req, res) => {
         tag_3: sanitizedTag3,
         reference,
       },
-      { where: { id } },
+      {
+        where: { id },
+      },
     );
 
     if (num === 1) {
+      // Fetch the change reason text from the database
+      let changeReasonText = "";
+      if (req.body.change_reason) {
+        const reasonRecord = await ChangeReason.findOne({
+          where: { id: req.body.change_reason },
+        });
+        if (reasonRecord) {
+          // Use the correct field name for the reason text
+          changeReasonText =
+            reasonRecord.change_reason || reasonRecord.reason || "";
+        }
+      }
+      //create changed project
+      const newChangedProject = {
+        project_name,
+        project_headline,
+        project_why,
+        project_what,
+        start_date: startDateTest,
+        end_date: endDateTest,
+        prime_id_fk,
+        sponsor_id_fk,
+        project_cost: sanitizedProjectCost,
+        effort,
+        benefit,
+        phase_id_fk,
+        next_milestone_date: nextMilestoneDateTest,
+        tag_1: sanitizedTag1,
+        tag_2: sanitizedTag2,
+        tag_3: sanitizedTag3,
+        reference,
+
+        change_reason_id_fk: req.body.change_reason_id_fk,
+        change_explanation: changeReasonText,
+      };
       res.redirect("/projects/");
     } else {
       res.status(404).send({
@@ -1302,7 +1379,9 @@ exports.update = async (req, res) => {
 exports.health = async (req, res) => {
   //get all company projects
   const company_id_fk = req.session.company.id;
+  console.log("company_id_fk", company_id_fk);
   const portfolioName = req.session.company.company_headline;
+  console.log("portfolioName : ", portfolioName);
 
   const costQuery = `SELECT 
     proj.company_id_fk,
@@ -1427,7 +1506,6 @@ exports.flightview = async (req, res) => {
 // Update a Project by the id in the request
 exports.update = async (req, res) => {
   const funnelPage = req.body.funnelPage;
-
   try {
     const { id } = req.params;
     const {
@@ -1444,29 +1522,23 @@ exports.update = async (req, res) => {
       benefit,
       phase_id_fk,
       next_milestone_date,
-      change_reason,
-      change_explanation,
       tag_1,
       tag_2,
       tag_3,
       reference,
+      change_reason, // This is the ID
     } = req.body;
 
-    // Convert dates
+    // Convert and sanitize as before...
     const startDateTest = insertValidDate(start_date);
     const endDateTest = insertValidDate(end_date);
     const nextMilestoneDateTest = insertValidDate(next_milestone_date);
-
-    // Sanitize project_cost by removing commas and converting to a number
-    const sanitizedProjectCost = removeCommasAndConvertToNumber(project_cost);
-    console.log("Sanitized project_cost:", sanitizedProjectCost);
-
-    // Sanitize tags by converting them to integers or setting them to null if invalid
+    const sanitizedProjectCost = project_cost
+      ? removeCommasAndConvertToNumber(project_cost)
+      : 0;
     const sanitizedTag1 = tag_1 ? parseInt(tag_1.replace(/,/g, ""), 10) : null;
     const sanitizedTag2 = tag_2 ? parseInt(tag_2.replace(/,/g, ""), 10) : null;
     const sanitizedTag3 = tag_3 ? parseInt(tag_3.replace(/,/g, ""), 10) : null;
-
-    console.log("Sanitized tags:", sanitizedTag1, sanitizedTag2, sanitizedTag3);
 
     // Update the project
     const [num] = await Project.update(
@@ -1479,20 +1551,35 @@ exports.update = async (req, res) => {
         end_date: endDateTest,
         prime_id_fk,
         sponsor_id_fk,
-        project_cost: sanitizedProjectCost, // Use sanitized value
+        project_cost: sanitizedProjectCost,
         effort,
         benefit,
         phase_id_fk,
         next_milestone_date: nextMilestoneDateTest,
-        tag_1: sanitizedTag1, // Use sanitized value
-        tag_2: sanitizedTag2, // Use sanitized value
-        tag_3: sanitizedTag3, // Use sanitized value
+        tag_1: sanitizedTag1,
+        tag_2: sanitizedTag2,
+        tag_3: sanitizedTag3,
         reference,
       },
-      { where: { id } },
+      {
+        where: { id },
+      },
     );
 
     if (num === 1) {
+      // Fetch the change reason text from the database
+      let changeReasonText = "";
+      if (change_reason) {
+        const reasonRecord = await ChangeReason.findOne({
+          where: { id: change_reason },
+        });
+        if (reasonRecord) {
+          // Use the correct field name for the reason text
+          changeReasonText =
+            reasonRecord.change_reason || reasonRecord.reason || "";
+        }
+      }
+
       // Create a new ChangedProject entry after successful update
       const newChangedProject = {
         project_id_fk: id,
@@ -1506,15 +1593,15 @@ exports.update = async (req, res) => {
         end_date: endDateTest,
         prime_id_fk,
         sponsor_id_fk,
-        project_cost: sanitizedProjectCost, // Use sanitized value
+        project_cost: sanitizedProjectCost,
         effort,
         benefit,
         phase_id_fk,
-        change_reason_id_fk: req.body.change_reason,
-        change_explanation,
-        tag_1: sanitizedTag1, // Use sanitized value
-        tag_2: sanitizedTag2, // Use sanitized value
-        tag_3: sanitizedTag3, // Use sanitized value
+        change_reason_id_fk: change_reason,
+        change_explanation: changeReasonText,
+        tag_1: sanitizedTag1,
+        tag_2: sanitizedTag2,
+        tag_3: sanitizedTag3,
       };
 
       await ChangeProject.create(newChangedProject);
@@ -1538,7 +1625,9 @@ exports.update = async (req, res) => {
 exports.delete = (req, res) => {
   const id = req.params.id;
 
-  Project.destroy({ where: { id: id } })
+  Project.destroy({
+    where: { id: id },
+  })
     .then((num) => {
       if (num == 1) {
       } else {
@@ -1548,15 +1637,18 @@ exports.delete = (req, res) => {
       }
     })
     .catch((err) => {
-      res
-        .status(500)
-        .send({ message: "Could not delete Project with id=" + id });
+      res.status(500).send({
+        message: "Could not delete Project with id=" + id,
+      });
     });
 };
 
 // Delete all  from the database.
 exports.deleteAll = (req, res) => {
-  Project.destroy({ where: {}, truncate: false })
+  Project.destroy({
+    where: {},
+    truncate: false,
+  })
     .then((nums) => {
       res.send({ message: `${nums} Companies were deleted successfully!` });
     })
@@ -1570,7 +1662,9 @@ exports.deleteAll = (req, res) => {
 exports.archvive = (req, res) => {
   const id = req.params.id;
   console.log("archvive id:", id);
-  Project.update({ where: { id: id } })
+  Project.update({
+    where: { id: id },
+  })
     .then((num) => {
       if (num == 1) {
       } else {
@@ -1580,11 +1674,60 @@ exports.archvive = (req, res) => {
       }
     })
     .catch((err) => {
-      res
-        .status(500)
-        .send({ message: "Could not delete Project with id=" + id });
+      res.status(500).send({
+        message: "Could not delete Project with id=" + id,
+      });
     });
 };
+
+// Helper function to insert valid date
+function insertValidDate(date) {
+  return date ? moment(date, "YYYY-MM-DD").toDate() : null;
+}
+
+function formatNumberWithCommas(input) {
+  if (input && typeof input.value === "string") {
+    // Remove non-numeric characters
+    let value = input.value.replace(/\D/g, "");
+
+    // Format the number with commas
+    value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    // Set the formatted value back to the input
+    input.value = value;
+  } else {
+    console.error("Invalid input or input value:", input);
+  }
+}
+
+function removeCommasAndConvertToNumber(value) {
+  if (typeof value === "string") {
+    return parseFloat(value.replace(/,/g, ""));
+  }
+  return value;
+}
+
+const formatCost = (cost) => {
+  if (cost === null || cost === undefined) return "0";
+  if (cost >= 1_000_000_000) return `${(cost / 1_000_000_000).toFixed(1)}B`;
+  if (cost >= 1_000_000) return `${(cost / 1_000_000).toFixed(1)}M`;
+  if (cost >= 1_000) return `${(cost / 1_000).toFixed(1)}K`;
+  return cost.toString();
+};
+async function returnPortfolioName(company_id_fk) {
+  // Fetch the company headline from the database
+  const company = await db.companies.findOne({
+    where: { id: company_id_fk },
+    attributes: ["company_headline"],
+  });
+
+  // Check if the company exists and return the headline
+  if (!company || !company.company_headline) {
+    return "Portfolio name not found";
+  }
+  console.log("company.company_headline", company.company_headline);
+  return company.company_headline;
+}
 exports.exportProjectsWithStatusToCSV = async (req, res) => {
   console.log("Exporting projects with status to CSV...");
   try {
@@ -1862,58 +2005,3 @@ exports.exportHealthDataToCSV = async (req, res) => {
       .send({ message: "Error exporting projects with status to CSV." });
   }
 };
-// Helper function to insert valid date
-function insertValidDate(date) {
-  return date ? moment(date, "YYYY-MM-DD").toDate() : null;
-}
-
-// function formatNumberWithCommas(input) {
-//   if (input && typeof input.value === "string") {
-//     // Remove non-numeric characters
-//     let value = input.value.replace(/\D/g, "");
-
-//     // Format the number with commas
-//     value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-//     // Set the formatted value back to the input
-//     input.value = value;
-//   } else {
-//     console.error("Invalid input or input value:", input);
-//   }
-// }
-
-function removeCommasAndConvertToNumber(value) {
-  if (typeof value === "string") {
-    return parseFloat(value.replace(/,/g, ""));
-  }
-  return value;
-}
-
-const formatCost = (cost) => {
-  if (cost === null || cost === undefined) {
-    return "0";
-  }
-  if (cost >= 1_000_000_000) {
-    return `${(cost / 1_000_000_000).toFixed(1)}B`;
-  }
-  if (cost >= 1_000_000) {
-    return `${(cost / 1_000_000).toFixed(1)}M`;
-  }
-  if (cost >= 1_000) {
-    return `${(cost / 1_000).toFixed(1)}K`;
-  }
-  return cost.toString();
-};
-async function returnPortfolioName(company_id_fk) {
-  // Fetch the company headline from the database
-  const company = await db.companies.findOne({
-    where: { id: company_id_fk },
-    attributes: ["company_headline"],
-  });
-
-  // Check if the company exists and return the headline
-  if (!company || !company.company_headline) {
-    return "Portfolio name not found";
-  }
-  return company.company_headline;
-}

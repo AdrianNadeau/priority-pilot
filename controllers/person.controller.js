@@ -208,6 +208,7 @@ exports.deleteAll = async (req, res, next) => {
 };
 
 // Send Welcome Email
+// Send Welcome Email
 exports.sendWelcomeEmail = async (req, res) => {
   const personFirstName = req.session.person?.firstName;
   const personEmail = req.session.person?.email;
@@ -226,6 +227,7 @@ exports.sendWelcomeEmail = async (req, res) => {
 // Send Reset Password Email
 exports.sendResetPasswordEmail = async (req, res) => {
   const email = req.body.email;
+  console.log("SEND RESET EMAIL", email);
   if (!email) return res.status(400).send("Email is required.");
 
   try {
@@ -235,10 +237,13 @@ exports.sendResetPasswordEmail = async (req, res) => {
     });
 
     if (!person) return res.status(404).send("Email not found.");
-
+    console.log("VALUES:, person:", person);
+    console.log("VALUES:, person_id:", person.id);
     const { v4: uuidv4 } = require("uuid"); // Make sure uuid is imported
     const resetToken = uuidv4();
+    console.log("============================ resetToken:", resetToken);
     const redirectURL = `${process.env.REDIRECT_URL}/${resetToken}`;
+    console.log("VALUES:, URL:", redirectURL);
 
     // Uncomment when ready to send emails
     await sendEmail(email, "Reset Your Password", "reset-email-password", {
@@ -247,12 +252,10 @@ exports.sendResetPasswordEmail = async (req, res) => {
       resetToken,
     });
 
-    // console.log("VALUES:, person_id:", person.id);
-    // console.log("VALUES:, resetToken:", resetToken);
-    // console.log("VALUES:, person_id:", person.id);
+    console.log("VALUES:, person_id:", person.id);
+    console.log("VALUES:, resetToken:", resetToken);
 
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
-    console.log("VALUES:, expiresAt:", expiresAt);
 
     // Log the model and table name for debugging
     // console.log("Model tableName:", ChangedPasswordToken.tableName);
@@ -271,7 +274,7 @@ exports.sendResetPasswordEmail = async (req, res) => {
         expires_at: expiresAt,
         // Let Sequelize handle timestamps automatically
       });
-      console.log("Token created successfully");
+      console.log("Token created successfully:", resetToken);
     } catch (tokenError) {
       console.error("Error creating token:", tokenError);
       throw tokenError; // Re-throw to be caught by outer catch block
@@ -289,64 +292,51 @@ exports.sendResetPasswordEmail = async (req, res) => {
 // Get Change Password Page
 exports.getChangePassword = async (req, res) => {
   const token = req.params.token;
+
   let person_id_fk = ""; // Use let instead of const
   console.log("getChangePassword", token);
   try {
     // Find the token in the database
-    const tokenRecord = await ChangedPasswordToken.findOne({
+    const tokenRecord = await ChangedPasswordToken.findAll({
       where: { token },
     });
     if (!tokenRecord) {
       return res.status(404).send("Invalid or expired token.");
     }
+    person_id_fk = tokenRecord.person_id_fk;
+    console.log("person_id_fk:", person_id_fk);
     const person = await Person.findByPk(tokenRecord.person_id_fk);
-
+    console.log("tokenRecord", tokenRecord);
     person_id_fk = tokenRecord.person_id_fk; // Reassign the value
     console.log("person_id_fk:", person_id_fk);
+    console.log("token:", tokenRecord.token);
 
     // Check if the token has expired
     const currentTime = new Date();
     if (currentTime > tokenRecord.expires_at) {
       return res.status(400).send("Token has expired.");
     }
-    console.log("person:", person.email);
-    if (!person) {
-      res.render("Pages/pages-change-password", {
-        token,
-        person_id: person_id_fk,
-        email: person.email,
-        layout: "layout-public",
-      });
-    } else {
-      res.render("Pages/pages-change-password", {
-        token,
-        person_id: person_id_fk,
-        email: person.email,
-        layout: "layout-public",
-      });
-    }
+
+    res.render("Pages/pages-change-password", {
+      token,
+      person_id: person_id_fk,
+      email: tokenRecord.email,
+      layout: "layout-public",
+    });
   } catch (error) {
     console.error("Error retrieving change password page:", error);
     res.status(500).send("Internal Server Error");
   }
 };
 exports.updatePassword = async (req, res) => {
-  console.log("UPDATE PASSWORD", req.body);
-  console.log("UPDATE PASSWORD", req.params);
   const token = req.body.token;
-  const person_id_fk = req.body.person_id;
-  console.log("UPDATE PASSWORD TOKEN", token);
-  console.log("UPDATE PASSWORD", req.body.person_id);
-
   const { password } = req.body;
-  console.log("UPDATE PASSWORD", password);
 
   if (!password) {
     return res.status(400).send("Password is required.");
   }
 
   try {
-    // Hash the new password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Find the token in the database
@@ -363,32 +353,30 @@ exports.updatePassword = async (req, res) => {
     if (currentTime > tokenRecord.expires_at) {
       return res.status(400).send("Token has expired.");
     }
-    console.log("hashedPassword", hashedPassword);
+
+    const email = tokenRecord.email;
+
     // Update the person's password
-    const [updated] = await Person.update(
+    const updatedPerson = await Person.update(
       { password: hashedPassword }, // Update the password field
-      { where: { id: person_id_fk } }, // Match the person by ID
+      { where: { id: tokenRecord.person_id_fk } }, // Match the person by ID
     );
 
-    if (!updated) {
+    if (!updatedPerson) {
       return res
         .status(404)
         .send("Person not found or password update failed.");
     }
 
-    console.log(
-      "Password updated successfully for person_id:",
-      tokenRecord.person_id_fk,
-    );
-    onsole.log("Delete token record for :", tokenRecord);
     // Optionally, delete the token after successful password update
     await ChangedPasswordToken.destroy({
       where: { id: tokenRecord.id },
     });
     req.session.emailStatus = "Password updated successfully.";
-    req.session.save(() => res.redirect("/emailSuccess"));
-    // render success page with login button.
-    // res.status(200).send("Password updated successfully.");
+    res.render("Pages/pages-change-updated", {
+      layout: "layout-public",
+      message: "Password updated successfully.",
+    });
   } catch (error) {
     console.error("Error updating password:", error);
     res.status(500).send("Internal Server Error");

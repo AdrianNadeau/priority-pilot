@@ -51,7 +51,7 @@ const sendEmail = async (to, subject, templateName, templateData) => {
 
     // Define the email options
     const mailOptions = {
-      from: "adrian@prioritypilot.ca", // Sender address
+      from: process.env.EMAIL_SENDER, // Sender address
       to: to, // List of recipients
       subject: subject, // Subject line
       html: html, // HTML body

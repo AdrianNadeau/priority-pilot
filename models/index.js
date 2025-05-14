@@ -35,7 +35,6 @@ db.changed_password_token = require("./changed_password_token.model.js")(
   sequelize,
   Sequelize.DataTypes,
 );
-console.log(db.changed_password_token);
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
