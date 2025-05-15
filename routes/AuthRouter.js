@@ -101,8 +101,7 @@ Authrouter.get("/auth/reset-password/:token", function (req, res) {
   });
 });
 Authrouter.get("/pages-change-password", function (req, res) {
-  res.render("Pages/pages-login", { layout: "layout-public" });
-  res.render("Pages/pages-recoverpw");
+  res.render("Pages/pages-recoverpw", { layout: "layout-public" });
 });
 Authrouter.get("/pages-change-password", function (req, res) {
   res.render("Pages/pages-recoverpw", { layout: "layout-public" });
