@@ -307,7 +307,7 @@ exports.getChangePassword = async (req, res) => {
     }
     console.log("**************** GET TOKEN ", token);
     res.render("Pages/pages-change-password", {
-      token: "234234qwefwerafs",
+      token,
       person_id: person_id_fk,
       email: tokenRecord.email,
       layout: "layout-public",
