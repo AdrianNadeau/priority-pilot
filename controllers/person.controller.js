@@ -293,9 +293,6 @@ exports.getChangePassword = async (req, res) => {
     if (!tokenRecord) {
       return res.status(404).send("Invalid or expired token.");
     }
-
-    console.log("tokenRecord", tokenRecord);
-
     const person_id_fk = tokenRecord.person_id_fk;
     console.log("**************** GET TOKEN person id", person_id_fk);
 
