@@ -280,25 +280,26 @@ exports.sendResetPasswordEmail = async (req, res) => {
 };
 
 // Get Change Password Page
+// Get Change Password Page
 exports.getChangePassword = async (req, res) => {
   const token = req.params.token;
 
-  let person_id_fk = ""; // Use let instead of const
   console.log("getChangePassword", token);
   try {
     // Find the token in the database
-    const tokenRecord = await ChangedPasswordToken.findAll({
+    const tokenRecord = await ChangedPasswordToken.findOne({
       where: { token },
     });
     if (!tokenRecord) {
       return res.status(404).send("Invalid or expired token.");
     }
-    person_id_fk = tokenRecord.person_id_fk;
-    const person = await Person.findByPk(tokenRecord.person_id_fk);
+
     console.log("tokenRecord", tokenRecord);
-    person_id_fk = tokenRecord.person_id_fk; // Reassign the value
-    console.log("person_id_fk:", person_id_fk);
-    console.log("token:", tokenRecord.token);
+
+    const person_id_fk = tokenRecord.person_id_fk;
+    console.log("**************** GET TOKEN person id", person_id_fk);
+
+    const person = await Person.findByPk(person_id_fk);
 
     // Check if the token has expired
     const currentTime = new Date();
