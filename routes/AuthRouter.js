@@ -95,7 +95,6 @@ Authrouter.get("/session-expired", function (req, res) {
 });
 
 Authrouter.get("/auth/reset-password/:token", function (req, res) {
-  console.log("Rendering reset password page with token:", req.params.token);
   res.render("Pages/pages-reset-password", { layout: "layout-public" });
 });
 Authrouter.get("/pages-change-password", function (req, res) {

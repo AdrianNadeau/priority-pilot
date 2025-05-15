@@ -280,11 +280,13 @@ exports.sendResetPasswordEmail = async (req, res) => {
 };
 
 // Get Change Password Page
-// Get Change Password Page
 exports.getChangePassword = async (req, res) => {
+  console.log(
+    "======================================= getChangePassword ==========================================",
+  );
   const token = req.params.token;
 
-  console.log("getChangePassword", token);
+  console.log("TOKEN::::: ", token);
   try {
     // Find the token in the database
     const tokenRecord = await ChangedPasswordToken.findOne({
@@ -303,7 +305,7 @@ exports.getChangePassword = async (req, res) => {
     if (currentTime > tokenRecord.expires_at) {
       return res.status(400).send("Token has expired.");
     }
-
+    console.log("**************** GET TOKEN ", token);
     res.render("Pages/pages-change-password", {
       token,
       person_id: person_id_fk,
