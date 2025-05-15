@@ -95,7 +95,10 @@ Authrouter.get("/session-expired", function (req, res) {
 });
 
 Authrouter.get("/auth/reset-password/:token", function (req, res) {
-  res.render("Pages/pages-reset-password", { layout: "layout-public" });
+  res.render("Pages/pages-reset-password", {
+    layout: "layout-public",
+    token: req.params.token, // Pass the token from URL params to the template
+  });
 });
 Authrouter.get("/pages-change-password", function (req, res) {
   res.render("Pages/pages-login", { layout: "layout-public" });
