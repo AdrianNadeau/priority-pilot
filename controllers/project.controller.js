@@ -16,7 +16,7 @@ const pg = require("pg");
 const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
 // const sendEmail = require("../utils/emailSender");
-
+const { Parser } = require("json2csv");
 // Create and Save a new Project
 exports.create = (req, res) => {
   const funnelPage = req.body.funnelPage;
