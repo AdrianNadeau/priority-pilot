@@ -31,22 +31,7 @@ function removeCommasAndConvert(numStr) {
 }
 
 router.get("/", isAdminMiddleware, async (req, res) => {
-  let company_id_fk;
-
-  try {
-    if (!req.session || !req.session.company || !req.session.company.id) {
-      return res.redirect("/login");
-    } else {
-      company_id_fk = req.session.company.id;
-    }
-  } catch (error) {
-    return res.redirect("/login");
-  }
-
-  if (!company_id_fk) {
-    console.log("Company ID is undefined");
-    return res.redirect("/login");
-  }
+  const company_id_fk = req.session.company.id;
 
   const query = `
    SELECT 

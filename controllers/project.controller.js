@@ -153,7 +153,6 @@ exports.create = (req, res) => {
           });
         });
     } else {
-      //send back to http://localhost:8080/projects/funnel/view/
       res.redirect("/projects/funnel/view/");
     }
   });
@@ -767,7 +766,6 @@ exports.radar = async (req, res) => {
       operationsTotalCost;
 
     const in_flight_cost = discoveryTotalCost + deliveryTotalCost;
-    console.log("portfolioName", portfolioName);
     // Render the radar page with the retrieved data
     res.render("Pages/pages-radar", {
       projects: projectsWithPhaseNames,
@@ -1097,7 +1095,7 @@ exports.flight = async (req, res) => {
       proj.phase_id_fk;
   `;
   const portfolioName = await returnPortfolioName(companyId);
-  console.log("portfolioName", portfolioName);
+
   const data = await db.sequelize.query(query, {
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
@@ -1196,9 +1194,9 @@ exports.findFunnel = async (req, res) => {
     let pitchTotalPH = 0;
 
     data.forEach((project) => {
-      pitchTotalCost = parseFloat(project.project_cost.replace(/,/g, "")) || 0;
-      // pitchTotalCost += parseFloat(project.project_cost) || 0;
-
+      // Correctly accumulate the total cost
+      pitchTotalCost +=
+        parseFloat((project.project_cost || "0").replace(/,/g, "")) || 0;
       pitchTotalPH += parseFloat(project.effort) || 0;
     });
 
@@ -1212,13 +1210,11 @@ exports.findFunnel = async (req, res) => {
     const persons = await Person.findAll({
       where: { company_id_fk: company_id_fk },
     });
-
+    console.log("pitchTotalCost", pitchTotalCost);
     const sponsors = persons.filter((person) => person.role === "sponsor");
     const primes = persons.filter((person) => person.role === "prime");
-    pitchTotalCost = formatCost(pitchTotalCost);
     pitchTotalPH = formatCost(pitchTotalPH);
     const portfolioName = await returnPortfolioName(company_id_fk);
-    console.log("portfolioName", portfolioName);
     // Render the funnel page with the retrieved data
     res.render("Pages/pages-funnel", {
       phases: phases,
@@ -1257,7 +1253,7 @@ exports.findFreezer = async (req, res) => {
     archivedTotalCost = formatCost(Number(project.project_cost) || 0);
     archivedTotalPH += parseFloat(project.effort) || 0;
   });
-  console.log("archivedTotalCost", archivedTotalCost);
+
   console.log("archivedTotalPH", archivedTotalPH);
   const portfolioName = await returnPortfolioName(company_id_fk);
   // Render the funnel page with the retrieved data
@@ -1380,9 +1376,7 @@ exports.update = async (req, res) => {
 exports.health = async (req, res) => {
   //get all company projects
   const company_id_fk = req.session.company.id;
-  console.log("company_id_fk", company_id_fk);
   const portfolioName = req.session.company.company_headline;
-  console.log("portfolioName : ", portfolioName);
 
   const costQuery = `SELECT 
     proj.company_id_fk,

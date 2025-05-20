@@ -31,8 +31,13 @@
 <div class="wrapper-page">
   <div class="card">
     <div class="card-body">
-      <% include ../Partials/sidebar-logo %>
-      <div class="p-3">
+      <h3 class="text-center m-0">
+        <!-- Priority Pilot -->
+        <a href="/" class="logo logo-admin"
+          ><img src="/public/assets/images/logoshort.png" alt="logo"
+        /></a>
+      </h3>
+      <div class="p-3" text-center>
         <h4 class="font-18 m-b-5 text-center">Help</h4>
         <p class="text-muted text-center">
           <i class="mdi mdi-book "></i><a href="https://books.digitalindependent.life/5/priority-pilot-help" target="_blank">Help Manual</a>
@@ -48,17 +53,23 @@
           Severity 2: 24-48 hours<br/>
           Severity 3: Upcoming releases</p>
         </p>
-      </div class="text-center">
-      <div class="text-center"><button type="button" onclick="loadDashboard()" class="btn btn-light text-center" style="margin-bottom: 10px; border-color: #000000; border-width: 2px;border-radius:10px;">
-        Dashboard
-    </button>
+      
+       
 
     <br/>
-    <!-- check if value passed confirms logged in -->
-    <% if (sessionValid && sessionValid === true) { %>
+  
+      <div class="text-center">
+        <div class="col-sm-12 text-center">
+              <button
+                class="btn btn-primary w-md waves-effect waves-light"
+                type="submit"
+                onclick="loadDashboard()">
+                Back to Dashboard
+              </button>
+            </div>
       <strong><a href="https://public.3.basecamp.com/p/jPKkVRmbr1eLs8S1RUtJUCpq" target="_blank">View the Priority Product Roadmap</a></strong>
-    <% } %>
-  </div>
+    <br/>
+
     </div>
   </div>
 </div>
