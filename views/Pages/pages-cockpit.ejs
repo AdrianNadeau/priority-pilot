@@ -8,7 +8,6 @@
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
 
-console.log("STATUS DATA: ", data);
 
 <style>
  
@@ -196,9 +195,11 @@ console.log("STATUS DATA: ", data);
                   <a href="#" onClick="getStatus(event, '<%= status.id %>')" data-target="#viewStatusModal" id="viewStatusLink">
                     <%= (() => {
                       const parsedStatusDate = new Date(status.status_date);
+                      console.log("Parsed Status Date: ", parsedStatusDate);
                       const adjustedStatusDate = new Date(
                         parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000
                       );
+                      console.log("Adjusted Status Date: ", adjustedStatusDate);
                       return adjustedStatusDate.toISOString().split("T")[0]; // Format to yyyy-mm-dd
                     })() %>
                   </a>
