@@ -6,13 +6,15 @@ const Op = db.Sequelize.Op;
 // Create and Save a new Status
 exports.create = async (req, res) => {
   try {
+    console.log("req.body.status_date:", req.body.status_date);
     const statusDate = req.body.status_date;
-
+    console.log("Status date from request body:", statusDate);
     if (!statusDate || isNaN(new Date(statusDate).getTime())) {
       return res.status(400).send({ message: "Invalid status date provided." });
     }
 
     const parsedStatusDate = new Date(statusDate);
+    console.log("Parsed status date:", parsedStatusDate);
     const adjustedStatusDate = new Date(
       parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
     );
@@ -30,6 +32,7 @@ exports.create = async (req, res) => {
     };
 
     const data = await Status.create(status);
+
     res.redirect("/");
   } catch (err) {
     console.error("Error creating status:", err);

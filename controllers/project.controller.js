@@ -310,7 +310,6 @@ exports.findOne = (req, res) => {
 };
 exports.cockpit = async (req, res) => {
   const project_id = req.params.id;
-  console.log("project_id:", project_id);
   let company_id_fk;
   try {
     if (!req.session) {
@@ -491,10 +490,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
       //format dates for pickers
       try {
         startDateTest = moment.utc(data[0].start_date).format("YYYY-MM-DD");
-        console.log("startDateTest", startDateTest);
-
         endDateTest = moment.utc(data[0].end_date).format("YYYY-MM-DD");
-        console.log("endDateTest", endDateTest);
         nextMilestoneDateTest = moment
           .utc(data[0].next_milestone_date)
           .format("YYYY-MM-DD");
