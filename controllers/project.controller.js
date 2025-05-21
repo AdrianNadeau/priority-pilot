@@ -1715,7 +1715,7 @@ async function returnPortfolioName(company_id_fk) {
   if (!company || !company.company_headline) {
     return "Portfolio name not found";
   }
-  console.log("company.company_headline", company.company_headline);
+
   return company.company_headline;
 }
 exports.exportProjectsWithStatusToCSV = async (req, res) => {
