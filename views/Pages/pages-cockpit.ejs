@@ -195,11 +195,10 @@
                   <a href="#" onClick="getStatus(event, '<%= status.id %>')" data-target="#viewStatusModal" id="viewStatusLink">
                     <%= (() => {
                       const parsedStatusDate = new Date(status.status_date);
-                      console.log("Parsed Status Date: ", parsedStatusDate);
                       const adjustedStatusDate = new Date(
                         parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000
                       );
-                      console.log("Adjusted Status Date: ", adjustedStatusDate);
+                      
                       return adjustedStatusDate.toISOString().split("T")[0]; // Format to yyyy-mm-dd
                     })() %>
                   </a>
@@ -465,7 +464,7 @@
       // Get the form
       const form = document.querySelector('#addStatus form');
       const statusDate = form.querySelector('#status_date');
-      console.log("statusDate: ", statusDate);
+      
       const statusAccomplishments = form.querySelector('#status_accomplishments');
       const statusActions = form.querySelector('#actions');
       const statusIssue = form.querySelector('#issue');
@@ -476,7 +475,7 @@
       parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
     );
      
-    console.log("Adjusted Status Date: ", adjustedStatusDate);
+    
       if (!statusDate.value) {
         // alert("Please select a date");
         isValid = false;
@@ -517,7 +516,7 @@
       return response.json();
     })
     .then(data => {
-      console.log("--------------------------- Status Data ---------------------------", data.status_date);
+     
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;
       if (data.actions) document.getElementById('view_status_action').value = data.actions;
@@ -532,8 +531,7 @@
 
         // Format adjustedStatusDate to yyyy-mm-dd
         const formattedStatusDate = adjustedStatusDate.toISOString().split("T")[0];
-        console.log("Formatted Status Date: ", formattedStatusDate);
-
+        
         document.getElementById('view_status_date').innerText = formattedStatusDate;
       }
 

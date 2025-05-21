@@ -1206,7 +1206,6 @@ exports.findFunnel = async (req, res) => {
     const persons = await Person.findAll({
       where: { company_id_fk: company_id_fk },
     });
-    console.log("pitchTotalCost", pitchTotalCost);
     const sponsors = persons.filter((person) => person.role === "sponsor");
     const primes = persons.filter((person) => person.role === "prime");
     pitchTotalPH = formatCost(pitchTotalPH);
@@ -1246,19 +1245,19 @@ exports.findFreezer = async (req, res) => {
   let archivedTotalCost = 0;
 
   projects.forEach((project) => {
-    archivedTotalCost = formatCost(Number(project.project_cost) || 0);
+    archivedTotalCost += Number(project.project_cost) || 0;
     archivedTotalPH += parseFloat(project.effort) || 0;
   });
-
-  console.log("archivedTotalPH", archivedTotalPH);
-  const portfolioName = await returnPortfolioName(company_id_fk);
+  archivedTotalCost = formatCost(archivedTotalCost);
+  archivedTotalPH = formatCost(archivedTotalPH);
+  console.log("archivedTotalCost", archivedTotalCost);
+  // const portfolioName = await returnPortfolioName(company_id_fk);
   // Render the funnel page with the retrieved data
   res.render("Pages/pages-freezer", {
     projects,
     archivedTotalCost,
     archivedCount,
     archivedTotalPH,
-    portfolioName,
   });
 };
 exports.update = async (req, res) => {
