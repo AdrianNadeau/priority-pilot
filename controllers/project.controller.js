@@ -310,17 +310,7 @@ exports.findOne = (req, res) => {
 };
 exports.cockpit = async (req, res) => {
   const project_id = req.params.id;
-  let company_id_fk;
-  try {
-    if (!req.session) {
-      return res.redirect("/pages-500");
-    } else {
-      company_id_fk = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("error:", error);
-    return res.redirect("/pages-500");
-  }
+  const company_id_fk = req.session.company.id;
   let tagsData = await Tag.findAll({
     where: {
       [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],

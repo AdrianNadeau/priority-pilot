@@ -293,7 +293,7 @@
                                     Please enter Accomplishments.
                                   </div>
                               </div>
-                              <div class="form-group needs-validation" novalidate>
+                              <div class="form-group needs-validation" novalidate >
                                 <strong>Issues:</strong><br/>
                                 <textarea class="form-control" id="issue" required name="issue" rows="3"></textarea>
                                 <div class="invalid-feedback">
@@ -334,7 +334,6 @@
                         
                         
                       </div>
-                       <!-- Add more rows and columns if needed -->
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-primary waves-effect" id="submitStatusButton">Submit</button>
@@ -451,7 +450,25 @@
         
       }
     });
-
+(function () {
+    'use strict'
+  
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+  
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+  
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })()
     const submitButton = document.getElementById('submitStatusButton');
     if (!submitButton) {
       console.error("Submit button not found!");
@@ -464,7 +481,7 @@
       // Get the form
       const form = document.querySelector('#addStatus form');
       const statusDate = form.querySelector('#status_date');
-      
+      //reset form to remove values in the fields
       const statusAccomplishments = form.querySelector('#status_accomplishments');
       const statusActions = form.querySelector('#actions');
       const statusIssue = form.querySelector('#issue');
@@ -505,7 +522,15 @@
   });
   
   function getStatus(event, id) {
-  event.preventDefault(); // Prevent the default link behavior
+  event.preventDefault();
+  // Reset the fields before fetching new data
+  document.getElementById('view_status_accomplishments').value = '';
+  document.getElementById('view_status_issue').value = '';
+  document.getElementById('view_status_action').value = '';
+  document.getElementById('view_status_progress').value = '';
+  document.getElementById('view_status_health').value = '';
+  document.getElementById('view_status_date').innerText = '';
+
   
   fetch(`/statuses/${id}`)
     .then(response => {
