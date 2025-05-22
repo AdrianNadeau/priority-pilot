@@ -75,7 +75,6 @@ router.get("/", isAdminMiddleware, async (req, res) => {
 
     if (!data || data.length === 0) {
       console.log("No data found for company_id_fk:", company_id_fk);
-      console.log("data:", data);
       return res.redirect("/projects");
     }
 

@@ -506,8 +506,7 @@
   
   function getStatus(event, id) {
   event.preventDefault(); // Prevent the default link behavior
-  console.log("get status for id: ", id);
-
+  
   fetch(`/statuses/${id}`)
     .then(response => {
       if (!response.ok) {
@@ -516,7 +515,7 @@
       return response.json();
     })
     .then(data => {
-     
+     console.log(data);
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;
       if (data.actions) document.getElementById('view_status_action').value = data.actions;

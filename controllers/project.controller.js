@@ -331,41 +331,41 @@ exports.cockpit = async (req, res) => {
   try {
     const query = `
     SELECT 
-  proj.tag_1,
-  tag1.tag_name AS tag_1_name,
-  proj.tag_2,
-  tag2.tag_name AS tag_2_name,
-  proj.tag_3,
-  tag3.tag_name AS tag_3_name,
-  proj.company_id_fk,
-  proj.id, 
-  proj.project_name, 
-  proj.project_headline,
-  proj.start_date, 
-  proj.end_date,
-  proj.next_milestone_date,
-  proj.effort,
-  proj.project_why,
-  proj.project_what,
-  proj.reference,
-  prime_person.first_name AS prime_first_name, 
-  prime_person.last_name AS prime_last_name, 
-  sponsor_person.first_name AS sponsor_first_name, 
-  sponsor_person.last_name AS sponsor_last_name, 
-  proj.project_cost, 
-  phases.phase_name,
-  proj.prime_id_fk,
-  proj.benefit,
-  proj.phase_id_fk
-  FROM projects proj 
-  LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk 
-  LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
-  LEFT JOIN phases ON phases.id = proj.phase_id_fk 
-  LEFT JOIN tags tag1 ON tag1.id = proj.tag_1
-  LEFT JOIN tags tag2 ON tag2.id = proj.tag_2
-  LEFT JOIN tags tag3 ON tag3.id = proj.tag_3
-  WHERE proj.company_id_fk = ? AND proj.id = ?
-`;
+      proj.tag_1,
+      tag1.tag_name AS tag_1_name,
+      proj.tag_2,
+      tag2.tag_name AS tag_2_name,
+      proj.tag_3,
+      tag3.tag_name AS tag_3_name,
+      proj.company_id_fk,
+      proj.id, 
+      proj.project_name, 
+      proj.project_headline,
+      proj.start_date, 
+      proj.end_date,
+      proj.next_milestone_date,
+      proj.effort,
+      proj.project_why,
+      proj.project_what,
+      proj.reference,
+      prime_person.first_name AS prime_first_name, 
+      prime_person.last_name AS prime_last_name, 
+      sponsor_person.first_name AS sponsor_first_name, 
+      sponsor_person.last_name AS sponsor_last_name, 
+      proj.project_cost, 
+      phases.phase_name,
+      proj.prime_id_fk,
+      proj.benefit,
+      proj.phase_id_fk
+    FROM projects proj 
+    LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk 
+    LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk 
+    LEFT JOIN phases ON phases.id = proj.phase_id_fk 
+    LEFT JOIN tags tag1 ON tag1.id = proj.tag_1
+    LEFT JOIN tags tag2 ON tag2.id = proj.tag_2
+    LEFT JOIN tags tag3 ON tag3.id = proj.tag_3
+    WHERE proj.company_id_fk = ? AND proj.id = ?
+    `;
 
     const data = await db.sequelize.query(query, {
       replacements: [company_id_fk, project_id],
@@ -380,11 +380,16 @@ exports.cockpit = async (req, res) => {
         },
         order: [["change_date", "DESC"]],
       });
-      if (changed_projects) {
-      }
     } catch (error) {
       console.log("Cockpit Changed Projects error:", error);
     }
+
+    // Fetch all change reasons and create a map
+    const changeReasons = await ChangeReason.findAll();
+    const changeReasonMap = {};
+    changeReasons.forEach((reason) => {
+      changeReasonMap[reason.id] = reason.change_reason;
+    });
 
     const statuses = await Status.findAll({
       where: { project_id_fk: project_id },
@@ -416,6 +421,7 @@ exports.cockpit = async (req, res) => {
       statuses: statuses,
       statusColor: statusColor,
       changed_projects,
+      changeReasonMap, // Pass the map to EJS
       // tags: tagsData,
     });
   } catch (error) {
@@ -433,10 +439,6 @@ exports.findOneForEdit = async (req, res) => {
     let startDateTest = null,
       endDateTest = null,
       nextMilestoneDateTest = null;
-    // Ensure session exists and fetch company ID
-    if (!req.session || !req.session.company) {
-      res.redirect("Pages/pages-500");
-    }
 
     company_id_fk = req.session.company.id;
     // Query to fetch project details
@@ -494,7 +496,6 @@ proj.company_id_fk = ? AND proj.id = ?`;
         nextMilestoneDateTest = moment
           .utc(data[0].next_milestone_date)
           .format("YYYY-MM-DD");
-        console.log("nextMilestoneDateTest", nextMilestoneDateTest);
       } catch (error) {
         startDateTest = null;
         endDateTest = null;

@@ -227,7 +227,7 @@ exports.sendWelcomeEmail = async (req, res) => {
 // Send Reset Password Email
 exports.sendResetPasswordEmail = async (req, res) => {
   const email = req.body.email;
-  console.log("SEND RESET EMAIL", email);
+
   if (!email) return res.status(400).send("Email is required.");
 
   try {
