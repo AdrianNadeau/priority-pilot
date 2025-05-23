@@ -540,7 +540,7 @@
       return response.json();
     })
     .then(data => {
-     console.log(data);
+    
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;
       if (data.actions) document.getElementById('view_status_action').value = data.actions;
@@ -587,6 +587,7 @@ function getChange(event, id) {
           return reasonResponse.json();
         })
         .then(reasonData => {
+          console.log("Reason Data:", reasonData);
           document.getElementById('change_reason').value = reasonData.change_reason;
           document.getElementById('change_explanation').value = data.change_explanation;
           document.getElementById('view_change_date').innerText = new Date(data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });

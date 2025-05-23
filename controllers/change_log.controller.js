@@ -16,12 +16,11 @@ exports.create = (req, res) => {
     project_id_fk: project_id,
     company_id_fk: company_id_fk,
   };
+  console.log("req.body:", req.body);
   console.log("change_log:", change_log);
   // Save  in the database
   ChangeLog.create(change_log)
     .then((data) => {
-      // res.send(data);
-      // save version of current version in
       res.redirect("/projects/cockpit/" + project_id);
     })
     .catch((err) => {
@@ -69,15 +68,7 @@ exports.findOne = (req, res) => {
 };
 
 exports.findAllByProject = (req, res) => {
-  try {
-    if (!req.session) {
-      res.redirect("/pages-500");
-    } else {
-      company_id_fk = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("error:", error);
-  }
+  company_id_fk = req.session.company.id;
 
   // const project_id  = req.params.project_id;
 

@@ -4,48 +4,37 @@ const ChangeReason = db.change_reasons;
 
 // Create and Save a new ChangedProject
 exports.create = async (req, res) => {
-  try {
-    if (!req.session.company) {
-      return res.redirect("/login");
-    }
-    const company_id_fk = req.session.company.id;
+  console.log(
+    "******************************** Create ChangedProject ********************************",
+  );
+  const company_id_fk = req.session.company.id;
 
-    if (!req.body.project_name) {
-      return res.status(400).send({ message: "Project Name cannot be empty!" });
-    }
-
-    const changed_project = {
-      project_name: req.body.project_name,
-      start_date: req.body.start_date ? new Date(req.body.start_date) : null,
-      end_date: req.body.end_date ? new Date(req.body.end_date) : null,
-      company_id_fk: company_id_fk,
-      project_id_fk: project_id_fk,
-      project_name: req.body.project_name,
-      project_headline: req.body.project_headline,
-      project_description: req.body.project_description,
-      project_why: req.body.project_why,
-      project_what: req.body.project_what,
-      priority_id_fk: req.body.priority_id_fk,
-      sponsor_id_fk: req.body.sponsor_id_fk,
-      prime_id_fk: req.body.prime_id_fk,
-      phase_id_fk: req.body.phase_id_fk,
-      project_cost: req.body.project_cost,
-      effort: req.body.effort,
-      benefit: req.body.benefit,
-      complexity: req.body.complexity,
-      tags: req.body.tags,
-      change_reason_id_fk: req.body.change_reason,
-      change_explanation: req.body.change_explanation,
-    };
-
-    await ChangedProject.create(changed_project);
-    res.redirect("/projects/");
-  } catch (err) {
-    console.error("Error creating ChangedProject:", err);
-    res
-      .status(500)
-      .send({ message: "Error occurred while creating the ChangedProject." });
-  }
+  const changed_project = {
+    project_name: req.body.project_name,
+    start_date: req.body.start_date ? new Date(req.body.start_date) : null,
+    end_date: req.body.end_date ? new Date(req.body.end_date) : null,
+    company_id_fk: company_id_fk,
+    project_id_fk: project_id_fk,
+    project_name: req.body.project_name,
+    project_headline: req.body.project_headline,
+    project_description: req.body.project_description,
+    project_why: req.body.project_why,
+    project_what: req.body.project_what,
+    priority_id_fk: req.body.priority_id_fk,
+    sponsor_id_fk: req.body.sponsor_id_fk,
+    prime_id_fk: req.body.prime_id_fk,
+    phase_id_fk: req.body.phase_id_fk,
+    project_cost: req.body.project_cost,
+    effort: req.body.effort,
+    benefit: req.body.benefit,
+    complexity: req.body.complexity,
+    tags: req.body.tags,
+    change_reason_id_fk: req.body.change_reason,
+    change_explanation: req.body.change_explanation,
+  };
+  console.log("changed_project", changed_project);
+  await ChangedProject.create(changed_project);
+  res.redirect("/projects/");
 };
 
 exports.findAll = async (req, res) => {

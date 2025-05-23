@@ -17,8 +17,12 @@ const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
 // const sendEmail = require("../utils/emailSender");
 const { Parser } = require("json2csv");
+
 // Create and Save a new Project
 exports.create = (req, res) => {
+  console.log(
+    "=================================== PROJECT-CREATE ===================================",
+  );
   const funnelPage = req.body.funnelPage;
   company_id_fk = req.session.company.id;
 
@@ -66,6 +70,8 @@ exports.create = (req, res) => {
     tag_2: req.body.tag_2,
     tag_3: req.body.tag_3,
     reference: req.body.reference,
+    change_reason_id_fk: 1,
+    change_explanation: "Initial Entry",
   };
 
   // Save Project in the database
@@ -75,7 +81,7 @@ exports.create = (req, res) => {
     }).catch((error) => {
       console.log("Error fetching phasesData:", error);
     });
-
+    console.log("req.body", req.body);
     const newChangedProject = {
       company_id_fk,
       project_id_fk: createdProject.id,
@@ -560,18 +566,11 @@ proj.company_id_fk = ? AND proj.id = ?`;
 };
 
 exports.findOneForPrime = async (req, res) => {
-  try {
-    const project_id = req.params.id;
+  const project_id = req.params.id;
+  const company_id_fk = req.session.company.id;
 
-    // Ensure session exists and fetch company ID
-    if (!req.session || !req.session.company) {
-      return res.redirect("/pages-500");
-    }
-
-    const company_id_fk = req.session.company.id;
-
-    // Query to fetch project details
-    const query = `
+  // Query to fetch project details
+  const query = `
      SELECT proj.company_id_fk, proj.id, proj.effort, proj.benefit, proj.prime_id_fk, 
              proj.project_headline, proj.project_name, proj.project_description, proj.start_date, 
              proj.end_date, proj.next_milestone_date, proj.project_why, 
@@ -585,68 +584,62 @@ exports.findOneForPrime = async (req, res) => {
       LEFT JOIN phases ON phases.id = proj.phase_id_fk
       WHERE proj.company_id_fk = ? AND proj.id = ?`;
 
-    const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk, project_id],
-      type: db.sequelize.QueryTypes.SELECT,
-    });
+  const data = await db.sequelize.query(query, {
+    replacements: [company_id_fk, project_id],
+    type: db.sequelize.QueryTypes.SELECT,
+  });
 
-    if (!data || data.length === 0) {
-      return res.status(404).send({ message: "Project not found" });
-    }
-
-    // Get reasons for change for the project
-    const change_reasons = await ChangeReason.findAll({
-      where: { company_id_fk: company_id_fk },
-    });
-
-    let lastStatusDate = null;
-    let statusColor = null;
-
-    // Get statuses for the project
-    const statuses = await Status.findAll({
-      where: { project_id_fk: project_id },
-      order: [["status_date", "DESC"]],
-    });
-
-    if (statuses.length > 0) {
-      lastStatusDate = statuses[0].status_date;
-      statusColor = statuses[0].health;
-    }
-
-    const phasesData = await Phase.findAll({
-      order: [["id", "ASC"]],
-    });
-
-    const prioritiesData = await Priority.findAll();
-
-    let tagsData = await Tag.findAll({
-      where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
-      },
-      order: [["id", "ASC"]],
-    });
-
-    const personsData = await Person.findAll({
-      where: { company_id_fk: company_id_fk },
-    });
-
-    res.render("Pages/pages-edit-project", {
-      project: data[0],
-      current_date: new Date(), // Ensure current date is passed correctly
-      formattedCost: data[0].project_cost,
-      phases: phasesData,
-      priorities: prioritiesData,
-      sponsors: personsData,
-      primes: personsData,
-      change_reasons,
-      tags: tagsData,
-    });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send({
-      message: "An unexpected error occurred.",
-    });
+  if (!data || data.length === 0) {
+    return res.status(404).send({ message: "Project not found" });
   }
+
+  // Get reasons for change for the project
+  const change_reasons = await ChangeReason.findAll({
+    where: { company_id_fk: company_id_fk },
+  });
+
+  let lastStatusDate = null;
+  let statusColor = null;
+
+  // Get statuses for the project
+  const statuses = await Status.findAll({
+    where: { project_id_fk: project_id },
+    order: [["status_date", "DESC"]],
+  });
+
+  if (statuses.length > 0) {
+    lastStatusDate = statuses[0].status_date;
+    statusColor = statuses[0].health;
+  }
+
+  const phasesData = await Phase.findAll({
+    order: [["id", "ASC"]],
+  });
+
+  const prioritiesData = await Priority.findAll();
+
+  let tagsData = await Tag.findAll({
+    where: {
+      [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+    },
+    order: [["id", "ASC"]],
+  });
+
+  const personsData = await Person.findAll({
+    where: { company_id_fk: company_id_fk },
+  });
+
+  res.render("Pages/pages-edit-project", {
+    project: data[0],
+    current_date: new Date(), // Ensure current date is passed correctly
+    formattedCost: data[0].project_cost,
+    phases: phasesData,
+    priorities: prioritiesData,
+    sponsors: personsData,
+    primes: personsData,
+    change_reasons,
+    tags: tagsData,
+  });
 };
 
 exports.radar = async (req, res) => {
@@ -852,19 +845,7 @@ exports.progress = async (req, res) => {
 };
 
 exports.countProjectsByTag1 = async (req, res) => {
-  let companyId;
-
-  // Ensure session exists and extract company information
-  try {
-    if (!req.session || !req.session.company) {
-      return res.redirect("/pages-500");
-    } else {
-      companyId = req.session.company.id;
-    }
-  } catch (error) {
-    console.log("Error extracting company information:", error);
-    return res.status(500).send({ message: "Server error" });
-  }
+  let companyId = req.session.company.id;
 
   try {
     // Count projects grouped by tag_1 and ensure tag_1 is not 0
@@ -1242,8 +1223,7 @@ exports.findFreezer = async (req, res) => {
   archivedTotalCost = formatCost(archivedTotalCost);
   archivedTotalPH = formatCost(archivedTotalPH);
   console.log("archivedTotalCost", archivedTotalCost);
-  // const portfolioName = await returnPortfolioName(company_id_fk);
-  // Render the funnel page with the retrieved data
+
   res.render("Pages/pages-freezer", {
     projects,
     archivedTotalCost,
@@ -1251,7 +1231,9 @@ exports.findFreezer = async (req, res) => {
     archivedTotalPH,
   });
 };
+
 exports.update = async (req, res) => {
+  const funnelPage = req.body.funnelPage;
   try {
     const { id } = req.params;
     const {
@@ -1272,20 +1254,22 @@ exports.update = async (req, res) => {
       tag_2,
       tag_3,
       reference,
+      change_reason, // This is the ID
+      change_explanation, // User's explanation from the form
     } = req.body;
 
+    // Convert and sanitize as before...
     const startDateTest = insertValidDate(start_date);
     const endDateTest = insertValidDate(end_date);
     const nextMilestoneDateTest = insertValidDate(next_milestone_date);
-
     const sanitizedProjectCost = project_cost
       ? removeCommasAndConvertToNumber(project_cost)
       : 0;
-
     const sanitizedTag1 = tag_1 ? parseInt(tag_1.replace(/,/g, ""), 10) : null;
     const sanitizedTag2 = tag_2 ? parseInt(tag_2.replace(/,/g, ""), 10) : null;
     const sanitizedTag3 = tag_3 ? parseInt(tag_3.replace(/,/g, ""), 10) : null;
 
+    // Update the project
     const [num] = await Project.update(
       {
         project_name,
@@ -1312,21 +1296,11 @@ exports.update = async (req, res) => {
     );
 
     if (num === 1) {
-      // Fetch the change reason text from the database
-      let changeReasonText = "";
-      if (req.body.change_reason) {
-        const reasonRecord = await ChangeReason.findOne({
-          where: { id: req.body.change_reason },
-        });
-        console.log("reasonRecord", reasonRecord);
-        if (reasonRecord) {
-          // Use the correct field name for the reason text
-          changeReasonText =
-            reasonRecord.change_reason || reasonRecord.reason || "";
-        }
-      }
-      //create changed project
+      // Create a new ChangedProject entry after successful update
       const newChangedProject = {
+        project_id_fk: id,
+        company_id_fk: req.session.company?.id,
+        change_date: new Date(),
         project_name,
         project_headline,
         project_why,
@@ -1339,16 +1313,20 @@ exports.update = async (req, res) => {
         effort,
         benefit,
         phase_id_fk,
-        next_milestone_date: nextMilestoneDateTest,
+        change_reason_id_fk: change_reason,
+        change_explanation: change_explanation, // <-- Use user input
         tag_1: sanitizedTag1,
         tag_2: sanitizedTag2,
         tag_3: sanitizedTag3,
-        reference,
-
-        change_reason_id_fk: req.body.change_reason_id_fk,
-        change_explanation: changeReasonText,
       };
-      res.redirect("/projects/");
+
+      await ChangeProject.create(newChangedProject);
+
+      if (funnelPage !== undefined && funnelPage !== null) {
+        res.redirect("/projects/funnel");
+      } else {
+        res.redirect("/projects/");
+      }
     } else {
       res.status(404).send({
         message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
@@ -1359,6 +1337,7 @@ exports.update = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
 exports.health = async (req, res) => {
   //get all company projects
   const company_id_fk = req.session.company.id;
@@ -1486,7 +1465,7 @@ exports.flightview = async (req, res) => {
 
 // Update a Project by the id in the request
 exports.update = async (req, res) => {
-  const funnelPage = req.body.funnelPage;
+  const funnelPage = req.body.funnelPage; // Define funnelPage here
   try {
     const { id } = req.params;
     const {
@@ -1507,7 +1486,7 @@ exports.update = async (req, res) => {
       tag_2,
       tag_3,
       reference,
-      change_reason, // This is the ID
+      change_reason, // This is the ID, ensure it's in req.body for this update function
     } = req.body;
 
     // Convert and sanitize as before...
@@ -1555,7 +1534,6 @@ exports.update = async (req, res) => {
           where: { id: change_reason },
         });
         if (reasonRecord) {
-          // Use the correct field name for the reason text
           changeReasonText =
             reasonRecord.change_reason || reasonRecord.reason || "";
         }
@@ -1579,14 +1557,16 @@ exports.update = async (req, res) => {
         benefit,
         phase_id_fk,
         change_reason_id_fk: change_reason,
-        change_explanation: changeReasonText,
+        change_explanation: changeReasonText, // Use the fetched reason text
         tag_1: sanitizedTag1,
         tag_2: sanitizedTag2,
         tag_3: sanitizedTag3,
       };
 
       await ChangeProject.create(newChangedProject);
-      if (funnelPage != undefined || funnelPage != null) {
+
+      if (funnelPage !== undefined && funnelPage !== null) {
+        // Corrected comparison
         res.redirect("/projects/funnel");
       } else {
         res.redirect("/projects/");
@@ -1600,7 +1580,7 @@ exports.update = async (req, res) => {
     console.error("Error updating project:", error.message, error.stack);
     res.status(500).send("Internal Server Error");
   }
-};
+}; // Closing brace for the first exports.update
 
 // Delete a Project with the specified id in the request
 exports.delete = (req, res) => {

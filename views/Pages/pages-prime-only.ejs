@@ -63,6 +63,21 @@
 .is-invalid ~ .invalid-feedback {
   display: block;
 }
+.progress-health-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    margin-bottom: 15px;
+  }
+  .progress-health-row .form-group {
+    margin-bottom: 0;
+    flex: 1 1 0;
+  }
+  .inline-form-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 </style>
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0">
@@ -171,31 +186,31 @@
                                                                 </div>
                                                             </div>
                                                               <!-- Add the dropdown for progress -->
-                                                            <div class="form-group needs-validation" novalidate>
-                                                              <strong>Progress:</strong>
-                                                              <select style="width:100px !important;" class="form-control" id="progress_<%= project.id %>" name="progress" required>
-                                                                <option value="">Select</option>
-                                                                <% for (let i = 1; i <= 100; i++) { %>
-                                                                  <option value="<%= i %>"><%= i %></option>
-                                                                <% } %>
-                                                              </select>
-                                                              <div class="invalid-feedback">
-                                                                Please select a progress value.
-                                                              </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                              <strong>Health:</strong>
-                                                              <select style="width:100px !important;" class="form-control" id="health_<%= project.id %>" required name="health">
-                                                                <option value="">Select</option>
-                                                                <option value="green">Green</option>
-                                                                <option value="yellow">Yellow</option>
-                                                                <option value="red">Red</option>
-                                                              </select>
-                                                              <div class="invalid-feedback">
-                                                                Please select a health status.
-                                                              </div>
-                                                            </div>
+
+                                                            <div class="d-flex align-items-center gap-2">
+                                                        <div class="form-group needs-validation" novalidate>
+                                                          <strong>Progress:</strong>
+                                                          <select style="width:100px !important;" class="form-control" id="progress_<%= project.id %>" name="progress" required>
+                                                            <option value="">Select</option>
+                                                            <% for (let i = 1; i <= 100; i++) { %>
+                                                              <option value="<%= i %>"><%= i %></option>
+                                                            <% } %>
+                                                          </select>
+                                                          <div class="invalid-feedback">Please select a progress value.</div>
                                                         </div>
+
+                                                        <div class="form-group" style="margin-left: 10px;">
+                                                          <strong>Health:</strong>
+                                                          <select style="width:100px !important;padding-left:10px;" class="form-control" id="health_<%= project.id %>" required name="health">
+                                                            <option value="">Select</option>
+                                                            <option value="green">Green</option>
+                                                            <option value="yellow">Yellow</option>
+                                                            <option value="red">Red</option>
+                                                          </select>
+                                                          <div class="invalid-feedback">Please select a health status.</div>
+                                                        </div>
+                                                      </div>
+
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
