@@ -8,7 +8,7 @@ exports.create = async (req, res) => {
     "******************************** Create ChangedProject ********************************",
   );
   const company_id_fk = req.session.company.id;
-
+  console.log("req.body.change_explanation", req.body.change_explanation);
   const changed_project = {
     project_name: req.body.project_name,
     start_date: req.body.start_date ? new Date(req.body.start_date) : null,

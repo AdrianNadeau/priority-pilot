@@ -70,8 +70,6 @@ exports.create = (req, res) => {
     tag_2: req.body.tag_2,
     tag_3: req.body.tag_3,
     reference: req.body.reference,
-    change_reason_id_fk: 1,
-    change_explanation: "Initial Entry",
   };
 
   // Save Project in the database
@@ -380,13 +378,6 @@ exports.cockpit = async (req, res) => {
       console.log("Cockpit Changed Projects error:", error);
     }
 
-    // Fetch all change reasons and create a map
-    const changeReasons = await ChangeReason.findAll();
-    const changeReasonMap = {};
-    changeReasons.forEach((reason) => {
-      changeReasonMap[reason.id] = reason.change_reason;
-    });
-
     const statuses = await Status.findAll({
       where: { project_id_fk: project_id },
       order: [["status_date", "DESC"]],
@@ -409,7 +400,13 @@ exports.cockpit = async (req, res) => {
       },
       order: [["id", "ASC"]],
     });
-
+    console.log("changeReasonMap ", tagsData);
+    // In your controller before rendering the page:
+    const changeReasons = await ChangeReason.findAll();
+    const changeReasonMap = {};
+    changeReasons.forEach((r) => {
+      changeReasonMap[r.id] = r.change_reason;
+    });
     res.render("Pages/pages-cockpit", {
       project: data,
       current_date: currentDate,
@@ -1233,7 +1230,11 @@ exports.findFreezer = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
+  console.log(
+    "=================================== PROJECT-UPDATE ===================================",
+  );
   const funnelPage = req.body.funnelPage;
+
   try {
     const { id } = req.params;
     const {
@@ -1297,6 +1298,7 @@ exports.update = async (req, res) => {
 
     if (num === 1) {
       // Create a new ChangedProject entry after successful update
+
       const newChangedProject = {
         project_id_fk: id,
         company_id_fk: req.session.company?.id,
@@ -1462,125 +1464,6 @@ exports.flightview = async (req, res) => {
     portfolioName,
   });
 };
-
-// Update a Project by the id in the request
-exports.update = async (req, res) => {
-  const funnelPage = req.body.funnelPage; // Define funnelPage here
-  try {
-    const { id } = req.params;
-    const {
-      project_name,
-      project_headline,
-      project_why,
-      project_what,
-      start_date,
-      end_date,
-      prime_id_fk,
-      sponsor_id_fk,
-      project_cost,
-      effort,
-      benefit,
-      phase_id_fk,
-      next_milestone_date,
-      tag_1,
-      tag_2,
-      tag_3,
-      reference,
-      change_reason, // This is the ID, ensure it's in req.body for this update function
-    } = req.body;
-
-    // Convert and sanitize as before...
-    const startDateTest = insertValidDate(start_date);
-    const endDateTest = insertValidDate(end_date);
-    const nextMilestoneDateTest = insertValidDate(next_milestone_date);
-    const sanitizedProjectCost = project_cost
-      ? removeCommasAndConvertToNumber(project_cost)
-      : 0;
-    const sanitizedTag1 = tag_1 ? parseInt(tag_1.replace(/,/g, ""), 10) : null;
-    const sanitizedTag2 = tag_2 ? parseInt(tag_2.replace(/,/g, ""), 10) : null;
-    const sanitizedTag3 = tag_3 ? parseInt(tag_3.replace(/,/g, ""), 10) : null;
-
-    // Update the project
-    const [num] = await Project.update(
-      {
-        project_name,
-        project_headline,
-        project_why,
-        project_what,
-        start_date: startDateTest,
-        end_date: endDateTest,
-        prime_id_fk,
-        sponsor_id_fk,
-        project_cost: sanitizedProjectCost,
-        effort,
-        benefit,
-        phase_id_fk,
-        next_milestone_date: nextMilestoneDateTest,
-        tag_1: sanitizedTag1,
-        tag_2: sanitizedTag2,
-        tag_3: sanitizedTag3,
-        reference,
-      },
-      {
-        where: { id },
-      },
-    );
-
-    if (num === 1) {
-      // Fetch the change reason text from the database
-      let changeReasonText = "";
-      if (change_reason) {
-        const reasonRecord = await ChangeReason.findOne({
-          where: { id: change_reason },
-        });
-        if (reasonRecord) {
-          changeReasonText =
-            reasonRecord.change_reason || reasonRecord.reason || "";
-        }
-      }
-
-      // Create a new ChangedProject entry after successful update
-      const newChangedProject = {
-        project_id_fk: id,
-        company_id_fk: req.session.company?.id,
-        change_date: new Date(),
-        project_name,
-        project_headline,
-        project_why,
-        project_what,
-        start_date: startDateTest,
-        end_date: endDateTest,
-        prime_id_fk,
-        sponsor_id_fk,
-        project_cost: sanitizedProjectCost,
-        effort,
-        benefit,
-        phase_id_fk,
-        change_reason_id_fk: change_reason,
-        change_explanation: changeReasonText, // Use the fetched reason text
-        tag_1: sanitizedTag1,
-        tag_2: sanitizedTag2,
-        tag_3: sanitizedTag3,
-      };
-
-      await ChangeProject.create(newChangedProject);
-
-      if (funnelPage !== undefined && funnelPage !== null) {
-        // Corrected comparison
-        res.redirect("/projects/funnel");
-      } else {
-        res.redirect("/projects/");
-      }
-    } else {
-      res.status(404).send({
-        message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
-      });
-    }
-  } catch (error) {
-    console.error("Error updating project:", error.message, error.stack);
-    res.status(500).send("Internal Server Error");
-  }
-}; // Closing brace for the first exports.update
 
 // Delete a Project with the specified id in the request
 exports.delete = (req, res) => {

@@ -213,22 +213,20 @@
               <button type="button" class="btn btn-primary waves-effect waves-light" style="padding-top:5px;" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
             <% } %>
                  <br/><br/>
-                 <strong>Change Log:</strong>
-                 <% if (changed_projects && changed_projects.length > 0) { %>
-                   <br/>
-                   
-                   <% changed_projects.forEach(function(change) { %>
-                     <a href="#" onClick="getChange(event, <%= change.id %>)" data-target="#viewChangeModal" id="viewChangeLink">
-                       <%= new Date(change.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                     </a>
-                     <a href="#" ></a><%= change.change_explanation %>  
-                    </a>
-                    
-                     <br/>
-                   <% }); %>
-                 <% } else { %>
-                   <p>No change log available</p>
-                 <% } %>
+                <strong>Change Log:</strong>
+              <% if (changed_projects && changed_projects.length > 0) { %>
+                <% changed_projects.forEach(function(change) { %>
+                  <a href="#" onClick="getChange(event, <%= change.id %>)" data-target="#viewChangeModal" id="viewChangeLink">
+                    <%= new Date(change.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                    <% if (changeReasonMap && changeReasonMap[change.change_reason_id_fk]) { %>
+                      - <%= changeReasonMap[change.change_reason_id_fk] %>
+                    <% } else if (change.change_explanation) { %>
+                      - <%= change.change_explanation %>
+                    <% } %>
+                  </a>
+                  <br/>
+                <% }); %>
+              <% } %>
             <br/>
             <div class="row">
    
