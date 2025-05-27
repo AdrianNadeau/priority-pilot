@@ -214,6 +214,7 @@
             <% } %>
                  <br/><br/>
                 <strong>Change Log:</strong>
+                <br/>
               <% if (changed_projects && changed_projects.length > 0) { %>
                 <% changed_projects.forEach(function(change) { %>
                   <a href="#" onClick="getChange(event, <%= change.id %>)" data-target="#viewChangeModal" id="viewChangeLink">

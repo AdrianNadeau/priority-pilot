@@ -372,7 +372,7 @@ exports.cockpit = async (req, res) => {
         where: {
           project_id_fk: project_id,
         },
-        order: [["change_date", "DESC"]],
+        order: [["change_date"]],
       });
     } catch (error) {
       console.log("Cockpit Changed Projects error:", error);
@@ -400,7 +400,7 @@ exports.cockpit = async (req, res) => {
       },
       order: [["id", "ASC"]],
     });
-    console.log("changeReasonMap ", tagsData);
+
     // In your controller before rendering the page:
     const changeReasons = await ChangeReason.findAll();
     const changeReasonMap = {};
@@ -414,7 +414,7 @@ exports.cockpit = async (req, res) => {
       statuses: statuses,
       statusColor: statusColor,
       changed_projects,
-      changeReasonMap, // Pass the map to EJS
+      changeReasonMap,
       // tags: tagsData,
     });
   } catch (error) {
