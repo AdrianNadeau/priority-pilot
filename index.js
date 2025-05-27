@@ -50,7 +50,7 @@ const sessionMiddleware = session({
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 7200000 }, // 2 hours in milliseconds}
+  cookie: { maxAge: 7200000 }, // 2 hours in milliseconds
 });
 app.use(sessionMiddleware);
 
