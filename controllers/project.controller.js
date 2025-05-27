@@ -372,7 +372,7 @@ exports.cockpit = async (req, res) => {
         where: {
           project_id_fk: project_id,
         },
-        order: [["change_date"]],
+        order: [["change_date", "ASC"]],
       });
     } catch (error) {
       console.log("Cockpit Changed Projects error:", error);
