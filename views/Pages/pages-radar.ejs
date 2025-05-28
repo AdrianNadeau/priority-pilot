@@ -80,41 +80,44 @@
 <%- contentFor('body') %>
 
 <div class="page-content-wrapper">
-  <div class="container" style="margin-left: 0.5em">
-    <div class="row">
-      <div class="col-lg-7">
-        <div class="row mt-5">
-          <div class="col-lg-6 text-center">
-            <div id="columnchart_values"></div>
-          </div>
-          <div class="col-lg-6 text-center" style="margin-left: 50px">
-            <div id="columnChartCost_values"></div>
-          </div>
-          <div class="col-lg-10 text-center">
-            <canvas id="barChart" width="400" height="200"></canvas>
-          </div>
-        </div>
+  <div class="container-fluid" style="margin-left: 0.5em">
+    <!-- Top row: Projects by Phase & Investment by Phase -->
+    <div class="row mt-5">
+      <div class="col-lg-6 text-center">
+        <div id="columnchart_values"></div>
       </div>
+      <div class="col-lg-6 text-center">
+        <div id="columnChartCost_values"></div>
+      </div>
+    </div>
 
-      <div class="col-lg-4">
-        <div class="row mt-5 text-center">
-          <div id="pieChart"></div>
-        </div>
-        <div class="row">
-          <div class="col-lg-6"></div>
-        </div>
-        <div class="row mt-5 text-center" style="margin-top: 0rem !important">
-          <div id="tag1Chart"></div>
-          <span id="tag1NoTags" name="tag1NoTags" class="text-center"></span>
-        </div>
-        <div class="row mt-5" style="margin-top: 0rem !important">
-          <div id="tag2Chart"></div>
-          <span id="tag2NoTags" name="tag2NoTags" class="text-center"></span>
-        </div>
-        <div class="row mt-5" style="margin-top: 0rem !important">
-          <div id="tag3Chart"></div>
-          <span id="tag3NoTags" name="tag3NoTags" class="text-center"></span>
-        </div>
+    <!-- Second row: Progress Bar & Portfolio Health -->
+    <div class="row mt-5">
+      <div class="col-lg-6 text-center">
+        <canvas id="barChart"></canvas>
+      </div>
+      <div class="col-lg-6 text-center">
+        <div id="pieChart"></div>
+      </div>
+    </div>
+
+    <!-- Tag charts: three per row -->
+    <div class="row mt-5">
+      <div class="col-lg-4 mb-4">
+        <div id="tag1Chart"></div>
+        <span id="tag1NoTags" class="d-block"></span>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-lg-4 mb-4">
+        <div id="tag2Chart"></div>
+        <span id="tag2NoTags" class="d-block"></span>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-lg-4 mb-4">
+        <div id="tag3Chart"></div>
+        <span id="tag3NoTags" class="d-block"></span>
       </div>
     </div>
   </div>
@@ -268,7 +271,7 @@
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 600,
-                height: 400,
+                height: 350,
                 colors: chartColors,
                 legend: {
                   position: "right",
@@ -289,25 +292,29 @@
           .catch((err) => console.error(err));
       }
 
+      const phaseStats = <%- JSON.stringify(phaseStats) %>;
+
       function drawProjectsByPhaseChart() {
-        const phases = ['Funnel','Planning','Discovery','Delivery','Done'];
-        const troubleCounts  = [<%= funnelTroubleCount %>,<%= planningTroubleCount %>,<%= discoveryTroubleCount %>,<%= deliveryTroubleCount %>,<%= doneTroubleCount %>];
-        const cautionCounts  = [<%= funnelCautionCount %>,<%= planningCautionCount %>,<%= discoveryCautionCount %>,<%= deliveryCautionCount %>,<%= doneCautionCount %>];
-        const healthyCounts  = [<%= funnelHealthyCount %>,<%= planningHealthyCount %>,<%= discoveryHealthyCount %>,<%= deliveryHealthyCount %>,<%= doneHealthyCount %>];
-        const noStatusCounts = [<%= funnelNoStatusCount %>,<%= planningNoStatusCount %>,<%= discoveryNoStatusCount %>,<%= deliveryNoStatusCount %>,<%= doneNoStatusCount %>];
+        const phases          = phaseStats.map(p => p.phaseName);
+        const troubleCounts   = phaseStats.map(p => p.troubleCount);
+        const cautionCounts   = phaseStats.map(p => p.cautionCount);
+        const healthyCounts   = phaseStats.map(p => p.healthyCount);
+        const noStatusCounts  = phaseStats.map(p => p.noStatusCount);
 
-        const ann = arr => arr.map(c => c>0?String(c):'');
+        // Build annotations only for non‐zero values
+        const ann = arr => arr.map(c => c > 0 ? String(c) : '');
 
+        // Prepare DataTable rows
         const dataArray = [
           [
             'Phase',
-            'Trouble',{ type:'string',role:'annotation' },
-            'Caution',{ type:'string',role:'annotation' },
-            'Healthy',{ type:'string',role:'annotation' },
-            'No Status',{ type:'string',role:'annotation' }
+            'Trouble',   { type:'string', role:'annotation' },
+            'Caution',   { type:'string', role:'annotation' },
+            'Healthy',   { type:'string', role:'annotation' },
+            'No Status', { type:'string', role:'annotation' }
           ]
         ];
-        phases.forEach((phase,i)=>{
+        phases.forEach((phase, i) => {
           dataArray.push([
             phase,
             troubleCounts[i],  ann(troubleCounts)[i],
@@ -317,86 +324,120 @@
           ]);
         });
 
+        // Draw with Google Charts
         const data = google.visualization.arrayToDataTable(dataArray);
-
         const options = {
-          title:'Projects by Phase',
-          isStacked:true,
-          width:900,
-          height:350,
-          chartArea:{ left:60,top:60,width:'75%',height:'65%' },
-          colors:['#dc3545','#ffc107','#28a745','#6c757d'],
-          vAxis:{
-            minValue:0,
-            gridlines:{ color:'#eee' },
-            title:'Count',
-            textStyle:{ fontSize:12 }
+          title: 'Initiatives by Phase',
+          isStacked: true,
+          width: 650,
+          height: 300,
+          chartArea: { left:60, top:60, width:'75%', height:'65%' },
+          colors: ['#dc3545','#ffc107','#28a745','#42a5f5'],
+          vAxis: {
+            minValue: 0,
+            gridlines: { color:'#eee' },
+            textStyle: { fontSize: 12 }
           },
-          legend:{
-            position:'bottom',
-            maxLines:1,
-            textStyle:{ fontSize:12 }
+          legend: {
+            position: 'bottom',
+            maxLines: 1,
+            textStyle: { fontSize: 12 }
           },
-          annotations:{
-            alwaysOutside:false,
-            textStyle:{
-              fontSize:14,
-              color:'#fff',
-              bold:true,
-              auraColor:'none'
+          annotations: {
+            alwaysOutside: false,
+            textStyle: {
+              fontSize: 14,
+              color: '#fff',
+              bold: true,
+              auraColor: 'none'
             },
-            highContrast:false
+            highContrast: false
           },
-          backgroundColor:'transparent'
+          backgroundColor: 'transparent'
         };
-
         const chart = new google.visualization.ColumnChart(
           document.getElementById('columnchart_values')
         );
-        chart.draw(data,options);
+        chart.draw(data, options);
       }
 
       function drawCostByPhaseChart() {
-        // ---------------------------------------------
-        // 5) Estimated Cost by Phase Column Chart
-        // ---------------------------------------------
-        var costData = google.visualization.arrayToDataTable([
-          ["Element", "Cost", { role: "style" }],
-          ["Funnel", parseFormattedCost("<%= pitchCost %>"), "green"],
-          ["Planning", parseFormattedCost("<%= priorityCost %>"), "green"],
-          ["Discovery", parseFormattedCost("<%= discoveryCost %>"), "green"],
-          ["Delivery", parseFormattedCost("<%= deliveryCost %>"), "green"],
-          ["Done", parseFormattedCost("<%= operationsTotalCost %>"), "green"],
-        ]);
+        // Extract names & per‐status cost arrays from phaseStats
+        const phases         = phaseStats.map(p => p.phaseName);
+        const troubleCosts   = phaseStats.map(p => p.troubleCost);
+        const cautionCosts   = phaseStats.map(p => p.cautionCost);
+        const healthyCosts   = phaseStats.map(p => p.healthyCost);
+        const noStatusCosts  = phaseStats.map(p => p.noStatusCost);
 
-        var costView = new google.visualization.DataView(costData);
-        costView.setColumns([
-          0,
-          1,
-          {
-            calc: "stringify",
-            sourceColumn: 1,
-            type: "string",
-            role: "annotation",
-          },
-          2,
-        ]);
-
-        var costOptions = {
-          title: "Estimated Cost by Phase",
-          width: 400,
-          height: 200,
-          bar: { groupWidth: "95%" },
-          legend: { position: "none" },
-          backgroundColor: "transparent",
-          textStyle: {
-            fontSize: 40,
-          },
+        // Formatter: only show annotation if cost > 0, add commas & dollar sign
+        const fmt = n => {
+          if (n <= 0) return '';
+          return '$' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         };
-        var costChart = new google.visualization.ColumnChart(
-          document.getElementById("columnChartCost_values")
+        const troubleAnn   = troubleCosts.map(fmt);
+        const cautionAnn   = cautionCosts.map(fmt);
+        const healthyAnn   = healthyCosts.map(fmt);
+        const noStatusAnn  = noStatusCosts.map(fmt);
+
+        // Build the DataTable rows
+        const dataArray = [
+          [
+            'Phase',
+            'Trouble',   { type: 'string', role: 'annotation' },
+            'Caution',   { type: 'string', role: 'annotation' },
+            'Healthy',   { type: 'string', role: 'annotation' },
+            'No Status', { type: 'string', role: 'annotation' }
+          ]
+        ];
+        phases.forEach((phase, i) => {
+          dataArray.push([
+            phase,
+            troubleCosts[i],  troubleAnn[i],
+            cautionCosts[i],  cautionAnn[i],
+            healthyCosts[i],  healthyAnn[i],
+            noStatusCosts[i], noStatusAnn[i]
+          ]);
+        });
+
+        // Convert to a Google DataTable
+        const data = google.visualization.arrayToDataTable(dataArray);
+
+        // Chart options – stacked, currency axis, white annotations, one‐row legend
+        const options = {
+          title: 'Investment by Phase',
+          isStacked: true,
+          width: 650,
+          height: 300,
+          chartArea: { left:80, top:60, width:'75%', height:'65%' },
+          colors: ['#dc3545','#ffc107','#28a745','#42a5f5'],
+          vAxis: {
+            minValue: 0,
+            format: '$#,###',
+            gridlines: { color: '#eee' }
+          },
+          legend: {
+            position: 'bottom',
+            maxLines: 1,
+            textStyle: { fontSize: 12 }
+          },
+          annotations: {
+            alwaysOutside: false,
+            textStyle: {
+              fontSize: 12,
+              color: '#fff',
+              bold: true,
+              auraColor: 'none'
+            },
+            highContrast: false
+          },
+          backgroundColor: 'transparent'
+        };
+
+        // 6) Draw the chart
+        const chart = new google.visualization.ColumnChart(
+          document.getElementById('columnChartCost_values')
         );
-        costChart.draw(costView, costOptions);
+        chart.draw(data, options);
       }
 
       function drawTagCharts() {
@@ -426,7 +467,7 @@
               pieHole: 0.4,
               backgroundColor: "transparent",
               width: 600,
-              height: 400,
+              height: 350,
             };
 
             const chart = new google.visualization.PieChart(
@@ -461,7 +502,7 @@
               pieHole: 0.4,
               backgroundColor: "transparent",
               width: 600,
-              height: 400,
+              height: 350,
             };
 
             const chart = new google.visualization.PieChart(
@@ -514,7 +555,7 @@
               pieHole: 0.4,
               backgroundColor: "transparent",
               width: 600,
-              height: 400,
+              height: 350,
               tooltip: { text: "value" },
               pieSliceText: "value",
             };
