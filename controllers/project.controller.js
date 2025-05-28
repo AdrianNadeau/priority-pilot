@@ -643,8 +643,8 @@ exports.radar = async (req, res) => {
   const company_id_fk = req.session.company.id;
 
   try {
-    // Fetch project data grouped by phase
-    const data = await db.projects.findAll({
+    // Phase totals
+    const phaseData = await db.projects.findAll({
       where: { company_id_fk },
       attributes: [
         "phase_id_fk",
@@ -673,26 +673,77 @@ exports.radar = async (req, res) => {
       raw: true,
     });
 
-    // Fetch company details using company_id_fk
+    // Health breakdown by phase
+    const healthData = await db.projects.findAll({
+      where: { company_id_fk },
+      attributes: [
+        "phase_id_fk",
+        "health",
+        [db.Sequelize.fn("COUNT", db.Sequelize.col("*")), "count"],
+      ],
+      group: ["phase_id_fk", "health"],
+      raw: true,
+    });
+
+    // Build a default structure: 5 phases, each with 4 buckets
+    const healthCounts = {};
+    [1, 2, 3, 4, 5].forEach((phaseId) => {
+      healthCounts[phaseId] = {
+        Red: 0,
+        Yellow: 0,
+        Green: 0,
+        noStatus: 0,
+      };
+    });
+
+    // Populate from query results
+    healthData.forEach((row) => {
+      const phase = row.phase_id_fk;
+      const h = (row.health || "").trim();
+      const c = parseInt(row.count, 10);
+      if (h === "Red") healthCounts[phase].Red = c;
+      else if (h === "Yellow") healthCounts[phase].Yellow = c;
+      else if (h === "Green") healthCounts[phase].Green = c;
+      else healthCounts[phase].noStatus = c;
+    });
+
+    // Pull out the 20 health variables:
+    const funnelTroubleCount = healthCounts[1].Red;
+    const funnelCautionCount = healthCounts[1].Yellow;
+    const funnelHealthyCount = healthCounts[1].Green;
+    const funnelNoStatusCount = healthCounts[1].noStatus;
+
+    const planningTroubleCount = healthCounts[2].Red;
+    const planningCautionCount = healthCounts[2].Yellow;
+    const planningHealthyCount = healthCounts[2].Green;
+    const planningNoStatusCount = healthCounts[2].noStatus;
+
+    const discoveryTroubleCount = healthCounts[3].Red;
+    const discoveryCautionCount = healthCounts[3].Yellow;
+    const discoveryHealthyCount = healthCounts[3].Green;
+    const discoveryNoStatusCount = healthCounts[3].noStatus;
+
+    const deliveryTroubleCount = healthCounts[4].Red;
+    const deliveryCautionCount = healthCounts[4].Yellow;
+    const deliveryHealthyCount = healthCounts[4].Green;
+    const deliveryNoStatusCount = healthCounts[4].noStatus;
+
+    const doneTroubleCount = healthCounts[5].Red;
+    const doneCautionCount = healthCounts[5].Yellow;
+    const doneHealthyCount = healthCounts[5].Green;
+    const doneNoStatusCount = healthCounts[5].noStatus;
+
     const company = await db.companies.findOne({
       where: { id: company_id_fk },
       attributes: ["company_headline"],
     });
-
-    // Check if the company exists
-    if (!company) {
-      return res.status(404).json({ message: "Company not found" });
-    }
-
+    if (!company) return res.status(404).json({ message: "Company not found" });
     const portfolioName = company.company_headline;
-
-    // Fetch phase names for better readability
     const phases = await db.phases.findAll({
       attributes: ["id", "phase_name"],
     });
-
-    // Map phase names to the results
-    const projectsWithPhaseNames = data.map((project) => {
+    // Map phase names
+    const projectsWithPhaseNames = phaseData.map((project) => {
       const phase = phases.find((p) => p.id === project.phase_id_fk);
       return {
         phase_id_fk: project.phase_id_fk,
@@ -704,35 +755,35 @@ exports.radar = async (req, res) => {
 
     // Calculate counts and costs for each phase
     const pitchCount = Number(
-      data.find((d) => d.phase_id_fk === 1)?.project_count || 0,
+      phaseData.find((d) => d.phase_id_fk === 1)?.project_count || 0,
     );
     const priorityCount = Number(
-      data.find((d) => d.phase_id_fk === 2)?.project_count || 0,
+      phaseData.find((d) => d.phase_id_fk === 2)?.project_count || 0,
     );
     const discoveryCount = Number(
-      data.find((d) => d.phase_id_fk === 3)?.project_count || 0,
+      phaseData.find((d) => d.phase_id_fk === 3)?.project_count || 0,
     );
     const deliveryCount = Number(
-      data.find((d) => d.phase_id_fk === 4)?.project_count || 0,
+      phaseData.find((d) => d.phase_id_fk === 4)?.project_count || 0,
     );
     const operationsCount = Number(
-      data.find((d) => d.phase_id_fk === 5)?.project_count || 0,
+      phaseData.find((d) => d.phase_id_fk === 5)?.project_count || 0,
     );
 
     const pitchTotalCost = Number(
-      data.find((d) => d.phase_id_fk === 1)?.total_cost || 0,
+      phaseData.find((d) => d.phase_id_fk === 1)?.total_cost || 0,
     );
     const priorityTotalCost = Number(
-      data.find((d) => d.phase_id_fk === 2)?.total_cost || 0,
+      phaseData.find((d) => d.phase_id_fk === 2)?.total_cost || 0,
     );
     const discoveryTotalCost = Number(
-      data.find((d) => d.phase_id_fk === 3)?.total_cost || 0,
+      phaseData.find((d) => d.phase_id_fk === 3)?.total_cost || 0,
     );
     const deliveryTotalCost = Number(
-      data.find((d) => d.phase_id_fk === 4)?.total_cost || 0,
+      phaseData.find((d) => d.phase_id_fk === 4)?.total_cost || 0,
     );
     const operationsTotalCost = Number(
-      data.find((d) => d.phase_id_fk === 5)?.total_cost || 0,
+      phaseData.find((d) => d.phase_id_fk === 5)?.total_cost || 0,
     );
 
     const totalCost =
@@ -743,7 +794,7 @@ exports.radar = async (req, res) => {
       operationsTotalCost;
 
     const in_flight_cost = discoveryTotalCost + deliveryTotalCost;
-    // Render the radar page with the retrieved data
+
     res.render("Pages/pages-radar", {
       projects: projectsWithPhaseNames,
       pitchCount,
@@ -762,12 +813,33 @@ exports.radar = async (req, res) => {
       totalCost: formatCost(totalCost),
       currentDate: new Date().toLocaleDateString(),
       portfolioName, // Pass the company headline to the template
+      funnelTroubleCount,
+      funnelCautionCount,
+      funnelHealthyCount,
+      funnelNoStatusCount,
+      planningTroubleCount,
+      planningCautionCount,
+      planningHealthyCount,
+      planningNoStatusCount,
+      discoveryTroubleCount,
+      discoveryCautionCount,
+      discoveryHealthyCount,
+      discoveryNoStatusCount,
+      deliveryTroubleCount,
+      deliveryCautionCount,
+      deliveryHealthyCount,
+      deliveryNoStatusCount,
+      doneTroubleCount,
+      doneCautionCount,
+      doneHealthyCount,
+      doneNoStatusCount,
     });
   } catch (error) {
     console.error("Query error:", error);
     return res.status(500).send({ message: "Server error" });
   }
 };
+
 exports.progress = async (req, res) => {
   const companyId = req.session.company.id;
   try {
