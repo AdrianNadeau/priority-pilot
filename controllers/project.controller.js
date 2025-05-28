@@ -1529,20 +1529,20 @@ function insertValidDate(date) {
   return date ? moment(date, "YYYY-MM-DD").toDate() : null;
 }
 
-function formatNumberWithCommas(input) {
-  if (input && typeof input.value === "string") {
-    // Remove non-numeric characters
-    let value = input.value.replace(/\D/g, "");
+// function formatNumberWithCommas(input) {
+//   if (input && typeof input.value === "string") {
+//     // Remove non-numeric characters
+//     let value = input.value.replace(/\D/g, "");
 
-    // Format the number with commas
-    value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+//     // Format the number with commas
+//     value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-    // Set the formatted value back to the input
-    input.value = value;
-  } else {
-    console.error("Invalid input or input value:", input);
-  }
-}
+//     // Set the formatted value back to the input
+//     input.value = value;
+//   } else {
+//     console.error("Invalid input or input value:", input);
+//   }
+// }
 
 function removeCommasAndConvertToNumber(value) {
   if (typeof value === "string") {
@@ -1718,10 +1718,13 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
     // Convert JSON to CSV
     const json2csvParser = new Parser({ fields });
     const csv = json2csvParser.parse(combinedData);
-
+    const exportDate = moment().format("YYYY-MM-DD");
+    console.log("exportDate", exportDate);
+    const fileName = `${exportDate} PriorityPilot - Project List.csv`;
+    console.log("fileName", fileName);
     // Set headers and send the CSV file
     res.header("Content-Type", "text/csv");
-    res.attachment("projects_with_status.csv");
+    res.attachment(exportDate + " PriorityPilot - Projects.csv");
     res.send(csv);
   } catch (error) {
     console.error("Error exporting projects with status to CSV:", error);
