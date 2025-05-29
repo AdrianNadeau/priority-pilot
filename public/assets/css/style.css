@@ -72,10 +72,14 @@ code {
   border-radius: 0.25rem;
 }
 
-.container {
+/* .container {
   width: auto;
   padding-left: 10px;
   padding-right: 10px;
+} */
+.container {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .container-alt {
