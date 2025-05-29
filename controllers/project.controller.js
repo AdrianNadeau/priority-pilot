@@ -937,6 +937,158 @@ exports.countProjectsByTag1 = async (req, res) => {
     return res.status(500).send({ message: "Server error" });
   }
 };
+exports.countCostsByTag1 = async (req, res) => {
+  const companyId = req.session.company.id;
+
+  try {
+    const tag1Costs = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        tag_1: {
+          [Op.and]: {
+            [Op.ne]: 0,
+            [Op.ne]: null,
+          },
+        },
+      },
+      attributes: [
+        "tag_1",
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn(
+                  "REPLACE",
+                  db.Sequelize.col("project_cost"),
+                  ",",
+                  "",
+                ),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "total_cost",
+        ],
+      ],
+      group: ["tag_1"],
+      order: [
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn(
+                  "REPLACE",
+                  db.Sequelize.col("project_cost"),
+                  ",",
+                  "",
+                ),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "DESC",
+        ],
+      ],
+      raw: true,
+    });
+
+    const tagIds = tag1Costs.map((r) => r.tag_1);
+    const tagRows = await db.tags.findAll({
+      where: { id: { [Op.in]: tagIds } },
+      attributes: ["id", "tag_name"],
+      raw: true,
+    });
+    const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+
+    const result = tag1Costs.map((r) => ({
+      tag_1: r.tag_1,
+      tag_name: nameMap[r.tag_1] || null,
+      total_cost: parseFloat(r.total_cost),
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error in costProjectsByTag1:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+exports.countEffortByTag1 = async (req, res) => {
+  const companyId = req.session.company.id;
+
+  try {
+    const tag1Efforts = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        tag_1: {
+          [Op.and]: {
+            [Op.ne]: 0,
+            [Op.ne]: null,
+          },
+        },
+      },
+      attributes: [
+        "tag_1",
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn("REPLACE", db.Sequelize.col("effort"), ",", ""),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "total_effort",
+        ],
+      ],
+      group: ["tag_1"],
+      order: [
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn("REPLACE", db.Sequelize.col("effort"), ",", ""),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "DESC",
+        ],
+      ],
+      raw: true,
+    });
+
+    const tagIds = tag1Efforts.map((r) => r.tag_1);
+    const tagRows = await db.tags.findAll({
+      where: { id: { [Op.in]: tagIds } },
+      attributes: ["id", "tag_name"],
+      raw: true,
+    });
+    const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+
+    const result = tag1Efforts.map((r) => ({
+      tag_1: r.tag_1,
+      tag_name: nameMap[r.tag_1] || null,
+      total_effort: parseFloat(r.total_effort),
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error in countEffortByTag1:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 exports.countProjectsByTag2 = async (req, res) => {
   const companyId = req.session.company.id;
 
@@ -992,6 +1144,158 @@ exports.countProjectsByTag2 = async (req, res) => {
     return res.status(500).send({ message: "Server error" });
   }
 };
+exports.countCostsByTag2 = async (req, res) => {
+  const companyId = req.session.company.id;
+
+  try {
+    const tag2Costs = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        tag_2: {
+          [Op.and]: {
+            [Op.ne]: 0,
+            [Op.ne]: null,
+          },
+        },
+      },
+      attributes: [
+        "tag_2",
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn(
+                  "REPLACE",
+                  db.Sequelize.col("project_cost"),
+                  ",",
+                  "",
+                ),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "total_cost",
+        ],
+      ],
+      group: ["tag_2"],
+      order: [
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn(
+                  "REPLACE",
+                  db.Sequelize.col("project_cost"),
+                  ",",
+                  "",
+                ),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "DESC",
+        ],
+      ],
+      raw: true,
+    });
+
+    const tagIds = tag2Costs.map((r) => r.tag_2);
+    const tagRows = await db.tags.findAll({
+      where: { id: { [Op.in]: tagIds } },
+      attributes: ["id", "tag_name"],
+      raw: true,
+    });
+    const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+
+    const result = tag2Costs.map((r) => ({
+      tag_2: r.tag_2,
+      tag_name: nameMap[r.tag_2] || null,
+      total_cost: parseFloat(r.total_cost),
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error in costProjectsByTag2:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+exports.countEffortByTag2 = async (req, res) => {
+  const companyId = req.session.company.id;
+
+  try {
+    const tag2Efforts = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        tag_2: {
+          [Op.and]: {
+            [Op.ne]: 0,
+            [Op.ne]: null,
+          },
+        },
+      },
+      attributes: [
+        "tag_2",
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn("REPLACE", db.Sequelize.col("effort"), ",", ""),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "total_effort",
+        ],
+      ],
+      group: ["tag_2"],
+      order: [
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn("REPLACE", db.Sequelize.col("effort"), ",", ""),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "DESC",
+        ],
+      ],
+      raw: true,
+    });
+
+    const tagIds = tag2Efforts.map((r) => r.tag_2);
+    const tagRows = await db.tags.findAll({
+      where: { id: { [Op.in]: tagIds } },
+      attributes: ["id", "tag_name"],
+      raw: true,
+    });
+    const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+
+    const result = tag2Efforts.map((r) => ({
+      tag_2: r.tag_2,
+      tag_name: nameMap[r.tag_2] || null,
+      total_effort: parseFloat(r.total_effort),
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error in countEffortByTag2:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 exports.countProjectsByTag3 = async (req, res) => {
   const companyId = req.session.company.id;
 
@@ -1045,6 +1349,158 @@ exports.countProjectsByTag3 = async (req, res) => {
   } catch (error) {
     console.log("Query error:", error);
     return res.status(500).send({ message: "Server error" });
+  }
+};
+exports.countCostsByTag3 = async (req, res) => {
+  const companyId = req.session.company.id;
+
+  try {
+    const tag3Costs = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        tag_3: {
+          [Op.and]: {
+            [Op.ne]: 0,
+            [Op.ne]: null,
+          },
+        },
+      },
+      attributes: [
+        "tag_3",
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn(
+                  "REPLACE",
+                  db.Sequelize.col("project_cost"),
+                  ",",
+                  "",
+                ),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "total_cost",
+        ],
+      ],
+      group: ["tag_3"],
+      order: [
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn(
+                  "REPLACE",
+                  db.Sequelize.col("project_cost"),
+                  ",",
+                  "",
+                ),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "DESC",
+        ],
+      ],
+      raw: true,
+    });
+
+    const tagIds = tag3Costs.map((r) => r.tag_3);
+    const tagRows = await db.tags.findAll({
+      where: { id: { [Op.in]: tagIds } },
+      attributes: ["id", "tag_name"],
+      raw: true,
+    });
+    const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+
+    const result = tag3Costs.map((r) => ({
+      tag_3: r.tag_3,
+      tag_name: nameMap[r.tag_3] || null,
+      total_cost: parseFloat(r.total_cost),
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error in costProjectsByTag3:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+exports.countEffortByTag3 = async (req, res) => {
+  const companyId = req.session.company.id;
+
+  try {
+    const tag3Efforts = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        tag_3: {
+          [Op.and]: {
+            [Op.ne]: 0,
+            [Op.ne]: null,
+          },
+        },
+      },
+      attributes: [
+        "tag_3",
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn("REPLACE", db.Sequelize.col("effort"), ",", ""),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "total_effort",
+        ],
+      ],
+      group: ["tag_3"],
+      order: [
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn("REPLACE", db.Sequelize.col("effort"), ",", ""),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "DESC",
+        ],
+      ],
+      raw: true,
+    });
+
+    const tagIds = tag3Efforts.map((r) => r.tag_3);
+    const tagRows = await db.tags.findAll({
+      where: { id: { [Op.in]: tagIds } },
+      attributes: ["id", "tag_name"],
+      raw: true,
+    });
+    const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+
+    const result = tag3Efforts.map((r) => ({
+      tag_3: r.tag_3,
+      tag_name: nameMap[r.tag_3] || null,
+      total_effort: parseFloat(r.total_effort),
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error in countEffortByTag3:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 exports.flight = async (req, res) => {

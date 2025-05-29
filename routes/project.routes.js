@@ -67,14 +67,44 @@ module.exports = (app) => {
     projects.countProjectsByTag1,
   );
   router.get(
+    "/radar/countCostsByTag1/",
+    sessionMiddleware,
+    projects.countCostsByTag1,
+  );
+  router.get(
+    "/radar/countEffortByTag1/",
+    sessionMiddleware,
+    projects.countEffortByTag1,
+  );
+  router.get(
     "/radar/countProjectsByTag2/",
     sessionMiddleware,
     projects.countProjectsByTag2,
   );
   router.get(
+    "/radar/countCostsByTag2/",
+    sessionMiddleware,
+    projects.countCostsByTag2,
+  );
+  router.get(
+    "/radar/countEffortByTag2/",
+    sessionMiddleware,
+    projects.countEffortByTag2,
+  );
+  router.get(
     "/radar/countProjectsByTag3/",
     sessionMiddleware,
     projects.countProjectsByTag3,
+  );
+  router.get(
+    "/radar/countCostsByTag3/",
+    sessionMiddleware,
+    projects.countCostsByTag3,
+  );
+  router.get(
+    "/radar/countEffortByTag3/",
+    sessionMiddleware,
+    projects.countEffortByTag3,
   );
   router.get(
     "/flight/view/",
