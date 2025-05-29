@@ -236,10 +236,11 @@
                                         <div class="modal-body">
                                           <!-- Modal content goes here -->
                                           <strong>Date:</strong> <span id="view_status_date"></span><br/>
-                                          <strong>Prime:</strong> <span id="view_status_prime"></span>
+                                          <strong>Prime:</strong> <span id="prime_name"></span>
+                                         
                                           
                                           
-                                <div class="form-group">
+                                          <div class="form-group">
                                             <label for="status_accomplishments"><strong>Accomplishments:</strong></label>
                                             <textarea id="view_status_accomplishments" class="form-control" rows="3" disabled></textarea>
                                           </div>
@@ -443,7 +444,7 @@ window.getStatusUpdates = function(project_id_fk){
 
 
 function getStatus(event, id) {
-  event.preventDefault();
+event.preventDefault();
 
   // Reset the fields before fetching new data
   document.getElementById('view_status_accomplishments').value = '';
@@ -452,6 +453,7 @@ function getStatus(event, id) {
   document.getElementById('view_status_progress').value = '';
   document.getElementById('view_status_health').value = '';
   document.getElementById('view_status_date').innerText = '';
+  
 
   fetch(`/statuses/${id}`)
     .then(response => {
@@ -461,6 +463,7 @@ function getStatus(event, id) {
       return response.json();
     })
     .then(data => {
+      console.log("Fetched status data:", data);
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;
       if (data.actions) document.getElementById('view_status_action').value = data.actions;
@@ -475,8 +478,24 @@ function getStatus(event, id) {
         // Format adjustedStatusDate to yyyy-mm-dd
         const formattedStatusDate = adjustedStatusDate.toISOString().split("T")[0];
         document.getElementById('view_status_date').innerText = formattedStatusDate;
+        //fetch prime name
+        console.log("Prime id",data.prime_id_fk)
+        fetch(`/persons/${data.prime_id_fk}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+              throw new Error("Not a JSON response");
+            }
+            return response.json();
+          })
+          .then(primeData => {
+            document.getElementById("prime_name").innerText = `${primeData.last_name}, ${primeData.first_name}`;
+          })
+          .catch(err => console.error("Error fetching prime data:", err));
       }
- 
     $('#StatusUpdatesModal').one('hidden.bs.modal', function () {
         $('#viewStatusModal').modal('show');
       });
