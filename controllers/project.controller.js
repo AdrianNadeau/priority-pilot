@@ -640,15 +640,16 @@ exports.findOneForPrime = async (req, res) => {
 };
 
 exports.radar = async (req, res) => {
-  const company_id_fk = req.session.company.id;
+  const companyId = req.session.company.id;
 
   try {
-    // Fetch project data grouped by phase
-    const data = await db.projects.findAll({
-      where: { company_id_fk },
+    // One query: stats per phase, with conditional SUMs for health counts & costs
+    const phaseStatsRaw = await db.projects.findAll({
+      where: { company_id_fk: companyId },
       attributes: [
         "phase_id_fk",
-        [db.Sequelize.fn("COUNT", db.Sequelize.col("*")), "project_count"],
+        // overall
+        [db.Sequelize.fn("COUNT", db.Sequelize.col("*")), "projectCount"],
         [
           db.Sequelize.fn(
             "SUM",
@@ -666,108 +667,147 @@ exports.radar = async (req, res) => {
               "NUMERIC",
             ),
           ),
-          "total_cost",
+          "totalCost",
+        ],
+        // Red
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(
+              `CASE WHEN health='Red' 
+                THEN 1 ELSE 0 END`,
+            ),
+          ),
+          "redCount",
+        ],
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(
+              `CASE WHEN health='Red' 
+                THEN CAST(REPLACE(project_cost,',','') AS NUMERIC) 
+                ELSE 0 END`,
+            ),
+          ),
+          "redCost",
+        ],
+        // Yellow
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(`CASE WHEN health='Yellow' THEN 1 ELSE 0 END`),
+          ),
+          "yellowCount",
+        ],
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(
+              `CASE WHEN health='Yellow' 
+                THEN CAST(REPLACE(project_cost,',','') AS NUMERIC)
+                ELSE 0 END`,
+            ),
+          ),
+          "yellowCost",
+        ],
+        // Green
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(`CASE WHEN health='Green' THEN 1 ELSE 0 END`),
+          ),
+          "greenCount",
+        ],
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(
+              `CASE WHEN health='Green' 
+                THEN CAST(REPLACE(project_cost,',','') AS NUMERIC)
+                ELSE 0 END`,
+            ),
+          ),
+          "greenCost",
+        ],
+        // No Status (NULL or empty)
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(
+              `CASE WHEN health IS NULL OR health='' THEN 1 ELSE 0 END`,
+            ),
+          ),
+          "noStatusCount",
+        ],
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(
+              `CASE WHEN health IS NULL OR health='' 
+                THEN CAST(REPLACE(project_cost,',','') AS NUMERIC)
+                ELSE 0 END`,
+            ),
+          ),
+          "noStatusCost",
         ],
       ],
       group: ["phase_id_fk"],
       raw: true,
     });
 
-    // Fetch company details using company_id_fk
-    const company = await db.companies.findOne({
-      where: { id: company_id_fk },
-      attributes: ["company_headline"],
-    });
+    // Fetch phase names and company headline
+    const [phaseRows, company] = await Promise.all([
+      db.phases.findAll({ attributes: ["id", "phase_name"], raw: true }),
+      db.companies.findByPk(companyId, {
+        attributes: ["company_headline"],
+        raw: true,
+      }),
+    ]);
+    if (!company) return res.status(404).send("Company not found");
 
-    // Check if the company exists
-    if (!company) {
-      return res.status(404).json({ message: "Company not found" });
-    }
+    const phaseNameMap = Object.fromEntries(
+      phaseRows.map((p) => [p.id, p.phase_name]),
+    );
 
-    const portfolioName = company.company_headline;
+    // Turn raw stats into a map by phaseId
+    const statsByPhase = Object.fromEntries(
+      phaseStatsRaw.map((r) => [r.phase_id_fk, r]),
+    );
 
-    // Fetch phase names for better readability
-    const phases = await db.phases.findAll({
-      attributes: ["id", "phase_name"],
-    });
-
-    // Map phase names to the results
-    const projectsWithPhaseNames = data.map((project) => {
-      const phase = phases.find((p) => p.id === project.phase_id_fk);
+    // Build the ordered array phaseStats
+    const PHASE_ORDER = [1, 2, 3, 4, 5];
+    const phaseStats = PHASE_ORDER.map((pid) => {
+      const r = statsByPhase[pid] || {};
       return {
-        phase_id_fk: project.phase_id_fk,
-        phase_name: phase ? phase.phase_name : "Unknown Phase",
-        project_count: project.project_count,
-        total_cost: formatCost(project.total_cost),
+        phaseId: pid,
+        phaseName: phaseNameMap[pid] || `Phase ${pid}`,
+        projectCount: Number(r.projectCount || 0),
+        totalCost: Number(r.totalCost || 0),
+
+        troubleCount: Number(r.redCount || 0),
+        cautionCount: Number(r.yellowCount || 0),
+        healthyCount: Number(r.greenCount || 0),
+        noStatusCount: Number(r.noStatusCount || 0),
+
+        troubleCost: Number(r.redCost || 0),
+        cautionCost: Number(r.yellowCost || 0),
+        healthyCost: Number(r.greenCost || 0),
+        noStatusCost: Number(r.noStatusCost || 0),
       };
     });
 
-    // Calculate counts and costs for each phase
-    const pitchCount = Number(
-      data.find((d) => d.phase_id_fk === 1)?.project_count || 0,
-    );
-    const priorityCount = Number(
-      data.find((d) => d.phase_id_fk === 2)?.project_count || 0,
-    );
-    const discoveryCount = Number(
-      data.find((d) => d.phase_id_fk === 3)?.project_count || 0,
-    );
-    const deliveryCount = Number(
-      data.find((d) => d.phase_id_fk === 4)?.project_count || 0,
-    );
-    const operationsCount = Number(
-      data.find((d) => d.phase_id_fk === 5)?.project_count || 0,
-    );
-
-    const pitchTotalCost = Number(
-      data.find((d) => d.phase_id_fk === 1)?.total_cost || 0,
-    );
-    const priorityTotalCost = Number(
-      data.find((d) => d.phase_id_fk === 2)?.total_cost || 0,
-    );
-    const discoveryTotalCost = Number(
-      data.find((d) => d.phase_id_fk === 3)?.total_cost || 0,
-    );
-    const deliveryTotalCost = Number(
-      data.find((d) => d.phase_id_fk === 4)?.total_cost || 0,
-    );
-    const operationsTotalCost = Number(
-      data.find((d) => d.phase_id_fk === 5)?.total_cost || 0,
-    );
-
-    const totalCost =
-      pitchTotalCost +
-      priorityTotalCost +
-      discoveryTotalCost +
-      deliveryTotalCost +
-      operationsTotalCost;
-
-    const in_flight_cost = discoveryTotalCost + deliveryTotalCost;
-    // Render the radar page with the retrieved data
+    // Render just three variables
     res.render("Pages/pages-radar", {
-      projects: projectsWithPhaseNames,
-      pitchCount,
-      priorityCount,
-      discoveryCount,
-      deliveryCount,
-      operationsCount,
-      pitchCost: pitchTotalCost,
-      priorityCost: priorityTotalCost,
-      in_flight_count: in_flight_cost,
-      operationsTotalCost: formatCost(operationsTotalCost),
-      pitchTotalCost: formatCost(pitchTotalCost),
-      priorityTotalCost: formatCost(priorityTotalCost),
-      discoveryCost: formatCost(discoveryTotalCost),
-      deliveryCost: formatCost(deliveryTotalCost),
-      totalCost: formatCost(totalCost),
+      portfolioName: company.company_headline,
       currentDate: new Date().toLocaleDateString(),
-      portfolioName, // Pass the company headline to the template
+      phaseStats,
     });
-  } catch (error) {
-    console.error("Query error:", error);
-    return res.status(500).send({ message: "Server error" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
   }
 };
+
 exports.progress = async (req, res) => {
   const companyId = req.session.company.id;
   try {
