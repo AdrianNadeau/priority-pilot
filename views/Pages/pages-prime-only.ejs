@@ -49,6 +49,9 @@
   cursor: pointer;
 
 }
+.clickable {
+    cursor: pointer;
+}
 /* Custom validation styles */
 .is-invalid {
   border-color: #dc3545 !important;
@@ -133,7 +136,7 @@
                                 </tr>
 
                                 <!-- Modal -->
-                                <div id="myModal_<%= project.id %>" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div id="myModal_<%= project.id %>" href="#" class="modal fade clickable" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <form action="/statuses" class="needs-validation" novalidate id="addStatusForm_<%= project.id %>" method="POST">
@@ -226,7 +229,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div id="viewStatusModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="viewStatusModalLabel" aria-hidden="true">
+                    <div id="viewStatusModal" class="modal fade clickable" href="#" tabindex="-1" role="dialog" aria-labelledby="viewStatusModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                       <div class="modal-content">
                                         <div class="modal-header">
@@ -269,7 +272,7 @@
                                     </div>
                                 
                                   </div>
-                    <div id="StatusUpdatesModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="StatusUpdatesModalLabel" aria-hidden="true">
+                    <div id="StatusUpdatesModal" class="modal fade" href="#" tabindex="-1" role="dialog" aria-labelledby="StatusUpdatesModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                       <div class="modal-content">
                                         <div class="modal-header">
