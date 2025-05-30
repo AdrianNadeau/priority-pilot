@@ -103,24 +103,48 @@
 
     <!-- Tag charts: three per row -->
     <div class="row mt-5">
-      <div class="col-lg-4 mb-4">
-        <p><strong>Tag 1</strong></p>
+      <p><strong>Tag 1</strong></p>
+      <div class="col-lg-3 mb-4" style="margin-right: 50px">
         <div id="tag1Chart"></div>
         <span id="tag1NoTags" class="d-block"></span>
       </div>
-    </div>
-    <div class="row mt-3">
-      <div class="col-lg-4 mb-4">
-        <p><strong>Tag 2</strong></p>
-        <div id="tag2Chart"></div>
-        <span id="tag2NoTags" class="d-block"></span>
+      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+        <div id="tag1CostChart"></div>
+        <span id="tag1NoCostTags" class="d-block"></span>
+      </div>
+      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+        <div id="tag1EffortChart"></div>
+        <span id="tag1NoEffortTags" class="d-block"></span>
       </div>
     </div>
     <div class="row mt-3">
-      <div class="col-lg-4 mb-4">
-        <p><strong>Tag 3</strong></p>
+      <p><strong>Tag 2</strong></p>
+      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+        <div id="tag2Chart"></div>
+        <span id="tag2NoTags" class="d-block"></span>
+      </div>
+      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+        <div id="tag2CostChart"></div>
+        <span id="tag2NoCostTags" class="d-block"></span>
+      </div>
+      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+        <div id="tag2EffortChart"></div>
+        <span id="tag2NoEffortTags" class="d-block"></span>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <p><strong>Tag 3</strong></p>
+      <div class="col-lg-3 mb-4" style="margin-right: 50px">
         <div id="tag3Chart"></div>
         <span id="tag3NoTags" class="d-block"></span>
+      </div>
+      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+        <div id="tag3CostChart"></div>
+        <span id="tag3NoCostTags" class="d-block"></span>
+      </div>
+      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+        <div id="tag3EffortChart"></div>
+        <span id="tag3NoEffortTags" class="d-block"></span>
       </div>
     </div>
   </div>
@@ -454,8 +478,6 @@
               return;
             }
 
-            console.log("Tag 1 Data:", tagsData); // Debugging log
-
             const chartData = [["Tag", "Count"]];
             tagsData.forEach((tag) => {
               if (tag.tag_name && tag.project_count > 0) {
@@ -469,8 +491,8 @@
               title: "Initiatives ",
               pieHole: 0.4,
               backgroundColor: "transparent",
-              width: 600,
-              height: 350,
+              width: 550,
+              height: 300,
             };
 
             const chart = new google.visualization.PieChart(
@@ -479,6 +501,80 @@
             chart.draw(data, options);
           })
           .catch((err) => console.error("Error loading Tag 1 Chart:", err));
+
+        // Tag 1 Cost Chart
+        fetch(`/projects/radar/countCostsByTag1`)
+          .then((response) => response.json())
+          .then((tagsData) => {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById("tag1NoCostTags").innerText =
+                "No data found for tag 1 cost";
+              return;
+            }
+
+            const chartData = [["Tag", "Cost"]];
+            tagsData.forEach((tag) => {
+              if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
+                chartData.push([
+                  tag.tag_name,
+                  parseFloat(tag.total_cost),
+                ]);
+              }
+            });
+
+            const data = google.visualization.arrayToDataTable(chartData);
+
+            const options = {
+              title: "Cost",
+              pieHole: 0.4,
+              backgroundColor: "transparent",
+              width: 550,
+              height: 300,
+            };
+
+            const chart = new google.visualization.PieChart(
+              document.getElementById("tag1CostChart")
+            );
+            chart.draw(data, options);
+          })
+          .catch((err) => console.error("Error loading Tag 1 Cost Chart:", err));
+
+        // Tag 1 Effort Chart
+        fetch(`/projects/radar/countEffortByTag1`)
+          .then((response) => response.json())
+          .then((tagsData) => {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById("tag1NoEffortTags").innerText =
+                "No data found for tag 1 effort";
+              return;
+            }
+
+            const chartData = [["Tag", "Effort"]];
+            tagsData.forEach((tag) => {
+              if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
+                chartData.push([
+                  tag.tag_name,
+                  parseFloat(tag.total_effort),
+                ]);
+              }
+            });
+
+            const data = google.visualization.arrayToDataTable(chartData);
+
+            const options = {
+              title: "Effort",
+              pieHole: 0.4,
+              backgroundColor: "transparent",
+              width: 550,
+              height: 300,
+            };
+
+            const chart = new google.visualization.PieChart(
+              document.getElementById("tag1EffortChart")
+            );
+            chart.draw(data, options);
+          })
+          .catch((err) => console.error("Error loading Tag 1 Effort Chart:", err));
 
         // Tag 2 Chart
         fetch(`/projects/radar/countProjectsByTag2`)
@@ -501,11 +597,11 @@
             const data = google.visualization.arrayToDataTable(chartData);
 
             const options = {
-              title: "Projects by Tag 2",
+              title: "Initiatives",
               pieHole: 0.4,
               backgroundColor: "transparent",
-              width: 600,
-              height: 350,
+              width: 550,
+              height: 300,
             };
 
             const chart = new google.visualization.PieChart(
@@ -514,6 +610,80 @@
             chart.draw(data, options);
           })
           .catch((err) => console.error("Error loading Tag 2 Chart:", err));
+
+          // Tag 2 Cost Chart
+        fetch(`/projects/radar/countCostsByTag2`)
+          .then((response) => response.json())
+          .then((tagsData) => {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById("tag2NoCostTags").innerText =
+                "No data found for tag 2 cost";
+              return;
+            }
+
+            const chartData = [["Tag", "Cost"]];
+            tagsData.forEach((tag) => {
+              if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
+                chartData.push([
+                  tag.tag_name,
+                  parseFloat(tag.total_cost),
+                ]);
+              }
+            });
+
+            const data = google.visualization.arrayToDataTable(chartData);
+
+            const options = {
+              title: "Cost",
+              pieHole: 0.4,
+              backgroundColor: "transparent",
+              width: 550,
+              height: 300,
+            };
+
+            const chart = new google.visualization.PieChart(
+              document.getElementById("tag2CostChart")
+            );
+            chart.draw(data, options);
+          })
+          .catch((err) => console.error("Error loading Tag 2 Cost Chart:", err));
+
+          // Tag 2 Effort Chart
+        fetch(`/projects/radar/countEffortByTag2`)
+          .then((response) => response.json())
+          .then((tagsData) => {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById("tag2NoEffortTags").innerText =
+                "No data found for tag 2 effort";
+              return;
+            }
+
+            const chartData = [["Tag", "Effort"]];
+            tagsData.forEach((tag) => {
+              if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
+                chartData.push([
+                  tag.tag_name,
+                  parseFloat(tag.total_effort),
+                ]);
+              }
+            });
+
+            const data = google.visualization.arrayToDataTable(chartData);
+
+            const options = {
+              title: "Effort",
+              pieHole: 0.4,
+              backgroundColor: "transparent",
+              width: 550,
+              height: 300,
+            };
+
+            const chart = new google.visualization.PieChart(
+              document.getElementById("tag2EffortChart")
+            );
+            chart.draw(data, options);
+          })
+          .catch((err) => console.error("Error loading Tag 2 Effort Chart:", err));
 
         // Tag 3 Chart
         fetch(`/projects/radar/countProjectsByTag3`)
@@ -554,11 +724,11 @@
             const data = google.visualization.arrayToDataTable(formattedData);
 
             const options = {
-              title: "Projects by Tag 3",
+              title: "Initiatives",
               pieHole: 0.4,
               backgroundColor: "transparent",
-              width: 600,
-              height: 350,
+              width: 550,
+              height: 300,
               tooltip: { text: "value" },
               pieSliceText: "value",
             };
@@ -569,6 +739,80 @@
             chart.draw(data, options);
           })
           .catch((err) => console.error(err));
+
+          // Tag 3 Cost Chart
+        fetch(`/projects/radar/countCostsByTag3`)
+          .then((response) => response.json())
+          .then((tagsData) => {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById("tag3NoCostTags").innerText =
+                "No data found for tag 3 cost";
+              return;
+            }
+
+            const chartData = [["Tag", "Cost"]];
+            tagsData.forEach((tag) => {
+              if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
+                chartData.push([
+                  tag.tag_name,
+                  parseFloat(tag.total_cost),
+                ]);
+              }
+            });
+
+            const data = google.visualization.arrayToDataTable(chartData);
+
+            const options = {
+              title: "Cost",
+              pieHole: 0.4,
+              backgroundColor: "transparent",
+              width: 550,
+              height: 300,
+            };
+
+            const chart = new google.visualization.PieChart(
+              document.getElementById("tag3CostChart")
+            );
+            chart.draw(data, options);
+          })
+          .catch((err) => console.error("Error loading Tag 3 Cost Chart:", err));
+
+          // Tag 3 Effort Chart
+        fetch(`/projects/radar/countEffortByTag3`)
+          .then((response) => response.json())
+          .then((tagsData) => {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById("tag3NoEffortTags").innerText =
+                "No data found for tag 3 effort";
+              return;
+            }
+
+            const chartData = [["Tag", "Effort"]];
+            tagsData.forEach((tag) => {
+              if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
+                chartData.push([
+                  tag.tag_name,
+                  parseFloat(tag.total_effort),
+                ]);
+              }
+            });
+
+            const data = google.visualization.arrayToDataTable(chartData);
+
+            const options = {
+              title: "Effort",
+              pieHole: 0.4,
+              backgroundColor: "transparent",
+              width: 550,
+              height: 300,
+            };
+
+            const chart = new google.visualization.PieChart(
+              document.getElementById("tag3EffortChart")
+            );
+            chart.draw(data, options);
+          })
+          .catch((err) => console.error("Error loading Tag 3 Effort Chart:", err));
       }
     });
     document.getElementById("btnPrintPage").addEventListener("click", function () {
