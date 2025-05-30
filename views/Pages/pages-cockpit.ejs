@@ -309,9 +309,9 @@
                             </div>
                            <!-- Add the dropdown for progress -->
                             <div class="form-group needs-validation" style="margin-left:10px;" novalidate>
-                              <strong>Progress:</strong>
+                              % <strong>Progress:</strong>
                               <select style="width:100px !important;" class="form-control" id="progress" name="progress">
-                                <% for (let i = 1; i <= 100; i++) { %>
+                                <% for (let i = 10; i <= 100; i+=10) { %>
                                   <option value="<%= i %>"><%= i %></option>
                                 <% } %>
                               </select>

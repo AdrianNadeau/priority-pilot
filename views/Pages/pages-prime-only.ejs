@@ -189,10 +189,10 @@
 
                                                             <div class="d-flex align-items-center gap-2">
                                                         <div class="form-group needs-validation" novalidate>
-                                                          <strong>Progress:</strong>
+                                                          %<strong>Progress:</strong>
                                                           <select style="width:100px !important;" class="form-control" id="progress_<%= project.id %>" name="progress" required>
                                                             <option value="">Select</option>
-                                                            <% for (let i = 1; i <= 100; i++) { %>
+                                                            <% for (let i = 10; i <= 100; i += 10) { %>
                                                               <option value="<%= i %>"><%= i %></option>
                                                             <% } %>
                                                           </select>
