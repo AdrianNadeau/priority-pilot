@@ -854,13 +854,17 @@
 
     style.appendChild(document.createTextNode(css));
     document.head.appendChild(style);
-
-    // Trigger the print dialog
+    // Save the current title
+    const oldTitle = document.title;
+    const today = new Date();
+    const yyyy_mm_dd = today.toISOString().split('T')[0];
+    console.log(yyyy_mm_dd); // Example: 2025-05-30
+    document.title = yyyy_mm_dd+" - PriorityPilot - Radar Report";
+    // Print
     window.print();
-
-    // Remove the style element after printing
+    // Restore the old title after a short delay
     setTimeout(() => {
-      document.head.removeChild(style);
-    }, 100); // Short delay to ensure the print dialog is handled
+      document.title = oldTitle;
+    }, 1000);
   });
 </script>
