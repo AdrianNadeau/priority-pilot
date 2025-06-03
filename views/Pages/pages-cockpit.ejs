@@ -10,22 +10,24 @@
 
 
 <style>
- 
-  .green-circle, .yellow-circle, .red-circle {
-    display: inline-block;
-    width: 10px !important;
-    height: 10px !important;
-    border-radius: 50%;
-  }
-  .green-circle {
-    background-color: green;
-  }
-  .yellow-circle {
-    background-color: yellow;
-  }
-  .red-circle {
-    background-color: red;
-  }
+    .green-circle, .yellow-circle, .red-circle {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.green-circle {
+  background-color: #28a745; /* Bootstrap green */
+}
+.yellow-circle {
+  background-color: #ffc107; /* Bootstrap yellow */
+  border: 1px solid #ccc;
+}
+.red-circle {
+  background-color: #dc3545; /* Bootstrap red */
+}
 </style>
 
 <%- contentFor('breadcrumb') %>
@@ -172,48 +174,53 @@
             </div>
            
           </div>
-          </div> <!-- Close the mini-stat div -->
-          </div> <!-- Close the col-8 div -->
+          </div> 
+          </div>
           
           <!-- Right Section: Status and Button (4 columns) -->
           <div class="col-4">
             <div class="mini-stat clearfix bg-white">
               <!-- Status Updates and Change Log content -->
             <strong>Status Updates:</strong><br/>
-            <% if (statuses && statuses.length > 0) { %>
-              <% statuses.forEach(function(status) { %>
-                <% let healthStatus = status.health ? status.health.trim().toLowerCase() : ''; %>
-                <% if (healthStatus === 'green') { %>
-                  <span class="green-circle"></span>
-                <% } else if (healthStatus === 'yellow') { %>
-                  <span class="yellow-circle"></span>
-                <% } else if (healthStatus === 'red') { %>
-                  <span class="red-circle"></span>
-                <% } %>
-                [%<%= status.progress %>]
-                <% if (status.status_date) { %>
-                  <a href="#" onClick="getStatus(event, '<%= status.id %>')" data-target="#viewStatusModal" id="viewStatusLink">
-                    <%= (() => {
-                      const parsedStatusDate = new Date(status.status_date);
-                      const adjustedStatusDate = new Date(
-                        parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000
-                      );
-                      
-                      return adjustedStatusDate.toISOString().split("T")[0]; // Format to yyyy-mm-dd
-                    })() %>
-                  </a>
-                <% } %>
-                <br/>
-              <% }); %>
-            <% } else { %>
-              <p>No status updates available</p>
-            <% } %>
-            <br/>
-            <% if (project[0].phase_id_fk != "1") { %>
-              <button type="button" class="btn btn-primary waves-effect waves-light" style="padding-top:5px;" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
-            <% } %>
-                 <br/><br/>
-                <strong>Change Log:</strong>
+           <% if (statuses && statuses.length > 0) { %>
+          <% statuses.forEach(function(status) { %>
+            <% let healthStatus = status.health ? status.health.trim().toLowerCase() : ''; %>
+            <% if (healthStatus === 'green') { %>
+          <svg width="14" height="14" style="vertical-align:middle; margin-right:6px;">
+            <circle cx="7" cy="7" r="6" fill="green" />
+          </svg>
+        <% } else if (healthStatus === 'yellow') { %>
+          <svg width="14" height="14" style="vertical-align:middle; margin-right:6px;">
+            <circle cx="7" cy="7" r="6" fill="yellow" stroke="#ccc" stroke-width="1"/>
+          </svg>
+        <% } else if (healthStatus === 'red') { %>
+          <svg width="14" height="14" style="vertical-align:middle; margin-right:6px;">
+            <circle cx="7" cy="7" r="6" fill="red" />
+          </svg>
+        <% } %>
+          [%<%= status.progress %>]
+          <% if (status.status_date) { %>
+            <a href="#" onClick="getStatus(event, '<%= status.id %>')" data-target="#viewStatusModal" id="viewStatusLink">
+              <%= (() => {
+                const parsedStatusDate = new Date(status.status_date);
+                const adjustedStatusDate = new Date(
+                  parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000
+                );
+                return adjustedStatusDate.toISOString().split("T")[0]; // Format to yyyy-mm-dd
+              })() %>
+            </a>
+          <% } %>
+          <br/>
+        <% }); %>
+      <% } else { %>
+        <p>No status updates available</p>
+      <% } %>
+      <br/>
+      <% if (project[0].phase_id_fk != "1") { %>
+        <button type="button" class="btn btn-primary waves-effect waves-light" style="padding-top:5px;" data-toggle="modal" data-target="#addStatus" id="btnAddStatus">Add Status Update</button>
+      <% } %>
+          <br/><br/>
+        <strong>Change Log:</strong>
                 <br/>
               <% if (changed_projects && changed_projects.length > 0) { %>
                 <% changed_projects.forEach(function(change) { %>

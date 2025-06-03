@@ -343,7 +343,47 @@
     function getUserTimezone() {
       return Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
- 
+ function saveTag() {
+  const form = document.getElementById('editTagForm');
+  if (!form) {
+    console.error('editTagForm not found');
+    return;
+  }
+  const tagNameInput = document.getElementById('tag_name');
+  if (!form.checkValidity() || !tagNameInput.value.trim()) {
+    form.classList.add('was-validated');
+    tagNameInput.classList.add('is-invalid');
+    return;
+  } else {
+    tagNameInput.classList.remove('is-invalid');
+  }
+
+  const url = '/tags/' + document.getElementById('tag_id').value;
+  const formData = new FormData(form);
+
+  fetch(url, {
+    method: 'PUT',
+    body: new URLSearchParams(formData),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  })
+  .then(response => {
+    if (response.redirected) {
+      window.location.href = response.url;
+    } else {
+      return response.json();
+    }
+  })
+  .then(data => {
+    console.log('Success:', data);
+    $('#editTagModal').modal('hide');
+    window.location.replace('/companies/get/defaults');
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });
+}
     // Show and hide modals with inert attribute
     $('#editTagModal').on('show.bs.modal', function () {
       this.removeAttribute('inert');
@@ -369,38 +409,42 @@
   }
 
   function saveTag() {
-    const form = document.getElementById('editTagForm');
-    if (!form.checkValidity()) {
-      form.classList.add('was-validated');
-      return;
-    }
-
-    const url = '/tags/' + document.getElementById('tag_id').value;
-    const formData = new FormData(form);
-
-    fetch(url, {
-      method: 'PUT',
-      body: new URLSearchParams(formData),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    })
-    .then(response => {
-      if (response.redirected) {
-        window.location.href = response.url;
-      } else {
-        return response.json();
-      }
-    })
-    .then(data => {
-      console.log('Success:', data);
-      $('#editTagModal').modal('hide');
-      window.location.replace('/companies/get/defaults');
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+  const form = document.getElementById('editTagForm');
+  const tagNameInput = document.getElementById('tag_name');
+  if (!form.checkValidity() || !tagNameInput.value.trim()) {
+    form.classList.add('was-validated');
+    tagNameInput.classList.add('is-invalid');
+    return;
+  } else {
+    tagNameInput.classList.remove('is-invalid');
   }
+
+  const url = '/tags/' + document.getElementById('tag_id').value;
+  const formData = new FormData(form);
+
+  fetch(url, {
+    method: 'PUT',
+    body: new URLSearchParams(formData),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  })
+  .then(response => {
+    if (response.redirected) {
+      window.location.href = response.url;
+    } else {
+      return response.json();
+    }
+  })
+  .then(data => {
+    console.log('Success:', data);
+    $('#editTagModal').modal('hide');
+    window.location.replace('/companies/get/defaults');
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });
+}
 
   function deleteTag(tagId, tagName, companyId) {
     document.getElementById('delete_tag_id').value = tagId;

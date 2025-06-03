@@ -35,37 +35,47 @@ router.get("/", isAdminMiddleware, async (req, res) => {
 
   const query = `
    SELECT 
-      proj.company_id_fk, 
-      proj.id, 
-      proj.project_name, 
-      proj.start_date, 
-      proj.end_date,
-      proj.health, 
-      proj.effort, 
-      prime_person.first_name AS prime_first_name,
-      prime_person.last_name AS prime_last_name, 
-      sponsor_person.first_name AS sponsor_first_name,
-      sponsor_person.last_name AS sponsor_last_name, 
-      proj.project_cost, 
-      phases.phase_name,
-      companies.portfolio_budget AS company_budget,
-      companies.company_headline AS portfolio_name,
-      companies.effort AS company_effort
-    FROM 
-      projects proj
-    LEFT JOIN 
-      persons prime_person ON prime_person.id = proj.prime_id_fk
-    LEFT JOIN 
-      persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-    LEFT JOIN 
-      phases ON phases.id = proj.phase_id_fk
-    LEFT JOIN 
-      companies ON companies.id = proj.company_id_fk
-    WHERE 
-      proj.company_id_fk = ? 
-    ORDER BY 
-      proj.phase_id_fk;
-  `;
+  proj.company_id_fk, 
+  proj.id, 
+  proj.project_name, 
+  proj.start_date, 
+  proj.end_date,
+  proj.health, 
+  proj.effort, 
+  prime_person.first_name AS prime_first_name,
+  prime_person.last_name AS prime_last_name, 
+  sponsor_person.first_name AS sponsor_first_name,
+  sponsor_person.last_name AS sponsor_last_name, 
+  proj.project_cost, 
+  phases.phase_name,
+  companies.portfolio_budget AS company_budget,
+  companies.company_headline AS portfolio_name,
+  companies.effort AS company_effort,
+  latest_status.health AS latest_status_health,
+  latest_status.status_date AS latest_status_date
+FROM 
+  projects proj
+LEFT JOIN 
+  persons prime_person ON prime_person.id = proj.prime_id_fk
+LEFT JOIN 
+  persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+LEFT JOIN 
+  phases ON phases.id = proj.phase_id_fk
+LEFT JOIN 
+  companies ON companies.id = proj.company_id_fk
+LEFT JOIN (
+    SELECT s1.*
+    FROM statuses s1
+    INNER JOIN (
+        SELECT project_id_fk, MAX(status_date) AS max_date
+        FROM statuses
+        GROUP BY project_id_fk
+    ) s2 ON s1.project_id_fk = s2.project_id_fk AND s1.status_date = s2.max_date
+) latest_status ON latest_status.project_id_fk = proj.id
+WHERE 
+  proj.company_id_fk = ? 
+ORDER BY 
+  proj.phase_id_fk;`;
 
   try {
     const data = await db.sequelize.query(query, {
@@ -205,6 +215,12 @@ router.get("/", isAdminMiddleware, async (req, res) => {
 
     // Add "None" option at the top of the tags list
     tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
+    //get status information and add to render data
+    // const statusData = await db.statuses.findAll({
+    //   where: { project_id_fk: projects.id },
+    // });
+    // console.log("Status Data:", statusData);
+
     // Render dashboard with all calculated values
     const portfolioName = req.session.company.company_headline;
     res.render("Dashboard/dashboard1", {
@@ -219,6 +235,7 @@ router.get("/", isAdminMiddleware, async (req, res) => {
       sponsors: persons,
       primes: persons,
       tags: tagsData,
+      // statusData,
     });
   } catch (error) {
     console.error("Error executing query:", error);

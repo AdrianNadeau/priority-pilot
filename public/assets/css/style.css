@@ -4949,12 +4949,6 @@ Invoice
   padding-bottom: 20px;
 }
 
-.green-circle {
-  width: 10px !important; /* Diameter of the circle */
-  height: 10px !important; /* Diameter of the circle */
-  background-color: green; /* Color of the circle */
-  border-radius: 50%; /* Makes the div a circle */
-}
 canvas {
   background-color: white;
 }

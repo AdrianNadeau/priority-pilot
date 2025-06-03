@@ -79,7 +79,7 @@ exports.create = (req, res) => {
     }).catch((error) => {
       console.log("Error fetching phasesData:", error);
     });
-    console.log("req.body", req.body);
+
     const newChangedProject = {
       company_id_fk,
       project_id_fk: createdProject.id,

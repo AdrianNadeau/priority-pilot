@@ -31,15 +31,21 @@
                                 <span class="counter"><strong>Planning</strong> (<%= planning.count %>, $<%= planning.cost %>, <%= planning.ph %> PH)</span>
                             </div>
                             <div>
-                                <% projects.forEach(function(project) { %>
-                                  <% if (project.phase_name && project.phase_name.trim() === 'Planning') { %>
-                                        <span>
-                                            <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
-                                                <%= project.project_name %>
-                                            </button>
-                                        </span>&nbsp;&nbsp;&nbsp;
-                                    <% } %>
-                                <% }); %>
+                            <% projects.forEach(function(project) { 
+                                if (project.phase_name && project.phase_name.trim() === 'Planning') { 
+                                  let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
+                                  let borderColor = '';
+                                  if (health === 'green') borderColor = 'green';
+                                  else if (health === 'yellow') borderColor = 'yellow';
+                                  else if (health === 'red') borderColor = 'red';
+                                  else borderColor = 'black'; // default
+                              %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
+                                  style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
+                                  <%= project.project_name %>
+                                </button>&nbsp;&nbsp;&nbsp;
+                              <%  } 
+                            }); %>
                             </div>
                         </div>
                     </div>
@@ -50,16 +56,21 @@
                                 <span class="counter"><strong>Discovery</strong> (<%= discovery.count %>, $<%= discovery.cost %>, <%= discovery.ph %> PH)</span>
                             </div>
                             <div>
-                                <% projects.forEach(function(project) { %>
-                                  <% if (project.phase_name && project.phase_name.trim() === 'Discovery') { %>
-                                   
-                                        <span>
-                                            <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: <%= project.health %>; border-width: 2px;border-radius:10px;">
-                                                <%= project.project_name %>
-                                            </button>
-                                        </span>&nbsp;&nbsp;&nbsp;
-                                    <% } %>
-                                <% }); %>
+                                 <% projects.forEach(function(project) { 
+                                if (project.phase_name && project.phase_name.trim() === 'Discovery') { 
+                                  let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
+                                  let borderColor = '';
+                                  if (health === 'green') borderColor = 'green';
+                                  else if (health === 'yellow') borderColor = 'yellow';
+                                  else if (health === 'red') borderColor = 'red';
+                                  else borderColor = 'black'; // default
+                              %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
+                                  style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
+                                  <%= project.project_name %>
+                                </button>&nbsp;&nbsp;&nbsp;
+                              <%  } 
+                            }); %>
                             </div>
                         </div>
                     </div>
