@@ -228,6 +228,9 @@
                                 <% }); %>
                             </tbody>
                         </table>
+                        <% projects.forEach(function (project) { %>
+                        <div id="myModal_<%= project.id %>" class="modal fade" ...>...</div>
+                      <% }); %>
                     </div>
                     <div id="viewStatusModal" class="modal fade clickable" href="#" tabindex="-1" role="dialog" aria-labelledby="viewStatusModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
