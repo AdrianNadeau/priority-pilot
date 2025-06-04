@@ -20,9 +20,6 @@ const { Parser } = require("json2csv");
 
 // Create and Save a new Project
 exports.create = (req, res) => {
-  console.log(
-    "=================================== PROJECT-CREATE ===================================",
-  );
   const funnelPage = req.body.funnelPage;
   company_id_fk = req.session.company.id;
 
@@ -1726,9 +1723,6 @@ exports.findFreezer = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  console.log(
-    "=================================== PROJECT-UPDATE ===================================",
-  );
   const funnelPage = req.body.funnelPage;
 
   try {
