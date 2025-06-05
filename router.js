@@ -87,7 +87,7 @@ ORDER BY
       console.log("No data found for company_id_fk:", company_id_fk);
       return res.redirect("/projects");
     }
-
+    console.log("Data retrieved successfully:", data.length, "records found.");
     // Initialize phase data with default values
     const phaseData = {
       pitch: { count: 0, cost: 0, ph: 0 },
