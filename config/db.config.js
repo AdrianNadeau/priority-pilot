@@ -7,7 +7,7 @@ module.exports = {
   DB: process.env.DB_NAME,
   dialect: "postgres",
   pool: {
-    max: 50,
+    max: 100,
     min: 2,
     acquire: 30000,
     idle: 30000,

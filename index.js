@@ -19,7 +19,7 @@ const DashboardRouter = require("./routes/DashboardRouter.js");
 const errorHandler = require("./middleware/errorHandler");
 const authMiddleware = require("./middleware/authMiddleware.js");
 const companyPortfolioName = require("./middleware/companyPortfolioName");
-
+// const sessionMiddleware = require("./middleware/sessionMiddleware.js");
 // const readOnlyProject = require("./middleware/readOnlyProject");
 
 app.use(express.urlencoded({ extended: true }));
@@ -51,6 +51,7 @@ const sessionMiddleware = session({
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 14400000 }, // 4 hours in milliseconds
+  secure: process.env.SESSION_SECURE,
 });
 app.use(sessionMiddleware);
 
