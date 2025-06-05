@@ -1,28 +1,33 @@
 module.exports = (app) => {
   const statuses = require("../controllers/statuses.controller.js");
+  const sessionMiddleware = require("../middleware/sessionMiddleware.js");
 
   var router = require("express").Router();
 
   // Create a new Tag
-  router.post("/", statuses.create);
+  router.post("/", sessionMiddleware, statuses.create);
 
   // Retrieve all Companies
-  router.get("/", statuses.findAll);
+  router.get("/", sessionMiddleware, statuses.findAll);
 
   // Retrieve a single Tag with id
-  router.get("/projects/:project_id_fk", statuses.findAllByProjectId);
+  router.get(
+    "/projects/:project_id_fk",
+    sessionMiddleware,
+    statuses.findAllByProjectId,
+  );
 
   // Retrieve a single Tag with id
-  router.get("/:id", statuses.findOne);
+  router.get("/:id", sessionMiddleware, statuses.findOne);
 
   // Update a Tag with id
-  router.put("/:id", statuses.update);
+  router.put("/:id", sessionMiddleware, statuses.update);
 
   // Delete a Tag with id
-  router.delete("/:id", statuses.delete);
+  router.delete("/:id", sessionMiddleware, statuses.delete);
 
   // Create a new Tag
-  router.delete("/", statuses.deleteAll);
+  router.delete("/", sessionMiddleware, statuses.deleteAll);
 
   app.use("/statuses", router);
 };
