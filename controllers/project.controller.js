@@ -57,18 +57,18 @@ exports.create = (req, res) => {
     sponsor_id_fk: req.body.sponsor_id_fk,
     prime_id_fk: req.body.prime_id_fk,
     phase_id_fk: req.body.phase_id_fk,
-    project_cost: req.body.project_cost,
-    effort: req.body.effort,
-    benefit: req.body.benefit,
-    impact: req.body.impact,
-    complexity: req.body.complexity,
+    project_cost: removeCommasAndConvertToNumber(req.body.project_cost),
+    effort: removeCommasAndConvertToNumber(req.body.effort),
+    benefit: removeCommasAndConvertToNumber(req.body.benefit),
+    impact: removeCommasAndConvertToNumber(req.body.impact),
+    complexity: removeCommasAndConvertToNumber(req.body.complexity),
     pitch_message: pitch_message,
     tag_1: req.body.tag_1,
     tag_2: req.body.tag_2,
     tag_3: req.body.tag_3,
     reference: req.body.reference,
   };
-
+  console.log("Project to be created:", project);
   // Save Project in the database
   Project.create(project).then(async (createdProject) => {
     const phasesData = await Phase.findAll({
@@ -1585,7 +1585,7 @@ exports.findFunnel = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
     const person_id_fk = req.session.person.id;
-
+    console.log("person_id_fk:", person_id_fk);
     const personsData = await Person.findAll({
       where: {
         company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
@@ -1645,7 +1645,7 @@ exports.findFunnel = async (req, res) => {
       replacements: [company_id_fk, person_id_fk, person_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-
+    console.log("data", data);
     // Calculate pitch count, total cost, and total effort
     const pitchCount = data.length;
     let pitchTotalCost = 0;

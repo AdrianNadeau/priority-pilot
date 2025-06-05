@@ -101,37 +101,28 @@
                       <div class="col-md-6">
                         <!-- Second column of form fields -->
                         <div class="row">
-                          <div class="col-md-6">
-                            <div class="form-group">
-                              <div class="container">
-                                <div class="row">
-                                  <div class="col-md-6">
-                                    <div class="form-group" style="padding-top: 30px;">
-                                      <!-- Assuming there is some input or content here for the phase -->
-                                      <input type="text" class="form-control" id="phase" value="Pitch" readonly>
-                                    </div>
-                                  </div>
-                                  <div class="col-md-6">
-                                    <div class="form-group">
-                                      <label for="priority">Priority:</label>
-                                      <select style="width:150px !important;" name="priority_id_fk" id="priority_id_fk" class="form-control">
-                                        <% priorities.forEach(function(priority){ %>
-                                          <option value="<%= priority.id %>"><%= priority.priority_name %></option>
-                                        <% }) %>
-                                      </select>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
+                          <div class="row">
+                         <div class="form-group pl-3" style="margin-right: 5px;margin-left: 10px;">
+                              <label for="phase_name">Phase:</label>
+                             <input text="text" style="width: 100px;" class="form-control" id="phase_name" name="phase_name" value="Pitch" style="margin-bottom: 10px; border-color: black; border-width: 2px; border-radius:10px;cursor: pointer;" disabled readonly>
                             </div>
                           </div>
-                        </div>
+                         <div class="col-md-6">
+                            <div class="form-group">
+                              <label for="priority_id_fk">Priority:</label>
+                              <select name="priority_id_fk" style="width: 100px;" id="priority_id_fk" class="form-control">
+                                <% priorities.forEach(function(priority){ %>
+                                  <option value="<%= priority.id %>"><%= priority.priority_name %></option>
+                                <% }) %>
+                              </select>
+                            </div>
+                          </div>
                         <div id="otherPhaseFields"></div>
                         <div class="row">
                           <div class="col-md-6">
                             <div class="form-group">
-                              <label for="sponsor">Sponsor:</label>
-                              <select name="sponsor_id_fk" id="sponsor_id_fk" class="form-control">
+                              <label style="width:150px !important;margin-left:10px;" for="sponsor">Sponsor:</label>
+                              <select style="width:150px !important;margin-left:10px;" name="sponsor_id_fk" id="sponsor_id_fk" class="form-control">
                                 <% sponsors.forEach(function(sponsor){ %>
                                   <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
                                 <% }) %>
@@ -140,7 +131,7 @@
                           </div>
                           <div class="col-md-6">
                             <div class="form-group">
-                              <label for="prime">Prime:</label>
+                              <label for="prime" >Prime:</label>
                               <select name="prime_id_fk" id="prime_id_fk" class="form-control">
                                 <% primes.forEach(function(prime){ %>
                                   <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
@@ -152,28 +143,29 @@
                         <div class="row">
                           <div class="col-md-4">
                             <div class="form-group">
-                              <label for="effort">Effort (PH)</label>
-                              <input type="text" class="form-control" id="effort" name="effort" oninput="formatNumberWithCommas(this);" style="width:100px;">
+                              <label for="effort" style="width:100px !important;margin-left:10px;">Effort (PH)</label>
+                              <input type="text" style="width:100px !important;margin-left:10px;" class="form-control" id="effort" name="effort" oninput="formatNumberWithCommas(this);">
                             </div>
                           </div>
                           <div class="col-md-4">
                             <div class="form-group">
-                              <label for="project_cost">Cost ($)</label>
-                              <input type="text" class="form-control" id="project_cost"   oninput="formatNumberWithCommas(this);"name="project_cost" style="width:100px;">
+                              <label for="project_cost" style="width:100px !important;margin-left:10px;">Cost ($)</label>
+                              <input type="text" class="form-control" id="project_cost"   oninput="formatNumberWithCommas(this);"name="project_cost" style="width:100px !important;margin-left:10px;">
                             </div>
                           </div>
                           <div class="col-md-4">
                             <div class="form-group">
-                              <label for="benefit">Benefit (ROI or $)</label>
-                              <input type="text" class="form-control" id="benefit" oninput="formatNumberWithCommas(this);" name="benefit" style="width:100px;">
+                              <label for="benefit" style="width:120px !important;margin-left:10px;">Benefit (ROI or $)</label>
+                              <input type="text" class="form-control" id="benefit" oninput="formatNumberWithCommas(this);" name="benefit" style="width:100px !important;margin-left:10px;">
                             </div>
                           </div>
                         </div>
-                        <div id="tagFields">
+                       <div id="tagFields">
+                        <div class="row">
                           <div class="col-md-12">
                             <div class="form-group">
-                              <label for="tag_1">Tag 1:</label>
-                              <select name="tag_1" id="tag_1" class="form-control">
+                              <label for="tag_1" style="width:120px !important;margin-left:10px;">Tag 1:</label>
+                              <select style="margin-left:10px;" name="tag_1" id="tag_1" class="form-control">
                                 <option selected value="0">None</option>
                                 <% if (tags && tags.length > 0) { %>
                                   <% tags.forEach(function(tag){ %>
@@ -186,9 +178,9 @@
                             </div>
                           </div>
                           <div class="col-md-12">
-                            <div class="form-group">
-                              <label for="tag_2">Tag 2:</label>
-                              <select name="tag_2" id="project_tag2" class="form-control">
+                           <div class="form-group" style="margin-right: 5px;margin-left: 10px;">
+                              <label for="tag_2" >Tag 2:</label>
+                              <select name="tag_2" id="tag_2" class="form-control">
                                 <option value="0">None</option>
                                 <% if (tags && tags.length > 0) { %>
                                   <% tags.forEach(function(tag){ %>
@@ -201,8 +193,8 @@
                             </div>
                           </div>
                           <div class="col-md-12">
-                            <div class="form-group">
-                              <label for="tag_3">Tag 3:</label>
+                           <div class="form-group" style="margin-right: 5px;margin-left: 10px;">
+                              <label for="tag_3" >Tag 3:</label>
                               <select name="tag_3" id="tag_3" class="form-control">
                                 <option value="0">None</option>
                                 <% if (tags && tags.length > 0) { %>
@@ -215,7 +207,8 @@
                               </select>
                             </div>
                           </div>
-                          <div class="form-group">
+                          </div>
+                          <div class="form-group" style="margin-right: 5px;margin-left: 10px;">
                             <label for="reference">Reference:</label>
                             <input type="text" class="form-control" id="reference" name="reference">
                             <div class="invalid-feedback">
