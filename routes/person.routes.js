@@ -1,7 +1,7 @@
 module.exports = (app) => {
   const persons = require("../controllers/person.controller.js");
   const jwt = require("jsonwebtoken");
-  const sessionMiddleware = require("../middleware/sessionMiddleware.js");
+  // const sessionMiddleware = require("../middleware/sessionMiddleware.js");
   const checkProjectReadonly = require("../middleware/readOnlyProject");
   const companyPortfolioName = require("../middleware/companyPortfolioName.js");
 
@@ -12,24 +12,24 @@ module.exports = (app) => {
   router.post("/send-reset-email", persons.sendResetPasswordEmail);
 
   // Create a new Person
-  router.post("/", sessionMiddleware, companyPortfolioName, persons.create);
+  router.post("/", companyPortfolioName, persons.create);
 
   // Retrieve all
-  router.get("/", sessionMiddleware, companyPortfolioName, persons.findAll);
+  router.get("/", companyPortfolioName, persons.findAll);
 
   // Retrieve a single Person with id
-  router.get("/:id", sessionMiddleware, companyPortfolioName, persons.findOne);
+  router.get("/:id", companyPortfolioName, persons.findOne);
 
   // Retrieve a single Person with id
   router.get(
     "/edit/:id",
-    sessionMiddleware,
+
     companyPortfolioName,
     persons.findOneForEdit,
   );
   router.get(
     "/statusprojects/:id",
-    sessionMiddleware,
+
     companyPortfolioName,
     persons.findOneForEdit,
   );
@@ -38,12 +38,12 @@ module.exports = (app) => {
   router.post("/auth/login/", persons.login);
 
   // Update a Person with id
-  router.post("/:id", sessionMiddleware, companyPortfolioName, persons.update);
+  router.post("/:id", companyPortfolioName, persons.update);
 
   // Delete a Person with id
   router.post(
     "/delete/:id",
-    sessionMiddleware,
+
     companyPortfolioName,
     persons.delete,
   );
@@ -51,7 +51,7 @@ module.exports = (app) => {
   // Create a new Person
   router.delete(
     "/",
-    sessionMiddleware,
+
     companyPortfolioName,
     persons.deleteAll,
   );

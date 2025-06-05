@@ -8,7 +8,7 @@ var bCrypt = require("bcryptjs");
 const multer = require("multer");
 require("dotenv").config();
 const Sequelize = require("sequelize");
-const SequelizeStore = require("connect-session-sequelize")(session.Store);
+// const SequelizeStore = require("connect-session-sequelize")(session.Store);
 pg = require("pg");
 const pgSession = require("connect-pg-simple")(session);
 
@@ -36,23 +36,23 @@ app.use(express.json());
 // Middleware to parse URL-encoded request bodies
 app.use(express.urlencoded({ extended: true }));
 
-const sessionMiddleware = session({
-  store: new pgSession({
-    pool: new pg.Pool({
-      host: process.env.DB_HOST_NAME,
-      port: process.env.DB_PORT,
-      database: process.env.DB_NAME,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-    }),
-    tableName: "session", // Use a custom table name if needed
-  }),
-  secret: process.env.SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: { maxAge: 7200000 }, // 2 hours in milliseconds
-});
-app.use(sessionMiddleware);
+// const sessionMiddleware = session({
+//   store: new pgSession({
+//     pool: new pg.Pool({
+//       host: process.env.DB_HOST_NAME,
+//       port: process.env.DB_PORT,
+//       database: process.env.DB_NAME,
+//       user: process.env.DB_USER,
+//       password: process.env.DB_PASSWORD,
+//     }),
+//     tableName: "session", // Use a custom table name if needed
+//   }),
+//   secret: process.env.SECRET,
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: { maxAge: 7200000 }, // 2 hours in milliseconds
+// });
+// app.use(sessionMiddleware);
 
 // Add Authentication Route file with app
 app.use("/", Authrouter);
