@@ -32,7 +32,10 @@ function removeCommasAndConvert(numStr) {
 
 router.get("/", isAdminMiddleware, async (req, res) => {
   const company_id_fk = req.session.company.id;
-
+  console.log(
+    "============================== ",
+    company_id_fk + " ==============================",
+  );
   const query = `
    SELECT 
   proj.company_id_fk, 
