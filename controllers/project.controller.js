@@ -57,11 +57,11 @@ exports.create = (req, res) => {
     sponsor_id_fk: req.body.sponsor_id_fk,
     prime_id_fk: req.body.prime_id_fk,
     phase_id_fk: req.body.phase_id_fk,
-    project_cost: removeCommasAndConvertToNumber(req.body.project_cost),
-    effort: removeCommasAndConvertToNumber(req.body.effort),
-    benefit: removeCommasAndConvertToNumber(req.body.benefit),
-    impact: removeCommasAndConvertToNumber(req.body.impact),
-    complexity: removeCommasAndConvertToNumber(req.body.complexity),
+    project_cost: removeCommasAndConvertToNumber(req.body.project_cost) || 0,
+    effort: removeCommasAndConvertToNumber(req.body.effort) || 0,
+    benefit: removeCommasAndConvertToNumber(req.body.benefit) || 0,
+    impact: removeCommasAndConvertToNumber(req.body.impact) || 0,
+    complexity: removeCommasAndConvertToNumber(req.body.complexity) || 0,
     pitch_message: pitch_message,
     tag_1: req.body.tag_1,
     tag_2: req.body.tag_2,
@@ -1756,6 +1756,15 @@ exports.update = async (req, res) => {
     const sanitizedProjectCost = project_cost
       ? removeCommasAndConvertToNumber(project_cost)
       : 0;
+    const sanitizedEffort = effort ? removeCommasAndConvertToNumber(effort) : 0;
+    const sanitizedBenefit = benefit
+      ? removeCommasAndConvertToNumber(benefit)
+      : 0;
+    const sanitizedImpact = impact ? removeCommasAndConvertToNumber(impact) : 0;
+    const sanitizedComplexity = complexity
+      ? removeCommasAndConvertToNumber(complexity)
+      : 0;
+
     const sanitizedTag1 = tag_1 ? parseInt(tag_1.replace(/,/g, ""), 10) : null;
     const sanitizedTag2 = tag_2 ? parseInt(tag_2.replace(/,/g, ""), 10) : null;
     const sanitizedTag3 = tag_3 ? parseInt(tag_3.replace(/,/g, ""), 10) : null;
@@ -1772,8 +1781,8 @@ exports.update = async (req, res) => {
         prime_id_fk,
         sponsor_id_fk,
         project_cost: sanitizedProjectCost,
-        effort,
-        benefit,
+        effort: sanitizedEffort,
+        benefit: sanitizedBenefit,
         phase_id_fk,
         next_milestone_date: nextMilestoneDateTest,
         tag_1: sanitizedTag1,

@@ -59,7 +59,9 @@ app.use("/", Authrouter);
 app.use("/control", DashboardRouter);
 app.use(authMiddleware);
 app.use(companyPortfolioName);
-
+app.get("/ping", (req, res) => {
+  res.status(200).send("pong");
+});
 // Set up storage engine
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
