@@ -37,7 +37,7 @@ module.exports = (app) => {
   );
 
   // Retrieve a single Person with id
-  router.post("/auth/login/", sessionMiddleware, persons.login);
+  router.post("/auth/login/", persons.login);
 
   // Update a Person with id
   router.post("/:id", sessionMiddleware, companyPortfolioName, persons.update);
