@@ -4,10 +4,10 @@ module.exports = (sequelize, Sequelize) => {
     "projects",
     {
       id: {
-        allowNull: false,
-        autoIncrement: true,
+        type: DataTypes.INTEGER,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
       },
 
       company_id_fk: {

@@ -32,10 +32,7 @@ function removeCommasAndConvert(numStr) {
 
 router.get("/", isAdminMiddleware, async (req, res) => {
   const company_id_fk = req.session.company.id;
-  console.log(
-    "============================== ",
-    company_id_fk + " ==============================",
-  );
+
   const query = `
    SELECT 
   proj.company_id_fk, 
@@ -90,7 +87,7 @@ ORDER BY
       console.log("No data found for company_id_fk:", company_id_fk);
       return res.redirect("/projects");
     }
-    console.log("Data retrieved successfully:", data.length, "records found.");
+    // console.log("Data retrieved successfully:", data.length, "records found.");
     // Initialize phase data with default values
     const phaseData = {
       pitch: { count: 0, cost: 0, ph: 0 },

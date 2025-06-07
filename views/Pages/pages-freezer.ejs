@@ -43,14 +43,23 @@
                       <span class="counter">Archived (<%= archivedCount %>, $<%= archivedTotalCost %>, <%= archivedTotalPH %> PH)</span>
                   </div>
                   <div>
-                    <% projects.forEach(function(project) { %>
-                        <span>
-                              <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light" style="margin-bottom: 10px; border-color: black; border-width: 2px;border-radius:10px;">
-                                  <%= project.project_name %>
-                              </button>
-                          </span>&nbsp;&nbsp;&nbsp;
-                     
-                    <% }); %>
+                    
+                  <% projects.forEach(function(project) { 
+                    let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
+                    let borderColor = '';
+                    if (health === 'green') borderColor = 'green';
+                    else if (health === 'yellow') borderColor = 'yellow';
+                    else if (health === 'red') borderColor = 'red';
+                    else borderColor = 'black'; // default
+                %>
+                 
+                  <span>
+                      <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
+                        style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
+                        <%= project.project_name %>
+                      </button>
+                    </span>&nbsp;&nbsp;&nbsp;
+                <% }); %>
                   </div>
               </div>
           </div>

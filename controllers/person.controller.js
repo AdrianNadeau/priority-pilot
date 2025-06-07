@@ -98,9 +98,6 @@ exports.findAll = async (req, res, next) => {
 // Login user
 exports.login = async (req, res, next) => {
   try {
-    console.log(
-      "======================================= login ==========================================",
-    );
     const { email, password } = req.body;
     const person = await authenticateUser(email, password);
     if (!person) {
@@ -284,9 +281,6 @@ exports.sendResetPasswordEmail = async (req, res) => {
 
 // Get Change Password Page
 exports.getChangePassword = async (req, res) => {
-  console.log(
-    "======================================= getChangePassword ==========================================",
-  );
   const token = req.params.token;
 
   console.log("TOKEN::::: ", token);

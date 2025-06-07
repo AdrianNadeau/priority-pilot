@@ -10,7 +10,7 @@
 
 
 <style>
-    .green-circle, .yellow-circle, .red-circle {
+.green-circle, .yellow-circle, .red-circle {
   display: inline-block;
   width: 12px;
   height: 12px;
@@ -28,6 +28,12 @@
 .red-circle {
   background-color: #dc3545; /* Bootstrap red */
 }
+/* .reference-link {
+  display: inline-block;
+  max-width: 350px;
+  word-break: break-all;
+  white-space: normal;
+} */
 </style>
 
 <%- contentFor('breadcrumb') %>
@@ -160,14 +166,15 @@
              <%= tags.join(', ') %>
             <% } %>
             <br/>
-            
+           
             <strong>Reference:</strong>
             <% if (project[0].reference) { %>
               
-              <a href="<%= project[0].reference %>" target="_blank"><%= project[0].reference %></a>
+              <a href="<%= project[0].reference %>" target="_blank"></a>
             <% } else { %>
               <span>No reference available</span>
             <% } %>
+            
 
             
 
