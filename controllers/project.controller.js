@@ -266,7 +266,7 @@ exports.findAll = async (req, res) => {
       })
 
       .then((data) => {
-        console.log("Data retrieved successfully:", data);
+        console.log("Data retrieved successfully : ", data);
         res.render("Pages/pages-projects", {
           projects: data,
           phases: phasesData,
