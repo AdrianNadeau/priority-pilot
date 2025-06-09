@@ -2082,6 +2082,7 @@ ORDER BY
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
   });
+  console.log("Cost Data:", costData);
 
   if (costData) {
     // Loop through data and get the most recent progress for each project
