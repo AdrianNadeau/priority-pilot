@@ -29,138 +29,177 @@
     <!-- Add any additional content here -->
   </div>
 </div>
+
 <%- contentFor('body') %>
+
 <div class="page-content-wrapper">
-    <div class="container-fluid">
-        <div class="row">
-            
-            <div class="col-lg-12 text-center">
-                <div class="card-body" style="border:0px !important;">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <div class="card-body" style="border:0px !important;">
+          <div class="table-responsive">
+            <table class="table mb-12">
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>NMS</th>
+                  <th>Prime</th>
+                  <th>Sponsor</th>
+                  <th>Issues</th>
+                  <th>Actions</th>
+                  <th>Progress</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% let currentPhase = ''; %>
+                <% projects.forEach(project => { %>
+                  <% if (project.phase_name === 'Delivery' || project.phase_name === 'Discovery') { %>
+                    <!-- Phase header row -->
+                    <% if (project.phase_name !== currentPhase) { %>
+                      <% currentPhase = project.phase_name; %>
+                      <tr>
+                        <td colspan="9" style="background-color:#ececec;font-weight: bold; text-align: center;">
+                          <%= currentPhase %>
+                        </td>
+                      </tr>
+                    <% } %>
                     
-                    <div class="table-responsive">
-                        <table class="table mb-12">
-                            <thead>
-                                <tr>
-                                    <th>Project</th>
-                                    <th>Start</th>
-                                    <th>End</th>
-                                    <th>NMS</th>
-                                    <th>Prime</th>
-                                    <th>Sponsor</th>
-                                    <td>Issues</td>
-                                    <td>Actions</td>
-                                    <th>Progress</th>
-                                   
-                                   
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% let currentPhase = ''; %>
-                                <% projects.forEach(project => { %>
-                                    <% if (project.phase_name === 'Delivery' || project.phase_name === 'Discovery') { %>
-                                    <% if (project.phase_name !== currentPhase) { %>
-                                        <% currentPhase = project.phase_name; %>
-                                        <tr>
-                                        <td colspan="12" style="background-color:#ececec;font-weight: bold; text-align: center;"><%= currentPhase %></td>
-                                        </tr>
-                                    <% } %>
-                                   
-                                    <% 
-                                         let backgroundColor = '#CCC'; 
-                                         let progressColor = '#CCC'; 
-                                    %>
-                                    <% if (project.health && project.health.toLowerCase().trim() === 'yellow') { %>
-                                      <% backgroundColor = '#FFFF00'; 
-                                        progressColor = '#FFFF00'; 
-                                    %>
-
-                                    <% } else if (project.health && project.health.toLowerCase().trim() === 'green') { %>
-                                      <% backgroundColor = '#00FF00'; %> <!-- Green color -->
-                                      
-                                    <% } else if (project.health && project.health.toLowerCase().trim() === 'red') { %>
-                                      <% backgroundColor = '#FF0000'; %> <!-- Red color -->
-                                    <% } %>
-                                    <tr>
-
-                                        <td style="background-color:<%= backgroundColor %>;color:black;font-weight: bold;">
-                                            <%= project.project_name %>&nbsp;<a href="/projects/edit/<%= project.project_id %>"><i class="mdi mdi-border-color"></i></a>
-                                        </td>
-                                        <td><% if (project.start_date) { %><%= new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                        <td><% if (project.end_date) { %><%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                        <td><% if (project.next_milestone_date) { %><%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                        <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
-                                        <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
-                                        <td><% if (project.last_status) { %><%= project.last_status.issue %><% } %></td>
-                                        <td><% if (project.last_status) { %><%= project.last_status.actions %><% } %></td>
-                                        <td><% if (project.last_status) { %><%= project.last_status.progress %> %<% } %></td>
-                                    </tr>
-                                    <% } %>
-                                <% }); %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                    <!-- Project data row -->
+                    <% if (project.last_status) { %>
+                      <%
+                        let backgroundColor = '#CCC';
+                        let progressColor = '#CCC';
+                        let latestHealth = project.last_status.health
+                          ? project.last_status.health.toLowerCase().trim()
+                          : '';
+                        if (latestHealth === 'yellow') {
+                          backgroundColor = 'yellow';
+                          progressColor = 'yellow';
+                        } else if (latestHealth === 'green') {
+                          backgroundColor = 'green';
+                          progressColor = 'green';
+                        } else if (latestHealth === 'red') {
+                          backgroundColor = 'red';
+                          progressColor = 'red';
+                        }
+                      %>
+                      <tr>
+                        <%=backgroundColor%>
+                        <td style="background-color:<%=backgroundColor%>;color:black;font-weight: bold;">
+                          <%= project.project_name %>&nbsp;
+                          <a href="/projects/edit/<%= project.project_id %>">
+                            <i class="mdi mdi-border-color"></i>
+                          </a>
+                        </td>
+                        <td>
+                          <% if (project.start_date) { %>
+                            <%= new Date(project.start_date).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            }) %>
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (project.end_date) { %>
+                            <%= new Date(project.end_date).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            }) %>
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (project.next_milestone_date) { %>
+                            <%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            }) %>
+                          <% } %>
+                        </td>
+                        <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
+                        <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
+                        <td><%= project.last_status.issue || '' %></td>
+                        <td><%= project.last_status.actions || '' %></td>
+                        <td><%= project.last_status.progress || '' %>%</td>
+                      </tr>
+                    <% } %>
+                  <% } %>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <%- contentFor('FooterJs') %>
 <%- contentFor('BottomJs') %>
+
 <script>
-    // document.getElementById("btnExportHealth").addEventListener("click", function () {
-      // Get the projects data from the table
-    
-    document.getElementById("btnPrintPage").addEventListener("click", function () {
-    const portfolioTitleElement = document.querySelector(".portfolio-title");
+document.getElementById("btnPrintPage").addEventListener("click", function () {
+  const portfolioTitleElement = document.querySelector(".portfolio-title");
 
-    if (!portfolioTitleElement) {
-      console.error("Portfolio title element not found!");
-      return;
-    }
+  if (!portfolioTitleElement) {
+    console.error("Portfolio title element not found!");
+    return;
+  }
 
-    const portfolioName = portfolioTitleElement.textContent.trim();
+  const portfolioName = portfolioTitleElement.textContent.trim();
 
-    // Create a style element for the print header
-    const style = document.createElement("style");
-    style.setAttribute("type", "text/css");
-    style.setAttribute("media", "print");
+  // Create a style element for the print header
+  const style = document.createElement("style");
+  style.setAttribute("type", "text/css");
+  style.setAttribute("media", "print");
 
-    // Add CSS for the print header
-    const css = `
+  // Add CSS for the print header
+  const css = `
     @page {
-      size: landscape; /* Set page orientation to landscape */
-      margin-top: 3cm; /* Adjust top margin to make space for the header */
+      size: landscape;
+      margin-top: 3cm;
     }
     body::before {
       content: "${portfolioName}";
       display: block;
-      text-align: center; /* Center the header */
+      text-align: center;
       font-weight: bold;
       font-size: 1.5em;
-      margin-bottom: 1cm; /* Add space between the header and content */
+      margin-bottom: 1cm;
     }
     #btnPrintPage,
     .button-menu-mobile,
     .page-title,
     .portfolio-title {
-      display: none !important; /* Hide these elements during print */
+      display: none !important;
+    }
+    td, th, tr, .table, .mini-stat, .card-body {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
   `;
 
-    style.appendChild(document.createTextNode(css));
-    document.head.appendChild(style);
-    // Save the current title
-    const oldTitle = document.title;
-    const today = new Date();
-    const yyyy_mm_dd = today.toISOString().split('T')[0];
-    console.log(yyyy_mm_dd); // Example: 2025-05-30
-    document.title = yyyy_mm_dd+" - PriorityPilot - Health Report";
-    // Print
-    window.print();
-    // Restore the old title after a short delay
-    setTimeout(() => {
-      document.title = oldTitle;
-    }, 1000);
-  });
-  </script>
+  style.appendChild(document.createTextNode(css));
+  document.head.appendChild(style);
+
+  // Save the current title
+  const oldTitle = document.title;
+  const today = new Date();
+  const yyyy_mm_dd = today.toISOString().split('T')[0];
+  console.log(yyyy_mm_dd);
+  
+  document.title = yyyy_mm_dd + " - PriorityPilot - Health Report";
+
+  // Print
+  window.print();
+
+  // Restore the old title after a short delay
+  setTimeout(() => {
+    document.title = oldTitle;
+  }, 1000);
+});
+</script>
