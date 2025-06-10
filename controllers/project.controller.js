@@ -74,11 +74,11 @@ exports.create = (req, res) => {
 
   // Save Project in the database
   Project.create(project).then(async (createdProject) => {
-    const phasesData = await Phase.findAll({
-      order: [["id", "ASC"]],
-    }).catch((error) => {
-      console.log("Error fetching phasesData:", error);
-    });
+    const phasesData = await Phase.findAll({ order: [["id", "ASC"]] }).catch(
+      (error) => {
+        console.log("Error fetching phasesData:", error);
+      },
+    );
 
     const newChangedProject = {
       company_id_fk,
