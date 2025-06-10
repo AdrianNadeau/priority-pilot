@@ -58,7 +58,7 @@ exports.findAll = (req, res) => {
 // Retrieve all by projectId from the database.
 exports.findAllByProjectId = (req, res) => {
   const project_id_fk = req.params.project_id_fk;
-  Status.findAll({ where: { project_id_fk }, order: [["createdAt", "DESC"]] })
+  Status.findAll({ where: { project_id_fk }, order: [["status_date", "DESC"]] })
     .then((data) => {
       res.send(data);
     })

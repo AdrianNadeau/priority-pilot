@@ -2077,8 +2077,8 @@ LEFT JOIN
     companies ON companies.id = proj.company_id_fk
 WHERE
     proj.company_id_fk = ?
-ORDER BY
-    proj.phase_id_fk, proj.id;
+ORDER BY s.status_date DESC;
+
 
 `;
   costData = await db.sequelize.query(costQuery, {
@@ -2300,10 +2300,11 @@ exports.exportHealthDataToCSV = async (req, res) => {
         GROUP BY project_id_fk
       ) latest_status
       ON s.project_id_fk = latest_status.project_id_fk AND s.status_date = latest_status.max_status_date
+      ORDER BY s.status_date DESC
       `,
       { type: db.Sequelize.QueryTypes.SELECT },
     );
-
+    console.log("Statuses fetched:", statuses.length);
     // Map statuses to their corresponding projects
     const statusMap = {};
     statuses.forEach((status) => {
