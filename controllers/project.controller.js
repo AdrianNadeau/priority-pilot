@@ -1672,6 +1672,7 @@ exports.findFunnel = async (req, res) => {
     const sponsors = persons.filter((person) => person.role === "sponsor");
     const primes = persons.filter((person) => person.role === "prime");
     pitchTotalPH = formatCost(pitchTotalPH);
+    console.log("Pitch Total PH:", pitchTotalPH);
     const portfolioName = await returnPortfolioName(company_id_fk);
     // Render the funnel page with the retrieved data
     res.render("Pages/pages-funnel", {
@@ -1691,11 +1692,12 @@ exports.findFunnel = async (req, res) => {
     res.status(500).json({ message: "Error finding funnel" });
   }
 };
+//now is Funnel
 exports.findFreezer = async (req, res) => {
   const company_id_fk = req.session.company.id;
 
   const query = `
-     SELECT 
+    SELECT  
     proj.company_id_fk, 
     proj.id, 
     proj.project_name, 
@@ -1713,30 +1715,41 @@ exports.findFreezer = async (req, res) => {
     companies.company_headline AS portfolio_name,
     companies.effort AS company_effort,
     latest_status.health AS latest_status_health,
-    latest_status.status_date AS latest_status_date
-  FROM 
+    latest_status.status_date AS latest_status_date,
+
+    -- This is the added line:
+    (
+      SELECT COALESCE(SUM(p1.effort), 0)
+      FROM projects p1
+      WHERE p1.company_id_fk = proj.company_id_fk AND p1.phase_id_fk = 1
+    ) AS total_effort_phase_1
+
+FROM 
     projects proj
-  LEFT JOIN 
+LEFT JOIN 
     persons prime_person ON prime_person.id = proj.prime_id_fk
-  LEFT JOIN 
+LEFT JOIN 
     persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-  LEFT JOIN 
+LEFT JOIN 
     phases ON phases.id = proj.phase_id_fk
-  LEFT JOIN 
+LEFT JOIN 
     companies ON companies.id = proj.company_id_fk
-  LEFT JOIN (
-      SELECT s1.*
-      FROM statuses s1
-      INNER JOIN (
-          SELECT project_id_fk, MAX(status_date) AS max_date
-          FROM statuses
-          GROUP BY project_id_fk
-      ) s2 ON s1.project_id_fk = s2.project_id_fk AND s1.status_date = s2.max_date
-  ) latest_status ON latest_status.project_id_fk = proj.id
-  WHERE 
-    proj.company_id_fk = ? and proj.phase_id_fk = 6
-  ORDER BY 
-    proj.phase_id_fk;`;
+LEFT JOIN (
+    SELECT s1.*
+    FROM statuses s1
+    INNER JOIN (
+        SELECT project_id_fk, MAX(status_date) AS max_date
+        FROM statuses
+        GROUP BY project_id_fk
+    ) s2 ON s1.project_id_fk = s2.project_id_fk AND s1.status_date = s2.max_date
+) latest_status ON latest_status.project_id_fk = proj.id
+
+WHERE 
+    proj.company_id_fk = ? AND proj.phase_id_fk = 6
+
+ORDER BY 
+    proj.phase_id_fk;
+`;
 
   try {
     const data = await db.sequelize.query(query, {
