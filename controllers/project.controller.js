@@ -1587,7 +1587,6 @@ exports.findFunnel = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
     const person_id_fk = req.session.person.id;
-    console.log("person_id_fk:", person_id_fk);
     const personsData = await Person.findAll({
       where: {
         company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
