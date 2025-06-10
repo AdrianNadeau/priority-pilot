@@ -423,6 +423,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 window.getStatusUpdates = function(project_id_fk){
   var modalBody = document.getElementById("statusUpdates");
+  console.log("Fetching status updates for project ID:", project_id_fk);
   modalBody.innerHTML = '';
   fetch(`/statuses/projects/${project_id_fk}`)
     .then(response => response.json())

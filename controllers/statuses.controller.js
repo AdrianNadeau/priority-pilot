@@ -30,7 +30,7 @@ exports.create = async (req, res) => {
 
     const data = await Status.create(status);
 
-    res.redirect("/projects/cockpit/" + req.body.project_id);
+    res.redirect("/projects/");
   } catch (err) {
     console.error("Error creating status:", err);
     res
