@@ -29,11 +29,20 @@
   background-color: #dc3545; /* Bootstrap red */
 }
 /* .reference-link {
-  display: inline-block;
-  max-width: 350px;
+ border: 4px solid #f76707; /*Debug Color */
+  /* border-radius: 5px;
+  padding: 10px;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   word-break: break-all;
-  white-space: normal;
-} */
+  overflow-wrap: break-word;
+  white-space: pre-wrap; */
+/* } */ 
+/* pre { */
+	/* white-space: -pre-wrap; */
+	/* width: 300px; */
+	/* } */
 </style>
 
 <%- contentFor('breadcrumb') %>
@@ -167,16 +176,19 @@
             <% } %>
             <br/>
            
-            <strong>Reference:</strong>
-            <% if (project[0].reference) { %>
+           
+           <strong>Reference:</strong>
+           <% if (project[0].reference) { %>
+            <div>
+             
+                
+                <a href="<%= project[0].reference %>" target="_blank" class="reference-link">
+                  <%= project[0].reference %>
+                </a>
               
-              <a href="<%= project[0].reference %>" target="_blank"></a>
-            <% } else { %>
-              <span>No reference available</span>
-            <% } %>
-            
-
-            
+            </div>
+          <% } %>
+         
 
             </div>
            
