@@ -4970,3 +4970,6 @@ canvas {
 .datepicker {
   cursor: pointer;
 }
+#btnPrintPage {
+  margin-left: 30px;
+}

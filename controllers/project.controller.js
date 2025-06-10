@@ -17,6 +17,9 @@ const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
 // const sendEmail = require("../utils/emailSender");
 const { Parser } = require("json2csv");
+const puppeteer = require("puppeteer");
+const fs = require("fs");
+const { jsPDF } = require("jspdf");
 
 // Create and Save a new Project
 exports.create = (req, res) => {
@@ -266,7 +269,6 @@ exports.findAll = async (req, res) => {
       })
 
       .then((data) => {
-        console.log("Data retrieved successfully : ", data);
         res.render("Pages/pages-projects", {
           projects: data,
           phases: phasesData,
@@ -2057,7 +2059,8 @@ exports.health = async (req, res) => {
     (SELECT json_build_object(
              'progress', status.progress,
              'issue', status.issue,
-             'actions', status.actions)
+             'actions', status.actions,
+             'health', status.health)
      FROM statuses status
      WHERE status.project_id_fk = proj.id
      ORDER BY status.status_date DESC
@@ -2082,7 +2085,6 @@ ORDER BY
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
   });
-  console.log("Cost Data:", costData);
 
   if (costData) {
     // Loop through data and get the most recent progress for each project
@@ -2264,6 +2266,127 @@ async function returnPortfolioName(company_id_fk) {
 
   return company.company_headline;
 }
+
+exports.exportHealthDataToCSV = async (req, res) => {
+  console.log("Exporting health data to CSV...");
+  try {
+    const company_id_fk = req.session.company.id;
+
+    // Fetch projects
+    const projects = await db.projects.findAll({
+      where: { company_id_fk },
+      attributes: [
+        "id",
+        "project_name",
+        "project_headline",
+        "project_cost",
+        "effort",
+        "benefit",
+        "start_date",
+        "end_date",
+        "next_milestone_date",
+        "benefit",
+      ],
+      raw: true,
+    });
+
+    const statuses = await db.sequelize.query(
+      `
+      SELECT s.project_id_fk, s.status_date, s.progress, s.health, s.accomplishments, s.issue, s.actions
+      FROM statuses s
+      INNER JOIN (
+        SELECT project_id_fk, MAX(status_date) AS max_status_date
+        FROM statuses
+        GROUP BY project_id_fk
+      ) latest_status
+      ON s.project_id_fk = latest_status.project_id_fk AND s.status_date = latest_status.max_status_date
+      `,
+      { type: db.Sequelize.QueryTypes.SELECT },
+    );
+
+    // Map statuses to their corresponding projects
+    const statusMap = {};
+    statuses.forEach((status) => {
+      statusMap[status.project_id_fk] = status;
+    });
+
+    // Combine project and status data
+    const combinedData = projects.map((project) => {
+      const status = statusMap[project.id] || {
+        status_date: "",
+        progress: "",
+        health: "",
+        accomplishments: "",
+        issue: "",
+        actions: "",
+      };
+      // Format dates in yyyy-dd-mm format
+      const formattedStartDate = project.start_date
+        ? moment(project.start_date).format("YYYY-DD-MM")
+        : "";
+      const formattedEndDate = project.end_date
+        ? moment(project.end_date).format("YYYY-DD-MM")
+        : "";
+      const formattedNMSDate = project.next_milestone_date
+        ? moment(project.next_milestone_date).format("YYYY-DD-MM")
+        : "";
+      const formattedStatusDate = status.status_date
+        ? moment(project.next_milestone_date).format("YYYY-DD-MM")
+        : "";
+
+      return {
+        Name: project.project_name,
+        Headline: project.project_headline,
+        "Start Date": formattedStartDate,
+        "End Date": formattedEndDate,
+        "NMS Date": formattedNMSDate,
+        "Status Date": formattedStatusDate,
+        Benefit: project.benefit,
+        Progress: status.progress + " %",
+        Health: status.health,
+        Accomplishments: status.accomplishments,
+        Issues: status.issue,
+        Actions: status.actions,
+        Cost: "$" + project.project_cost || 0,
+        Effort: project.effort || 0,
+      };
+    });
+
+    // Define the fields for the CSV
+    const fields = [
+      "Name",
+      "Headline",
+
+      "Benefit",
+      "Start Date",
+      "End Date",
+      "NMS Date",
+      "Status Date",
+      "Progress",
+      "Health",
+      "Accomplishments",
+      "Issues",
+      "Actions",
+      "Cost",
+      "Effort",
+    ];
+
+    // // Convert JSON to CSV
+    // const json2csvParser = new Parser({ fields });
+    // const csv = json2csvParser.parse(combinedData);
+
+    // // Set headers and send the CSV file
+    // res.header("Content-Type", "text/csv");
+    // res.attachment("projects_with_status.csv");
+    // res.send(csv);
+  } catch (error) {
+    console.error("Error exporting projects with status to CSV:", error);
+    res
+      .status(500)
+      .send({ message: "Error exporting projects with status to CSV." });
+  }
+  res.send("Pdf created successfully");
+};
 exports.exportProjectsWithStatusToCSV = async (req, res) => {
   console.log("Exporting projects with status to CSV...");
   try {
@@ -2424,125 +2547,209 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
       .send({ message: "Error exporting projects with status to CSV." });
   }
 };
-exports.exportHealthDataToCSV = async (req, res) => {
-  console.log("Exporting health data to CSV...");
+exports.exportHealthDataToPDF = async (req, res) => {
+  console.log("Exporting health data to PDF...");
   try {
     const company_id_fk = req.session.company.id;
+    const portfolioName = req.session.company.company_headline;
 
-    // Fetch projects
-    const projects = await db.projects.findAll({
-      where: { company_id_fk },
-      attributes: [
-        "id",
-        "project_name",
-        "project_headline",
-        "project_cost",
-        "effort",
-        "benefit",
-        "start_date",
-        "end_date",
-        "next_milestone_date",
-        "benefit",
-      ],
-      raw: true,
+    // Fetch the same data as your health page
+    const costQuery = `SELECT 
+      proj.company_id_fk,
+      proj.id AS project_id,
+      proj.project_name,
+      proj.start_date,
+      proj.end_date,
+      proj.health,
+      proj.effort,
+      proj.reference,
+      prime_person.first_name AS prime_first_name,
+      prime_person.last_name AS prime_last_name,
+      sponsor_person.first_name AS sponsor_first_name,
+      sponsor_person.last_name AS sponsor_last_name,
+      proj.project_cost,
+      phases.phase_name,
+      phases.id AS phase_id,
+      companies.portfolio_budget AS company_budget,
+      companies.effort AS company_effort,
+      (SELECT json_build_object(
+               'progress', status.progress,
+               'issue', status.issue,
+               'actions', status.actions,
+               'health', status.health)
+       FROM statuses status
+       WHERE status.project_id_fk = proj.id
+       ORDER BY status.status_date DESC
+       LIMIT 1) AS last_status
+    FROM
+      projects proj
+    LEFT JOIN
+      persons prime_person ON prime_person.id = proj.prime_id_fk
+    LEFT JOIN
+      persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+    LEFT JOIN
+      phases ON phases.id = proj.phase_id_fk
+    LEFT JOIN
+      companies ON companies.id = proj.company_id_fk
+    WHERE
+      proj.company_id_fk = ?
+    ORDER BY
+      proj.phase_id_fk, proj.id;`;
+
+    const costData = await db.sequelize.query(costQuery, {
+      replacements: [company_id_fk],
+      type: db.sequelize.QueryTypes.SELECT,
     });
-
-    const statuses = await db.sequelize.query(
-      `
-      SELECT s.project_id_fk, s.status_date, s.progress, s.health, s.accomplishments, s.issue, s.actions
-      FROM statuses s
-      INNER JOIN (
-        SELECT project_id_fk, MAX(status_date) AS max_status_date
-        FROM statuses
-        GROUP BY project_id_fk
-      ) latest_status
-      ON s.project_id_fk = latest_status.project_id_fk AND s.status_date = latest_status.max_status_date
-      `,
-      { type: db.Sequelize.QueryTypes.SELECT },
+    const doc = new jsPDF();
+    const date = moment().format("MMMM Do YYYY");
+    doc.text("Hello world!", 10, 10);
+    doc.save(`${date} - PriorityPilot Health Report.pdf`);
+    res.send(
+      `PDF created successfully" ${date} - PriorityPilot Health Report.pdf`, //add link here for user to download
     );
+    // // Render the EJS template to HTML string
+    // res.render(
+    //   "Pages/pages-health-pdf",
+    //   {
+    //     portfolioName,
+    //     projects: costData,
+    //     currentDate: require("moment")().format("MMMM Do YYYY"),
+    //     layout: false, // Don't include the main layout if you want just the page
+    //   },
+    //   async (err, html) => {
+    //     if (err) {
+    //       console.error("EJS render error:", err);
+    //       return res.status(500).send("Error rendering page for PDF.");
+    //     }
 
-    // Map statuses to their corresponding projects
-    const statusMap = {};
-    statuses.forEach((status) => {
-      statusMap[status.project_id_fk] = status;
-    });
+    //     const doc = new jsPDF();
 
-    // Combine project and status data
-    const combinedData = projects.map((project) => {
-      const status = statusMap[project.id] || {
-        status_date: "",
-        progress: "",
-        health: "",
-        accomplishments: "",
-        issue: "",
-        actions: "",
-      };
-      // Format dates in yyyy-dd-mm format
-      const formattedStartDate = project.start_date
-        ? moment(project.start_date).format("YYYY-DD-MM")
-        : "";
-      const formattedEndDate = project.end_date
-        ? moment(project.end_date).format("YYYY-DD-MM")
-        : "";
-      const formattedNMSDate = project.next_milestone_date
-        ? moment(project.next_milestone_date).format("YYYY-DD-MM")
-        : "";
-      const formattedStatusDate = status.status_date
-        ? moment(project.next_milestone_date).format("YYYY-DD-MM")
-        : "";
-
-      return {
-        Name: project.project_name,
-        Headline: project.project_headline,
-        "Start Date": formattedStartDate,
-        "End Date": formattedEndDate,
-        "NMS Date": formattedNMSDate,
-        "Status Date": formattedStatusDate,
-        Benefit: project.benefit,
-        Progress: status.progress + " %",
-        Health: status.health,
-        Accomplishments: status.accomplishments,
-        Issues: status.issue,
-        Actions: status.actions,
-        Cost: "$" + project.project_cost || 0,
-        Effort: project.effort || 0,
-      };
-    });
-
-    // Define the fields for the CSV
-    const fields = [
-      "Name",
-      "Headline",
-
-      "Benefit",
-      "Start Date",
-      "End Date",
-      "NMS Date",
-      "Status Date",
-      "Progress",
-      "Health",
-      "Accomplishments",
-      "Issues",
-      "Actions",
-      "Cost",
-      "Effort",
-    ];
-
-    // Convert JSON to CSV
-    const json2csvParser = new Parser({ fields });
-    const csv = json2csvParser.parse(combinedData);
-
-    // Set headers and send the CSV file
-    res.header("Content-Type", "text/csv");
-    res.attachment("projects_with_status.csv");
-    res.send(csv);
+    //     doc.text("Hello world!", 10, 10);
+    //     doc.save("a4.pdf");
+    //   },
+    // );
   } catch (error) {
-    console.error("Error exporting projects with status to CSV:", error);
-    res
-      .status(500)
-      .send({ message: "Error exporting projects with status to CSV." });
+    console.error("Error exporting page to PDF:", error);
+    res.status(500).send("Internal Server Error");
   }
 };
+// try {
+//   const company_id_fk = req.session.company.id;
+
+//   // Fetch projects
+//   const projects = await db.projects.findAll({
+//     where: { company_id_fk },
+//     attributes: [
+//       "id",
+//       "project_name",
+//       "project_headline",
+//       "project_cost",
+//       "effort",
+//       "benefit",
+//       "start_date",
+//       "end_date",
+//       "next_milestone_date",
+//       "benefit",
+//     ],
+//     raw: true,
+//   });
+
+//   const statuses = await db.sequelize.query(
+//     `
+//     SELECT s.project_id_fk, s.status_date, s.progress, s.health, s.accomplishments, s.issue, s.actions
+//     FROM statuses s
+//     INNER JOIN (
+//       SELECT project_id_fk, MAX(status_date) AS max_status_date
+//       FROM statuses
+//       GROUP BY project_id_fk
+//     ) latest_status
+//     ON s.project_id_fk = latest_status.project_id_fk AND s.status_date = latest_status.max_status_date
+//     `,
+//     { type: db.Sequelize.QueryTypes.SELECT },
+//   );
+
+//   // Map statuses to their corresponding projects
+//   const statusMap = {};
+//   statuses.forEach((status) => {
+//     statusMap[status.project_id_fk] = status;
+//   });
+
+//   // Combine project and status data
+//   const combinedData = projects.map((project) => {
+//     const status = statusMap[project.id] || {
+//       status_date: "",
+//       progress: "",
+//       health: "",
+//       accomplishments: "",
+//       issue: "",
+//       actions: "",
+//     };
+//     // Format dates in yyyy-dd-mm format
+//     const formattedStartDate = project.start_date
+//       ? moment(project.start_date).format("YYYY-DD-MM")
+//       : "";
+//     const formattedEndDate = project.end_date
+//       ? moment(project.end_date).format("YYYY-DD-MM")
+//       : "";
+//     const formattedNMSDate = project.next_milestone_date
+//       ? moment(project.next_milestone_date).format("YYYY-DD-MM")
+//       : "";
+//     const formattedStatusDate = status.status_date
+//       ? moment(project.next_milestone_date).format("YYYY-DD-MM")
+//       : "";
+
+//     return {
+//       Name: project.project_name,
+//       Headline: project.project_headline,
+//       "Start Date": formattedStartDate,
+//       "End Date": formattedEndDate,
+//       "NMS Date": formattedNMSDate,
+//       "Status Date": formattedStatusDate,
+//       Benefit: project.benefit,
+//       Progress: status.progress + " %",
+//       Health: status.health,
+//       Accomplishments: status.accomplishments,
+//       Issues: status.issue,
+//       Actions: status.actions,
+//       Cost: "$" + project.project_cost || 0,
+//       Effort: project.effort || 0,
+//     };
+//   });
+
+//   // Define the fields for the CSV
+//   const fields = [
+//     "Name",
+//     "Headline",
+
+//     "Benefit",
+//     "Start Date",
+//     "End Date",
+//     "NMS Date",
+//     "Status Date",
+//     "Progress",
+//     "Health",
+//     "Accomplishments",
+//     "Issues",
+//     "Actions",
+//     "Cost",
+//     "Effort",
+//   ];
+
+//   // Convert JSON to CSV
+//   const json2csvParser = new Parser({ fields });
+//   const csv = json2csvParser.parse(combinedData);
+
+//   // Set headers and send the CSV file
+//   res.header("Content-Type", "text/csv");
+//   res.attachment("projects_with_status.csv");
+//   res.send(csv);
+// } catch (error) {
+//   console.error("Error exporting projects with status to CSV:", error);
+//   res
+//     .status(500)
+//     .send({ message: "Error exporting projects with status to CSV." });
+// }
+
 // Function to remove commas and convert to number
 function removeCommasAndConvert(numStr) {
   if (typeof numStr !== "string") {

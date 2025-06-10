@@ -137,6 +137,12 @@ module.exports = (app) => {
     projects.exportProjectsWithStatusToCSV,
   );
   router.get(
+    "/export/export-project-health/",
+    sessionMiddleware,
+    projects.exportHealthDataToPDF,
+  );
+
+  router.get(
     "/export/health-data",
     sessionMiddleware,
     projects.exportHealthDataToCSV,
