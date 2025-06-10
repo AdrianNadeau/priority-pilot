@@ -7,6 +7,7 @@ const Op = db.Sequelize.Op;
 exports.create = async (req, res) => {
   try {
     const statusDate = req.body.status_date;
+    console.log("Received status date:", statusDate);
     if (!statusDate || isNaN(new Date(statusDate).getTime())) {
       return res.status(400).send({ message: "Invalid status date provided." });
     }
@@ -30,7 +31,7 @@ exports.create = async (req, res) => {
 
     const data = await Status.create(status);
 
-    res.redirect("/projects/");
+    res.redirect("/");
   } catch (err) {
     console.error("Error creating status:", err);
     res
