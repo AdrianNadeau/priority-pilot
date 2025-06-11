@@ -1666,7 +1666,8 @@ exports.findFunnel = async (req, res) => {
         parseFloat((project.project_cost || "0").replace(/,/g, "")) || 0;
       pitchTotalPH += parseFloat(project.effort) || 0;
     });
-
+    console.log("pitchTotalCost", pitchTotalCost);
+    console.log("pitchTotalPH", pitchTotalPH);
     // Retrieve phases and priorities
     const phases = await Phase.findAll({
       order: [["id", "ASC"]],
