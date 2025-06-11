@@ -1653,7 +1653,7 @@ exports.findFunnel = async (req, res) => {
     });
     console.log(
       "++++++++++++++++++++++++++++++++++ DATA:",
-      data.project_name + "+++++++++++++++++++++++++++++++++++++",
+      data[0].project_name + "+++++++++++++++++++++++++++++++++++++",
     );
     // Calculate pitch count, total cost, and total effort
     const pitchCount = data.length;
