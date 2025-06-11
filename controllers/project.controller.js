@@ -1651,10 +1651,7 @@ exports.findFunnel = async (req, res) => {
       replacements: [company_id_fk, person_id_fk, person_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    console.log(
-      "++++++++++++++++++++++++++++++++++ DATA:",
-      data[0].project_name + "+++++++++++++++++++++++++++++++++++++",
-    );
+
     // Calculate pitch count, total cost, and total effort
     const pitchCount = data.length;
     let pitchTotalCost = 0;
@@ -1662,15 +1659,15 @@ exports.findFunnel = async (req, res) => {
 
     data.forEach((project) => {
       // Correctly accumulate the total cost
-      console.log("project cost:", project.project_cost);
+
       console.log("project effort:", project.effort);
       pitchTotalCost +=
         parseFloat((project.project_cost || "0").replace(/,/g, "")) || 0;
       pitchTotalPH +=
         parseFloat((project.effort || "0").replace(/,/g, "")) || 0;
     });
-    console.log("Pitch Cost:", pitchTotalCost);
-    console.log("Effort :", pitchTotalPH);
+
+    console.log("Effort :", formatToKMB(pitchTotalPH));
     // Retrieve phases and priorities
     const phases = await Phase.findAll({
       order: [["id", "ASC"]],
@@ -1683,8 +1680,7 @@ exports.findFunnel = async (req, res) => {
     });
     const sponsors = persons.filter((person) => person.role === "sponsor");
     const primes = persons.filter((person) => person.role === "prime");
-    pitchTotalPH = formatCost(pitchTotalPH);
-    console.log("Pitch Total PH:", pitchTotalPH);
+
     const portfolioName = await returnPortfolioName(company_id_fk);
     // Render the funnel page with the retrieved data
     res.render("Pages/pages-funnel", {
@@ -2783,6 +2779,7 @@ function removeCommasAndConvert(numStr) {
   }
   return parseFloat(numStr.replace(/,/g, ""));
 }
+// Function to format numbers with K, M, B
 function formatToKMB(num) {
   if (typeof num !== "number") {
     num = parseFloat(num) || 0;
