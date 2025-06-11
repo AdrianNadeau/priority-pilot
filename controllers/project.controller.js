@@ -1662,12 +1662,14 @@ exports.findFunnel = async (req, res) => {
 
     data.forEach((project) => {
       // Correctly accumulate the total cost
+      console.log("project cost:", project.project_cost);
+      console.log("project effort:", project.effort);
       pitchTotalCost +=
         parseFloat((project.project_cost || "0").replace(/,/g, "")) || 0;
       pitchTotalPH += parseFloat(project.effort) || 0;
     });
-    console.log("pitchTotalCost", pitchTotalCost);
-    console.log("pitchTotalPH", pitchTotalPH);
+    console.log("Pitch Cost:", pitchTotalCost);
+    console.log("Effort :", pitchTotalPH);
     // Retrieve phases and priorities
     const phases = await Phase.findAll({
       order: [["id", "ASC"]],
