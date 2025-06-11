@@ -1585,11 +1585,14 @@ exports.flight = async (req, res) => {
 // Define the findFunnel function
 exports.findFunnel = async (req, res) => {
   try {
+    console.log(
+      "============================================== findFunnel called ==============================================",
+    );
     const company_id_fk = req.session.company.id;
     const person_id_fk = req.session.person.id;
     const personsData = await Person.findAll({
       where: {
-        company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
+        company_id_fk: company_id_fk,
       },
     });
 
@@ -1600,6 +1603,8 @@ exports.findFunnel = async (req, res) => {
       order: [["id", "ASC"]],
     });
     // Custom SQL query to retrieve project data
+    console.log("Company ID:", company_id_fk, "Person ID:", person_id_fk);
+
     const query = `
     SELECT 
       proj.company_id_fk,
@@ -1646,7 +1651,10 @@ exports.findFunnel = async (req, res) => {
       replacements: [company_id_fk, person_id_fk, person_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-
+    console.log(
+      "++++++++++++++++++++++++++++++++++ DATA:",
+      data.project_name + "+++++++++++++++++++++++++++++++++++++",
+    );
     // Calculate pitch count, total cost, and total effort
     const pitchCount = data.length;
     let pitchTotalCost = 0;
@@ -1692,10 +1700,10 @@ exports.findFunnel = async (req, res) => {
     res.status(500).json({ message: "Error finding funnel" });
   }
 };
-//now is Funnel
+//now is now find Archived
 exports.findFreezer = async (req, res) => {
   const company_id_fk = req.session.company.id;
-
+  console.log("findFreezer called with company_id_fk:", company_id_fk);
   const query = `
     SELECT  
     proj.company_id_fk, 
@@ -1717,9 +1725,9 @@ exports.findFreezer = async (req, res) => {
     latest_status.health AS latest_status_health,
     latest_status.status_date AS latest_status_date,
 
-    -- This is the added line:
+    
     (
-      SELECT COALESCE(SUM(p1.effort), 0)
+      SELECT COALESCE(SUM(p1.effort::integer), 0)
       FROM projects p1
       WHERE p1.company_id_fk = proj.company_id_fk AND p1.phase_id_fk = 1
     ) AS total_effort_phase_1
@@ -1756,7 +1764,7 @@ ORDER BY
       replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    console.log("Data retrieved successfully:", data);
+    console.log("Freezer Data retrieved successfully:", data);
     if (!data || data.length === 0) {
       console.log("No data found for company_id_fk:", company_id_fk);
       return res.redirect("/projects");
@@ -1771,26 +1779,27 @@ ORDER BY
       done: { count: 0, cost: 0, ph: 0 },
       archived: { count: 0, cost: 0, ph: 0 },
     };
-
+    console.log("Phase data initialized:", phaseData);
     // Retrieve portfolio_budget and portfolio_effort from the first record
     const portfolio_budget = data[0].company_budget
       ? removeCommasAndConvert(data[0].company_budget)
       : 0;
-
+    console.log("Portfolio budget retrieved:", portfolio_budget);
     const portfolio_effort = data[0].company_effort
       ? removeCommasAndConvert(data[0].company_effort)
       : 0;
-
+    console.log("Portfolio effort retrieved:", portfolio_effort);
     // Process data and calculate totals
     data.forEach((project) => {
       // Parse project cost and effort
       const projectCost = project.project_cost
         ? removeCommasAndConvert(project.project_cost) || 0
         : 0;
-
+      console.log("Project Cost:", projectCost);
       const projectEffortPH = project.effort
         ? removeCommasAndConvert(project.effort) || 0
         : 0;
+      console.log("Project Effort (PH):", projectEffortPH);
 
       // Categorize by phase name and accumulate values
       const phase = project.phase_name?.toLowerCase() || "unknown";
