@@ -34,7 +34,7 @@
 </div>
 <br/>
 
-<div class="row" class="progress-bar-container text-center">
+<div class="row" class="progress-bar-container text-center" style="display: none;">
   
   <div class="col-md-12">
     <span  style="margin-left:45px;display:none;" id="download-label" name="download-label">Reporting downloading...</span>
@@ -55,7 +55,7 @@
         <div class="row">
             
             <div class="col-lg-12 text-center">
-                <div class="card-body" style="border:0px !important;">
+                <div class="card-body" style="border:0px !important;margin-top: 1.5em;">
                     
                     <div class="table-responsive">
                         <table class="table mb-12">
@@ -95,9 +95,11 @@
                                       let backgroundColor = 'gray'; // default gray
                                       if (project.last_status && project.last_status.health) {
                                         let health = project.last_status.health.toLowerCase().trim();
-                                        if (health === 'yellow') backgroundColor = 'yellow'; // bright yellow
-                                        else if (health === 'green') backgroundColor = 'green'; // Bootstrap green
-                                        else if (health === 'red') backgroundColor = 'red'; // Bootstrap red
+                                        if (health === 'yellow') backgroundColor = 'yellow';
+                                        else if (health === 'green') backgroundColor = 'green';
+                                        else if (health === 'red') backgroundColor = 'red';
+                                        else if (health === '#000') backgroundColor = 'red';
+                                        
                                       }
                                     %>
                                     <tr>
@@ -107,14 +109,16 @@
                                       <td><% if (project.start_date) { %><%= new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
                                       <td><% if (project.end_date) { %><%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
                                       <td><% if (project.next_milestone_date) { %><%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                      
-                                      <% if (project.last_status && project.last_status.health) {
-                                        statsHealth = project.last_status.health.toUpperCase().trim();
-                                        
-                                      }
-                                      %>
-                                      <td><%=statsHealth%></td>
+                                      <td>
+                                        <%= project.mostRecentProgress && project.mostRecentProgress.health ? project.mostRecentProgress.health : "N/A" %>
+                                      </td>
+                                      <% if (project.mostRecentProgress && project.mostRecentProgress.health) { %>
+                                        <% statsHealth = project.mostRecentProgress.health.toUpperCase().trim(); %>
+                                      <% } %>
                                       <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
+                                       
+                                     
+                                      
                                       <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
                                       <td><% if (project.last_status) { %><%= project.last_status.issue %><% } %></td>
                                       <td><% if (project.last_status) { %><%= project.last_status.actions %><% } %></td>
@@ -135,41 +139,64 @@
 <%- contentFor('BottomJs') %>
 <script>
 document.getElementById("btnPrintPage").addEventListener("click", function () {
-  // Get the progress bar element
-   const downloadLabel = document.getElementById("download-label");
-   console.log(downloadLabel);
-  downloadLabel.style.display = "block"; // Show the label
-  const progressBar = document.querySelector(".progress-bar");
-  let progress = 0;
-  progressBar.style.width = "0%";
-  progressBar.textContent = "0%";
-  const htmlContent = document.querySelector(".page-content-wrapper").innerHTML;
-  console.log(htmlContent);
-  // Animate progress bar from 0 to 100%
-  const interval = setInterval(() => {
-    progress += 2; // Increase speed as needed
-    if (progress > 100) progress = 100;
-    progressBar.style.width = progress + "%";
-    progressBar.textContent = progress + "%";
-    progressBar.setAttribute("aria-valuenow", progress);
+  const portfolioTitleElement = document.querySelector(".portfolio-title");
 
-    if (progress >= 100) {
-      clearInterval(interval);
+  if (!portfolioTitleElement) {
+    console.error("Portfolio title element not found!");
+    return;
+  }
 
-      //Genterate PDF
-      
-      
-      window.print();
+  const portfolioName = portfolioTitleElement.textContent.trim();
 
-      // Optionally reset progress bar after printing
-      setTimeout(() => {
-        progressBar.style.width = "0%";
-        progressBar.textContent = "0%";
-        progressBar.setAttribute("aria-valuenow", 0);
-      }, 1000);
+  // Create a style element for the print header
+  const style = document.createElement("style");
+  style.setAttribute("type", "text/css");
+  style.setAttribute("media", "print");
+
+  // Add CSS for the print header
+  const css = `
+    @page {
+      size: landscape;
+      margin-top: 3cm;
     }
-  }, 20); // Adjust interval speed as needed
-  downloadLabel.style.display = "none";
+    body::before {
+      content: "${portfolioName}";
+      display: block;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.5em;
+      margin-bottom: 1cm;
+    }
+    #btnPrintPage,
+    .button-menu-mobile,
+    .page-title,
+    .portfolio-title {
+      display: none !important;
+    }
+    td, th, tr, .table, .mini-stat, .card-body {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  `;
+
+  style.appendChild(document.createTextNode(css));
+  document.head.appendChild(style);
+
+  // Save the current title
+  const oldTitle = document.title;
+  const today = new Date();
+  const yyyy_mm_dd = today.toISOString().split('T')[0];
+  console.log(yyyy_mm_dd);
+  
+  document.title = yyyy_mm_dd + " - PriorityPilot - Health Report";
+
+  // Print
+  window.print();
+
+  // Restore the old title after a short delay
+  setTimeout(() => {
+    document.title = oldTitle;
+  }, 1000);
 });
 </script>
 Extension Icon
