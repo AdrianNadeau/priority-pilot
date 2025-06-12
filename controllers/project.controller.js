@@ -2059,7 +2059,7 @@ exports.health = async (req, res) => {
   const company_id_fk = req.session.company.id;
   const portfolioName = req.session.company.company_headline;
 
-  const costQuery = `SELECT  
+  const costQuery = `SELECT 
     proj.company_id_fk,
     proj.id AS project_id,
     proj.project_name,
@@ -2077,7 +2077,14 @@ exports.health = async (req, res) => {
     phases.id AS phase_id,
     companies.portfolio_budget AS company_budget,
     companies.effort AS company_effort,
-    last_status.last_status
+    (SELECT json_build_object(
+             'progress', status.progress,
+             'issue', status.issue,
+             'actions', status.actions)
+     FROM statuses status
+     WHERE status.project_id_fk = proj.id
+     ORDER BY status.status_date DESC
+     LIMIT 1) AS last_status
 FROM
     projects proj
 LEFT JOIN
@@ -2088,30 +2095,16 @@ LEFT JOIN
     phases ON phases.id = proj.phase_id_fk
 LEFT JOIN
     companies ON companies.id = proj.company_id_fk
-LEFT JOIN LATERAL (
-    SELECT json_build_object(
-        'progress', status.progress,
-        'issue', status.issue,
-        'actions', status.actions,
-        'health', status.health) AS last_status,
-        status.status_date
-    FROM statuses status
-    WHERE status.project_id_fk = proj.id
-    ORDER BY status.status_date DESC
-    LIMIT 1
-) last_status ON true
 WHERE
     proj.company_id_fk = ?
-ORDER BY last_status.status_date DESC;
-
-
+ORDER BY
+    proj.phase_id_fk, proj.id;
 
 `;
   costData = await db.sequelize.query(costQuery, {
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
   });
-
   if (costData) {
     // Loop through data and get the most recent progress for each project
     costData.forEach((project) => {
