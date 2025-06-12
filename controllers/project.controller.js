@@ -2056,6 +2056,9 @@ exports.update = async (req, res) => {
 
 exports.health = async (req, res) => {
   //get all company projects
+  console.log(
+    "============================================== health called ==============================================",
+  );
   const company_id_fk = req.session.company.id;
   const portfolioName = req.session.company.company_headline;
 
@@ -2080,7 +2083,8 @@ exports.health = async (req, res) => {
     (SELECT json_build_object(
              'progress', status.progress,
              'issue', status.issue,
-             'actions', status.actions)
+             'actions', status.actions,
+             'health', status.health)
      FROM statuses status
      WHERE status.project_id_fk = proj.id
      ORDER BY status.status_date DESC
@@ -2106,16 +2110,11 @@ ORDER BY
     type: db.sequelize.QueryTypes.SELECT,
   });
   if (costData) {
-    // Loop through data and get the most recent progress for each project
+    // For each project, extract health from last_status if available
     costData.forEach((project) => {
-      if (project.statuses && project.statuses.length > 0) {
-        project.mostRecentProgress = project.statuses.reduce(
-          (latest, status) => {
-            return new Date(status.date) > new Date(latest.date)
-              ? status
-              : latest;
-          },
-        );
+      if (project.last_status && typeof project.last_status === "object") {
+        project.mostRecentProgress = project.last_status;
+        // project.health = project.last_status.health || project.health;
       } else {
         project.mostRecentProgress = null;
       }
@@ -2125,6 +2124,12 @@ ORDER BY
       projects: costData,
       currentDate: moment().format("MMMM Do YYYY"),
     });
+
+    // res.render("Pages/pages-health", {
+    //   portfolioName,
+    //   projects: costData,
+    //   currentDate: moment().format("MMMM Do YYYY"),
+    // });
   } else {
     console.log("Error fetching project data, nothing there");
   }
@@ -2323,12 +2328,13 @@ exports.exportHealthDataToCSV = async (req, res) => {
       `,
       { type: db.Sequelize.QueryTypes.SELECT },
     );
-    console.log("Statuses fetched:", statuses.length);
+
     // Map statuses to their corresponding projects
     const statusMap = {};
     statuses.forEach((status) => {
       statusMap[status.project_id_fk] = status;
     });
+    console.log("Status Map:", statusMap);
 
     // Combine project and status data
     const combinedData = projects.map((project) => {
