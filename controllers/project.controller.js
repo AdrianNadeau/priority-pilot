@@ -377,11 +377,10 @@ exports.cockpit = async (req, res) => {
       console.log("Cockpit Changed Projects error:", error);
     }
 
-    //get status information and add to render data
-    const statusData = await db.statuses.findAll({
-      where: { project_id_fk: projects.id },
+    const statuses = await Status.findAll({
+      where: { project_id_fk: project_id },
+      order: [["status_date", "DESC"]],
     });
-    console.log("Status Data:", statusData);
     let lastStatusDate = null;
     let statusColor = null;
     if (statuses) {
@@ -2057,9 +2056,6 @@ exports.update = async (req, res) => {
 
 exports.health = async (req, res) => {
   //get all company projects
-  console.log(
-    "============================================== health called ==============================================",
-  );
   const company_id_fk = req.session.company.id;
   const portfolioName = req.session.company.company_headline;
 
@@ -2102,20 +2098,26 @@ LEFT JOIN
     companies ON companies.id = proj.company_id_fk
 WHERE
     proj.company_id_fk = ?
-ORDER BY
-    proj.phase_id_fk, proj.id;
+ORDER BY s.status_date DESC;
+
 
 `;
   costData = await db.sequelize.query(costQuery, {
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
   });
+
   if (costData) {
-    // For each project, extract health from last_status if available
+    // Loop through data and get the most recent progress for each project
     costData.forEach((project) => {
-      if (project.last_status && typeof project.last_status === "object") {
-        project.mostRecentProgress = project.last_status;
-        // project.health = project.last_status.health || project.health;
+      if (project.statuses && project.statuses.length > 0) {
+        project.mostRecentProgress = project.statuses.reduce(
+          (latest, status) => {
+            return new Date(status.date) > new Date(latest.date)
+              ? status
+              : latest;
+          },
+        );
       } else {
         project.mostRecentProgress = null;
       }
@@ -2125,12 +2127,6 @@ ORDER BY
       projects: costData,
       currentDate: moment().format("MMMM Do YYYY"),
     });
-
-    // res.render("Pages/pages-health", {
-    //   portfolioName,
-    //   projects: costData,
-    //   currentDate: moment().format("MMMM Do YYYY"),
-    // });
   } else {
     console.log("Error fetching project data, nothing there");
   }
@@ -2329,13 +2325,12 @@ exports.exportHealthDataToCSV = async (req, res) => {
       `,
       { type: db.Sequelize.QueryTypes.SELECT },
     );
-
+    console.log("Statuses fetched:", statuses.length);
     // Map statuses to their corresponding projects
     const statusMap = {};
     statuses.forEach((status) => {
       statusMap[status.project_id_fk] = status;
     });
-    console.log("Status Map:", statusMap);
 
     // Combine project and status data
     const combinedData = projects.map((project) => {
