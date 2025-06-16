@@ -7,7 +7,6 @@ const Op = db.Sequelize.Op;
 exports.create = async (req, res) => {
   try {
     const statusDate = req.body.status_date;
-    console.log("Received status date:", statusDate);
     if (!statusDate || isNaN(new Date(statusDate).getTime())) {
       return res.status(400).send({ message: "Invalid status date provided." });
     }
@@ -43,7 +42,7 @@ exports.create = async (req, res) => {
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
   Status.findAll({
-    order: [["createdAt", "DESC"]], // Corrected syntax for ordering
+    order: [["status_date", "DESC"]], // Corrected syntax for ordering
   })
     .then((data) => {
       res.send(data);

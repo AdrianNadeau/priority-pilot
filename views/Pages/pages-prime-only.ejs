@@ -131,17 +131,29 @@ body.modal-open {
                                     <td><%= project.project_cost %></td>
                                     <% if (project.prime_id_fk === person.id) { %>
                                     <td>
-                                        <i data-toggle="modal" data-target="#myModal_<%= project.id %>" style="cursor:pointer;color:#34b871 !important;"  class="mdi mdi-note-plus"></i> <i data-toggle="modal" style="cursor:pointer;color:#34b871 !important;" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal" class="mdi mdi-eye"></i>
-                                    </td>
-                                    <% } else { %>
-                                    <a href="#"><td data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
-                                        <i style="cursor:pointer;color:#34b871 !important;" class="mdi mdi-eye"></i>
-                                    </td></a>
-                                    <% } %>
+  <i
+    style="cursor:pointer;color:#34b871 !important;"
+    class="mdi mdi-note-plus"
+    onclick="openDynamicStatusModal(<%= project.id %>, <%= project.prime_id_fk %>, '<%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %>')"
+    title="Add Status"
+  ></i>
+  <i
+    style="cursor:pointer;color:#34b871 !important; margin-left: 10px;"
+    class="mdi mdi-eye"
+    onclick="getStatusUpdates(<%= project.id %>)"
+    title="View Status Updates"
+    data-toggle="modal"
+    data-target="#StatusUpdatesModal"
+  ></i>
+</td>
+                                  </td>
+                                  <%}%>
+                                    
+                                    
                                 </tr>
 
                                 <!-- Modal -->
-                                <div id="myModal_<%= project.id %>" class="modal fade" href="#" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <!-- <div id="myModal_<%= project.id %>" class="modal fade" href="#" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <form action="/statuses" class="needs-validation" novalidate id="addStatusForm_<%= project.id %>" method="POST">
@@ -193,7 +205,7 @@ body.modal-open {
                                                                   Please enter actions.
                                                                 </div>
                                                             </div>
-                                                              <!-- Add the dropdown for progress -->
+                                                            
 
                                                             <div class="d-flex align-items-center gap-2">
                                                         <div class="form-group needs-validation" novalidate>
@@ -230,7 +242,7 @@ body.modal-open {
                                     </div>
                                 </div>
                                 
-                                <% }); %>
+                                <% }); %> -->
                             </tbody>
                         </table>
                         <% projects.forEach(function (project) { %>
@@ -298,6 +310,74 @@ body.modal-open {
                                     </div>
                     </div>
                   </div>  
+                  <div id="dynamicStatusModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dynamicStatusModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form class="needs-validation" novalidate id="dynamicStatusForm" method="POST" action="/statuses">
+        <input type="hidden" name="prime_only" value="y">
+        <div class="modal-header">
+          <h5 class="modal-title mt-0" id="dynamicStatusModalLabel">Add Status</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="project_id" id="dynamic_project_id">
+          <input type="hidden" name="prime_id_fk" id="dynamic_prime_id_fk">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <i class="bi bi-calendar-check"></i>
+                <input type="text" required class="form-control datepicker" id="dynamic_status_date" name="status_date" placeholder="Status Date"/>
+                <div class="invalid-feedback">Please select a valid status date.</div>
+                <strong>Prime:</strong> <span id="dynamic_prime_name"></span>
+              </div>
+              <div class="form-group">
+                <strong>Accomplishments:</strong>
+                <textarea class="form-control" name="status_accomplishments" id="dynamic_accomplishments" required rows="3" placeholder="Enter accomplishments..."></textarea>
+                <div class="invalid-feedback">Please enter accomplishments.</div>
+              </div>
+              <div class="form-group">
+                <strong>Issues:</strong>
+                <textarea class="form-control" name="issue" id="dynamic_issue" rows="3" required placeholder="Enter issues..."></textarea>
+                <div class="invalid-feedback">Please enter issues.</div>
+              </div>
+              <div class="form-group">
+                <strong>Actions:</strong>
+                <textarea class="form-control" name="actions" id="dynamic_actions" rows="3" required placeholder="Enter actions..."></textarea>
+                <div class="invalid-feedback">Please enter actions.</div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <div class="form-group needs-validation" novalidate>
+                  <strong>Progress:</strong>
+                  <select style="width:100px !important;" class="form-control" id="dynamic_progress" name="progress" required>
+                    <option value="">Select</option>
+                    <% for (let i = 10; i <= 100; i += 10) { %>
+                      <option value="<%= i %>"><%= i %></option>
+                    <% } %>
+                  </select>
+                  <div class="invalid-feedback">Please select a progress value.</div>
+                </div>
+                <div class="form-group" style="margin-left: 10px;">
+                  <strong>Health:</strong>
+                  <select style="width:100px !important;padding-left:10px;" class="form-control" id="dynamic_health" required name="health">
+                    <option value="">Select</option>
+                    <option value="green">Green</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="red">Red</option>
+                  </select>
+                  <div class="invalid-feedback">Please select a health status.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
                                 
                 </div>
             </div>
@@ -314,55 +394,100 @@ body.modal-open {
 function validateForm(formId) {
     const form = document.getElementById(formId);
     let isValid = true;
-    
+
     // Clear previous validation states
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    
-    // Extract project ID from form ID
-    const projectId = formId.split('_')[1];
-    
-    // Validate date
-    const dateInput = document.getElementById(`status_date_${projectId}`);
-    if (!dateInput.value || dateInput.value.trim() === '') {
-        dateInput.classList.add('is-invalid');
-        isValid = false;
+
+    // If this is the dynamic modal form, use its field IDs
+    if (formId === "dynamicStatusForm") {
+        // Validate date
+        const dateInput = document.getElementById('dynamic_status_date');
+        if (!dateInput.value || dateInput.value.trim() === '') {
+            dateInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate accomplishments
+        const accomplishmentsInput = document.getElementById('dynamic_accomplishments');
+        if (!accomplishmentsInput.value || accomplishmentsInput.value.trim() === '') {
+            accomplishmentsInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate issues
+        const issueInput = document.getElementById('dynamic_issue');
+        if (!issueInput.value || issueInput.value.trim() === '') {
+            issueInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate actions
+        const actionsInput = document.getElementById('dynamic_actions');
+        if (!actionsInput.value || actionsInput.value.trim() === '') {
+            actionsInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate progress
+        const progressSelect = document.getElementById('dynamic_progress');
+        if (!progressSelect.value || progressSelect.value === '') {
+            progressSelect.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate health
+        const healthSelect = document.getElementById('dynamic_health');
+        if (!healthSelect.value || healthSelect.value === '') {
+            healthSelect.classList.add('is-invalid');
+            isValid = false;
+        }
+    } else {
+        // Extract project ID from form ID
+        const projectId = formId.split('_')[1];
+
+        // Validate date
+        const dateInput = document.getElementById(`status_date_${projectId}`);
+        if (!dateInput.value || dateInput.value.trim() === '') {
+            dateInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate accomplishments
+        const accomplishmentsInput = document.getElementById(`accomplishments_${projectId}`);
+        if (!accomplishmentsInput.value || accomplishmentsInput.value.trim() === '') {
+            accomplishmentsInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate issues
+        const issueInput = document.getElementById(`issue_${projectId}`);
+        if (!issueInput.value || issueInput.value.trim() === '') {
+            issueInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate actions
+        const actionsInput = document.getElementById(`actions_${projectId}`);
+        if (!actionsInput.value || actionsInput.value.trim() === '') {
+            actionsInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate progress
+        const progressSelect = document.getElementById(`progress_${projectId}`);
+        if (!progressSelect.value || progressSelect.value === '') {
+            progressSelect.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate health
+        const healthSelect = document.getElementById(`health_${projectId}`);
+        if (!healthSelect.value || healthSelect.value === '') {
+            healthSelect.classList.add('is-invalid');
+            isValid = false;
+        }
     }
-    
-    // Validate accomplishments
-    const accomplishmentsInput = document.getElementById(`accomplishments_${projectId}`);
-    if (!accomplishmentsInput.value || accomplishmentsInput.value.trim() === '') {
-        accomplishmentsInput.classList.add('is-invalid');
-        isValid = false;
-    }
-    
-    // Validate issues
-    const issueInput = document.getElementById(`issue_${projectId}`);
-    if (!issueInput.value || issueInput.value.trim() === '') {
-        issueInput.classList.add('is-invalid');
-        isValid = false;
-    }
-    
-    // Validate actions
-    const actionsInput = document.getElementById(`actions_${projectId}`);
-    if (!actionsInput.value || actionsInput.value.trim() === '') {
-        actionsInput.classList.add('is-invalid');
-        isValid = false;
-    }
-    
-    // Validate progress
-    const progressSelect = document.getElementById(`progress_${projectId}`);
-    if (!progressSelect.value || progressSelect.value === '') {
-        progressSelect.classList.add('is-invalid');
-        isValid = false;
-    }
-    
-    // Validate health
-    const healthSelect = document.getElementById(`health_${projectId}`);
-    if (!healthSelect.value || healthSelect.value === '') {
-        healthSelect.classList.add('is-invalid');
-        isValid = false;
-    }
-    
+
     return isValid;
 }
 
@@ -420,39 +545,31 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 });
+function openDynamicStatusModal(projectId, primeId, primeName) {
+  // Set hidden fields
+  document.getElementById('dynamic_project_id').value = projectId;
+  document.getElementById('dynamic_prime_id_fk').value = primeId;
+  document.getElementById('dynamic_prime_name').textContent = primeName;
 
-window.getStatusUpdates = function(project_id_fk){
-  var modalBody = document.getElementById("statusUpdates");
-  console.log("Fetching status updates for project ID:", project_id_fk);
-  modalBody.innerHTML = '';
-  fetch(`/statuses/projects/${project_id_fk}`)
-    .then(response => response.json())
-    .then(data => {
-      if (data && data.length > 0) {
-        data.forEach(function(status) {
-          let healthStatus = status.health ? status.health.trim().toLowerCase() : '';
-          if (healthStatus === 'green') { 
-              modalBody.innerHTML += `<span class="green-circle"></span>`;
-          } else if (healthStatus === 'yellow') { 
-              modalBody.innerHTML += `<span class="yellow-circle"></span>`;
-          } else if (healthStatus === 'red') { 
-              modalBody.innerHTML += `<span class="red-circle"></span>`;
-          }
-          modalBody.innerHTML += `[${status.progress}%]`;
-          if (status.status_date) {
-              modalBody.innerHTML += `<a href="#" onClick="getStatus(event, ${status.id})" data-target="#viewStatusModal" id="viewStatusLink">
-                  ${new Date(status.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </a>`;
-          }
-          modalBody.innerHTML += `<div style="width:100% !important;"><hr/></div>`;
-        });
-      } else {
-        modalBody.innerHTML = `<p>No status updates available</p>`;
-      }
-      $('#StatusUpdatesModal').modal('show');
-    })
-    .catch(err => console.error(err));
+  // Clear form fields
+  document.getElementById('dynamic_status_date').value = '';
+  document.getElementById('dynamic_accomplishments').value = '';
+  document.getElementById('dynamic_issue').value = '';
+  document.getElementById('dynamic_actions').value = '';
+  document.getElementById('dynamic_progress').value = '';
+  document.getElementById('dynamic_health').value = '';
+
+  // Show the modal
+  $('#dynamicStatusModal').modal('show');
 }
+
+// Re-initialize flatpickr if needed
+$(document).on('shown.bs.modal', '#dynamicStatusModal', function () {
+  flatpickr("#dynamic_status_date", {
+    dateFormat: "Y-m-d",
+    allowInput: true
+  });
+});
 
 
 function getStatus(event, id) {
@@ -515,7 +632,54 @@ event.preventDefault();
     })
     .catch(err => console.error("Error fetching status data:", err));
 }
-  
+function getStatusUpdates(project_id_fk) {
+  console.log("getStatusUpdates called with project_id_fk:", project_id_fk);
+  var modalBody = document.getElementById("statusUpdates");
+  console.log("Fetching status updates for project ID:", project_id_fk);
+  modalBody.innerHTML = '';
+  fetch(`/statuses/projects/${project_id_fk}`)
+    .then(response => response.json())
+    .then(data => {
+      console.log("Status updates data:", data);
+      if (data && data.length > 0) {
+        data.forEach(function(status) {
+          let healthStatus = status.health ? status.health.trim().toLowerCase() : '';
+          if (healthStatus === 'green') { 
+              modalBody.innerHTML += `<span class="green-circle"></span>`;
+          } else if (healthStatus === 'yellow') { 
+              modalBody.innerHTML += `<span class="yellow-circle"></span>`;
+          } else if (healthStatus === 'red') { 
+              modalBody.innerHTML += `<span class="red-circle"></span>`;
+          }
+          modalBody.innerHTML += `[${status.progress}%]`;
+          if (status.status_date) {
+              let dateStr = status.status_date;
+              let displayDate = dateStr;
+              if (dateStr && /^\d{4}-\d{2}-\d{2}T/.test(dateStr)) {
+                // Parse as UTC and extract the date part
+                const [year, month, day] = dateStr.split('T')[0].split('-');
+                displayDate = new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                  timeZone: 'UTC' // Force UTC
+                });
+              }
+              console.log("Display date:", displayDate);
+              modalBody.innerHTML += `<a href="#" onClick="getStatus(event, ${status.id})" data-target="#viewStatusModal" id="viewStatusLink">
+                  ${displayDate}
+                </a>`;
+            }
+          modalBody.innerHTML += `<div style="width:100% !important;"><hr/></div>`;
+        });
+      } else {
+        modalBody.innerHTML = `<p>No status updates available</p>`;
+      }
+      $('#StatusUpdatesModal').modal('show');
+    })
+    .catch(err => console.error(err));
+}
+
 </script>
 
 <%- contentFor('FooterJs') %>

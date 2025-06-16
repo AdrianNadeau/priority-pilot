@@ -377,10 +377,11 @@ exports.cockpit = async (req, res) => {
       console.log("Cockpit Changed Projects error:", error);
     }
 
-    const statuses = await Status.findAll({
-      where: { project_id_fk: project_id },
-      order: [["status_date", "DESC"]],
+    //get status information and add to render data
+    const statusData = await db.statuses.findAll({
+      where: { project_id_fk: projects.id },
     });
+    console.log("Status Data:", statusData);
     let lastStatusDate = null;
     let statusColor = null;
     if (statuses) {
