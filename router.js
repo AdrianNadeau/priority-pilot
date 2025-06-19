@@ -242,5 +242,8 @@ ORDER BY
     res.status(500).send("Internal Server Error");
   }
 });
+router.get("/terms", (req, res) => {
+  res.render("Pages/pages-terms", { layout: "layout-public" });
+});
 
 module.exports = router;
