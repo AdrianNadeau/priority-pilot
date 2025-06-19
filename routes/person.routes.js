@@ -59,19 +59,19 @@ module.exports = (app) => {
   );
   router.get(
     "/password/getChangePassword/:token",
-    sessionMiddleware,
+
     companyPortfolioName,
     persons.getChangePassword,
   );
   router.post(
     "/password/updatePassword",
-    sessionMiddleware,
+
     companyPortfolioName,
     persons.updatePassword,
   );
   router.get(
     "/password/resetPassword",
-    sessionMiddleware,
+
     companyPortfolioName,
     persons.updatePassword,
   );
