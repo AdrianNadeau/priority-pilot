@@ -82,7 +82,7 @@ ORDER BY
       replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-
+    console.log("Data retrieved successfully:", data);
     if (!data || data.length === 0) {
       console.log("No data found for company_id_fk:", company_id_fk);
       return res.redirect("/projects");
@@ -215,17 +215,21 @@ ORDER BY
 
     // Add "None" option at the top of the tags list
     tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
-    //get status information and add to render data
-    // const statusData = await db.statuses.findAll({
-    //   where: { project_id_fk: projects.id },
-    // });
-    // console.log("Status Data:", statusData);
 
-    // Render dashboard with all calculated values
+    // Deduplicate projects by ID
+    const uniqueProjects = [];
+    const seenIds = new Set();
+    for (const project of data) {
+      if (!seenIds.has(project.id)) {
+        uniqueProjects.push(project);
+        seenIds.add(project.id);
+      }
+    }
+
     const portfolioName = req.session.company.company_headline;
     res.render("Dashboard/dashboard1", {
       company_id: company_id_fk,
-      projects: data,
+      projects: uniqueProjects,
       ...formattedData,
       availableCostColor,
       availablePHColor,

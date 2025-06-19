@@ -2059,7 +2059,7 @@ exports.health = async (req, res) => {
   const company_id_fk = req.session.company.id;
   const portfolioName = req.session.company.company_headline;
 
-  const costQuery = `SELECT  
+  const query = `SELECT  
     proj.company_id_fk,
     proj.id AS project_id,
     proj.project_name,
@@ -2107,14 +2107,14 @@ ORDER BY last_status.status_date DESC;
 
 
 `;
-  costData = await db.sequelize.query(costQuery, {
+  data = await db.sequelize.query(query, {
     replacements: [company_id_fk],
     type: db.sequelize.QueryTypes.SELECT,
   });
 
-  if (costData) {
+  if (data) {
     // Loop through data and get the most recent progress for each project
-    costData.forEach((project) => {
+    data.forEach((project) => {
       if (project.statuses && project.statuses.length > 0) {
         project.mostRecentProgress = project.statuses.reduce(
           (latest, status) => {
@@ -2129,7 +2129,7 @@ ORDER BY last_status.status_date DESC;
     });
     res.render("Pages/pages-health", {
       portfolioName,
-      projects: costData,
+      projects: data,
       currentDate: moment().format("MMMM Do YYYY"),
     });
   } else {
