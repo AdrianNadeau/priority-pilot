@@ -18,10 +18,10 @@ module.exports = (app) => {
   );
 
   router.get(
-    "/archvive/:id",
+    "/archive/:id",
     sessionMiddleware,
     companyPortfolioName,
-    projects.archvive,
+    projects.archive,
   );
   router.get(
     "/cockpit/:id",

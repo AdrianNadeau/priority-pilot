@@ -2223,25 +2223,27 @@ exports.deleteAll = (req, res) => {
       });
     });
 };
-exports.archvive = (req, res) => {
+// Archive a Project (set phase_id_fk to 6)
+exports.archive = async (req, res) => {
   const id = req.params.id;
 
-  Project.update({
-    where: { id: id },
-  })
-    .then((num) => {
-      if (num == 1) {
-      } else {
-        res.send({
-          message: `Cannot delete Project with id=${id}. Maybe Project was not found!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete Project with id=" + id,
+  try {
+    const [num] = await Project.update(
+      { phase_id_fk: 6 }, // 6 = archived phase
+      { where: { id } },
+    );
+    if (num === 1) {
+      res.send({ message: `Project with id=${id} archived.` });
+    } else {
+      res.status(404).send({
+        message: `Cannot archive Project with id=${id}. Maybe Project was not found!`,
       });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: "Could not archive Project with id=" + id,
     });
+  }
 };
 
 // Helper function to insert valid date
