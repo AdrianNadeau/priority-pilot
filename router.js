@@ -82,7 +82,7 @@ ORDER BY
       replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    console.log("Data retrieved successfully:", data);
+
     if (!data || data.length === 0) {
       console.log("No data found for company_id_fk:", company_id_fk);
       return res.redirect("/projects");

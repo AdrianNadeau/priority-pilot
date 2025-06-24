@@ -98,7 +98,7 @@
                                         if (health === 'yellow') backgroundColor = 'yellow';
                                         else if (health === 'green') backgroundColor = 'green';
                                         else if (health === 'red') backgroundColor = 'red';
-                                        else if (health === '#000') backgroundColor = 'black';
+                                        else if (health === '#000') backgroundColor = 'red';
                                         
                                       }
                                     %>
@@ -110,10 +110,10 @@
                                       <td><% if (project.end_date) { %><%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
                                       <td><% if (project.next_milestone_date) { %><%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
                                       <td>
-                                        <%= project.mostRecentProgress && project.mostRecentProgress.health ? project.mostRecentProgress.health : "N/A" %>
+                                        <%= project.last_status.health && project.last_status.health ? project.last_status.health : "N/A" %>
                                       </td>
-                                      <% if (project.mostRecentProgress && project.mostRecentProgress.health) { %>
-                                        <% statsHealth = project.mostRecentProgress.health.toUpperCase().trim(); %>
+                                      <% if (project.last_status && project.last_status.health) { %>
+                                        <% statsHealth = project.last_status.health.toUpperCase().trim(); %>
                                       <% } %>
                                       <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
                                        
