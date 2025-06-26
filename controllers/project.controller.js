@@ -1702,6 +1702,10 @@ exports.findFunnel = async (req, res) => {
 };
 //now is now find Archived
 exports.findFreezer = async (req, res) => {
+  console.log(
+    "============================================== findFreezer called ==============================================",
+  );
+  // Get the company ID from the session
   const company_id_fk = req.session.company.id;
   console.log("findFreezer called with company_id_fk:", company_id_fk);
   const query = `
@@ -1727,10 +1731,10 @@ exports.findFreezer = async (req, res) => {
 
     
     (
-      SELECT COALESCE(SUM(p1.effort::integer), 0)
-      FROM projects p1
-      WHERE p1.company_id_fk = proj.company_id_fk AND p1.phase_id_fk = 1
-    ) AS total_effort_phase_1
+  SELECT COALESCE(SUM(REPLACE(p1.effort, ',', '')::integer), 0)
+  FROM projects p1
+  WHERE p1.company_id_fk = proj.company_id_fk AND p1.phase_id_fk = 1
+) AS total_effort_phase_1
 
 FROM 
     projects proj
@@ -1764,7 +1768,6 @@ ORDER BY
       replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    console.log("Freezer Data retrieved successfully:", data);
     if (!data || data.length === 0) {
       console.log("No data found for company_id_fk:", company_id_fk);
       return res.redirect("/projects");
@@ -1779,27 +1782,26 @@ ORDER BY
       done: { count: 0, cost: 0, ph: 0 },
       archived: { count: 0, cost: 0, ph: 0 },
     };
-    console.log("Phase data initialized:", phaseData);
+
     // Retrieve portfolio_budget and portfolio_effort from the first record
     const portfolio_budget = data[0].company_budget
       ? removeCommasAndConvert(data[0].company_budget)
       : 0;
-    console.log("Portfolio budget retrieved:", portfolio_budget);
+
     const portfolio_effort = data[0].company_effort
       ? removeCommasAndConvert(data[0].company_effort)
       : 0;
-    console.log("Portfolio effort retrieved:", portfolio_effort);
+
     // Process data and calculate totals
     data.forEach((project) => {
       // Parse project cost and effort
       const projectCost = project.project_cost
         ? removeCommasAndConvert(project.project_cost) || 0
         : 0;
-      console.log("Project Cost:", projectCost);
+
       const projectEffortPH = project.effort
         ? removeCommasAndConvert(project.effort) || 0
         : 0;
-      console.log("Project Effort (PH):", projectEffortPH);
 
       // Categorize by phase name and accumulate values
       const phase = project.phase_name?.toLowerCase() || "unknown";
@@ -1881,7 +1883,7 @@ ORDER BY
       availableCost: formatToKMB(availableCost),
       usedEffort: formatToKMB(usedEffort),
     };
-
+    console.log("Formatted Data:", formattedData);
     //get all phases for add project modal
     const phases = await db.phases.findAll({});
     //get all priorities for add project modal
@@ -2226,6 +2228,7 @@ exports.deleteAll = (req, res) => {
 // Archive a Project (set phase_id_fk to 6)
 exports.archive = async (req, res) => {
   const id = req.params.id;
+  console.log("Archiving project with id:", id);
 
   try {
     const [num] = await Project.update(
