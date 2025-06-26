@@ -1702,12 +1702,9 @@ exports.findFunnel = async (req, res) => {
 };
 //now is now find Archived
 exports.findFreezer = async (req, res) => {
-  console.log(
-    "============================================== findFreezer called ==============================================",
-  );
   // Get the company ID from the session
   const company_id_fk = req.session.company.id;
-  console.log("findFreezer called with company_id_fk:", company_id_fk);
+
   const query = `
     SELECT  
     proj.company_id_fk, 
@@ -1883,7 +1880,7 @@ ORDER BY
       availableCost: formatToKMB(availableCost),
       usedEffort: formatToKMB(usedEffort),
     };
-    console.log("Formatted Data:", formattedData);
+
     //get all phases for add project modal
     const phases = await db.phases.findAll({});
     //get all priorities for add project modal
