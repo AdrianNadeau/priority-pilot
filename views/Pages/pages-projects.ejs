@@ -26,7 +26,7 @@
         <div class="card-body" style="border:0px !important;">
           <% if (projects.length === 0) { %>
           <div class="alert alert-warning" role="alert">
-            <strong>No projects found!</strong> Please add at least one project to get started.
+            <strong>No projects found!</strong> Please <a href="#" id="openAddProjectModal">add one project</a> to get started.
           </div>
           <% } else { %>
           <div class="table-responsive">
@@ -421,5 +421,13 @@
 
   function cancelForm(){
     window.location.replace("/projects");
+  }
+  // Open Add Project modal from alert link
+  var openAddProjectModal = document.getElementById('openAddProjectModal');
+  if (openAddProjectModal) {
+    openAddProjectModal.addEventListener('click', function(e) {
+      e.preventDefault();
+      $('#addProject').modal('show');
+    });
   }
 </script>
