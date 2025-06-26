@@ -9,7 +9,9 @@
     </button>
     <h3 class="page-title">Projects</h3>
     <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Project</button>
+    <% if (projects.length > 0) { %>
     <button type="button" class="btn btn-primary waves-effect waves-light" id="btnExportProjects">Download Report</button>
+    <% } %>
   </div>
   <% include ../Partials/portfolio_name %>
   <div class="col-md-4 text-right">
@@ -22,6 +24,11 @@
     <div class="row">
       <div class="col-lg-12">
         <div class="card-body" style="border:0px !important;">
+          <% if (projects.length === 0) { %>
+          <div class="alert alert-warning" role="alert">
+            <strong>No projects found!</strong> Please add at least one project to get started.
+          </div>
+          <% } else { %>
           <div class="table-responsive">
             <table class="table mb-0">
               <thead>
@@ -68,6 +75,7 @@
               <% }); %>
             </table>
           </div>
+          <% } %>
         </div>
       </div>
     </div>
