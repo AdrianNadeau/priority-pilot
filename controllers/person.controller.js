@@ -31,8 +31,6 @@ const authenticateUser = async (email, password) => {
 
 // Register and create a new user
 exports.create = async (req, res, next) => {
-  console.log("==================== create person ====================");
-  console.log("req.body:", req.body);
   try {
     const {
       email,
@@ -63,7 +61,11 @@ exports.create = async (req, res, next) => {
 
     const isAdminStatus = isAdmin === "true" || register_yn === "y";
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("CREATE PERSON: hashedPassword:", hashedPassword);
+    if (!hashedPassword) {
+      const error = new Error("Error hashing password.");
+      error.statusCode = 500;
+      throw error;
+    }
     await Person.create({
       email,
       first_name,
