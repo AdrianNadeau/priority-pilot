@@ -195,7 +195,8 @@ exports.delete = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    res.json({ message: "Person was deleted successfully!" });
+    console.log("Person was deleted successfully.");
+    res.redirect("/persons/");
   } catch (error) {
     next(error);
   }
