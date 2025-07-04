@@ -7,10 +7,9 @@ exports.create = (req, res) => {
   // Validate request
 
   if (!req.body.company_tag) {
-    res.status(400).send({
-      message: "Tag Name can not be empty!",
-    });
-    return;
+    const error = new Error("Tag name is required");
+    error.statusCode = 401;
+    throw error;
   }
 
   // Create a Tag
