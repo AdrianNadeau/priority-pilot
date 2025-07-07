@@ -73,10 +73,10 @@ app.get("/ping", (req, res) => {
         logging: process.env.DB_LOGGING, // Disable logging for cleaner output
       },
     );
-    res.status(200).send("Server is running and connected to the database.");
+    res.status(200).send("✅ Server is running and connected to the database.");
   } catch (error) {
-    console.error("Database connection error:", error);
-    res.status(500).send("Database connection error");
+    console.error("❌ Database connection error:", error);
+    res.status(500).send("❌ Database connection error");
   }
 });
 // Set up storage engine
