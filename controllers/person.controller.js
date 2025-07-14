@@ -105,6 +105,7 @@ exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     console.log("Login attempt with email:", email, password);
     const person = await authenticateUser(email, password);
+    console.log("Error logging in person:", email);
     if (!person) {
       const error = new Error("Invalid username or password.");
       error.statusCode = 401;
