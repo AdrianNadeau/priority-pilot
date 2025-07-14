@@ -3,7 +3,9 @@ const { persons: Person, companies: Company } = db;
 
 async function authMiddleware(req, res, next) {
   try {
+    console.log("Auth middleware triggered");
     if (req.session.person) {
+      console.log("Session person found:", req.session.person.id);
       const id = req.session.person.id;
       const person = await Person.findByPk(id);
 
