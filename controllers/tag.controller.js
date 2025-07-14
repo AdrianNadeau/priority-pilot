@@ -8,10 +8,16 @@ exports.create = (req, res) => {
 
   if (!req.body.company_tag) {
     const error = new Error("Tag name is required");
-    error.statusCode = 401;
+    error.statusCode = 405;
     throw error;
   }
-
+  // Validate health
+  const tagName = document.getElementById(`company_tag`);
+  console.log("tagName:", tagName);
+  if (!tagName.value || tagName.value === "") {
+    tagName.classList.add("is-invalid");
+    isValid = false;
+  }
   // Create a Tag
   const tag = {
     tag_name: req.body.company_tag,

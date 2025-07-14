@@ -61,7 +61,23 @@ app.use("/control", DashboardRouter);
 app.use(authMiddleware);
 app.use(companyPortfolioName);
 app.get("/ping", (req, res) => {
-  res.status(200).send("pong");
+  //test connection to db
+  try {
+    const sequelize = new Sequelize(
+      process.env.DB_NAME,
+      process.env.DB_USER,
+      process.env.DB_PASSWORD,
+      {
+        host: process.env.DB_HOST_NAME,
+        dialect: "postgres",
+        logging: process.env.DB_LOGGING, // Disable logging for cleaner output
+      },
+    );
+    res.status(200).send("✅ Server is running and connected to the database.");
+  } catch (error) {
+    console.error("❌ Database connection error:", error);
+    res.status(500).send("❌ Database connection error");
+  }
 });
 // Set up storage engine
 const storage = multer.diskStorage({
@@ -104,8 +120,6 @@ require("./routes/priority.routes")(app);
 require("./routes/change_reason.routes.js")(app);
 require("./routes/changed_project.routes.js")(app);
 require("./routes/changed_password_token.routes.js")(app);
-
-app.use(errorHandler);
 
 http.listen(process.env.PORT || 8080, function () {
   console.log("listening on *:8080");
