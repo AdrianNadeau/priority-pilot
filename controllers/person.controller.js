@@ -103,14 +103,16 @@ exports.findAll = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    console.log("Login attempt with email:", email, password);
     const person = await authenticateUser(email, password);
     if (!person) {
       const error = new Error("Invalid username or password.");
       error.statusCode = 401;
       throw error;
     }
-
+    console.log("Login successful for person:", person.id);
     const company = await Company.findByPk(person.company_id_fk);
+    console.log("Company found:", company ? company.id : "No company");
     if (!company) return res.redirect("/login");
 
     req.session.company = company;
