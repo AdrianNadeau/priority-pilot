@@ -4973,3 +4973,50 @@ canvas {
 #btnPrintPage {
   margin-left: 30px;
 }
+/* Safari-specific navbar fixes */
+.navbar-custom {
+  position: relative;
+  z-index: 1000;
+  background-color: #fff;
+  border-bottom: 1px solid #e9ecef;
+  padding: 0;
+  min-height: 70px;
+}
+
+/* Fix for Safari flexbox issues */
+.navbar-custom .row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 10px 15px;
+  align-items: center;
+  width: 100%;
+}
+
+/* Ensure proper column behavior in Safari */
+.navbar-custom .col-md-4 {
+  flex: 0 0 33.333333%;
+  max-width: 33.333333%;
+  padding: 0 15px;
+}
+
+/* Fix for Safari title positioning */
+.navbar-custom .page-title {
+  margin: 0;
+  padding: 0;
+  line-height: 1.4;
+  font-size: 1.5rem;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* Safari-specific fixes for the portfolio title */
+#portfolioTitle {
+  color: #34b871 !important;
+  min-width: 300px; /* Reduced from 600px */
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
