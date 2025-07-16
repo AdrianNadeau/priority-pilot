@@ -3,8 +3,27 @@
     class="page-title"
     id="portfolioTitle"
     name="portfolioTitle"
-    style="color: #34b871 !important; min-width: 600px"
+    style="color: #34b871 !important; min-width: 400px"
   >
     <%= portfolio_name %>
   </h3>
 </div>
+<style>
+  /* Quick Safari fix */
+  @media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .navbar-custom .row {
+      display: block !important;
+    }
+
+    .navbar-custom .col-md-4 {
+      display: inline-block;
+      vertical-align: middle;
+      width: 33.333333%;
+    }
+
+    #portfolioTitle {
+      min-width: auto !important;
+      max-width: 300px;
+    }
+  }
+</style>
