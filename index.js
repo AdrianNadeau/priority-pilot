@@ -121,6 +121,8 @@ require("./routes/change_reason.routes.js")(app);
 require("./routes/changed_project.routes.js")(app);
 require("./routes/changed_password_token.routes.js")(app);
 
+app.use(errorHandler); // Use the error handler middleware
+
 http.listen(process.env.PORT || 8080, function () {
   console.log("listening on *:8080");
 });
