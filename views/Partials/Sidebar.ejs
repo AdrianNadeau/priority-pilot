@@ -1,28 +1,51 @@
 <div class="topbar">
-  <nav class="navbar-custom">
-    <!-- Search and user menu -->
-    <ul class="list-inline float-right mb-0">
-      <!-- Your existing menu items -->
-    </ul>
-
-    <!-- Page title section -->
-    <div class="row">
-      <div class="col-md-4">
-        <button type="button" class="button-menu-mobile open-left waves-effect">
-          <i class="ion-navicon"></i>
-        </button>
-        <h3 class="page-title">Dashboard</h3>
-      </div>
-      <div class="col-md-4">
-        <h3 class="page-title" id="portfolioTitle">
-          Best Things, Best Time, Best Way
-        </h3>
-      </div>
-      <div class="col-md-4 text-right">
-        <!-- Additional content -->
-      </div>
-    </div>
-
-    <div class="clearfix"></div>
-  </nav>
+    <nav class="navbar-custom">
+        <!-- Search input -->
+        <div class="search-wrap" id="search-wrap">
+            <div class="search-bar">
+                <input class="search-input" type="search" placeholder="Search" />
+                <a href="#" class="close-search toggle-search" data-target="#search-wrap">
+                    <i class="mdi mdi-close-circle"></i>
+                </a>
+            </div>
+        </div>
+        <ul class="list-inline float-right mb-0">
+            <!-- Search -->
+            <li class="list-inline-item dropdown notification-list">
+                <a class="nav-link waves-effect toggle-search" href="#" data-target="#search-wrap">
+                    <i class="mdi mdi-magnify noti-icon"></i>
+                </a>
+            </li>
+            <!-- Fullscreen -->
+            <li class="list-inline-item dropdown notification-list hidden-xs-down">
+                <a class="nav-link waves-effect" href="#" id="btn-fullscreen">
+                    <i class="mdi mdi-fullscreen noti-icon"></i>
+                </a>
+            </li>
+            <!-- language-->
+            <% if (session && session.person) { %>
+                <% var person = session.person; %>
+                <% if (person.isAdmin) { %>
+                  <!-- Admin specific content -->
+                  <li class="has_sub">
+                    <a href="/" onclick="forwardToDashboard();"><i class="mdi mdi-view-dashboard"></i> <span>Mission Control</span> </a>
+                  </li>
+                  <!-- Admin-specific menu options -->
+                  <li>
+                    <a href="/projects" class="waves-effect"><i class="mdi mdi-folder"></i><span> Projects </span></a>
+                  </li>
+                  <li>
+                    <a href="/persons" class="waves-effect"><i class="mdi mdi-folder"></i><span> Persons </span></a>
+                  </li>
+                <% } %>
+            <% } %>
+            <!-- User-->
+            <li>
+                <a href="/login" class="waves-effect"><i class="mdi mdi-login"></i><span> Login </span></a>
+            </li>
+        </ul>
+        <!-- Page title -->
+        <%- breadcrumb %>
+        <div class="clearfix"></div>
+    </nav>
 </div>

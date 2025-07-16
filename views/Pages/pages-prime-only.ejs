@@ -178,21 +178,21 @@ body.modal-open {
                                                             </div>
                                                             <div class="form-group">
                                                                 <strong>Accomplishments:</strong>
-                                                                <textarea class="form-control" name="status_accomplishments" id="accomplishments_<%= project.id %>" required rows="3" placeholder="Enter accomplishments..."></textarea>
+                                                                <textarea class="form-control" maxlength="3000" name="status_accomplishments" id="accomplishments_<%= project.id %>" required rows="3" placeholder="Enter accomplishments..."></textarea>
                                                                 <div class="invalid-feedback">
                                                                   Please enter accomplishments.
                                                                 </div>
                                                               </div>
                                                             <div class="form-group">
                                                                 <strong>Issues:</strong>
-                                                                <textarea class="form-control" name="issue" id="issue_<%= project.id %>" rows="3" required placeholder="Enter issues..."></textarea>
+                                                                <textarea class="form-control" maxlength="3000" name="issue" id="issue_<%= project.id %>" rows="3" required placeholder="Enter issues..."></textarea>
                                                                 <div class="invalid-feedback">
                                                                   Please enter issues.
                                                                 </div>
                                                             </div>
                                                             <div class="form-group">
                                                                 <strong>Actions:</strong>
-                                                                <textarea class="form-control" name="actions" id="actions_<%= project.id %>" rows="3" required placeholder="Enter actions..."></textarea>
+                                                                <textarea class="form-control" maxlength="3000" name="actions" id="actions_<%= project.id %>" rows="3" required placeholder="Enter actions..."></textarea>
                                                                 <div class="invalid-feedback">
                                                                   Please enter actions.
                                                                 </div>
@@ -257,16 +257,16 @@ body.modal-open {
                                           
                                           <div class="form-group">
                                             <label for="status_accomplishments"><strong>Accomplishments:</strong></label>
-                                            <textarea id="view_status_accomplishments" class="form-control" rows="3" disabled></textarea>
+                                            <textarea id="view_status_accomplishments" maxlength="1000" class="form-control" rows="3" disabled></textarea>
                                           </div>
                                           <div class="form-group">
                                             <label for="status_issue"><strong>Issue</strong></label>
-                                            <textarea id="view_status_issue" class="form-control" rows="3" disabled></textarea>
+                                            <textarea id="view_status_issue"  maxlength="1000"  class="form-control" rows="3" disabled></textarea>
                                           </div>
                                           
                                           <div class="form-group">
                                             <label for="status_action"><strong>Action</strong></label>
-                                            <textarea id="view_status_action" class="form-control" rows="3" disabled></textarea>
+                                            <textarea id="view_status_action" maxlength="1000"  class="form-control" rows="3" disabled></textarea>
                                           </div>
                                           <div class="form-group">
                                             <label for="status_progress"><strong>Progress</strong></label>
