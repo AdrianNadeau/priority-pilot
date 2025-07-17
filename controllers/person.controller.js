@@ -134,6 +134,7 @@ exports.login = async (req, res, next) => {
       res.redirect("/");
     });
   } catch (error) {
+    console.log("Error logging in:", error);
     next(error);
   }
 };
