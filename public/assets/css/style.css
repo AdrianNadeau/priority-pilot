@@ -427,6 +427,19 @@ code {
   margin-top: 5px;
 }
 
+.page-title-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-left: 16px;
+}
+
+.page-buttons {
+  display: flex;
+  gap: 16px;
+}
+
 /* Notification */
 .notification-list {
   margin-left: 0;
@@ -627,6 +640,7 @@ body.fixed-left .side-menu.left {
 }
 
 .button-menu-mobile {
+  flex: 1;
   background-color: #ffffff;
   font-size: 28px;
   width: 42px;

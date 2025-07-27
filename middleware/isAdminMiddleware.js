@@ -50,6 +50,7 @@ async function isAdminMiddleware(req, res, next) {
 
     // Render the "Pages/pages-projects" view with filtered data
     res.render("Pages/pages-prime-only", {
+      pageTitle: "Your Projects",
       projects: projectsData,
       phases: phasesData,
       priorities: prioritiesData,

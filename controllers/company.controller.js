@@ -169,6 +169,7 @@ exports.findDefaults = (req, res) => {
           }
 
           res.render("Pages/pages-defaults", {
+            pageTitle: "Company Defaults",
             company,
             tags,
             timezone: company.company_timezone,

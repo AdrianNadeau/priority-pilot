@@ -228,6 +228,7 @@ ORDER BY
 
     const portfolioName = req.session.company.company_headline;
     res.render("Dashboard/dashboard1", {
+      pageTitle: "Dashboard",
       company_id: company_id_fk,
       projects: uniqueProjects,
       ...formattedData,

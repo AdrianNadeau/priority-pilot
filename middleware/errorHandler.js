@@ -6,6 +6,7 @@ const errorHandler = (err, req, res, next) => {
   const errorMessage = err.message || "Internal Server Error";
 
   res.render("Pages/pages-error", {
+    pageTitle: "Error",
     layout: "layout-public",
     person: req.session.person,
     errorMessage,
