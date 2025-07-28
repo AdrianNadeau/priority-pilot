@@ -5,14 +5,13 @@ const Op = db.Sequelize.Op;
 // Create and Save a new Tag
 exports.create = (req, res) => {
   // Validate request
-
-  if (!req.body.company_tag) {
+  console.log("req.body:", req.body);
+  if (!req.body.tag_name) {
     const error = new Error("Tag name is required");
     error.statusCode = 405;
     throw error;
   }
-  // Validate health
-  const tagName = document.getElementById(`company_tag`);
+
   console.log("tagName:", tagName);
   if (!tagName.value || tagName.value === "") {
     tagName.classList.add("is-invalid");

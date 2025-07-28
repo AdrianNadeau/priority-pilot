@@ -103,17 +103,17 @@ exports.findAll = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    console.log("Login attempt with email:", email, password);
+
     const person = await authenticateUser(email, password);
-    console.log("Error logging in person:", email);
+
     if (!person) {
       const error = new Error("Invalid username or password.");
       error.statusCode = 401;
       throw error;
     }
-    console.log("Login successful for person:", person.id);
+
     const company = await Company.findByPk(person.company_id_fk);
-    console.log("Company found:", company ? company.id : "No company");
+
     if (!company) return res.redirect("/login");
 
     req.session.company = company;
@@ -302,7 +302,7 @@ exports.getChangePassword = async (req, res) => {
       return res.status(404).send("Invalid or expired token.");
     }
     const person_id_fk = tokenRecord.person_id_fk;
-    console.log("**************** GET TOKEN person id", person_id_fk);
+    c;
 
     const person = await Person.findByPk(person_id_fk);
 
@@ -311,7 +311,7 @@ exports.getChangePassword = async (req, res) => {
     if (currentTime > tokenRecord.expires_at) {
       return res.status(400).send("Token has expired.");
     }
-    console.log("**************** GET TOKEN ", token);
+
     res.render("Pages/pages-change-password", {
       token,
       person_id: person_id_fk,

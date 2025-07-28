@@ -1,5 +1,4 @@
 async function sessionMiddleware(req, res, next) {
-  console.log("sessionMiddleware called");
   try {
     if (!req.session || !req.session.company || !req.session.person) {
       // Redirect to session expired page

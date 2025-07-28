@@ -76,7 +76,6 @@
       .then((response) => response.json())
       .then((pData) => {
         const projects = pData.companyProjects;
-        console.log("Fetched Projects:", projects);
 
         const phaseMapping = {
           2: { id: 2, text: "Planning", open: false, type: "phase" },
@@ -102,9 +101,7 @@
         const tasks = {
           data: filteredProjects.map((project) => {
             const phaseId = phaseMapping[project.phase_id_fk]?.id;
-            console.log(
-              `Mapping Project: ${project.project_name}, Phase: ${project.phase_id_fk}, Mapped Parent ID: ${phaseId}`,
-            );
+
             return {
               id: project.id + 1000,
               text: project.project_name,

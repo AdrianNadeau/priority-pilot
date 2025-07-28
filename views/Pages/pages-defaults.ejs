@@ -215,9 +215,10 @@
                 </form>
                   <form action="/tags" class="needs-validation" id="addTag" novalidate method="POST">
                   <div class="form-group needs-validation" novalidate>
-                    <label for="company_tag">New Tag</label>
-                    <input type="text" class="form-control" id="company_tag" name="company_tag">
-                    <div class="invalid-feedback">
+                    <label for="tag_name">New Tag</label>
+                    <input type="text" class="form-control" id="tag_name" name="tag_name">
+                    
+                    <div id="tagNameMissing" class="required_star" style="display:none;">
                       Enter Tag Name.
                     </div>
                   </div>
@@ -245,7 +246,6 @@
 <%- contentFor('FooterJs') %>
 <%- contentFor('BottomJs') %>
 
-<!-- Edit Tag Modal -->
 <div class="modal fade" id="editTagModal" tabindex="-1" role="dialog" aria-labelledby="editTagModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -261,9 +261,9 @@
           <input type="hidden" id="company_id_fk" name="company_id_fk">
           <div class="form-group">
             <label for="tag_name">Tag Name</label>
-            <input type="text" class="form-control" id="tag_name" name="tag_name" required>
+            <input type="text" class="form-control" id="tag_name" name="tag_name" required pattern="^[\w\s-]{1,50}$">
             <div class="invalid-feedback">
-              Enter Tag Name.
+              Enter a valid Tag Name (letters, numbers, spaces, dashes, max 255 chars).
             </div>
           </div>
         </form>
@@ -293,6 +293,9 @@
             <label for="delete_tag_name">Tag Name</label>
             <p id="delete_tag_name" class="form-control-plaintext"></p>
           </div>
+          <div class="invalid-feedback">
+            Please enter tag name.
+          </div>
           <div class="form-group">
             <p>Are you sure you want to delete this tag?</p>
           </div>
@@ -310,22 +313,6 @@
   (function () {
     'use strict'
 
-    // Fetch all the forms we want to apply custom Bootstrap validation styles to
-    var forms = document.querySelectorAll('.needs-validation')
-
-    // Loop over them and prevent submission
-    Array.prototype.slice.call(forms)
-      .forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-          if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-          }
-
-          form.classList.add('was-validated')
-        }, false)
-      })
-  })()
 
   document.addEventListener("DOMContentLoaded", function() {
     // Handle timezone form
@@ -341,17 +328,18 @@
       return Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
  function saveTag() {
-  const form = document.getElementById('editTagForm');
-  if (!form) {
-    console.error('editTagForm not found');
-    return;
-  }
+   const form = document.getElementById('editTagForm');
+   
   const tagNameInput = document.getElementById('tag_name');
+  console.log('Tag Name Input:', tagNameInput.value);
   if (!form.checkValidity() || !tagNameInput.value.trim()) {
-    form.classList.add('was-validated');
-    tagNameInput.classList.add('is-invalid');
+    console.log('Form is invalid or Tag Name is empty');
+
+    
+    tagNameInput.style.display = 'block';
     return;
   } else {
+    console.log('Form is valid and Tag Name is:', tagNameInput.value);
     tagNameInput.classList.remove('is-invalid');
   }
 
@@ -476,4 +464,6 @@
       console.error('Error:', error);
     });
   }
+}
+  )();
 </script>
