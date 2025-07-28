@@ -141,6 +141,7 @@ exports.create = (req, res) => {
         })
         .then((data) => {
           res.render("Pages/pages-projects", {
+            pageTitle: "Projects",
             projects: data,
             phases: phasesData,
             priorities: prioritiesData,
@@ -270,6 +271,7 @@ exports.findAll = async (req, res) => {
 
       .then((data) => {
         res.render("Pages/pages-projects", {
+          pageTitle: "Projects",
           projects: data,
           phases: phasesData,
           priorities: priorities,
@@ -407,6 +409,7 @@ exports.cockpit = async (req, res) => {
       changeReasonMap[r.id] = r.change_reason;
     });
     res.render("Pages/pages-cockpit", {
+      pageTitle: "Flight Deck",
       project: data,
       current_date: currentDate,
       formattedCost: data[0].project_cost,
@@ -533,6 +536,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
       });
 
       res.render("Pages/pages-edit-project", {
+        pageTitle: "Edit Project",
         project: data[0], // Pass the first element of the data array
         current_date: currentDate,
         formattedCost: data[0].project_cost,
@@ -626,6 +630,7 @@ exports.findOneForPrime = async (req, res) => {
   });
 
   res.render("Pages/pages-edit-project", {
+    pageTitle: "Edit Project",
     project: data[0],
     current_date: new Date(), // Ensure current date is passed correctly
     formattedCost: data[0].project_cost,
@@ -797,6 +802,7 @@ exports.radar = async (req, res) => {
 
     // Render just three variables
     res.render("Pages/pages-radar", {
+      pageTitle: "Radar",
       portfolioName: company.company_headline,
       currentDate: new Date().toLocaleDateString(),
       phaseStats,
@@ -1573,6 +1579,7 @@ exports.flight = async (req, res) => {
     const startDateTest = insertValidDate(data.start_date);
     // Pass the result to the EJS template
     res.render("Pages/pages_flight_plan", {
+      pageTitle: "Flight Plan",
       start_date: startDateTest,
       projects: data,
       portfolioName,
@@ -1684,6 +1691,7 @@ exports.findFunnel = async (req, res) => {
     const portfolioName = await returnPortfolioName(company_id_fk);
     // Render the funnel page with the retrieved data
     res.render("Pages/pages-funnel", {
+      pageTitle: "Funnel",
       phases: phases,
       priorities: priorities,
       projects: data,
@@ -1925,6 +1933,7 @@ ORDER BY
     archivedTotalPH = formatCost(archivedTotalPH);
 
     res.render("Pages/pages-freezer", {
+      pageTitle: "Archived",
       projects: data,
       archivedTotalCost,
       archivedCount,
@@ -2127,6 +2136,7 @@ ORDER BY last_status.status_date DESC;
       }
     });
     res.render("Pages/pages-health", {
+      pageTitle: "Health Check",
       portfolioName,
       projects: data,
       currentDate: moment().format("MMMM Do YYYY"),
@@ -2178,6 +2188,7 @@ exports.flightview = async (req, res) => {
 
   const portfolioName = company.company_headline;
   res.render("Pages/pages_flight_plan", {
+    pageTitle: "Flight Plan",
     projects: companyProjects,
     currentDate: moment().format("MMMM Do YYYY"),
     portfolioName,

@@ -6,52 +6,32 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <%- contentFor('breadcrumb') %>
 
-<div class="row">
-  <div class="col-md-4">
-    <button type="button" class="button-menu-mobile open-left waves-effect">
-      <i class="ion-navicon"></i>
-    </button>
-    <h3 class="page-title">Health Check</h3>
-    <button
+<%- contentFor('body') %>
+
+<div class="page-content-wrapper">
+    <div class="container-fluid">
+      <div class="page-buttons">
+        <button
       type="button"
       class="btn btn-primary waves-effect waves-light"
       id="btnPrintPage" name="btnPrintPage"
     >
       Download Report
     </button>
-  </div>
-  <div class="col-md-4">
-    <h3
-      class="page-title portfolio-title"
-      style="color: #34b871; min-width: 600px"
-    >
-      <%= portfolio_name %>
-    </h3>
-  </div>
-  <div class="col-md-4 text-right">
-    <!-- Add any additional content here -->
-  </div>
-</div>
-<br/>
-
-<div class="row" class="progress-bar-container text-center" style="display: none;">
-  
-  <div class="col-md-12">
-    <span  style="margin-left:45px;display:none;" id="download-label" name="download-label">Reporting downloading...</span>
-    <div class="progress" style="height: 24px;margin-left:45px;">
-      
-      <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0"
-        aria-valuemin="0" aria-valuemax="100">
-       0%
       </div>
-    </div>
-  </div>
-</div>
-
-<%- contentFor('body') %>
-
-<div class="page-content-wrapper">
-    <div class="container-fluid">
+      <div class="row" class="progress-bar-container text-center" style="display: none; margin-top: 5px;">
+  
+        <div class="col-md-12">
+          <span  style="margin-left:45px;display:none;" id="download-label" name="download-label">Reporting downloading...</span>
+          <div class="progress" style="height: 24px;margin-left:45px;">
+            
+            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0"
+              aria-valuemin="0" aria-valuemax="100">
+             0%
+            </div>
+          </div>
+        </div>
+      </div>
         <div class="row">
             
             <div class="col-lg-12 text-center">

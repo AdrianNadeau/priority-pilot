@@ -49,60 +49,46 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-<%- contentFor('breadcrumb') %>
-<div class="row">
-  <div class="col-md-4">
-    <button type="button" class="button-menu-mobile open-left waves-effect">
-      <i class="ion-navicon"></i>
-    </button>
-    <h3 class="page-title">Radar</h3>
-    <button
-      type="button"
-      class="btn btn-primary waves-effect waves-light"
-      id="btnPrintPage"
-      name="btnPrintPage"
-    >
-      Download Report
-    </button>
-  </div>
-  <div class="col-md-4">
-    <h3
-      class="page-title portfolio-title"
-      style="color: #34b871; min-width: 600px"
-    >
-      <%= portfolio_name %>
-    </h3>
-  </div>
-  <div class="col-md-4 text-right">
-    <!-- Add any additional content here -->
-  </div>
-</div>
-<div class="row" class="progress-bar-container text-center">
-  <div class="col-md-12">
-    <span
-      style="margin-left: 45px; display: none"
-      id="download-label"
-      name="download-label"
-      >Reporting downloading...</span
-    >
-    <div class="progress" style="height: 24px; margin-left: 45px">
-      <div
-        class="progress-bar"
-        role="progressbar"
-        style="width: 0%"
-        aria-valuenow="0"
-        aria-valuemin="0"
-        aria-valuemax="100"
-      >
-        0%
-      </div>
-    </div>
-  </div>
-</div>
-<%- contentFor('body') %>
+<%- contentFor('breadcrumb') %> <%- contentFor('body') %>
 
 <div class="page-content-wrapper">
   <div class="container-fluid" style="margin-left: 0.5em">
+    <div class="page-buttons">
+      <button
+        type="button"
+        class="btn btn-primary waves-effect waves-light"
+        id="btnPrintPage"
+        name="btnPrintPage"
+      >
+        Download Report
+      </button>
+    </div>
+    <div
+      class="row"
+      class="progress-bar-container text-center"
+      style="margin-top: 5px"
+    >
+      <div class="col-md-12">
+        <span
+          style="margin-left: 45px; display: none"
+          id="download-label"
+          name="download-label"
+          >Reporting downloading...</span
+        >
+        <div class="progress" style="height: 24px; margin-left: 45px">
+          <div
+            class="progress-bar"
+            role="progressbar"
+            style="width: 0%"
+            aria-valuenow="0"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            0%
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Top row: Projects by Phase & Investment by Phase -->
     <div class="row mt-5">
       <div class="col-lg-6 text-center">

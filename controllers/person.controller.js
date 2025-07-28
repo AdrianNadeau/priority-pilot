@@ -93,7 +93,7 @@ exports.findAll = async (req, res, next) => {
         ["first_name", "ASC"],
       ],
     });
-    res.render("Pages/pages-persons", { persons: data });
+    res.render("Pages/pages-persons", { persons: data, pageTitle: "People" });
   } catch (error) {
     next(error);
   }
@@ -164,7 +164,10 @@ exports.findOneForEdit = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    res.render("Pages/pages-edit-person", { personData });
+    res.render("Pages/pages-edit-person", {
+      personData,
+      pageTitle: "Edit Person",
+    });
   } catch (error) {
     next(error);
   }
@@ -313,6 +316,7 @@ exports.getChangePassword = async (req, res) => {
     }
 
     res.render("Pages/pages-change-password", {
+      pageTitle: "Change Password",
       token,
       person_id: person_id_fk,
       email: tokenRecord.email,
@@ -369,6 +373,7 @@ exports.updatePassword = async (req, res) => {
     });
     req.session.emailStatus = "Password updated successfully.";
     res.render("Pages/pages-change-updated", {
+      pageTitle: "Password Updated",
       layout: "layout-public",
       message: "Password updated successfully.",
     });
