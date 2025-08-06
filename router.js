@@ -206,16 +206,15 @@ ORDER BY
     //get all persons for primes and sponsors add project modal
     const persons = await db.persons.findAll({ where: { company_id_fk } });
     // Fetch tags
+
     let tagsData = await Tag.findAll({
-      where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
-      },
+      where: { company_id_fk: company_id_fk },
       order: [["id", "ASC"]],
     });
 
     // Add "None" option at the top of the tags list
     tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
-
+    console.log("Tags count data:", tagsData);
     // Deduplicate projects by ID
     const uniqueProjects = [];
     const seenIds = new Set();

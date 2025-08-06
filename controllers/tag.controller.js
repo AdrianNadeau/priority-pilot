@@ -11,24 +11,29 @@ exports.create = (req, res) => {
     error.statusCode = 405;
     throw error;
   }
+  const tagName = req.body.tag_name;
 
   console.log("tagName:", tagName);
-  if (!tagName.value || tagName.value === "") {
-    tagName.classList.add("is-invalid");
-    isValid = false;
+  if (!tagName || tagName === "") {
+    const error = new Error("Error adding tag. Please try again.");
+    error.statusCode = 405;
+    throw error;
   }
+  console.log("create tag object:");
   // Create a Tag
   const tag = {
-    tag_name: req.body.company_tag,
+    tag_name: tagName,
     company_id_fk: req.session.company.id,
   };
 
   // Save Tag in the databasecompany_id_fk = req.session.company.id;
+  console.log("create tag:", tag);
   Tag.create(tag)
     .then((data) => {
       res.redirect("/companies/get/defaults");
     })
     .catch((err) => {
+      console.log("Error creating tag:", err);
       res.status(500).send({
         message: err.message || "Some error occurred while creating the Tag.",
       });

@@ -10,7 +10,6 @@ exports.create = async (req, res) => {
   const effort = req.body.effort;
 
   try {
-    console.log("req.body", req.body);
     const {
       company_name,
       company_headline,
@@ -23,7 +22,7 @@ exports.create = async (req, res) => {
     if (!company_name) {
       return res.status(400).json({ message: "Company Name cannot be empty!" });
     }
-    console.log("company_timezone:", company_timezone);
+
     const company = await Company.create({
       company_name,
       company_headline,
@@ -36,6 +35,23 @@ exports.create = async (req, res) => {
     if (company) {
       const session = req.session;
       session.company = company;
+
+      //get all default tags and add to company
+      const defaultTags = await Tag.findAll({
+        where: {
+          company_id_fk: 0,
+        },
+      });
+      if (defaultTags && defaultTags.length > 0) {
+        for (const tag of defaultTags) {
+          //add default tags for company
+          await Tag.create({
+            tag_name: tag.tag_name,
+            company_id_fk: company.id,
+          });
+        }
+      }
+
       try {
         res.redirect("/confirm");
       } catch (err) {
@@ -159,7 +175,7 @@ exports.findDefaults = (req, res) => {
       //get all tags
       Tag.findAll({
         where: {
-          [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+          company_id_fk: company_id_fk,
         },
         order: [["id", "DESC"]],
       })

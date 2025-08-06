@@ -112,19 +112,19 @@
                           <label for="dates">Start Date and End Date: <span class="required_star">*</span></label>
                           <div class="form-row">
                             <div class="col">
-                              <i class="bi bi-calendar-check"></i><input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date">
+                              <i class="bi bi-calendar-check"></i><input type="text" class="form-control start_datepicker" id="start_date" name="start_date" placeholder="Start Date">
                               <div class="invalid-feedback">
                                 Start Date is required.
                               </div>
                             </div>
                             <div class="col">
-                              <input type="text" required class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date">
+                              <input type="text" required class="form-control end_datepicker" id="end_date" name="end_date" placeholder="End Date">
                               <div class="invalid-feedback">
                                 End Date is required.   
                               </div>
                             </div>
                             <div class="col">
-                              <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date">
+                              <input type="text" class="form-control nms_datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date">
                             </div>
                           </div>
                           <div><span class="required_star" id ="dates_required" style="display:none;">Start and End dates are required</span></span></div>
@@ -291,34 +291,35 @@
       );
     });
     //add event listenter for export
-    document.getElementById('btnExportProjects').addEventListener('click', function() {
-  
-      fetch('/projects/export/export-project-list/')
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.blob(); // Expecting a CSV file as a blob
-        })
-        .then(blob => {
-
-          const today = new Date();
-          const formattedDate = `${today.getFullYear()}-${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-          // Create a link to download the file
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = `projects-export-${formattedDate}.csv`; // Set the file name
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-          console.log("Export successful");
-        })
-        .catch(error => {
-          console.error('Error fetching project data:', error);
-        });
-    });
+    // Add null check for export button
+const exportBtn = document.getElementById('btnExportProjects');
+if (exportBtn) {
+  exportBtn.addEventListener('click', function() {
+    fetch('/projects/export/export-project-list/')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const today = new Date();
+        const formattedDate = `${today.getFullYear()}-${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `projects-export-${formattedDate}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        console.log("Export successful");
+      })
+      .catch(error => {
+        console.error('Error fetching project data:', error);
+      });
+  });
+}
     // Numeric input validation for specific fields
     const numericFields = ['project_cost', 'effort', 'benefit'];
     numericFields.forEach(function(fieldId) {
@@ -357,6 +358,21 @@
     console.log("Initializing flatpickr");
     // Initialize Flatpickr for all datepicker inputs
     flatpickr(".datepicker", {
+      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+      allowInput: true,     // Allow manual input if needed
+      allowInvalidPreload: true, // Allow invalid dates to be preloaded
+    });
+    flatpickr(".start_datepicker", {
+      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+      allowInput: true,     // Allow manual input if needed
+      allowInvalidPreload: true, // Allow invalid dates to be preloaded
+    });
+    flatpickr(".end_datepicker", {
+      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+      allowInput: true,     // Allow manual input if needed
+      allowInvalidPreload: true, // Allow invalid dates to be preloaded
+    });
+    flatpickr(".nms_datepicker", {
       dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
       allowInput: true,     // Allow manual input if needed
       allowInvalidPreload: true, // Allow invalid dates to be preloaded

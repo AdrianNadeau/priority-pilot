@@ -112,7 +112,7 @@ exports.create = (req, res) => {
 
     let tagsData = await Tag.findAll({
       where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+        [Op.or]: [{ company_id_fk: company_id_fk }],
       },
       order: [["id", "ASC"]],
     });
@@ -228,7 +228,7 @@ exports.findAll = async (req, res) => {
     // Fetch tags
     let tagsData = await Tag.findAll({
       where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+        [Op.or]: [{ company_id_fk: company_id_fk }],
       },
       order: [["id", "ASC"]],
     });
@@ -318,7 +318,7 @@ exports.cockpit = async (req, res) => {
   const company_id_fk = req.session.company.id;
   let tagsData = await Tag.findAll({
     where: {
-      [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      [Op.or]: [{ company_id_fk: company_id_fk }],
     },
     order: [["id", "ASC"]],
   });
@@ -397,7 +397,7 @@ exports.cockpit = async (req, res) => {
 
     let tagsData = await Tag.findAll({
       where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+        [Op.or]: [{ company_id_fk: company_id_fk }],
       },
       order: [["id", "ASC"]],
     });
@@ -506,7 +506,7 @@ proj.company_id_fk = ? AND proj.id = ?`;
       });
       let tagsData = await Tag.findAll({
         where: {
-          [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+          [Op.or]: [{ company_id_fk: company_id_fk }],
         },
         order: [["id", "ASC"]],
       });
@@ -620,7 +620,7 @@ exports.findOneForPrime = async (req, res) => {
 
   let tagsData = await Tag.findAll({
     where: {
-      [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+      [Op.or]: [{ company_id_fk: company_id_fk }],
     },
     order: [["id", "ASC"]],
   });
@@ -1605,7 +1605,7 @@ exports.findFunnel = async (req, res) => {
 
     let tagsData = await Tag.findAll({
       where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+        [Op.or]: [{ company_id_fk: company_id_fk }],
       },
       order: [["id", "ASC"]],
     });
@@ -1898,7 +1898,7 @@ ORDER BY
     // Fetch tags
     let tagsData = await Tag.findAll({
       where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }, { company_id_fk: 0 }],
+        [Op.or]: [{ company_id_fk: company_id_fk }],
       },
       order: [["id", "ASC"]],
     });
@@ -2261,21 +2261,6 @@ exports.archive = async (req, res) => {
 function insertValidDate(date) {
   return date ? moment(date, "YYYY-MM-DD").toDate() : null;
 }
-
-// function formatNumberWithCommas(input) {
-//   if (input && typeof input.value === "string") {
-//     // Remove non-numeric characters
-//     let value = input.value.replace(/\D/g, "");
-
-//     // Format the number with commas
-//     value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-//     // Set the formatted value back to the input
-//     input.value = value;
-//   } else {
-//     console.error("Invalid input or input value:", input);
-//   }
-// }
 
 function removeCommasAndConvertToNumber(value) {
   if (typeof value === "string") {

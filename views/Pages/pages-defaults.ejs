@@ -1,10 +1,32 @@
 <%- contentFor('HeaderCss') %>
-<!-- Bootstrap CSS -->
+<!-- Add this to your existing <style> block -->
 <style>
-  .mdi-pencil:hover, .mdi-delete:hover {
-    color: #007bff; /* Change to your desired hover color */
-    cursor: pointer;
+  /* Base styling for icons */
+  .mdi-pencil, .mdi-delete, .mdi-notepad {
+    margin-left: 8px !important;
+    font-size: 16px !important;
+    color: #6c757d !important;
+    transition: all 0.2s ease-in-out !important;
+    cursor: pointer !important;
   }
+
+  /* Hover effects with higher specificity */
+  i.mdi-pencil:hover {
+    color: #28a745 !important; /* Green for edit */
+    transform: scale(1.1) !important;
+  }
+  
+  i.mdi-notepad:hover {
+    color: #17a2b8 !important; /* Teal for notepad */
+    transform: scale(1.1) !important;
+  }
+  
+  i.mdi-delete:hover {
+    color: #dc3545 !important; /* Red for delete */
+    transform: scale(1.1) !important;
+  }
+
+  /* Remove the ::after tooltips for now to test if hover works */
 </style>
 
 <%- contentFor('breadcrumb') %>
@@ -190,12 +212,9 @@
                   <% tags.forEach(function(tag) { %>
                     <li>
                       <%= tag.tag_name %>
-                      <% if (tag.company_id_fk === 0) { %>
-                        <strong>(system tag)</strong>
-                      <% } else { %>
-                        <i class="mdi mdi-pencil" data-toggle="modal" data-target="#editTagModal" onclick="editTag('<%= tag.id %>', '<%= tag.tag_name %>', '<%= tag.company_id_fk %>')" title="Edit Tag"></i>
-                        <i class="mdi mdi-delete" data-toggle="modal" data-target="#deleteTagModal" onclick="deleteTag('<%= tag.id %>', '<%= tag.tag_name %>', '<%= tag.company_id_fk %>')" title="Delete Tag"></i>
-                      <% } %>
+                      <i class="mdi mdi-pencil" data-toggle="modal" data-target="#editTagModal" onclick="editTag('<%= tag.id %>', '<%= tag.tag_name %>', '<%= tag.company_id_fk %>')" title="Edit Tag"></i>
+                      <i class="mdi mdi-delete" data-toggle="modal" data-target="#deleteTagModal" onclick="deleteTag('<%= tag.id %>', '<%= tag.tag_name %>', '<%= tag.company_id_fk %>')" title="Delete Tag"></i>
+                     
                     </li>
                   <% }); %>
                   <br/>
@@ -246,13 +265,13 @@
         <form id="editTagForm" class="needs-validation" novalidate>
           <input type="hidden" id="tag_id" name="tag_id">
           <input type="hidden" id="company_id_fk" name="company_id_fk">
-          <div class="form-group">
-            <label for="tag_name">Tag Name</label>
-            <input type="text" class="form-control" id="tag_name" name="tag_name" required pattern="^[\w\s-]{1,50}$">
-            <div class="invalid-feedback">
-              Enter a valid Tag Name (letters, numbers, spaces, dashes, max 255 chars).
-            </div>
-          </div>
+         <div class="form-group">
+        <label for="edit_tag_name">Tag Name</label>
+        <input type="text" class="form-control" id="edit_tag_name" name="tag_name" required>
+        <div class="invalid-feedback">
+          Please enter tag name.
+        </div>
+      </div>
         </form>
       </div>
       <div class="modal-footer">
@@ -297,9 +316,8 @@
 </div>
 
 <script>
-  (function () {
-    'use strict'
-
+(function () {
+  'use strict'
 
   document.addEventListener("DOMContentLoaded", function() {
     // Handle timezone form
@@ -314,114 +332,61 @@
     function getUserTimezone() {
       return Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
- function saveTag() {
-   const form = document.getElementById('editTagForm');
-   
-  const tagNameInput = document.getElementById('tag_name');
-  console.log('Tag Name Input:', tagNameInput.value);
-  if (!form.checkValidity() || !tagNameInput.value.trim()) {
-    console.log('Form is invalid or Tag Name is empty');
 
-    
-    tagNameInput.style.display = 'block';
-    return;
-  } else {
-    console.log('Form is valid and Tag Name is:', tagNameInput.value);
-    tagNameInput.classList.remove('is-invalid');
-  }
-
-  const url = '/tags/' + document.getElementById('tag_id').value;
-  const formData = new FormData(form);
-
-  fetch(url, {
-    method: 'PUT',
-    body: new URLSearchParams(formData),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
-  .then(response => {
-    if (response.redirected) {
-      window.location.href = response.url;
-    } else {
-      return response.json();
-    }
-  })
-  .then(data => {
-    console.log('Success:', data);
-    $('#editTagModal').modal('hide');
-    window.location.replace('/companies/get/defaults');
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-  });
-}
-    // Show and hide modals with inert attribute
-    $('#editTagModal').on('show.bs.modal', function () {
-      this.removeAttribute('inert');
-    });
-
-    $('#editTagModal').on('hidden.bs.modal', function () {
-      this.setAttribute('inert', '');
-    });
-
-    $('#deleteTagModal').on('show.bs.modal', function () {
-      this.removeAttribute('inert');
-    });
-
-    $('#deleteTagModal').on('hidden.bs.modal', function () {
-      this.setAttribute('inert', '');
-    });
+    // Removed inert attribute handling - Bootstrap handles accessibility
   });
 
-  function editTag(tagId, tagName, companyId) {
+  // Fix the editTag function - make it global
+  window.editTag = function(tagId, tagName, companyId) {
     document.getElementById('tag_id').value = tagId;
-    document.getElementById('tag_name').value = tagName;
+    document.getElementById('edit_tag_name').value = tagName;  // Fixed: use correct ID
     document.getElementById('company_id_fk').value = companyId;
   }
 
-  function saveTag() {
-  const form = document.getElementById('editTagForm');
-  const tagNameInput = document.getElementById('tag_name');
-  if (!form.checkValidity() || !tagNameInput.value.trim()) {
-    form.classList.add('was-validated');
-    tagNameInput.classList.add('is-invalid');
-    return;
-  } else {
-    tagNameInput.classList.remove('is-invalid');
-  }
-
-  const url = '/tags/' + document.getElementById('tag_id').value;
-  const formData = new FormData(form);
-
-  fetch(url, {
-    method: 'PUT',
-    body: new URLSearchParams(formData),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
-  .then(response => {
-    if (response.redirected) {
-      window.location.href = response.url;
-    } else {
-      return response.json();
-    }
-  })
-  .then(data => {
-    console.log('Success:', data);
-    $('#editTagModal').modal('hide');
-    window.location.replace('/companies/get/defaults');
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-  });
-}
-
-  function deleteTag(tagId, tagName, companyId) {
+  // Fix the deleteTag function - make it global
+  window.deleteTag = function(tagId, tagName, companyId) {
     document.getElementById('delete_tag_id').value = tagId;
     document.getElementById('delete_tag_name').textContent = tagName;
     document.getElementById('delete_company_id_fk').value = companyId;
+  }
+
+  function saveTag() {
+    const form = document.getElementById('editTagForm');
+    const tagNameInput = document.getElementById('edit_tag_name');
+    
+    if (!form.checkValidity() || !tagNameInput.value.trim()) {
+      form.classList.add('was-validated');
+      tagNameInput.classList.add('is-invalid');
+      return;
+    } else {
+      tagNameInput.classList.remove('is-invalid');
+    }
+
+    const url = '/tags/' + document.getElementById('tag_id').value;
+    const formData = new FormData(form);
+
+    fetch(url, {
+      method: 'PUT',
+      body: new URLSearchParams(formData),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })
+    .then(response => {
+      if (response.redirected) {
+        window.location.href = response.url;
+      } else {
+        return response.json();
+      }
+    })
+    .then(data => {
+      console.log('Success:', data);
+      $('#editTagModal').modal('hide');
+      window.location.replace('/companies/get/defaults');
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
   }
 
   function confirmDeleteTag() {
@@ -451,6 +416,10 @@
       console.error('Error:', error);
     });
   }
-}
-  )();
+
+  // Make functions global
+  window.saveTag = saveTag;
+  window.confirmDeleteTag = confirmDeleteTag;
+
+})();
 </script>
