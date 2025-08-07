@@ -305,7 +305,6 @@ exports.getChangePassword = async (req, res) => {
       return res.status(404).send("Invalid or expired token.");
     }
     const person_id_fk = tokenRecord.person_id_fk;
-    c;
 
     const person = await Person.findByPk(person_id_fk);
 

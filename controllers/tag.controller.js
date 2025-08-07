@@ -26,7 +26,7 @@ exports.create = (req, res) => {
     company_id_fk: req.session.company.id,
   };
 
-  // Save Tag in the databasecompany_id_fk = req.session.company.id;
+  // Save Tag in the database
   console.log("create tag:", tag);
   Tag.create(tag)
     .then((data) => {
