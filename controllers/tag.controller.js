@@ -1,6 +1,5 @@
 const db = require("../models");
 const Tag = db.tags;
-const Op = db.Sequelize.Op;
 
 // Create and Save a new Tag
 exports.create = (req, res) => {
