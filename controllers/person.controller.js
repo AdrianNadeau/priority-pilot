@@ -128,8 +128,11 @@ exports.login = async (req, res, next) => {
 
     req.session.save((err) => {
       if (err) {
-        console.error("Session save error:", err);
-        return res.status(500).send("Internal Server Error");
+        const error = new Error(
+          "Error Logging in, try again. If the problem persists, contact support.",
+        );
+        error.statusCode = 401;
+        throw error;
       }
       res.redirect("/");
     });

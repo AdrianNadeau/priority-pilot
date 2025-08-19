@@ -1,9 +1,9 @@
 const db = require("../models");
-const Project = db.projects;
 const Phase = db.phases;
 const Priority = db.priorities;
 const Person = db.persons;
 const currentDate = new Date();
+const path = require("path");
 
 async function isAdminMiddleware(req, res, next) {
   try {

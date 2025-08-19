@@ -170,6 +170,25 @@
           return;
         }
 
+        // Global tag color mapping to ensure consistency across all charts
+        const globalTagColors = new Map();
+
+        function getTagColor(tagName, tagColor) {
+          if (!globalTagColors.has(tagName)) {
+            globalTagColors.set(tagName, tagColor || '#6c757d');
+          }
+          return globalTagColors.get(tagName);
+        }
+
+        // Convert colors array into Google Charts 'slices' option to assign per-slice colors
+        function colorsToSlices(colors) {
+          const slices = {};
+          colors.forEach((c, i) => {
+            slices[i] = { color: c };
+          });
+          return slices;
+        }
+
         function parseFormattedCost(cost) {
           if (typeof cost === "string") {
             if (cost.endsWith("K")) {
@@ -487,9 +506,11 @@
               }
 
               const chartData = [["Tag", "Count"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && tag.project_count > 0) {
                   chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
@@ -501,6 +522,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -521,12 +543,14 @@
               }
 
               const chartData = [["Tag", "Cost"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_cost),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
@@ -538,6 +562,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -558,12 +583,14 @@
               }
 
               const chartData = [["Tag", "Effort"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_effort),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
@@ -575,6 +602,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -596,9 +624,11 @@
               }
 
               const chartData = [["Tag", "Count"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && tag.project_count > 0) {
                   chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
@@ -610,6 +640,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -630,12 +661,14 @@
               }
 
               const chartData = [["Tag", "Cost"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_cost),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
@@ -647,6 +680,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -667,12 +701,14 @@
               }
 
               const chartData = [["Tag", "Effort"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_effort),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
@@ -684,6 +720,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -704,12 +741,14 @@
               }
 
               const chartData = [["Tag 3", "Percentage"]];
+              const colors = [];
               let total = 0;
 
               tagsData.forEach((tag) => {
                 if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
                   const count = parseInt(tag.project_count);
                   chartData.push([tag.tag_name, count]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                   total += count;
                 }
               });
@@ -739,6 +778,7 @@
                 height: 300,
                 tooltip: { text: "value" },
                 pieSliceText: "value",
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -759,12 +799,14 @@
               }
 
               const chartData = [["Tag", "Cost"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_cost),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
@@ -776,6 +818,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -796,12 +839,14 @@
               }
 
               const chartData = [["Tag", "Effort"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_effort),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
@@ -813,6 +858,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(

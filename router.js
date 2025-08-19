@@ -196,9 +196,19 @@ ORDER BY
       totalCost: formatToKMB(portfolio_budget),
       usedCost: formatToKMB(usedCost),
       availableCost: formatToKMB(availableCost),
+      totalCostPercent:
+        portfolio_budget && !isNaN(portfolio_budget) ? "100%" : "0%",
+      usedCostPercent:
+        portfolio_budget && !isNaN(portfolio_budget)
+          ? ((usedCost / portfolio_budget) * 100).toFixed(1) + "%"
+          : "0%",
+      availableCostPercent:
+        portfolio_budget && !isNaN(portfolio_budget)
+          ? ((availableCost / portfolio_budget) * 100).toFixed(1) + "%"
+          : "0%",
       usedEffort: formatToKMB(usedEffort),
     };
-
+    console.log("totalCostPercent", formattedData.totalCostPercent);
     //get all phases for add project modal
     const phases = await db.phases.findAll({});
     //get all priorities for add project modal
@@ -214,7 +224,6 @@ ORDER BY
 
     // Add "None" option at the top of the tags list
     tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
-    console.log("Tags count data:", tagsData);
     // Deduplicate projects by ID
     const uniqueProjects = [];
     const seenIds = new Set();
@@ -239,7 +248,7 @@ ORDER BY
       sponsors: persons,
       primes: persons,
       tags: tagsData,
-      // statusData,
+      totalCostPercent: formattedData.totalCostPercent,
     });
   } catch (error) {
     console.error("Error executing query:", error);

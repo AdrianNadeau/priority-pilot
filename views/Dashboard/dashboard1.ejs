@@ -12,7 +12,21 @@
             <div class="col-md-10">
                 <div class="row">
                    
-                    <!-- Priority and Discovery Section Side by Side -->
+                    
+                     <div class="col-md-6">
+                        <div class="mini-stat bg-white clearfix">
+                            <div class="mini-stat-info">
+                                <a href="/projects/funnel/view/"><span class="counter" style="color:black"><strong>Funnel</strong> (<%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.effort %> PH)</span></a>
+                            </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="mini-stat bg-white clearfix">
+                            <div class="mini-stat-info">
+                                <a href="/projects/freezer/view/"><span class="counter" style="color:black"><strong>Archive</strong> (<%= archived.count %>, $<%= archived.cost %>, <%= archived.effort %> PH)</span></a>
+                            </div>
+                        </div>
+                      </div>
                     <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
@@ -120,16 +134,22 @@
             </div>
     
             <!-- Radar and Flight Plan Buttons -->
+             
             <div class="col-md-2">
+              <div>
+                      
+                        <!-- <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 100px;" onClick="getProjects();"> -->
+                            
+                        </button>
+                    </div>
                 <div class="mini-stat bg-white text-center clearfix">
-                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFunnel();" >Funnel
-                        <%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)</button></div>
-                        <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFreezer();" >Archived
-                        <%= archived.count %>, $<%= archived.cost %>, <%= archived.ph %> PH)</button></div>
-                   
+                   <div>                  <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Project</button></div>
+                    <hr/>
                     <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;" onClick="loadRadar();" >Radar</div>
+                   
                     <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadHealth();" >Health Check</div>
                     <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFlightFull();" >Flight Plan</div>
+                      <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFlightFull();" >Accomplishments</div>
                     
                     <div class="row text-center" style="padding-top: 20px;">
                         <div class="col-md-12">
@@ -149,12 +169,7 @@
                             </ul>
                         </div>
                     </div>
-                    <div>
-                      <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Project</button>
-                        <!-- <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 100px;" onClick="getProjects();"> -->
-                            
-                        </button>
-                    </div>
+                    
                 </div>
                
             </div>

@@ -921,7 +921,7 @@ exports.countProjectsByTag1 = async (req, res) => {
           [Op.in]: tag1Counts.map((tag) => tag.tag_1),
         },
       },
-      attributes: ["id", "tag_name"],
+      attributes: ["id", "tag_name", "tag_color"],
     });
 
     // Map tag names to tag1Counts
@@ -931,6 +931,7 @@ exports.countProjectsByTag1 = async (req, res) => {
       return {
         tag_1: tag.tag_1,
         tag_name: tagName ? tagName.tag_name : null,
+        tag_color: tagName ? tagName.tag_color : "#6c757d",
         project_count: tag.get("project_count"),
       };
     });
@@ -1006,14 +1007,18 @@ exports.countCostsByTag1 = async (req, res) => {
     const tagIds = tag1Costs.map((r) => r.tag_1);
     const tagRows = await db.tags.findAll({
       where: { id: { [Op.in]: tagIds } },
-      attributes: ["id", "tag_name"],
+      attributes: ["id", "tag_name", "tag_color"],
       raw: true,
     });
     const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+    const colorMap = Object.fromEntries(
+      tagRows.map((t) => [t.id, t.tag_color]),
+    );
 
     const result = tag1Costs.map((r) => ({
       tag_1: r.tag_1,
       tag_name: nameMap[r.tag_1] || null,
+      tag_color: colorMap[r.tag_1] || "#6c757d",
       total_cost: parseFloat(r.total_cost),
     }));
 
@@ -1077,14 +1082,18 @@ exports.countEffortByTag1 = async (req, res) => {
     const tagIds = tag1Efforts.map((r) => r.tag_1);
     const tagRows = await db.tags.findAll({
       where: { id: { [Op.in]: tagIds } },
-      attributes: ["id", "tag_name"],
+      attributes: ["id", "tag_name", "tag_color"],
       raw: true,
     });
     const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+    const colorMap = Object.fromEntries(
+      tagRows.map((t) => [t.id, t.tag_color]),
+    );
 
     const result = tag1Efforts.map((r) => ({
       tag_1: r.tag_1,
       tag_name: nameMap[r.tag_1] || null,
+      tag_color: colorMap[r.tag_1] || "#6c757d",
       total_effort: parseFloat(r.total_effort),
     }));
 
@@ -1122,22 +1131,23 @@ exports.countProjectsByTag2 = async (req, res) => {
       ],
     });
 
-    // Fetch tag names for each tag_1
+    // Fetch tag names for each tag_2
     const tag2Names = await db.tags.findAll({
       where: {
         id: {
           [Op.in]: tag2Counts.map((tag) => tag.tag_2),
         },
       },
-      attributes: ["id", "tag_name"],
+      attributes: ["id", "tag_name", "tag_color"],
     });
 
-    // Map tag names to tag3Counts
+    // Map tag names to tag2Counts
     const tag2CountsWithNames = tag2Counts.map((tag) => {
       const tagName = tag2Names.find((t) => t.id === tag.tag_2);
       return {
         tag_2: tag.tag_2,
         tag_name: tagName ? tagName.tag_name : null,
+        tag_color: tagName ? tagName.tag_color : "#6c757d",
         project_count: tag.get("project_count"),
       };
     });
@@ -1213,14 +1223,18 @@ exports.countCostsByTag2 = async (req, res) => {
     const tagIds = tag2Costs.map((r) => r.tag_2);
     const tagRows = await db.tags.findAll({
       where: { id: { [Op.in]: tagIds } },
-      attributes: ["id", "tag_name"],
+      attributes: ["id", "tag_name", "tag_color"],
       raw: true,
     });
     const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+    const colorMap = Object.fromEntries(
+      tagRows.map((t) => [t.id, t.tag_color]),
+    );
 
     const result = tag2Costs.map((r) => ({
       tag_2: r.tag_2,
       tag_name: nameMap[r.tag_2] || null,
+      tag_color: colorMap[r.tag_2] || "#6c757d",
       total_cost: parseFloat(r.total_cost),
     }));
 
@@ -1284,14 +1298,18 @@ exports.countEffortByTag2 = async (req, res) => {
     const tagIds = tag2Efforts.map((r) => r.tag_2);
     const tagRows = await db.tags.findAll({
       where: { id: { [Op.in]: tagIds } },
-      attributes: ["id", "tag_name"],
+      attributes: ["id", "tag_name", "tag_color"],
       raw: true,
     });
     const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+    const colorMap = Object.fromEntries(
+      tagRows.map((t) => [t.id, t.tag_color]),
+    );
 
     const result = tag2Efforts.map((r) => ({
       tag_2: r.tag_2,
       tag_name: nameMap[r.tag_2] || null,
+      tag_color: colorMap[r.tag_2] || "#6c757d",
       total_effort: parseFloat(r.total_effort),
     }));
 
@@ -1336,7 +1354,7 @@ exports.countProjectsByTag3 = async (req, res) => {
           [Op.in]: tag3Counts.map((tag) => tag.tag_3),
         },
       },
-      attributes: ["id", "tag_name"],
+      attributes: ["id", "tag_name", "tag_color"],
     });
 
     // Map tag names to tag3Counts
@@ -1345,6 +1363,7 @@ exports.countProjectsByTag3 = async (req, res) => {
       return {
         tag_3: tag.tag_3,
         tag_name: tagName ? tagName.tag_name : null,
+        tag_color: tagName ? tagName.tag_color : "#6c757d",
         project_count: tag.get("project_count"),
       };
     });
@@ -1420,14 +1439,18 @@ exports.countCostsByTag3 = async (req, res) => {
     const tagIds = tag3Costs.map((r) => r.tag_3);
     const tagRows = await db.tags.findAll({
       where: { id: { [Op.in]: tagIds } },
-      attributes: ["id", "tag_name"],
+      attributes: ["id", "tag_name", "tag_color"],
       raw: true,
     });
     const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+    const colorMap = Object.fromEntries(
+      tagRows.map((t) => [t.id, t.tag_color]),
+    );
 
     const result = tag3Costs.map((r) => ({
       tag_3: r.tag_3,
       tag_name: nameMap[r.tag_3] || null,
+      tag_color: colorMap[r.tag_3] || "#6c757d",
       total_cost: parseFloat(r.total_cost),
     }));
 
@@ -1491,14 +1514,18 @@ exports.countEffortByTag3 = async (req, res) => {
     const tagIds = tag3Efforts.map((r) => r.tag_3);
     const tagRows = await db.tags.findAll({
       where: { id: { [Op.in]: tagIds } },
-      attributes: ["id", "tag_name"],
+      attributes: ["id", "tag_name", "tag_color"],
       raw: true,
     });
     const nameMap = Object.fromEntries(tagRows.map((t) => [t.id, t.tag_name]));
+    const colorMap = Object.fromEntries(
+      tagRows.map((t) => [t.id, t.tag_color]),
+    );
 
     const result = tag3Efforts.map((r) => ({
       tag_3: r.tag_3,
       tag_name: nameMap[r.tag_3] || null,
+      tag_color: colorMap[r.tag_3] || "#6c757d",
       total_effort: parseFloat(r.total_effort),
     }));
 
@@ -1592,9 +1619,6 @@ exports.flight = async (req, res) => {
 // Define the findFunnel function
 exports.findFunnel = async (req, res) => {
   try {
-    console.log(
-      "============================================== findFunnel called ==============================================",
-    );
     const company_id_fk = req.session.company.id;
     const person_id_fk = req.session.person.id;
     const personsData = await Person.findAll({
@@ -1815,12 +1839,6 @@ ORDER BY
         phaseData[phase].count++;
         phaseData[phase].cost += projectCost;
         phaseData[phase].ph += projectEffortPH;
-
-        // Debug logs
-        // console.log(`Project Effort (PH): ${projectEffortPH}`);
-        // console.log(
-        //   `Phase: ${phase}, Count: ${phaseData[phase].count}, Cost: ${phaseData[phase].cost}, PH: ${phaseData[phase].ph}`,
-        // );
       } else {
         console.warn("Unknown phase:", project.phase_name);
       }

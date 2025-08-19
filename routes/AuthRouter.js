@@ -174,8 +174,9 @@ Authrouter.get("/logout", function (req, res) {
   // Destroy session on the server-side
   req.session.destroy((err) => {
     if (err) {
-      console.error("Error destroying session:", err);
-      res.status(500).send("Error logging out");
+      const error = new Error("Error logging out. Please try again.");
+      error.statusCode = 500;
+      throw error;
     } else {
       // Clear cookie on the client-side
       res.clearCookie("connect.sid", { path: "/" });

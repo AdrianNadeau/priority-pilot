@@ -1,6 +1,5 @@
 <%- contentFor('HeaderCss') %>
-<!-- Add this to your existing <style> block -->
-<style>
+<!-- <style>
   /* Base styling for icons */
   .mdi-pencil, .mdi-delete, .mdi-notepad {
     margin-left: 8px !important;
@@ -25,10 +24,145 @@
     color: #dc3545 !important; /* Red for delete */
     transform: scale(1.1) !important;
   }
+:root {
+      --accent: #7c3aed; /* initial accent color */
+    }
 
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.4; padding: 2rem; }
+    .row { display: flex; align-items: center; gap: 1rem; }
+
+    /* The clickable MDI palette icon */
+    .color-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px; height: 40px;
+      border-radius: 999px;
+      cursor: pointer;
+      position: relative;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06);
+      transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease;
+      color: var(--accent);
+      background: #fff;
+    }
+    .color-trigger:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+    .color-trigger:active { transform: translateY(0); }
+    .color-trigger:focus-visible { outline: 3px solid rgba(124, 58, 237, .35); }
+
+    /* Tiny swatch dot on the button showing current color */
+    .color-trigger::after {
+      content: "";
+      position: absolute;
+      bottom: 6px; right: 6px;
+      width: 10px; height: 10px; border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.15);
+      background: var(--accent);
+    }
+
+    /* Tooltip */
+    .color-trigger[data-tip]:hover::before {
+      content: attr(data-tip);
+      position: absolute;
+      top: -36px; left: 50%; transform: translateX(-50%);
+      background: #111827; color: #fff; font-size: 12px; padding: 6px 8px; border-radius: 8px;
+      white-space: nowrap; pointer-events: none;
+    }
+
+    /* Hidden color input (still accessible programmatically) */
+    #colorInput {
+      position: fixed; /* keep it out of layout */
+      left: -9999px; top: -9999px;
+      opacity: 0; width: 0; height: 0; border: 0; padding: 0; margin: 0;
+    }
+
+    /* Demo target to show the selected color being applied */
+    .demo-card {
+      border: 1px solid #e5e7eb; border-radius: 16px; padding: 1rem 1.25rem; max-width: 520px;
+      background: linear-gradient(180deg, rgba(0,0,0,.02), transparent);
+    }
+    .chip { display:inline-flex; align-items:center; gap:.5rem; border:1px dashed #d1d5db; padding:.25rem .5rem; border-radius:999px; font-size:12px; }
+    .preview {
+      inline-size: 28px; block-size: 28px; border-radius: 9px; border: 1px solid rgba(0,0,0,.15);
+      background: var(--accent);
+    }
+    .cta { appearance: none; border: 0; border-radius: 10px; padding: .6rem .85rem; background: var(--accent); color: #fff; font-weight: 600; }
+  
+  /* Tag color input hover effects */
+  #tag_color {
+    cursor: pointer !important;
+    transition: all 0.2s ease-in-out !important;
+  }
+  
+  #tag_color:hover {
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+    transform: scale(1.02) !important;
+  }
+  
+  #tag_color:focus {
+    cursor: text !important;
+  }
+  
+  /* Enhance existing icon hover effects */
+  .mdi-palette:hover {
+    color: #7c3aed !important;
+    transform: scale(1.1) !important;
+    cursor: pointer !important;
+  }
+  
   /* Remove the ::after tooltips for now to test if hover works */
-</style>
-
+</style> -->
+<style>
+    .color-box {
+      width: 50px !important;
+      height:50px !important;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      display: inline-block;
+    }
+    label {
+      font-family: sans-serif;
+      margin-right: 10px;
+    }
+    
+    /* Tag styling */
+    .tag-item {
+      display: block; 
+      color: #333; 
+      padding: 4px 0; 
+      margin: 2px 0; 
+      font-size: 14px;
+      position: relative;
+      transition: transform 0.2s ease;
+    }
+    
+    .tag-item:hover {
+      transform: translateX(4px);
+    }
+    
+    .tag-bullet {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    
+    .tag-item .mdi {
+      margin-left: 6px; 
+      cursor: pointer; 
+      opacity: 0.6;
+      transition: opacity 0.2s ease;
+      color: #666;
+    }
+    
+    .tag-item .mdi:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  </style>
 <%- contentFor('breadcrumb') %>
 
 <%- contentFor('body') %>
@@ -206,28 +340,63 @@
               </div>
               <div class="col-md-6">
                 <!-- Second column of form fields -->
+                 
                 <div class="form-group needs-validation" novalidate>
                   <label for="tags">Company Tags</label>
                   <!-- Loop through tags if exists for company -->
+                  <ul style="list-style: none; padding-left: 0;">
                   <% tags.forEach(function(tag) { %>
-                    <li>
-                      <%= tag.tag_name %>
-                      <i class="mdi mdi-pencil" data-toggle="modal" data-target="#editTagModal" onclick="editTag('<%= tag.id %>', '<%= tag.tag_name %>', '<%= tag.company_id_fk %>')" title="Edit Tag"></i>
-                      <i class="mdi mdi-delete" data-toggle="modal" data-target="#deleteTagModal" onclick="deleteTag('<%= tag.id %>', '<%= tag.tag_name %>', '<%= tag.company_id_fk %>')" title="Delete Tag"></i>
-                     
+                    <li class="tag-item" style="background-color: transparent; display: flex; align-items: center;">
+                      <span class="tag-bullet" style="
+                        background-color: <%= tag.tag_color || '#6c757d' %>; 
+                        width: 12px; 
+                        height: 12px; 
+                        border-radius: 50%; 
+                        display: inline-block; 
+                        margin-right: 8px;
+                        flex-shrink: 0;
+                      "></span>
+                      <span><%= tag.tag_name %></span>
+                      <i class="mdi mdi-pencil" 
+                         data-toggle="modal" 
+                         data-target="#editTagModal" 
+                         onclick="editTag('<%= tag.id %>', '<%= tag.tag_name %>', '<%= tag.company_id_fk %>', '<%= tag.tag_color || '#6c757d' %>')" 
+                         title="Edit Tag"
+                         style="margin-left: 8px; cursor: pointer; opacity: 0.6; color: #666;">
+                      </i>
+                      <i class="mdi mdi-delete" 
+                         data-toggle="modal" 
+                         data-target="#deleteTagModal" 
+                         onclick="deleteTag('<%= tag.id %>', '<%= tag.tag_name %>', '<%= tag.company_id_fk %>')" 
+                         title="Delete Tag"
+                         style="margin-left: 4px; cursor: pointer; opacity: 0.6; color: #666;">
+                      </i>
                     </li>
                   <% }); %>
+                  </ul>
                   <br/>
                 </form>
-                  <form action="/tags" class="needs-validation" id="addTag" novalidate method="POST">
+                <form action="/tags" class="needs-validation" id="addTag" novalidate method="POST">
+                  <input type="hidden" name="company_id_fk" value="<%= company.id %>">
                   <div class="form-group needs-validation" novalidate>
-                    <label for="tag_name">New Tag</label>
-                    <input type="text" class="form-control" id="tag_name" name="tag_name">
+                    <label for="colorInput">Pick Tag Color:</label><br/>
                     
-                    <div id="tagNameMissing" class="required_star" style="display:none;">
-                      Enter Tag Name.
+                    <input type="color" id="colorInput" value="#000000">&nbsp;<a href="https://www.webfx.com/web-design/color-picker/color-chart/" target="_blank">More options...</a>
+                    <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;"> 
+                      <!-- <div id="colorBox" class="color-box"></div> -->
+                     <br/>
+                      <input type="text" id="tag_color"  value="#000000" name="tag_color" style="margin: 0;">
+                      
                     </div>
                   </div>
+                   <div class="form-group needs-validation" novalidate>
+                    <label for="tag_name">Tag Name</label>
+                    <input type="text" class="form-control" id="tag_name" name="tag_name" required>
+                    <div class="invalid-feedback">
+                      Please enter tag name.
+                    </div>
+                  </div>
+
                   <div class="modal-footer">
                     <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Add</button>
                   </div>
@@ -236,14 +405,7 @@
             
           </div>
 
-                  
-                              
-                           
-                      
-            
-         
-          
-        </div>
+          </div>
       </div>
     </div>
   </div>
@@ -263,15 +425,25 @@
       </div>
       <div class="modal-body">
         <form id="editTagForm" class="needs-validation" novalidate>
-          <input type="hidden" id="tag_id" name="tag_id">
-          <input type="hidden" id="company_id_fk" name="company_id_fk">
-         <div class="form-group">
-        <label for="edit_tag_name">Tag Name</label>
-        <input type="text" class="form-control" id="edit_tag_name" name="tag_name" required>
-        <div class="invalid-feedback">
-          Please enter tag name.
-        </div>
-      </div>
+          <input type="hidden" id="edit_tag_id" name="tag_id">
+          <input type="hidden" id="edit_company_id_fk" name="company_id_fk">
+           <div class="form-group">
+            <label for="edit_colorInput">Tag Color:</label>
+            <input type="color" id="edit_colorInput" value="#3498db">
+            <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+              <!-- <div id="edit_colorBox" class="color-box" style="width: 30px; height: 30px; border: 1px solid #ccc; border-radius: 4px;"></div> -->
+              <input type="text" id="edit_tag_color" name="tag_color" value="#3498db" style="margin: 0; width: 80px;" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit_tag_name">Tag Name</label>
+            <input type="text" class="form-control" id="edit_tag_name" name="tag_name" required>
+            <div class="invalid-feedback">
+              Please enter tag name.
+            </div>
+          </div>
+          
+         
         </form>
       </div>
       <div class="modal-footer">
@@ -329,15 +501,38 @@
     function getUserTimezone() {
       return Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
+    
 
-    // Removed inert attribute handling - Bootstrap handles accessibility
   });
 
   // Fix the editTag function - make it global
-  window.editTag = function(tagId, tagName, companyId) {
-    document.getElementById('tag_id').value = tagId;
-    document.getElementById('edit_tag_name').value = tagName;  // Fixed: use correct ID
-    document.getElementById('company_id_fk').value = companyId;
+  window.editTag = function(tagId, tagName, companyId, tagColor) {
+    document.getElementById('edit_tag_id').value = tagId;
+    document.getElementById('edit_tag_name').value = tagName;
+    document.getElementById('edit_company_id_fk').value = companyId;
+    
+    // Set the color values - use tagColor from database
+    const editColorInput = document.getElementById('edit_colorInput');
+    const editColorBox = document.getElementById('edit_colorBox');
+    const editTagColor = document.getElementById('edit_tag_color');
+    
+    // Use the tagColor from database, fallback to default if not provided
+    const colorToUse = tagColor || '#6c757d';
+    
+    if (editColorInput) {
+      editColorInput.value = colorToUse;
+    }
+    if (editColorBox) {
+      editColorBox.style.backgroundColor = colorToUse;
+    }
+    if (editTagColor) {
+      editTagColor.value = colorToUse;
+    }
+    
+    // Trigger the update function to sync all color elements
+    if (typeof updateEditColor === 'function') {
+      updateEditColor();
+    }
   }
 
   // Fix the deleteTag function - make it global
@@ -359,7 +554,7 @@
       tagNameInput.classList.remove('is-invalid');
     }
 
-    const url = '/tags/' + document.getElementById('tag_id').value;
+    const url = '/tags/' + document.getElementById('edit_tag_id').value;
     const formData = new FormData(form);
 
     fetch(url, {
@@ -419,4 +614,49 @@
   window.confirmDeleteTag = confirmDeleteTag;
 
 })();
+
+// Color picker functionality for add tag form
+const colorInput = document.getElementById('colorInput');
+console.log(colorInput);
+const colorBox = document.getElementById('colorBox');
+console.log(colorBox);
+const tag_color = document.getElementById('tag_color');
+console.log(tag_color);
+
+function updateColor() {
+  console.log("updateColor called: ",colorInput.value);
+  if (colorBox) {
+    colorBox.style.backgroundColor = colorInput.value;
+  }
+  if (tag_color) {
+    tag_color.value = colorInput.value;
+  }
+}
+
+if (colorInput) {
+  colorInput.addEventListener('input', updateColor);
+  // Initialize with the default color
+  updateColor();
+}
+
+// Color picker functionality for edit tag modal
+const editColorInput = document.getElementById('edit_colorInput');
+const editColorBox = document.getElementById('edit_colorBox');
+const editTagColor = document.getElementById('edit_tag_color');
+
+function updateEditColor() {
+  console.log("updateEditColor called: ", editColorInput.value);
+  if (editColorBox) {
+    editColorBox.style.backgroundColor = editColorInput.value;
+  }
+  if (editTagColor) {
+    editTagColor.value = editColorInput.value;
+  }
+}
+
+if (editColorInput) {
+  editColorInput.addEventListener('input', updateEditColor);
+  // Initialize with the default color
+  updateEditColor();
+}
 </script>

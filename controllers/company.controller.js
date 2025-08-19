@@ -46,6 +46,7 @@ exports.create = async (req, res) => {
         for (const tag of defaultTags) {
           //add default tags for company
           await Tag.create({
+            tag_color: tag.tag_color,
             tag_name: tag.tag_name,
             company_id_fk: company.id,
           });
@@ -181,7 +182,7 @@ exports.findDefaults = (req, res) => {
       })
         .then((tags) => {
           if (!tags) {
-            // return res.status(404).send("Tag not found");
+            return res.status(404).send("Tag not found");
           }
 
           res.render("Pages/pages-defaults", {

@@ -4783,7 +4783,8 @@ Invoice
 
 #notfound {
   position: relative;
-  height: 50vh;
+  height: 60vh !important;
+  margin-bottom: 200px !important;
 }
 
 #notfound .notfound {

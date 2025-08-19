@@ -1,5 +1,6 @@
 const dbConfig = require("./config/db.config.js");
 var app = require("express")();
+const bodyParser = require("body-parser");
 var express = require("express");
 var session = require("express-session");
 var path = require("path");
@@ -36,6 +37,17 @@ app.use(express.json());
 // Middleware to parse URL-encoded request bodies
 app.use(express.urlencoded({ extended: true }));
 
+// Determine if we need SSL for session store (only for remote databases)
+const isRemoteDB = process.env.DB_HOST_NAME !== "localhost";
+const sessionSSLConfig = isRemoteDB
+  ? {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    }
+  : {};
+
 const sessionMiddleware = session({
   store: new pgSession({
     pool: new pg.Pool({
@@ -44,6 +56,7 @@ const sessionMiddleware = session({
       database: process.env.DB_NAME,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
+      ...sessionSSLConfig,
     }),
     tableName: "session", // Use a custom table name if needed
   }),
@@ -63,6 +76,17 @@ app.use(companyPortfolioName);
 app.get("/ping", (req, res) => {
   //test connection to db
   try {
+    // Determine if we need SSL for ping endpoint
+    const isPingRemoteDB = process.env.DB_HOST_NAME !== "localhost";
+    const pingDialectOptions = isPingRemoteDB
+      ? {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+          },
+        }
+      : {};
+
     const sequelize = new Sequelize(
       process.env.DB_NAME,
       process.env.DB_USER,
@@ -71,6 +95,7 @@ app.get("/ping", (req, res) => {
         host: process.env.DB_HOST_NAME,
         dialect: "postgres",
         logging: process.env.DB_LOGGING, // Disable logging for cleaner output
+        dialectOptions: pingDialectOptions,
       },
     );
     res.status(200).send("✅ Server is running and connected to the database.");
