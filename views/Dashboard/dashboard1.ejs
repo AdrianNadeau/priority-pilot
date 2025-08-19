@@ -153,20 +153,11 @@
                     
                     <div class="row text-center" style="padding-top: 20px;">
                         <div class="col-md-12">
-                            <strong>$$</strong>
-                            <ul class="list-unstyled">
-                                <li>Full: $<%= totalCost %></li>
-                                <li>Used: $<%= usedCost %></li>
-                               <li>Avail: <span style="color: <%= availableCostColor %>; font-weight:900;"><strong>$<%= availableCost %></strong></span></li>
-
-                            </ul>
-                            <strong>Effort</strong>
-                            <ul class="list-unstyled">
-                                <li>Full: <%= totalPH %> PH</li>
-                                <li>Used: <%= totalUsedPH %> PH</li>
-                                <li>Avail: <span style="color: <%=availablePHColor%>; font-weight:900;"><strong><%= totalAvailPH %></strong></span></li>
-                                
-                            </ul>
+                          
+              <strong class="list-percent">$$</strong><br/>
+              <span class="list-percent percent-cost" data-color="<%= availableCostColor %>"><%= availableCostPercent %></span><br/>
+               <strong class="list-percent">PH</strong><br/>
+              <span class="list-percent percent-effort" data-color="<%= availablePHColor %>"><%= availableEffortPercent %></span>
                         </div>
                     </div>
                     
@@ -482,6 +473,32 @@
 
     // Add event listener to phase selection change
     phaseSelect.addEventListener("change", toggleDateSection);
+  });
+
+  // Apply available effort color to elements to avoid inline CSS with EJS
+  document.addEventListener("DOMContentLoaded", function() {
+    // avail-effort elements
+    document.querySelectorAll('.avail-effort').forEach(function(el) {
+      var color = el.getAttribute('data-color');
+      if (color) el.style.color = color;
+    });
+
+    // percent-cost and percent-effort elements: color red when negative
+    function applyPercentColors(selector) {
+      document.querySelectorAll(selector).forEach(function(el) {
+        var txt = el.textContent || el.innerText || '';
+        var num = parseFloat(txt.replace('%','')) || 0;
+        if (num < 0) {
+          el.style.color = 'red';
+        } else {
+          var color = el.getAttribute('data-color');
+          if (color) el.style.color = color;
+        }
+      });
+    }
+
+    applyPercentColors('.percent-cost');
+    applyPercentColors('.percent-effort');
   });
 
   function submitForm() {

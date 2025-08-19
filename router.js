@@ -206,9 +206,20 @@ ORDER BY
         portfolio_budget && !isNaN(portfolio_budget)
           ? ((availableCost / portfolio_budget) * 100).toFixed(1) + "%"
           : "0%",
+      // Effort percent fields (mirror cost percent behavior)
+      totalEffortPercent:
+        portfolio_effort && !isNaN(portfolio_effort) ? "100%" : "0%",
+      usedEffortPercent:
+        portfolio_effort && !isNaN(portfolio_effort)
+          ? ((usedEffort / portfolio_effort) * 100).toFixed(1) + "%"
+          : "0%",
+      availableEffortPercent:
+        portfolio_effort && !isNaN(portfolio_effort)
+          ? ((totalAvailPH / portfolio_effort) * 100).toFixed(1) + "%"
+          : "0%",
       usedEffort: formatToKMB(usedEffort),
     };
-    console.log("totalCostPercent", formattedData.totalCostPercent);
+
     //get all phases for add project modal
     const phases = await db.phases.findAll({});
     //get all priorities for add project modal

@@ -5036,3 +5036,8 @@ canvas {
   text-overflow: ellipsis;
 }
 /* Custom CSS */
+
+.list-percent {
+  font-size: 2em !important;
+  font-weight: 700;
+}

@@ -163,7 +163,12 @@
 <script type="text/javascript">
       document.addEventListener("DOMContentLoaded", function() {
         const portfolioTitle = document.getElementById("portfolioTitle");
-        console.error("DRAW!");
+        if (portfolioTitle) {
+          portfolioTitle.textContent = "Portfolio Radar";
+        } else {
+          console.error("Portfolio title element not found!");
+        }
+
         const barCtx = document.getElementById("barChart")?.getContext("2d");
         if (!barCtx) {
           console.error("Canvas element with ID 'barChart' not found!");
