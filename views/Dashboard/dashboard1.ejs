@@ -475,13 +475,12 @@
     phaseSelect.addEventListener("change", toggleDateSection);
   });
 
-  // Apply available effort color to elements to avoid inline CSS with EJS
-  document.addEventListener("DOMContentLoaded", function() {
+ 
     // avail-effort elements
     document.querySelectorAll('.avail-effort').forEach(function(el) {
       var color = el.getAttribute('data-color');
       if (color) el.style.color = color;
-    });
+    
 
     // percent-cost and percent-effort elements: color red when negative
     function applyPercentColors(selector) {

@@ -2,23 +2,24 @@ const db = require("../models");
 const Tag = db.tags;
 
 // Create and Save a new Tag
-exports.create = async (req, res) => {
+exports.create = async (req, res, next) => {
   try {
     const tagName = req.body.tag_name;
     const tagColor = req.body.tag_color;
 
     // Validate tag name
     if (!tagName || tagName.trim() === "") {
-      const error = new Error("Tag name is required");
-      error.statusCode = 405;
-      throw error;
+      const error = new Error("Error adding tag: Tag name required.");
+      error.statusCode = 401;
+
+      return next(error);
     }
 
     // Validate tag color
     if (!tagColor) {
-      const error = new Error("Tag color is required");
-      error.statusCode = 405;
-      throw error;
+      const error = new Error("Error adding tag: Tag color is required.");
+      error.statusCode = 401;
+      return next(error);
     }
 
     // Check for same tag color within the same company
@@ -28,16 +29,13 @@ exports.create = async (req, res) => {
         company_id_fk: req.session.company.id,
       },
     });
-
-    console.log("tags with same color:", existingTags);
-
     if (existingTags && existingTags.length > 0) {
-      // Color already being used in this company
       const error = new Error(
         "Error adding tag. Tag color must be unique within your company.",
       );
-      error.statusCode = 400;
-      throw error;
+      error.statusCode = 500;
+
+      return next(error);
     }
 
     // Create a Tag
@@ -52,11 +50,14 @@ exports.create = async (req, res) => {
     res.redirect("/companies/get/defaults");
   } catch (err) {
     console.log("Error creating tag:", err);
+    // For validation or expected errors, redirect back to the defaults page
+    // and surface the error message via a query parameter so the UI can show it.
     if (err.statusCode) {
-      res.status(err.statusCode).send({
-        message: err.message,
-      });
+      return res.redirect(
+        "/companies/get/defaults?error=" + encodeURIComponent(err.message),
+      );
     } else {
+      // Unexpected server errors: respond with 500 as before
       res.status(500).send({
         message: err.message || "Some error occurred while creating the Tag.",
       });

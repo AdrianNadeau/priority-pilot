@@ -328,10 +328,13 @@ exports.cockpit = async (req, res) => {
     SELECT 
       proj.tag_1,
       tag1.tag_name AS tag_1_name,
+      tag1.tag_color AS tag_1_color,
       proj.tag_2,
       tag2.tag_name AS tag_2_name,
+      tag2.tag_color AS tag_2_color,
       proj.tag_3,
       tag3.tag_name AS tag_3_name,
+      tag3.tag_color AS tag_3_color,
       proj.company_id_fk,
       proj.id, 
       proj.project_name, 
@@ -440,18 +443,21 @@ exports.findOneForEdit = async (req, res) => {
     const query = `
      SELECT 
       proj.tag_1, 
+      tag1.tag_name AS tag_1_name,
       proj.tag_2, 
+      tag2.tag_name AS tag_2_name,
       proj.tag_3,
+      tag3.tag_name AS tag_3_name,
       proj.company_id_fk,
       proj.id,
       proj.project_name,
-        proj.project_headline,
+      proj.project_headline,
       proj.start_date,
       proj.end_date,
-        proj.next_milestone_date,
-        proj.project_why,
-        proj.project_what,
-        proj.phase_id_fk,	
+      proj.next_milestone_date,
+      proj.project_why,
+      proj.project_what,
+      proj.phase_id_fk,
       proj.prime_id_fk,
       proj.sponsor_id_fk,
       proj.priority_id_fk,
@@ -460,20 +466,20 @@ exports.findOneForEdit = async (req, res) => {
       proj.effort,
       proj.benefit,
       proj.project_cost,
-      proj.tag_1,
-      proj.tag_2,
-      proj.tag_3,
       proj.reference
-      FROM 
+    FROM 
       projects proj
-LEFT JOIN 
-    persons prime_person ON prime_person.id = proj.prime_id_fk
-LEFT JOIN 
-    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-LEFT JOIN 
-    phases ON phases.id = proj.phase_id_fk
-WHERE 
-proj.company_id_fk = ? AND proj.id = ?`;
+    LEFT JOIN 
+      persons prime_person ON prime_person.id = proj.prime_id_fk
+    LEFT JOIN 
+      persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+    LEFT JOIN 
+      phases ON phases.id = proj.phase_id_fk
+    LEFT JOIN tags tag1 ON tag1.id = proj.tag_1
+    LEFT JOIN tags tag2 ON tag2.id = proj.tag_2
+    LEFT JOIN tags tag3 ON tag3.id = proj.tag_3
+    WHERE 
+      proj.company_id_fk = ? AND proj.id = ?`;
 
     try {
       // Execute the query
@@ -2353,6 +2359,16 @@ exports.exportHealthDataToCSV = async (req, res) => {
       statusMap[status.project_id_fk] = status;
     });
 
+    // Fetch tag names for this company so we can output names instead of IDs
+    const tagRowsForCompany = await db.tags.findAll({
+      where: { company_id_fk },
+      attributes: ["id", "tag_name"],
+      raw: true,
+    });
+    const tagNameMap = Object.fromEntries(
+      tagRowsForCompany.map((t) => [t.id, t.tag_name]),
+    );
+
     // Combine project and status data
     const combinedData = projects.map((project) => {
       const status = statusMap[project.id] || {
@@ -2442,12 +2458,25 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
         proj.id,
         proj.project_name,
         proj.project_headline,
+        proj.project_why,
+        proj.project_what,
         proj.project_cost,
         proj.effort,
-        proj.benefit, -- Include benefit field
+        proj.benefit,
         proj.start_date,
         proj.end_date,
         proj.next_milestone_date,
+        proj.tag_1,
+        tag1.tag_name AS tag_1_name,
+        tag1.tag_color AS tag_1_color,
+        proj.tag_2,
+        tag2.tag_name AS tag_2_name,
+        tag2.tag_color AS tag_2_color,
+        proj.tag_3,
+        tag3.tag_name AS tag_3_name,
+        tag3.tag_color AS tag_3_color,
+        proj.priority_id_fk,
+        priorities.priority_name AS priority_name,
         phases.phase_name,
         prime_person.first_name AS prime_first_name,
         prime_person.last_name AS prime_last_name,
@@ -2457,9 +2486,13 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
       LEFT JOIN phases ON proj.phase_id_fk = phases.id
       LEFT JOIN persons prime_person ON proj.prime_id_fk = prime_person.id
       LEFT JOIN persons sponsor_person ON proj.sponsor_id_fk = sponsor_person.id
+      LEFT JOIN priorities ON priorities.id = proj.priority_id_fk
+      LEFT JOIN tags tag1 ON tag1.id = proj.tag_1
+      LEFT JOIN tags tag2 ON tag2.id = proj.tag_2
+      LEFT JOIN tags tag3 ON tag3.id = proj.tag_3
       WHERE proj.company_id_fk = ?
       `,
-      { replacements: [company_id_fk], type: db.Sequelize.QueryTypes.SELECT },
+      { replacements: [company_id_fk], type: db.sequelize.QueryTypes.SELECT },
     );
 
     // Fetch statuses for the projects
@@ -2536,19 +2569,30 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
         Prime: project.prime_first_name
           ? `${project.prime_last_name}, ${project.prime_first_name}`
           : "", // Include prime details
+        Priority:
+          project.priority_name ||
+          (project.priority_id_fk ? String(project.priority_id_fk) : ""),
         Effort: project.effort || 0 + " %",
         Cost: "$" + project.project_cost || 0,
 
         Benefit: project.benefit || "", // Map benefit field
-        "Start Date": formattedStartDate,
-        "End Date": formattedEndDate,
-        "NMS Date": formattedNMSDate,
-        "Status Date": formattedStatusDate,
-        Progress: status.progress,
-        Health: status.health,
-        Accomplishments: status.accomplishments,
-        Issues: status.issue,
-        Actions: status.actions,
+        "Start Date": formattedStartDate || "",
+        "End Date": formattedEndDate || "",
+        "NMS Date": formattedNMSDate || "",
+        "Status Date": formattedStatusDate || "",
+        Progress: status.progress || "",
+        Health: status.health || "",
+        Accomplishments: status.accomplishments || "",
+        Issues: status.issue || "",
+        Actions: status.actions || "",
+        reference: project.reference || "",
+        // CSV tag columns (match fields list)
+        "Tag 1":
+          project.tag_1_name || (project.tag_1 ? String(project.tag_1) : ""),
+        "Tag 2":
+          project.tag_2_name || (project.tag_2 ? String(project.tag_2) : ""),
+        "Tag 3":
+          project.tag_3_name || (project.tag_3 ? String(project.tag_3) : ""),
       };
     });
 
@@ -2556,17 +2600,23 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
     const fields = [
       "Name",
       "Headline",
+      "Project Why",
+      "Project What",
       "Phase",
       "Prime",
+      "Priority",
       "Sponsor",
       "Cost",
       "Effort",
-      "Benefit", // Add Benefit column
+      "Benefit",
       "Start Date",
       "End Date",
       "NMS Date",
       "Status Date",
       "Progress",
+      "Tag 1",
+      "Tag 2",
+      "Tag 3",
       "Health",
       "Accomplishments",
       "Issues",
