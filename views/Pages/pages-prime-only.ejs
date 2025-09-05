@@ -123,15 +123,16 @@ body.modal-open {
                                     <td><%= project.end_date ? project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
                                     <td><%= project.phase_name %></td>
                                     <td><%= project.project_cost %></td>
-                                    <% if (project.prime_id_fk === person.id) { %>
-                                    <td>
-                                        <i data-toggle="modal" data-target="#myModal_<%= project.id %>" style="cursor:pointer;color:#34b871 !important;"  class="mdi mdi-note-plus"></i> <i data-toggle="modal" style="cursor:pointer;color:#34b871 !important;" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal" class="mdi mdi-eye"></i>
-                                    </td>
-                                    <% } else { %>
-                                    <a href="#"><td data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
-                                        <i style="cursor:pointer;color:#34b871 !important;width:24px; height:24px;" class="mdi mdi-eye"></i>
-                                    </td></a>
-                                    <% } %>
+                  <% if (project.prime_id_fk === person.id) { %>
+                  <td>
+                    <i data-toggle="modal" data-target="#myModal_<%= project.id %>" style="cursor:pointer;color:#34b871 !important;"  class="mdi mdi-note-plus" title="Add status"></i>
+                    <i data-toggle="modal" data-target="#StatusUpdatesModal" data-project-id="<%= project.id %>" class="mdi mdi-eye js-status-eye" style="cursor:pointer;color:#34b871 !important; width:24px; height:24px;" title="View status"></i>
+                  </td>
+                  <% } else { %>
+                  <td data-toggle="modal" data-target="#StatusUpdatesModal">
+                    <i data-project-id="<%= project.id %>" class="mdi mdi-eye js-status-eye" style="cursor:pointer;color:#34b871 !important;width:24px; height:24px;" title="View status"></i>
+                  </td>
+                  <% } %>
                                 </tr>
 
                                 <!-- Modal -->
@@ -496,12 +497,16 @@ event.preventDefault();
       if (data.status_date) {
         // Parse and adjust the status_date to ensure correct timezone handling
         const parsedStatusDate = new Date(data.status_date);
+        console.log("Parsed status date:", parsedStatusDate);
         const adjustedStatusDate = new Date(
           parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
         );
+         console.log("Adjusted status date:", adjustedStatusDate);
         // Format adjustedStatusDate to yyyy-mm-dd
         const formattedStatusDate = adjustedStatusDate.toISOString().split("T")[0];
         document.getElementById('view_status_date').innerText = formattedStatusDate;
+         console.log("Adjusted formattedStatusDate:", formattedStatusDate);
+       
         //fetch prime name
         console.log("Prime id",data.prime_id_fk)
         fetch(`/persons/${data.prime_id_fk}`)
@@ -528,6 +533,24 @@ event.preventDefault();
     .catch(err => console.error("Error fetching status data:", err));
 }
   
+</script>
+
+<script>
+  // Delegated handler for status eye icons to avoid inline onclick with EJS
+  document.addEventListener('DOMContentLoaded', function () {
+    document.body.addEventListener('click', function (e) {
+      var el = e.target.closest && e.target.closest('.js-status-eye');
+      if (!el) return;
+      var pid = el.getAttribute('data-project-id');
+      if (!pid) return;
+      // call the existing function to fetch and show status updates
+      try {
+        window.getStatusUpdates(parseInt(pid, 10));
+      } catch (err) {
+        console.error('Error calling getStatusUpdates for project', pid, err);
+      }
+    });
+  });
 </script>
 
 <%- contentFor('FooterJs') %>

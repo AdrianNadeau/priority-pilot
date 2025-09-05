@@ -84,9 +84,14 @@ ORDER BY
     });
 
     if (!data || data.length === 0) {
-      console.log("No data found for company_id_fk:", company_id_fk);
+      console.log(
+        "No data found for company_id_fk:",
+        company_id_fk,
+        "redirecting to /projects",
+      );
       return res.redirect("/projects");
     }
+
     // console.log("Data retrieved successfully:", data.length, "records found.");
     // Initialize phase data with default values
     const phaseData = {
@@ -220,8 +225,8 @@ ORDER BY
       usedEffort: formatToKMB(usedEffort),
     };
 
-    //get all phases for add project modal
-    const phases = await db.phases.findAll({});
+    //get all phases for add project modal (ordered by id)
+    const phases = await db.phases.findAll({ order: [["id", "ASC"]] });
     //get all priorities for add project modal
     const priorities = await db.priorities.findAll({});
     //get all persons for primes and sponsors add project modal
@@ -235,12 +240,19 @@ ORDER BY
 
     // Add "None" option at the top of the tags list
     tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
-    // Deduplicate projects by ID
+    // Deduplicate projects by ID and ensure admin flags
     const uniqueProjects = [];
     const seenIds = new Set();
+    const currentPerson =
+      req.session && req.session.person ? req.session.person : null;
     for (const project of data) {
       if (!seenIds.has(project.id)) {
-        uniqueProjects.push(project);
+        const canModify = currentPerson ? !!currentPerson.isAdmin : false;
+        uniqueProjects.push({
+          ...project,
+          can_update_status: canModify,
+          can_view: true,
+        });
         seenIds.add(project.id);
       }
     }

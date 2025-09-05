@@ -125,6 +125,13 @@ module.exports = (app) => {
     projects.flightview,
   );
   router.get("/flightview/ganttChart/", sessionMiddleware, projects.ganttChart);
+  // Diagnostic debug route
+  router.get(
+    "/debug/raw",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.debugProjectsRaw,
+  );
   router.delete(
     "/",
     sessionMiddleware,

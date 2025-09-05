@@ -223,7 +223,6 @@ exports.deleteAll = async (req, res, next) => {
 };
 
 // Send Welcome Email
-// Send Welcome Email
 exports.sendWelcomeEmail = async (req, res) => {
   const personFirstName = req.session.person?.firstName;
   const personEmail = req.session.person?.email;

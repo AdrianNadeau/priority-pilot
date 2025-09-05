@@ -132,7 +132,7 @@ exports.create = (req, res) => {
 
     if (funnelPage == "n") {
       const query =
-        "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
+        "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name, proj.prime_id_fk, proj.sponsor_id_fk FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
 
       await db.sequelize
         .query(query, {
@@ -140,9 +140,25 @@ exports.create = (req, res) => {
           type: db.sequelize.QueryTypes.SELECT,
         })
         .then((data) => {
+          // enrich each project with permission flags based on current session person
+          const currentPerson =
+            req.session && req.session.person ? req.session.person : null;
+          const enriched = data.map((p) => {
+            const canModify = currentPerson
+              ? currentPerson.isAdmin ||
+                currentPerson.id === p.prime_id_fk ||
+                currentPerson.id === p.sponsor_id_fk
+              : false;
+            return {
+              ...p,
+              can_update_status: canModify,
+              can_view: canModify,
+            };
+          });
+
           res.render("Pages/pages-projects", {
             pageTitle: "Projects",
-            projects: data,
+            projects: enriched,
             phases: phasesData,
             priorities: prioritiesData,
             sponsors: personsData,
@@ -235,7 +251,17 @@ exports.findAll = async (req, res) => {
 
     // Add "None" option at the top of the tags list
     tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
-    const query = `
+    // If the current user is an admin, show all projects (including phases 1 and 6).
+    const currentPerson =
+      req.session && req.session.person ? req.session.person : null;
+    // Normalize isAdmin: accept boolean true, string 'true', or numeric 1
+    const isAdminFlag = !!(
+      currentPerson &&
+      (currentPerson.isAdmin === true ||
+        currentPerson.isAdmin === "true" ||
+        currentPerson.isAdmin === 1)
+    );
+    const nonAdminQuery = `
   SELECT 
     proj.company_id_fk,
     proj.id,
@@ -263,6 +289,36 @@ exports.findAll = async (req, res) => {
     AND proj.phase_id_fk NOT IN (1, 6)
   ORDER BY proj.project_name ASC;
 `;
+
+    const adminQuery = `
+  SELECT 
+    proj.company_id_fk,
+    proj.id,
+    proj.project_name,
+    proj.start_date,
+    proj.end_date,
+    prime_person.first_name AS prime_first_name,
+    prime_person.last_name AS prime_last_name,
+    sponsor_person.first_name AS sponsor_first_name,
+    sponsor_person.last_name AS sponsor_last_name,
+    proj.project_cost,
+    proj.effort,
+    proj.benefit,
+    phases.phase_name
+  FROM 
+    projects proj
+  LEFT JOIN 
+    persons prime_person ON prime_person.id = proj.prime_id_fk
+  LEFT JOIN 
+    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+  LEFT JOIN 
+    phases ON phases.id = proj.phase_id_fk
+  WHERE 
+    proj.company_id_fk = ?
+  ORDER BY proj.project_name ASC;
+`;
+
+    const query = isAdminFlag ? adminQuery : nonAdminQuery;
     await db.sequelize
       .query(query, {
         replacements: [company_id_fk],
@@ -270,14 +326,43 @@ exports.findAll = async (req, res) => {
       })
 
       .then((data) => {
+        console.log(
+          "************* Projects data retrieved successfully:",
+          data,
+        );
+        // Ensure the view has permission flags — admins should be able to update all
+        const currentPerson =
+          req.session && req.session.person ? req.session.person : null;
+        console.log("currentPerson:", currentPerson);
+        const enriched = data.map((p) => ({
+          ...p,
+          can_update_status: isAdminFlag,
+          can_view: true,
+        }));
+
+        console.log(
+          currentPerson
+            ? { id: currentPerson.id, isAdmin: currentPerson.isAdmin }
+            : null,
+          "projects:",
+          enriched.length,
+        );
+
+        if (enriched.length > 0) {
+          console.log("Sample project for render:", enriched[0]);
+        } else {
+          console.log("No projects to render (enriched array is empty)");
+        }
+
         res.render("Pages/pages-projects", {
           pageTitle: "Projects",
-          projects: data,
+          projects: enriched,
           phases: phasesData,
           priorities: priorities,
           sponsors: personsData,
           primes: personsData,
           tags: tagsData,
+          company_id: company_id_fk,
         });
       })
 
@@ -288,6 +373,104 @@ exports.findAll = async (req, res) => {
       });
   } catch (error) {
     console.log("error:", error);
+  }
+};
+
+// Temporary diagnostic endpoint: return enriched projects JSON for the current session
+exports.debugProjectsRaw = async (req, res) => {
+  try {
+    const company_id_fk = req.session.company.id;
+    const currentPerson =
+      req.session && req.session.person ? req.session.person : null;
+    const isAdminFlag = !!(
+      currentPerson &&
+      (currentPerson.isAdmin === true ||
+        currentPerson.isAdmin === "true" ||
+        currentPerson.isAdmin === 1)
+    );
+
+    // Reuse the same query selection logic as findAll
+    const nonAdminQuery = `
+  SELECT 
+    proj.company_id_fk,
+    proj.id,
+    proj.project_name,
+    proj.start_date,
+    proj.end_date,
+    prime_person.first_name AS prime_first_name,
+    prime_person.last_name AS prime_last_name,
+    sponsor_person.first_name AS sponsor_first_name,
+    sponsor_person.last_name AS sponsor_last_name,
+    proj.project_cost,
+    proj.effort,
+    proj.benefit,
+    phases.phase_name
+  FROM 
+    projects proj
+  LEFT JOIN 
+    persons prime_person ON prime_person.id = proj.prime_id_fk
+  LEFT JOIN 
+    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+  LEFT JOIN 
+    phases ON phases.id = proj.phase_id_fk
+  WHERE 
+    proj.company_id_fk = ?
+    AND proj.phase_id_fk NOT IN (1, 6)
+  ORDER BY proj.project_name ASC;
+`;
+
+    const adminQuery = `
+  SELECT 
+    proj.company_id_fk,
+    proj.id,
+    proj.project_name,
+    proj.start_date,
+    proj.end_date,
+    prime_person.first_name AS prime_first_name,
+    prime_person.last_name AS prime_last_name,
+    sponsor_person.first_name AS sponsor_first_name,
+    sponsor_person.last_name AS sponsor_last_name,
+    proj.project_cost,
+    proj.effort,
+    proj.benefit,
+    phases.phase_name
+  FROM 
+    projects proj
+  LEFT JOIN 
+    persons prime_person ON prime_person.id = proj.prime_id_fk
+  LEFT JOIN 
+    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+  LEFT JOIN 
+    phases ON phases.id = proj.phase_id_fk
+  WHERE 
+    proj.company_id_fk = ?
+  ORDER BY proj.project_name ASC;
+`;
+
+    const query = isAdminFlag ? adminQuery : nonAdminQuery;
+
+    const data = await db.sequelize.query(query, {
+      replacements: [company_id_fk],
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    const enriched = (data || []).map((p) => ({
+      ...p,
+      can_update_status: isAdminFlag,
+      can_view: true,
+    }));
+
+    return res.status(200).json({
+      count: enriched.length,
+      sample: enriched[0] || null,
+      projects: enriched,
+    });
+  } catch (error) {
+    console.error("debugProjectsRaw error:", error);
+    return res.status(500).json({
+      message: "Error retrieving debug projects",
+      error: error.message,
+    });
   }
 };
 
@@ -2283,7 +2466,16 @@ exports.archive = async (req, res) => {
 
 // Helper function to insert valid date
 function insertValidDate(date) {
-  return date ? moment(date, "YYYY-MM-DD").toDate() : null;
+  if (!date) return null;
+  if (typeof date === "string" && date.trim().toLowerCase() === "invalid date")
+    return null;
+  // Try strict parsing first (exact format YYYY-MM-DD)
+  const strict = moment(date, "YYYY-MM-DD", true);
+  if (strict.isValid()) return strict.toDate();
+  // Fallback to a loose parse (handles other date formats) but only use if valid
+  const loose = moment(date);
+  if (loose.isValid()) return loose.toDate();
+  return null;
 }
 
 function removeCommasAndConvertToNumber(value) {

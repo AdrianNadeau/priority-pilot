@@ -74,7 +74,9 @@
       <% } %>
   
       <!-- Page title -->
-      <%- breadcrumb %>
+          <% if (typeof breadcrumb !== 'undefined') { %>
+            <%- breadcrumb %>
+          <% } %>
   
       <div class="clearfix"></div>
     </nav>
