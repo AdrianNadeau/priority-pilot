@@ -42,8 +42,8 @@
                                   else if (health === 'red') borderColor = 'red';
                                   else borderColor = 'black'; // default
                               %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
-                                  style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
+                                <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -52,6 +52,15 @@
                         </div>
                     </div>
                     
+                      <script>
+                        // Apply inline styles stored in data-style to elements to avoid embedding EJS in CSS attributes
+                        document.addEventListener('DOMContentLoaded', function () {
+                          document.querySelectorAll('.project-btn').forEach(function (el) {
+                            var s = el.getAttribute('data-style');
+                            if (s) el.style.cssText = s;
+                          });
+                        });
+                      </script>
                     <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
@@ -67,8 +76,8 @@
                                   else if (health === 'red') borderColor = 'red';
                                   else borderColor = 'black'; // default
                               %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
-                                  style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
+                                <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -79,14 +88,14 @@
                 </div>
                 
                 <div class="row">
-                    <!-- Discovery Section on Left, Done Section on Right -->
+                    <!-- Delivery (left), Done (center), Dates (right) -->
                     <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
                                 <span class="counter"><strong>Delivery</strong> (<%= delivery.count %>, $<%= delivery.cost %>, <%= delivery.ph %> PH)</span>
                             </div>
-                             <div>
-                                 <% projects.forEach(function(project) { 
+                            <div>
+                            <% projects.forEach(function(project) { 
                                 if (project.phase_name && project.phase_name.trim() === 'Delivery') { 
                                   let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
                                   let borderColor = '';
@@ -95,8 +104,8 @@
                                   else if (health === 'red') borderColor = 'red';
                                   else borderColor = 'black'; // default
                               %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
-                                  style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
+                                <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -104,12 +113,11 @@
                             </div>
                         </div>
                     </div>
-    
-                    <div class="col-md-6">
+
+                    <div class="col-md-3">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
                               <span class="counter"><strong>Done</strong> (<%= operations.count %>, $<%= operations.cost  %>, <%= operations.ph %> PH)</span>
-                             
                             </div>
                             <div>
                                  <% projects.forEach(function(project) { 
@@ -120,13 +128,30 @@
                                   else if (health === 'yellow') borderColor = 'yellow';
                                   else if (health === 'red') borderColor = 'red';
                                   else borderColor = 'black'; // default
+                                  const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;';
                               %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
-                                  style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
                             }); %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
+                            <div class="mini-stat-info">
+                              <span class="counter"><strong>Search start date:</strong></span>
+                            </div>
+                            <div>
+                              Date range selected
+                            </div>
+                            <div class="mini-stat-info" style="margin-top:10px;">
+                              <span class="counter"><strong>End start date:</strong></span>
+                            </div>
+                            <div>
+                              
                             </div>
                         </div>
                     </div>
