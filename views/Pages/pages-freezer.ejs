@@ -87,3 +87,11 @@
     window.location.replace("/projects/flight/view/");
   }
 </script>
+<script>
+  // Apply small padding to mini-stat boxes to match dashboard styles
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.mini-stat.bg-white.clearfix').forEach(function (el) {
+      el.style.padding = '5px';
+    });
+  });
+</script>
