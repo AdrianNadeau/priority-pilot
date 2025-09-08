@@ -4111,9 +4111,7 @@ input[switch="blue-grey"]:checked + label {
 
 .mini-stat {
   border: 1px solid rgba(112, 112, 112, 0.12);
-  padding: 20px;
   border-radius: 3px;
-  margin-bottom: 20px;
 }
 
 .mini-stat-icon {
@@ -4131,7 +4129,7 @@ input[switch="blue-grey"]:checked + label {
 
 .mini-stat-info {
   font-size: 14px;
-  padding-top: 2px;
+  padding: 5px 2px 5px 10px; /* 10px top, 20px right, 15px bottom, 5px left */
 }
 
 .mini-stat-info span {
