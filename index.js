@@ -10,7 +10,7 @@ const multer = require("multer");
 require("dotenv").config();
 const Sequelize = require("sequelize");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
-pg = require("pg");
+const pg = require("pg");
 const pgSession = require("connect-pg-simple")(session);
 
 const router = require("./router.js");
@@ -148,6 +148,21 @@ require("./routes/changed_password_token.routes.js")(app);
 
 app.use(errorHandler); // Use the error handler middleware
 
-http.listen(process.env.PORT || 8080, function () {
-  console.log("listening on *:8080");
-});
+// Start HTTP server with simple EADDRINUSE handling (try next port up to 3 times)
+const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 8080;
+function startServer(port, attemptsLeft = 3) {
+  http
+    .listen(port, function () {
+      console.log(`listening on *:${port}`);
+    })
+    .on("error", function (err) {
+      if (err && err.code === "EADDRINUSE" && attemptsLeft > 0) {
+        console.warn(`Port ${port} in use, trying ${port + 1}...`);
+        startServer(port + 1, attemptsLeft - 1);
+      } else {
+        console.error("Server failed to start:", err);
+        process.exit(1);
+      }
+    });
+}
+startServer(DEFAULT_PORT);
