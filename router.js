@@ -11,15 +11,27 @@ const { format } = require("sequelize/lib/utils");
 
 // Function to format numbers with K, M, B
 function formatToKMB(num) {
+  // Accept numbers or numeric strings; return a formatted string with two decimals and suffix
+  if (num === null || typeof num === "undefined" || num === "") return "0.00";
   if (typeof num !== "number") {
-    num = parseFloat(num) || 0;
+    const parsed = parseFloat(String(num).replace(/[^0-9.\-]/g, ""));
+    if (isNaN(parsed)) return "0.00";
+    num = parsed;
   }
   const isNegative = num < 0;
-  num = Math.abs(num);
-  if (num >= 1e9) return (isNegative ? "-" : "") + (num / 1e9).toFixed(2) + "B";
-  if (num >= 1e6) return (isNegative ? "-" : "") + (num / 1e6).toFixed(2) + "M";
-  if (num >= 1e3) return (isNegative ? "-" : "") + (num / 1e3).toFixed(2) + "K";
-  return (isNegative ? "-" : "") + num.toFixed(2);
+  const abs = Math.abs(num);
+  const sign = isNegative ? "-" : "";
+
+  if (abs >= 1e9) {
+    return sign + (abs / 1e9).toFixed(2) + "B";
+  }
+  if (abs >= 1e6) {
+    return sign + (abs / 1e6).toFixed(2) + "M";
+  }
+  if (abs >= 1e3) {
+    return sign + (abs / 1e3).toFixed(2) + "K";
+  }
+  return sign + abs.toFixed(2);
 }
 
 // Function to remove commas and convert to number
@@ -158,10 +170,14 @@ ORDER BY
     const availableCost = portfolio_budget - usedCost;
 
     // Determine colors based on availability
+    // Use Bootstrap text classes so views can style consistently
     const availablePHColor =
-      isNaN(totalAvailPH) || totalAvailPH < 0 ? "red" : "green";
+      isNaN(totalAvailPH) || totalAvailPH < 0 ? "text-danger" : "text-success";
     const availableCostColor =
-      isNaN(availableCost) || availableCost < 0 ? "red" : "green";
+      isNaN(availableCost) || availableCost < 0
+        ? "text-danger"
+        : "text-success";
+
     // Format data for response
     const formattedData = {
       totalPH: formatToKMB(portfolio_effort),

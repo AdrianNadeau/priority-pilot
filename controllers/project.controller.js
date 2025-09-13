@@ -2050,10 +2050,13 @@ ORDER BY
     const availableCost = portfolio_budget - usedCost;
 
     // Determine colors based on availability
+    // Use Bootstrap text classes so views can style consistently
     const availablePHColor =
-      isNaN(totalAvailPH) || totalAvailPH < 0 ? "red" : "green";
+      isNaN(totalAvailPH) || totalAvailPH < 0 ? "text-danger" : "text-success";
     const availableCostColor =
-      isNaN(availableCost) || availableCost < 0 ? "red" : "green";
+      isNaN(availableCost) || availableCost < 0
+        ? "text-danger"
+        : "text-success";
     // Format data for response
     const formattedData = {
       totalPH: formatToKMB(portfolio_effort),
@@ -2892,148 +2895,11 @@ exports.exportHealthDataToPDF = async (req, res) => {
     res.send(
       `PDF created successfully" ${date} - PriorityPilot Health Report.pdf`, //add link here for user to download
     );
-    // // Render the EJS template to HTML string
-    // res.render(
-    //   "Pages/pages-health-pdf",
-    //   {
-    //     portfolioName,
-    //     projects: costData,
-    //     currentDate: require("moment")().format("MMMM Do YYYY"),
-    //     layout: false, // Don't include the main layout if you want just the page
-    //   },
-    //   async (err, html) => {
-    //     if (err) {
-    //       console.error("EJS render error:", err);
-    //       return res.status(500).send("Error rendering page for PDF.");
-    //     }
-
-    //     const doc = new jsPDF();
-
-    //     doc.text("Hello world!", 10, 10);
-    //     doc.save("a4.pdf");
-    //   },
-    // );
   } catch (error) {
     console.error("Error exporting page to PDF:", error);
     res.status(500).send("Internal Server Error");
   }
 };
-// try {
-//   const company_id_fk = req.session.company.id;
-
-//   // Fetch projects
-//   const projects = await db.projects.findAll({
-//     where: { company_id_fk },
-//     attributes: [
-//       "id",
-//       "project_name",
-//       "project_headline",
-//       "project_cost",
-//       "effort",
-//       "benefit",
-//       "start_date",
-//       "end_date",
-//       "next_milestone_date",
-//       "benefit",
-//     ],
-//     raw: true,
-//   });
-
-//   const statuses = await db.sequelize.query(
-//     `
-//     SELECT s.project_id_fk, s.status_date, s.progress, s.health, s.accomplishments, s.issue, s.actions
-//     FROM statuses s
-//     INNER JOIN (
-//       SELECT project_id_fk, MAX(status_date) AS max_status_date
-//       FROM statuses
-//       GROUP BY project_id_fk
-//     ) latest_status
-//     ON s.project_id_fk = latest_status.project_id_fk AND s.status_date = latest_status.max_status_date
-//     `,
-//     { type: db.Sequelize.QueryTypes.SELECT },
-//   );
-
-//   // Map statuses to their corresponding projects
-//   const statusMap = {};
-//   statuses.forEach((status) => {
-//     statusMap[status.project_id_fk] = status;
-//   });
-
-//   // Combine project and status data
-//   const combinedData = projects.map((project) => {
-//     const status = statusMap[project.id] || {
-//       status_date: "",
-//       progress: "",
-//       health: "",
-//       accomplishments: "",
-//       issue: "",
-//       actions: "",
-//     };
-//     // Format dates in yyyy-dd-mm format
-//     const formattedStartDate = project.start_date
-//       ? moment(project.start_date).format("YYYY-DD-MM")
-//       : "";
-//     const formattedEndDate = project.end_date
-//       ? moment(project.end_date).format("YYYY-DD-MM")
-//       : "";
-//     const formattedNMSDate = project.next_milestone_date
-//       ? moment(project.next_milestone_date).format("YYYY-DD-MM")
-//       : "";
-//     const formattedStatusDate = status.status_date
-//       ? moment(project.next_milestone_date).format("YYYY-DD-MM")
-//       : "";
-
-//     return {
-//       Name: project.project_name,
-//       Headline: project.project_headline,
-//       "Start Date": formattedStartDate,
-//       "End Date": formattedEndDate,
-//       "NMS Date": formattedNMSDate,
-//       "Status Date": formattedStatusDate,
-//       Benefit: project.benefit,
-//       Progress: status.progress + " %",
-//       Health: status.health,
-//       Accomplishments: status.accomplishments,
-//       Issues: status.issue,
-//       Actions: status.actions,
-//       Cost: "$" + project.project_cost || 0,
-//       Effort: project.effort || 0,
-//     };
-//   });
-
-//   // Define the fields for the CSV
-//   const fields = [
-//     "Name",
-//     "Headline",
-
-//     "Benefit",
-//     "Start Date",
-//     "End Date",
-//     "NMS Date",
-//     "Status Date",
-//     "Progress",
-//     "Health",
-//     "Accomplishments",
-//     "Issues",
-//     "Actions",
-//     "Cost",
-//     "Effort",
-//   ];
-
-//   // Convert JSON to CSV
-//   const json2csvParser = new Parser({ fields });
-//   const csv = json2csvParser.parse(combinedData);
-
-//   // Set headers and send the CSV file
-//   res.header("Content-Type", "text/csv");
-//   res.attachment("projects_with_status.csv");
-//   res.send(csv);
-// } catch (error) {
-//   console.error("Error exporting projects with status to CSV:", error);
-//   res
-//     .status(500)
-//     .send({ message: "Error exporting projects with status to CSV." });
-// }
 
 // Function to remove commas and convert to number
 function removeCommasAndConvert(numStr) {
@@ -3044,8 +2910,11 @@ function removeCommasAndConvert(numStr) {
 }
 // Function to format numbers with K, M, B
 function formatToKMB(num) {
+  // Accept numbers or numeric strings (with commas, $ signs, etc.).
   if (typeof num !== "number") {
-    num = parseFloat(num) || 0;
+    // Strip anything that's not digit, dot or minus sign
+    const cleaned = String(num).replace(/[^0-9.\-]/g, "");
+    num = parseFloat(cleaned) || 0;
   }
   const isNegative = num < 0;
   num = Math.abs(num);

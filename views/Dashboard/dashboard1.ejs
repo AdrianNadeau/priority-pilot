@@ -180,13 +180,53 @@
                     <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFlightFull();" >Flight Plan</div>
                       <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFlightFull();" >Accomplishments</div>
                     
+                    <% 
+                      const costColor = typeof availableCostColor !== 'undefined' && availableCostColor !== null ? availableCostColor : '#000';
+                      // sanitize percent values: strip commas, dollar signs, percent signs, and whitespace
+                      function sanitizeNumber(val) {
+                        if (typeof val === 'number') return val;
+                        if (typeof val !== 'string') return NaN;
+                        const cleaned = val.replace(/[^0-9.\-]/g, '');
+                        const parsed = parseFloat(cleaned);
+                        return isNaN(parsed) ? NaN : parsed;
+                      }
+
+                      function padFormatNumber(val) {
+                        // val expected numeric or numeric-string
+                        const numRaw = (typeof val === 'number') ? val : parseFloat(String(val).replace(/[^0-9.\-]/g, ''));
+                        if (isNaN(numRaw)) return '00.00';
+                        let num = numRaw;
+                        // Special business rule: if magnitude is very large (>= 1000),
+                        // treat as percentage scaled by 100 (divide by 100) and round to nearest integer
+                        // so -15189.60 -> -152.00
+                        if (Math.abs(numRaw) >= 1000) {
+                          // divide by 100 then round to nearest integer
+                          const scaled = Math.round(numRaw / 100);
+                          num = scaled; // treat as integer percent value
+                        }
+                        const fixed = num.toFixed(2); // ensure two decimals
+                        const parts = fixed.split('.');
+                        let intPart = parts[0];
+                        const decPart = parts[1] || '00';
+                        const sign = intPart.startsWith('-') ? '-' : '';
+                        if (sign) intPart = intPart.slice(1);
+                        if (intPart.length < 2) intPart = intPart.padStart(2, '0');
+                        return `${sign}${intPart}.${decPart}`;
+                      }
+
+                      const rawCost = (typeof availableCostPercent !== 'undefined' && availableCostPercent !== null) ? sanitizeNumber(availableCostPercent) : NaN;
+                      const costPercent = !isNaN(rawCost) ? padFormatNumber(rawCost) : '00.00';
+                      const effColor = typeof availablePHColor !== 'undefined' && availablePHColor !== null ? availablePHColor : '#000';
+                      const rawEff = (typeof availableEffortPercent !== 'undefined' && availableEffortPercent !== null) ? sanitizeNumber(availableEffortPercent) : NaN;
+                      const effPercent = !isNaN(rawEff) ? padFormatNumber(rawEff) : '00.00';
+                    %>
                     <div class="row text-center" style="padding-top: 20px;">
                         <div class="col-md-12">
                           
-              <strong class="list-percent">$$</strong><br/>
-              <span class="list-percent percent-cost" data-color="<%= availableCostColor %>"><%= availableCostPercent %></span><br/>
-               <strong class="list-percent">PH</strong><br/>
-              <span class="list-percent percent-effort" data-color="<%= availablePHColor %>"><%= availableEffortPercent %></span>
+                          <strong class="list-percent">$$</strong><br/>
+                          <span class="list-percent percent-cost" data-color="<%= costColor %>"><%= costPercent %>%</span><br/>
+                          <strong class="list-percent">PH</strong><br/>
+                          <span class="list-percent percent-effort" data-color="<%= effColor %>"><%= effPercent %>%</span>
                         </div>
                     </div>
                     
@@ -502,25 +542,29 @@
 
     // Add event listener to phase selection change
     phaseSelect.addEventListener("change", toggleDateSection);
-  });
+    
 
  
     // avail-effort elements
     document.querySelectorAll('.avail-effort').forEach(function(el) {
       var color = el.getAttribute('data-color');
       if (color) el.style.color = color;
-    
+    });
 
-    // percent-cost and percent-effort elements: color red when negative
+    // percent-cost and percent-effort elements: apply Bootstrap color classes
     function applyPercentColors(selector) {
       document.querySelectorAll(selector).forEach(function(el) {
         var txt = el.textContent || el.innerText || '';
-        var num = parseFloat(txt.replace('%','')) || 0;
+        // Remove commas, K/M/B suffixes and percent signs before parsing
+        var cleaned = String(txt).replace(/[,\s]/g, '').replace(/K|M|B|%/gi, '');
+        var num = parseFloat(cleaned) || 0;
+        // Remove any previous text color classes
+        el.classList.remove('text-danger', 'text-success');
         if (num < 0) {
-          el.style.color = 'red';
+          el.classList.add('text-danger');
         } else {
-          var color = el.getAttribute('data-color');
-          if (color) el.style.color = color;
+          var colorClass = el.getAttribute('data-color');
+          if (colorClass) el.classList.add(colorClass);
         }
       });
     }
