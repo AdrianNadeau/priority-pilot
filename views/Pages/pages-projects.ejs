@@ -1,4 +1,11 @@
 <%- contentFor('HeaderCss') %>
+
+<%- contentFor('breadcrumb') %>
+<%- contentFor('body') %>
+<div class="page-content-wrapper">
+  <div class="container-fluid">
+    <div class="page-buttons">
+        <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Project</button>
         <% if (projects.length > 0) { %>
         <button type="button" class="btn btn-primary waves-effect waves-light" id="btnExportProjects">Download Report</button>
         <% } %>
@@ -57,9 +64,9 @@
                   <td>
                     <% if (project.can_update_status) { %>
                       <i data-toggle="modal" data-target="#myModal_<%= project.id %>" style="cursor:pointer;color:#34b871 !important;"  class="mdi mdi-note-plus"></i>
+                    <% } %>
+                    <% if (project.can_view) { %>
                       <i data-toggle="modal" data-target="#StatusUpdatesModal" class="mdi mdi-eye js-status-eye" data-project-id="<%= project.id %>" style="cursor:pointer;color:#34b871 !important;"></i>
-                    <% } else { %>
-                      <i class="mdi mdi-eye js-status-eye" data-project-id="<%= project.id %>" style="cursor:pointer;color:#34b871 !important;width:24px; height:24px;"></i>
                     <% } %>
                   </td>
                 </tr>
@@ -414,7 +421,11 @@ if (exportBtn) {
 
     // Table row click navigation to edit page
     document.querySelectorAll(".table tbody tr").forEach(function(row) {
-        row.addEventListener('click', function() {
+        row.addEventListener('click', function(e) {
+            // Don't navigate if clicking on modal triggers or status icons
+            if (e.target.closest('[data-toggle="modal"]') || e.target.closest('.js-status-eye')) {
+                return;
+            }
             var id = row.cells[0].textContent;
             window.location.replace('/projects/edit/' + id);
         });

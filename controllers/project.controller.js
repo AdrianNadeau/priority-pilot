@@ -304,7 +304,9 @@ exports.findAll = async (req, res) => {
     proj.project_cost,
     proj.effort,
     proj.benefit,
-    phases.phase_name
+    phases.phase_name,
+    proj.prime_id_fk,
+    proj.sponsor_id_fk
   FROM 
     projects proj
   LEFT JOIN 
@@ -334,11 +336,24 @@ exports.findAll = async (req, res) => {
         const currentPerson =
           req.session && req.session.person ? req.session.person : null;
         console.log("currentPerson:", currentPerson);
-        const enriched = data.map((p) => ({
-          ...p,
-          can_update_status: isAdminFlag,
-          can_view: true,
-        }));
+        const enriched = data.map((p) => {
+          // For admins: can update only if they are prime or sponsor, can view all
+          // For non-admins: can update only if they are prime, can view if they are prime or sponsor
+          const canModify = currentPerson
+            ? (isAdminFlag && (currentPerson.id === p.prime_id_fk || currentPerson.id === p.sponsor_id_fk)) || 
+              (!isAdminFlag && currentPerson.id === p.prime_id_fk)
+            : false;
+          const canView = currentPerson
+            ? isAdminFlag || currentPerson.id === p.prime_id_fk || currentPerson.id === p.sponsor_id_fk
+            : false;
+          
+          
+          return {
+            ...p,
+            can_update_status: canModify,
+            can_view: canView,
+          };
+        });
 
         console.log(
           currentPerson
@@ -433,7 +448,9 @@ exports.debugProjectsRaw = async (req, res) => {
     proj.project_cost,
     proj.effort,
     proj.benefit,
-    phases.phase_name
+    phases.phase_name,
+    proj.prime_id_fk,
+    proj.sponsor_id_fk
   FROM 
     projects proj
   LEFT JOIN 
