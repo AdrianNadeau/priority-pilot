@@ -2277,82 +2277,123 @@ exports.health = async (req, res) => {
   const company_id_fk = req.session.company.id;
   const portfolioName = req.session.company.company_headline;
 
-  const query = `SELECT  
-    proj.company_id_fk,
-    proj.id AS project_id,
-    proj.project_name,
-    proj.start_date,
-    proj.end_date,
-    proj.health,
-    proj.effort,
-    proj.reference,
-    prime_person.first_name AS prime_first_name,
-    prime_person.last_name AS prime_last_name,
-    sponsor_person.first_name AS sponsor_first_name,
-    sponsor_person.last_name AS sponsor_last_name,
-    proj.project_cost,
-    phases.phase_name,
-    phases.id AS phase_id,
-    companies.portfolio_budget AS company_budget,
-    companies.effort AS company_effort,
-    last_status.last_status
-FROM
-    projects proj
-LEFT JOIN
-    persons prime_person ON prime_person.id = proj.prime_id_fk
-LEFT JOIN
-    persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-LEFT JOIN
-    phases ON phases.id = proj.phase_id_fk
-LEFT JOIN
-    companies ON companies.id = proj.company_id_fk
-LEFT JOIN LATERAL (
-    SELECT json_build_object(
-        'progress', status.progress,
-        'issue', status.issue,
-        'actions', status.actions,
-        'health', status.health) AS last_status,
-        status.status_date
-    FROM statuses status
-    WHERE status.project_id_fk = proj.id
-    ORDER BY status.status_date DESC
-    LIMIT 1
-) last_status ON true
-WHERE
-    proj.company_id_fk = ?
-ORDER BY last_status.status_date DESC;
+  const query = `SELECT 
+    company_id_fk,
+    project_id,
+    project_name,
+    start_date,
+    end_date,
+    health,
+    effort,
+    reference,
+    prime_first_name,
+    prime_last_name,
+    sponsor_first_name,
+    sponsor_last_name,
+    project_cost,
+    company_budget,
+    company_effort,
+    last_status,
+    status_date,
+    phase_name 
+FROM (
+    SELECT DISTINCT ON (proj.id)
+        proj.company_id_fk,
+        proj.id AS project_id,
+        proj.project_name,
+        proj.start_date,
+        proj.end_date,
+        proj.health,
+        proj.effort,
+        proj.reference,
+        prime_person.first_name AS prime_first_name,
+        prime_person.last_name AS prime_last_name,
+        sponsor_person.first_name AS sponsor_first_name,
+        sponsor_person.last_name AS sponsor_last_name,
+        proj.project_cost,
+        companies.portfolio_budget AS company_budget,
+        companies.effort AS company_effort,
+        last_status.last_status,
+        last_status.status_date,
+        phases.phase_name 
+    FROM
+        projects proj
+    LEFT JOIN persons prime_person 
+        ON prime_person.id = proj.prime_id_fk
+    LEFT JOIN persons sponsor_person 
+        ON sponsor_person.id = proj.sponsor_id_fk
+    LEFT JOIN phases 
+        ON phases.id = proj.phase_id_fk
+    LEFT JOIN companies 
+        ON companies.id = proj.company_id_fk
+    LEFT JOIN LATERAL (
+        SELECT json_build_object(
+            'progress', status.progress,
+            'issue', status.issue,
+            'actions', status.actions,
+            'health', status.health
+        ) AS last_status,
+          status.status_date
+        FROM statuses status
+        WHERE status.project_id_fk = proj.id
+        ORDER BY status.status_date DESC
+        LIMIT 1
+    ) last_status ON true
+    WHERE proj.company_id_fk = ?
+    ORDER BY proj.id, last_status.status_date DESC NULLS LAST
+) subquery
+ORDER BY 
+    CASE phase_name 
+        WHEN 'Planning' THEN 1 
+        WHEN 'Discovery' THEN 2 
+        WHEN 'Delivery' THEN 3 
+        ELSE 4 
+    END,
+    status_date DESC NULLS LAST;
+
 
 
 
 `;
-  data = await db.sequelize.query(query, {
-    replacements: [company_id_fk],
-    type: db.sequelize.QueryTypes.SELECT,
-  });
 
-  if (data) {
-    // Loop through data and get the most recent progress for each project
-    data.forEach((project) => {
-      if (project.statuses && project.statuses.length > 0) {
-        project.mostRecentProgress = project.statuses.reduce(
-          (latest, status) => {
-            return new Date(status.date) > new Date(latest.date)
-              ? status
-              : latest;
-          },
-        );
-      } else {
-        project.mostRecentProgress = null;
-      }
+  try {
+    console.log("Executing health query for company_id:", company_id_fk);
+    const data = await db.sequelize.query(query, {
+      replacements: [company_id_fk],
+      type: db.sequelize.QueryTypes.SELECT,
     });
-    res.render("Pages/pages-health", {
-      pageTitle: "Health Check",
-      portfolioName,
-      projects: data,
-      currentDate: moment().format("MMMM Do YYYY"),
-    });
-  } else {
-    console.log("Error fetching project data, nothing there");
+
+    console.log("Query result:", data.length, "projects found");
+
+    // Debug: Check for duplicates
+    const projectIds = data.map((p) => p.project_id);
+    const uniqueProjectIds = [...new Set(projectIds)];
+    if (projectIds.length !== uniqueProjectIds.length) {
+      console.log("WARNING: Duplicate projects detected!");
+      console.log("Total rows:", projectIds.length);
+      console.log("Unique projects:", uniqueProjectIds.length);
+      console.log("Project IDs:", projectIds);
+    }
+
+    if (data && data.length > 0) {
+      res.render("Pages/pages-health", {
+        pageTitle: "Health Check",
+        portfolioName,
+        projects: data,
+        currentDate: moment().format("MMMM Do YYYY"),
+      });
+    } else {
+      console.log("No project data found for company:", company_id_fk);
+      res.render("Pages/pages-health", {
+        pageTitle: "Health Check",
+        portfolioName,
+        projects: [],
+        currentDate: moment().format("MMMM Do YYYY"),
+      });
+    }
+  } catch (error) {
+    console.error("Error in health query:", error);
+    res.status(500).send("Error fetching project data: " + error.message);
   }
 };
 exports.ganttChart = async (req, res) => {
