@@ -340,14 +340,17 @@ exports.findAll = async (req, res) => {
           // For admins: can update only if they are prime or sponsor, can view all
           // For non-admins: can update only if they are prime, can view if they are prime or sponsor
           const canModify = currentPerson
-            ? (isAdminFlag && (currentPerson.id === p.prime_id_fk || currentPerson.id === p.sponsor_id_fk)) || 
+            ? (isAdminFlag &&
+                (currentPerson.id === p.prime_id_fk ||
+                  currentPerson.id === p.sponsor_id_fk)) ||
               (!isAdminFlag && currentPerson.id === p.prime_id_fk)
             : false;
           const canView = currentPerson
-            ? isAdminFlag || currentPerson.id === p.prime_id_fk || currentPerson.id === p.sponsor_id_fk
+            ? isAdminFlag ||
+              currentPerson.id === p.prime_id_fk ||
+              currentPerson.id === p.sponsor_id_fk
             : false;
-          
-          
+
           return {
             ...p,
             can_update_status: canModify,
@@ -2366,7 +2369,7 @@ ORDER BY
         WHEN 'Delivery' THEN 3 
         ELSE 4 
     END,
-    status_date DESC NULLS LAST;
+    start_date ASC NULLS LAST;
 
 
 
@@ -2413,6 +2416,7 @@ ORDER BY
     res.status(500).send("Error fetching project data: " + error.message);
   }
 };
+
 exports.ganttChart = async (req, res) => {
   //get all company projects
 
@@ -2572,132 +2576,194 @@ exports.exportHealthDataToCSV = async (req, res) => {
   console.log("Exporting health data to CSV...");
   try {
     const company_id_fk = req.session.company.id;
+    const portfolioName = req.session.company.company_headline;
 
-    // Fetch projects
-    const projects = await db.projects.findAll({
-      where: { company_id_fk },
-      attributes: [
-        "id",
-        "project_name",
-        "project_headline",
-        "project_cost",
-        "effort",
-        "benefit",
-        "start_date",
-        "end_date",
-        "next_milestone_date",
-        "benefit",
-      ],
-      raw: true,
+    // Use the same query as the health page
+    const query = `SELECT 
+      company_id_fk,
+      project_id,
+      project_name,
+      start_date,
+      end_date,
+      health,
+      effort,
+      reference,
+      prime_first_name,
+      prime_last_name,
+      sponsor_first_name,
+      sponsor_last_name,
+      project_cost,
+      company_budget,
+      company_effort,
+      last_status,
+      status_date,
+      phase_name 
+  FROM (
+      SELECT DISTINCT ON (proj.id)
+          proj.company_id_fk,
+          proj.id AS project_id,
+          proj.project_name,
+          proj.start_date,
+          proj.end_date,
+          proj.health,
+          proj.effort,
+          proj.reference,
+          prime_person.first_name AS prime_first_name,
+          prime_person.last_name AS prime_last_name,
+          sponsor_person.first_name AS sponsor_first_name,
+          sponsor_person.last_name AS sponsor_last_name,
+          proj.project_cost,
+          companies.portfolio_budget AS company_budget,
+          companies.effort AS company_effort,
+          last_status.last_status,
+          last_status.status_date,
+          phases.phase_name 
+      FROM
+          projects proj
+      LEFT JOIN persons prime_person 
+          ON prime_person.id = proj.prime_id_fk
+      LEFT JOIN persons sponsor_person 
+          ON sponsor_person.id = proj.sponsor_id_fk
+      LEFT JOIN phases 
+          ON phases.id = proj.phase_id_fk
+      LEFT JOIN companies 
+          ON companies.id = proj.company_id_fk
+      LEFT JOIN LATERAL (
+          SELECT json_build_object(
+              'progress', status.progress,
+              'issue', status.issue,
+              'actions', status.actions,
+              'health', status.health
+          ) AS last_status,
+            status.status_date
+          FROM statuses status
+          WHERE status.project_id_fk = proj.id
+          ORDER BY status.status_date DESC
+          LIMIT 1
+      ) last_status ON true
+      WHERE proj.company_id_fk = ?
+      ORDER BY proj.id, last_status.status_date DESC NULLS LAST
+  ) subquery
+  ORDER BY 
+      CASE phase_name 
+          WHEN 'Planning' THEN 1 
+          WHEN 'Discovery' THEN 2 
+          WHEN 'Delivery' THEN 3 
+          ELSE 4 
+      END,
+      start_date ASC NULLS LAST;`;
+
+    const data = await db.sequelize.query(query, {
+      replacements: [company_id_fk],
+      type: db.sequelize.QueryTypes.SELECT,
     });
 
-    const statuses = await db.sequelize.query(
-      `
-      SELECT s.project_id_fk, s.status_date, s.progress, s.health, s.accomplishments, s.issue, s.actions
-      FROM statuses s
-      INNER JOIN (
-        SELECT project_id_fk, MAX(status_date) AS max_status_date
-        FROM statuses
-        GROUP BY project_id_fk
-      ) latest_status
-      ON s.project_id_fk = latest_status.project_id_fk AND s.status_date = latest_status.max_status_date
-      ORDER BY s.status_date DESC
-      `,
-      { type: db.Sequelize.QueryTypes.SELECT },
+    // Filter and format data for CSV (same as health page filtering)
+    const filteredData = data.filter(
+      (project) =>
+        project.phase_name === "Planning" ||
+        project.phase_name === "Discovery" ||
+        project.phase_name === "Delivery",
     );
-    console.log("Statuses fetched:", statuses.length);
-    // Map statuses to their corresponding projects
-    const statusMap = {};
-    statuses.forEach((status) => {
-      statusMap[status.project_id_fk] = status;
-    });
 
-    // Fetch tag names for this company so we can output names instead of IDs
-    const tagRowsForCompany = await db.tags.findAll({
-      where: { company_id_fk },
-      attributes: ["id", "tag_name"],
-      raw: true,
-    });
-    const tagNameMap = Object.fromEntries(
-      tagRowsForCompany.map((t) => [t.id, t.tag_name]),
-    );
-
-    // Combine project and status data
-    const combinedData = projects.map((project) => {
-      const status = statusMap[project.id] || {
-        status_date: "",
-        progress: "",
-        health: "",
-        accomplishments: "",
-        issue: "",
-        actions: "",
-      };
-      // Format dates in yyyy-dd-mm format
+    // Transform data for CSV export
+    const csvData = filteredData.map((project) => {
       const formattedStartDate = project.start_date
-        ? moment(project.start_date).format("YYYY-DD-MM")
+        ? moment(project.start_date).format("YYYY-MM-DD")
         : "";
       const formattedEndDate = project.end_date
-        ? moment(project.end_date).format("YYYY-DD-MM")
+        ? moment(project.end_date).format("YYYY-MM-DD")
         : "";
-      const formattedNMSDate = project.next_milestone_date
-        ? moment(project.next_milestone_date).format("YYYY-DD-MM")
-        : "";
-      const formattedStatusDate = status.status_date
-        ? moment(project.next_milestone_date).format("YYYY-DD-MM")
+      const formattedStatusDate = project.status_date
+        ? moment(project.status_date).format("YYYY-MM-DD")
         : "";
 
+      // Parse the JSON status object
+      let statusProgress = "";
+      let statusHealth = "";
+      let statusIssues = "";
+      let statusActions = "";
+
+      if (project.last_status) {
+        try {
+          if (typeof project.last_status === "string") {
+            const status = JSON.parse(project.last_status);
+            statusProgress = status.progress || "";
+            statusHealth = status.health || "";
+            statusIssues = status.issue || "";
+            statusActions = status.actions || "";
+          } else if (typeof project.last_status === "object") {
+            statusProgress = project.last_status.progress || "";
+            statusHealth = project.last_status.health || "";
+            statusIssues = project.last_status.issue || "";
+            statusActions = project.last_status.actions || "";
+          }
+        } catch (e) {
+          console.log("Error parsing status JSON:", e);
+        }
+      }
+
       return {
-        Name: project.project_name,
-        Headline: project.project_headline,
+        Phase: project.phase_name || "",
+        Project: project.project_name || "",
         "Start Date": formattedStartDate,
         "End Date": formattedEndDate,
-        "NMS Date": formattedNMSDate,
         "Status Date": formattedStatusDate,
-        Benefit: project.benefit,
-        Progress: status.progress + " %",
-        Health: status.health,
-        Accomplishments: status.accomplishments,
-        Issues: status.issue,
-        Actions: status.actions,
-        Cost: "$" + project.project_cost || 0,
-        Effort: project.effort || 0,
+        Status: statusHealth,
+        Prime:
+          project.prime_first_name && project.prime_last_name
+            ? `${project.prime_first_name} ${project.prime_last_name}`
+            : "",
+        Sponsor:
+          project.sponsor_first_name && project.sponsor_last_name
+            ? `${project.sponsor_first_name} ${project.sponsor_last_name}`
+            : "",
+        Issues: statusIssues,
+        Actions: statusActions,
+        Progress: statusProgress ? `${statusProgress}%` : "",
+        Reference: project.reference || "",
+        "Project Cost": project.project_cost
+          ? `$${project.project_cost}`
+          : "$0",
+        Effort: project.effort ? `${project.effort}` : "0",
       };
     });
 
-    // Define the fields for the CSV
+    // Define CSV fields in the same order as the health page
     const fields = [
-      "Name",
-      "Headline",
-
-      "Benefit",
+      "Phase",
+      "Project",
       "Start Date",
       "End Date",
-      "NMS Date",
       "Status Date",
-      "Progress",
-      "Health",
-      "Accomplishments",
+      "Status",
+      "Prime",
+      "Sponsor",
       "Issues",
       "Actions",
-      "Cost",
+      "Progress",
+      "Reference",
+      "Project Cost",
       "Effort",
     ];
 
-    // // Convert JSON to CSV
-    // const json2csvParser = new Parser({ fields });
-    // const csv = json2csvParser.parse(combinedData);
+    // Convert to CSV
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(csvData);
 
-    // // Set headers and send the CSV file
-    // res.header("Content-Type", "text/csv");
-    // res.attachment("projects_with_status.csv");
-    // res.send(csv);
+    const exportDate = moment().format("YYYY-MM-DD");
+    const fileName = `${exportDate} ${portfolioName} - Health Report.csv`;
+
+    // Set headers and send CSV
+    res.header("Content-Type", "text/csv");
+    res.attachment(fileName);
+    res.send(csv);
   } catch (error) {
-    console.error("Error exporting projects with status to CSV:", error);
+    console.error("Error exporting health data to CSV:", error);
     res
       .status(500)
-      .send({ message: "Error exporting projects with status to CSV." });
+      .send("Error exporting health data to CSV: " + error.message);
   }
-  res.send("Pdf created successfully");
 };
 exports.exportProjectsWithStatusToCSV = async (req, res) => {
   console.log("Exporting projects with status to CSV...");

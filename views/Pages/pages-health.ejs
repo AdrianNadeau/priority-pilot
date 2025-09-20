@@ -10,13 +10,14 @@
 
 <div class="page-content-wrapper">
     <div class="container-fluid">
-      <div class="page-buttons">
+    
         <button
       type="button"
-      class="btn btn-primary waves-effect waves-light"
-      id="btnPrintPage" name="btnPrintPage"
+      class="btn btn-success waves-effect waves-light ml-2"
+      id="btnExportCSV" name="btnExportCSV"
     >
-      Download Report
+    Download Report
+      
     </button>
       </div>
       <div class="row" class="progress-bar-container text-center" style="display: none; margin-top: 5px;">
@@ -118,15 +119,15 @@
 <%- contentFor('FooterJs') %>
 <%- contentFor('BottomJs') %>
 <script>
+// CSV Export functionality
+document.getElementById("btnExportCSV").addEventListener("click", function () {
+  window.location.href = "/projects/export/health-data";
+});
+
+// Print/PDF functionality
 document.getElementById("btnPrintPage").addEventListener("click", function () {
-  const portfolioTitleElement = document.querySelector(".portfolio-title");
-
-  if (!portfolioTitleElement) {
-    console.error("Portfolio title element not found!");
-    return;
-  }
-
-  const portfolioName = portfolioTitleElement.textContent.trim();
+  // Get portfolio name from session data or set a default
+  const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
 
   // Create a style element for the print header
   const style = document.createElement("style");
@@ -140,7 +141,7 @@ document.getElementById("btnPrintPage").addEventListener("click", function () {
       margin-top: 3cm;
     }
     body::before {
-      content: "${portfolioName}";
+      content: "${portfolioName} - Health Report";
       display: block;
       text-align: center;
       font-weight: bold;
@@ -148,6 +149,8 @@ document.getElementById("btnPrintPage").addEventListener("click", function () {
       margin-bottom: 1cm;
     }
     #btnPrintPage,
+    #btnExportCSV,
+    .page-buttons,
     .button-menu-mobile,
     .page-title,
     .portfolio-title {
@@ -166,7 +169,6 @@ document.getElementById("btnPrintPage").addEventListener("click", function () {
   const oldTitle = document.title;
   const today = new Date();
   const yyyy_mm_dd = today.toISOString().split('T')[0];
-  console.log(yyyy_mm_dd);
   
   document.title = yyyy_mm_dd + " - PriorityPilot - Health Report";
 
@@ -176,6 +178,8 @@ document.getElementById("btnPrintPage").addEventListener("click", function () {
   // Restore the old title after a short delay
   setTimeout(() => {
     document.title = oldTitle;
+    // Remove the added style element
+    document.head.removeChild(style);
   }, 1000);
 });
 </script>
