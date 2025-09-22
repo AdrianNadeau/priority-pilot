@@ -213,14 +213,25 @@
                           <span class="list-percent percent-effort" data-color="<%= effColor %>"><%= effPercent %>%</span>
                         </div>
                     </div>
-                    <div class="row text-center" style="padding-top: 20px;">
-                        <div class="col-md-12">
+                    <div class="row text-center" style="padding-top: 20px;padding-bottom: 50px;">
+                        <div class="col-md-12 d-flex flex-column align-items-center">
                           
                           <strong>From:</strong><br/>
-                          <i class="bi bi-calendar-check"></i><input type="text" class="form-control datepicker" id="from_date" name="form_date" placeholder="Start Date">
+                          <div class="d-flex align-items-center justify-content-center mb-2">
+                            <i class="bi bi-calendar-check mr-2"></i>
+                            <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="Start Date" style="width: 150px;" value="<%= currentFromDate %>">
+                          </div>
                           
                           <strong>To:</strong><br/>
-                          <i class="bi bi-calendar-check"></i><input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="End Date">  
+                          <div class="d-flex align-items-center justify-content-center mb-3">
+                            <i class="bi bi-calendar-check mr-2"></i>
+                            <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="End Date" style="width: 150px;" value="<%= currentToDate %>">
+                          </div>
+                          
+                          <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-primary btn-sm mr-2" onclick="filterDashboard()">Filter</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear</button>
+                          </div>
                           
                         </div>
                     </div>
@@ -602,6 +613,29 @@
  
   function getProjects() {
     window.location.replace('/projects/');
+  }
+
+  // Date filtering functions
+  function filterDashboard() {
+    const fromDate = document.getElementById('from_date').value;
+    const toDate = document.getElementById('to_date').value;
+    
+    // Build the query parameters
+    const params = new URLSearchParams();
+    if (fromDate) params.append('from_date', fromDate);
+    if (toDate) params.append('to_date', toDate);
+    
+    // Redirect to the same page with date parameters
+    const queryString = params.toString();
+    const url = queryString ? `/?${queryString}` : '/';
+    window.location.href = url;
+  }
+  
+  function clearFilters() {
+    // Clear the input fields and reload without parameters
+    document.getElementById('from_date').value = '';
+    document.getElementById('to_date').value = '';
+    window.location.href = '/';
   }
 
 </script>

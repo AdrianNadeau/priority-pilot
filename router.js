@@ -45,6 +45,25 @@ function removeCommasAndConvert(numStr) {
 router.get("/", isAdminMiddleware, async (req, res) => {
   const company_id_fk = req.session.company.id;
 
+  // Extract date parameters from query string
+  const fromDate = req.query.from_date;
+  const toDate = req.query.to_date;
+
+  // Build the WHERE clause for date filtering
+  let dateFilter = "";
+  let queryParams = [company_id_fk];
+
+  if (fromDate && toDate) {
+    dateFilter = `AND proj.start_date >= ? AND proj.end_date <= ?`;
+    queryParams.push(fromDate, toDate);
+  } else if (fromDate) {
+    dateFilter = `AND proj.start_date >= ?`;
+    queryParams.push(fromDate);
+  } else if (toDate) {
+    dateFilter = `AND proj.end_date <= ?`;
+    queryParams.push(toDate);
+  }
+
   const query = `
    SELECT 
   proj.company_id_fk, 
@@ -85,13 +104,13 @@ LEFT JOIN (
     ) s2 ON s1.project_id_fk = s2.project_id_fk AND s1.status_date = s2.max_date
 ) latest_status ON latest_status.project_id_fk = proj.id
 WHERE 
-  proj.company_id_fk = ? 
+  proj.company_id_fk = ? ${dateFilter}
 ORDER BY 
   proj.phase_id_fk;`;
 
   try {
     const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk],
+      replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
     });
 
@@ -99,6 +118,8 @@ ORDER BY
       console.log(
         "No data found for company_id_fk:",
         company_id_fk,
+        "with date filters:",
+        { fromDate, toDate },
         "redirecting to /projects",
       );
       return res.redirect("/projects");
@@ -288,6 +309,9 @@ ORDER BY
       primes: persons,
       tags: tagsData,
       totalCostPercent: formattedData.totalCostPercent,
+      // Pass current filter values back to template
+      currentFromDate: fromDate || "",
+      currentToDate: toDate || "",
     });
   } catch (error) {
     console.error("Error executing query:", error);
