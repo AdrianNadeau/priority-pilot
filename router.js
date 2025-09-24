@@ -114,15 +114,68 @@ ORDER BY
       type: db.sequelize.QueryTypes.SELECT,
     });
 
+    // If no data found, still render dashboard with empty state
     if (!data || data.length === 0) {
       console.log(
         "No data found for company_id_fk:",
         company_id_fk,
         "with date filters:",
         { fromDate, toDate },
-        "redirecting to /projects",
+        "rendering empty dashboard",
       );
-      return res.redirect("/projects");
+
+      // Get required data for empty dashboard render
+      const phases = await db.phases.findAll({ order: [["id", "ASC"]] });
+      const priorities = await db.priorities.findAll({});
+      const persons = await db.persons.findAll({ where: { company_id_fk } });
+      let tagsData = await Tag.findAll({
+        where: { company_id_fk: company_id_fk },
+        order: [["id", "ASC"]],
+      });
+      tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
+
+      // Get company info for empty state
+      const company = await Company.findByPk(company_id_fk);
+      const portfolioName = company ? company.company_headline : "Portfolio";
+
+      // Render dashboard with empty data
+      return res.render("Dashboard/dashboard1", {
+        pageTitle: "Dashboard",
+        company_id: company_id_fk,
+        projects: [],
+        // Empty phase data
+        pitch: { count: 0, cost: "0.00", ph: "0.00" },
+        planning: { count: 0, cost: "0.00", ph: "0.00" },
+        discovery: { count: 0, cost: "0.00", ph: "0.00" },
+        delivery: { count: 0, cost: "0.00", ph: "0.00" },
+        operations: { count: 0, cost: "0.00", ph: "0.00" },
+        archived: { count: 0, cost: "0.00", ph: "0.00" },
+        // Empty budget data
+        totalCost: "0.00",
+        usedCost: "0.00",
+        availableCost: "0.00",
+        totalPH: "0.00",
+        totalUsedPH: "0.00",
+        totalAvailPH: "0.00",
+        totalCostPercent: "0%",
+        usedCostPercent: "0%",
+        availableCostPercent: "0%",
+        totalEffortPercent: "0%",
+        usedEffortPercent: "0%",
+        availableEffortPercent: "0%",
+        usedEffort: "0.00",
+        availableCostColor: "text-success",
+        availablePHColor: "text-success",
+        portfolioName,
+        phases,
+        priorities,
+        sponsors: persons,
+        primes: persons,
+        tags: tagsData,
+        // Pass current filter values back to template
+        currentFromDate: fromDate || "",
+        currentToDate: toDate || "",
+      });
     }
 
     // console.log("Data retrieved successfully:", data.length, "records found.");
