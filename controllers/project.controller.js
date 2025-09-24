@@ -152,14 +152,8 @@ exports.create = (req, res) => {
             if (!seenIds.has(project.id)) {
               seenIds.add(project.id);
               uniqueProjects.push(project);
-            } else {
-              console.log(
-                `Skipping duplicate project: ${project.project_name} (ID: ${project.id})`,
-              );
             }
           });
-
-          console.log(`Projects after deduplication: ${uniqueProjects.length}`);
 
           // enrich each project with permission flags based on current session person
           const currentPerson =

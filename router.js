@@ -254,9 +254,6 @@ ORDER BY
     data.forEach((project) => {
       // Skip if we've already processed this project (prevents duplicates)
       if (seenProjectIds.has(project.id)) {
-        console.log(
-          `Skipping duplicate project: ${project.project_name} (ID: ${project.id})`,
-        );
         return;
       }
       seenProjectIds.add(project.id);
