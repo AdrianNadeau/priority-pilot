@@ -140,10 +140,31 @@ exports.create = (req, res) => {
           type: db.sequelize.QueryTypes.SELECT,
         })
         .then((data) => {
+          console.log(
+            `Create function: Total projects retrieved: ${data.length}`,
+          );
+
+          // Remove duplicates based on project ID
+          const uniqueProjects = [];
+          const seenIds = new Set();
+
+          data.forEach((project) => {
+            if (!seenIds.has(project.id)) {
+              seenIds.add(project.id);
+              uniqueProjects.push(project);
+            } else {
+              console.log(
+                `Skipping duplicate project: ${project.project_name} (ID: ${project.id})`,
+              );
+            }
+          });
+
+          console.log(`Projects after deduplication: ${uniqueProjects.length}`);
+
           // enrich each project with permission flags based on current session person
           const currentPerson =
             req.session && req.session.person ? req.session.person : null;
-          const enriched = data.map((p) => {
+          const enriched = uniqueProjects.map((p) => {
             const canModify = currentPerson
               ? currentPerson.isAdmin ||
                 currentPerson.id === p.prime_id_fk ||
@@ -330,13 +351,31 @@ exports.findAll = async (req, res) => {
       .then((data) => {
         console.log(
           "************* Projects data retrieved successfully:",
-          data,
+          data.length,
         );
+
+        // Remove duplicates based on project ID
+        const uniqueProjects = [];
+        const seenIds = new Set();
+
+        data.forEach((project) => {
+          if (!seenIds.has(project.id)) {
+            seenIds.add(project.id);
+            uniqueProjects.push(project);
+          } else {
+            console.log(
+              `Skipping duplicate project: ${project.project_name} (ID: ${project.id})`,
+            );
+          }
+        });
+
+        console.log(`Projects after deduplication: ${uniqueProjects.length}`);
+
         // Ensure the view has permission flags — admins should be able to update all
         const currentPerson =
           req.session && req.session.person ? req.session.person : null;
         console.log("currentPerson:", currentPerson);
-        const enriched = data.map((p) => {
+        const enriched = uniqueProjects.map((p) => {
           // For admins: can update only if they are prime or sponsor, can view all
           // For non-admins: can update only if they are prime, can view if they are prime or sponsor
           const canModify = currentPerson

@@ -33,7 +33,7 @@
                   <th>Status</th>
                 </tr>
               </thead>
-              <% projects.length%>
+              
               <% projects.forEach(function(project) { %>
               <tbody>
                 <tr style="cursor: pointer;">
@@ -70,7 +70,7 @@
                     <% } %>
                   </td>
                 </tr>
-              </tbody>
+             
               <!-- Modal for adding status (admin or authorized users) -->
               <div id="myModal_<%= project.id %>" class="modal fade" href="#" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -148,6 +148,7 @@
                 </div>
               </div>
               <% }); %>
+              </tbody>
             </table>
           </div>
           <% } %>

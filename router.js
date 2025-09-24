@@ -114,6 +114,23 @@ ORDER BY
       type: db.sequelize.QueryTypes.SELECT,
     });
 
+    console.log(`Total projects retrieved: ${data.length}`);
+
+    // Log all unique phase names found in the data
+    const uniquePhases = [
+      ...new Set(data.map((p) => p.phase_name).filter(Boolean)),
+    ];
+    console.log("Unique phase names in database:", uniquePhases);
+
+    // Count projects per phase before mapping
+    const phaseCount = {};
+    data.forEach((p) => {
+      if (p.phase_name) {
+        phaseCount[p.phase_name] = (phaseCount[p.phase_name] || 0) + 1;
+      }
+    });
+    console.log("Phase counts from database:", phaseCount);
+
     // If no data found, still render dashboard with empty state
     if (!data || data.length === 0) {
       console.log(
@@ -198,8 +215,52 @@ ORDER BY
       ? removeCommasAndConvert(data[0].company_effort)
       : 0;
 
+    // Function to map phase names to our internal phase keys
+    function mapPhaseToKey(phaseName) {
+      if (!phaseName) return "unknown";
+      const lowerPhase = phaseName.toLowerCase().trim();
+
+      // Map various phase names to our internal keys
+      const phaseMapping = {
+        pitch: "pitch",
+        funnel: "pitch", // Map Funnel to Pitch
+        pitching: "pitch",
+        idea: "pitch",
+        planning: "planning",
+        plan: "planning",
+        discovery: "discovery",
+        discover: "discovery",
+        analysis: "discovery",
+        delivery: "delivery",
+        develop: "delivery",
+        development: "delivery",
+        implementation: "delivery",
+        done: "done",
+        complete: "done",
+        completed: "done",
+        finished: "done",
+        operations: "done", // Map Operations to Done
+        archived: "archived",
+        archive: "archived",
+        closed: "archived",
+        cancelled: "archived",
+      };
+
+      return phaseMapping[lowerPhase] || "unknown";
+    }
+
     // Process data and calculate totals
+    const seenProjectIds = new Set(); // Track processed projects to avoid duplicates
     data.forEach((project) => {
+      // Skip if we've already processed this project (prevents duplicates)
+      if (seenProjectIds.has(project.id)) {
+        console.log(
+          `Skipping duplicate project: ${project.project_name} (ID: ${project.id})`,
+        );
+        return;
+      }
+      seenProjectIds.add(project.id);
+
       // Parse project cost and effort
       const projectCost = project.project_cost
         ? removeCommasAndConvert(project.project_cost) || 0
@@ -210,7 +271,7 @@ ORDER BY
         : 0;
 
       // Categorize by phase name and accumulate values
-      const phase = project.phase_name?.toLowerCase() || "unknown";
+      const phase = mapPhaseToKey(project.phase_name);
 
       if (phaseData[phase]) {
         phaseData[phase].count++;
@@ -218,15 +279,32 @@ ORDER BY
         phaseData[phase].ph += projectEffortPH;
 
         // Debug logs
-        // console.log(`Project Effort (PH): ${projectEffortPH}`);
-        // console.log(
-        //   `Phase: ${phase}, Count: ${phaseData[phase].count}, Cost: ${phaseData[phase].cost}, PH: ${phaseData[phase].ph}`,
-        // );
+        if (project.phase_name) {
+          console.log(
+            `Project: ${project.project_name}, Original Phase: ${project.phase_name}, Mapped Phase: ${phase}`,
+          );
+        }
       } else {
-        console.warn("Unknown phase:", project.phase_name);
+        console.warn(
+          "Unknown phase after mapping:",
+          project.phase_name,
+          "->",
+          phase,
+        );
       }
     });
-    // Calculate used values
+
+    // Log final phase counts after processing
+    console.log("Final phase counts:", {
+      pitch: phaseData.pitch.count,
+      planning: phaseData.planning.count,
+      discovery: phaseData.discovery.count,
+      delivery: phaseData.delivery.count,
+      done: phaseData.done.count,
+      archived: phaseData.archived.count,
+    });
+
+    // Calculate used values (from filtered projects only)
     const usedCost =
       phaseData.planning.cost +
       phaseData.discovery.cost +
@@ -239,7 +317,6 @@ ORDER BY
       phaseData.delivery.ph +
       phaseData.done.ph;
 
-    // Calculate available values
     const totalAvailPH = portfolio_effort - usedEffort;
     const availableCost = portfolio_budget - usedCost;
 
@@ -252,7 +329,6 @@ ORDER BY
         ? "text-danger"
         : "text-success";
 
-    // Format data for response
     const formattedData = {
       totalPH: formatToKMB(portfolio_effort),
       totalUsedPH: formatToKMB(usedEffort),
@@ -313,8 +389,10 @@ ORDER BY
           ? ((totalAvailPH / portfolio_effort) * 100).toFixed(1) + "%"
           : "0%",
       usedEffort: formatToKMB(usedEffort),
+      availableEffort: formatToKMB(totalAvailPH),
+      totalEffort: formatToKMB(portfolio_effort),
     };
-
+    console.log("phaseData.pitch.count:", phaseData.pitch.count);
     //get all phases for add project modal (ordered by id)
     const phases = await db.phases.findAll({ order: [["id", "ASC"]] });
     //get all priorities for add project modal
