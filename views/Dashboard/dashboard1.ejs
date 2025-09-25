@@ -3,6 +3,24 @@
   /* Add small internal gap to all mini-stat white boxes */
   .mini-stat.bg-white.clearfix { padding: 5px !important; }
   .phase-buttons { padding-left: 5px; margin-left: 0; padding-top: 6px; }
+  
+  /* Add 15px spacing between phase columns */
+  .phase-column {
+    padding-left: 7.5px !important;
+    padding-right: 7.5px !important;
+  }
+  
+  /* First column - only right padding */
+  .phase-column:first-child {
+    padding-left: 0 !important;
+    padding-right: 7.5px !important;
+  }
+  
+  /* Last column - only left padding */
+  .phase-column:last-child {
+    padding-left: 7.5px !important;
+    padding-right: 0 !important;
+  }
 </style>
 
 <%- contentFor('breadcrumb') %>
@@ -18,21 +36,21 @@
                 <div class="row">
                    
                     
-           <div class="col-md-6" style="min-height: 50px;padding-bottom:15px;">
+           <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
             <div class="mini-stat bg-white clearfix" >
               <div class="mini-stat-info">
                 <a href="/projects/funnel/view/"><span class="counter" style="color:black"><strong>Funnel</strong> (<%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.effort %> PH)</span></a>
               </div>
             </div>
             </div>
-                      <div class="col-md-6">
+                      <div class="col-md-6 phase-column">
                         <div class="mini-stat bg-white clearfix" style="min-height: 50px;">
                             <div class="mini-stat-info" data-phase="Archive">
                                 <a href="/projects/freezer/view/"><span class="counter" style="color:black"><strong>Archive</strong> (<%= archived.count %>, $<%= archived.cost %>, <%= archived.effort %> PH)</span></a>
                             </div>
                         </div>
                       </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 phase-column">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
                                 <span class="counter"><strong>Planning</strong> (<%= planning.count %>, $<%= planning.cost %>, <%= planning.ph %> PH)</span>
@@ -55,20 +73,20 @@
                               <%  } 
                             }); %>
                             </div>
-                        </div>
-                    </div>
-                    
-                      <script>
-                        // Apply inline styles stored in data-style to elements to avoid embedding EJS in CSS attributes
-                        document.addEventListener('DOMContentLoaded', function () {
-                          document.querySelectorAll('.project-btn').forEach(function (el) {
+                          </div>
+                      </div>
+                      
+                        <script>
+                          // Apply inline styles stored in data-style to elements to avoid embedding EJS in CSS attributes
+                          document.addEventListener('DOMContentLoaded', function () {
+                            document.querySelectorAll('.project-btn').forEach(function (el) {
                             var s = el.getAttribute('data-style');
                             if (s) el.style.cssText = s;
                           });
                         });
                       </script>
-           <div class="col-md-6" style="min-height: 50px;padding-bottom:15px;">
-            <div class="mini-stat bg-white clearfix" >
+           <div class="col-md-6 phase-column" style="padding-bottom: 15px;">
+            <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
               <div class="mini-stat-info">
                                 <span class="counter"><strong>Discovery</strong> (<%= discovery.count %>, $<%= discovery.cost %>, <%= discovery.ph %> PH)</span>
                             </div>
@@ -95,7 +113,7 @@
                 
         <div class="row">
           <!-- Delivery (left), Done (center), Dates (right) -->
-      <div class="col-md-6">
+      <div class="col-md-6 phase-column">
             <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
                                 <span class="counter"><strong>Delivery</strong> (<%= delivery.count %>, $<%= delivery.cost %>, <%= delivery.ph %> PH)</span>
@@ -120,7 +138,7 @@
                         </div>
                     </div>
 
-          <div class="col-md-6">
+          <div class="col-md-6 phase-column">
             <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
                               <span class="counter"><strong>Done</strong> (<%= operations.count %>, $<%= operations.cost  %>, <%= operations.ph %> PH)</span>

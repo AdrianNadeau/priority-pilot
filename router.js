@@ -129,7 +129,6 @@ ORDER BY
         phaseCount[p.phase_name] = (phaseCount[p.phase_name] || 0) + 1;
       }
     });
-    console.log("Phase counts from database:", phaseCount);
 
     // If no data found, still render dashboard with empty state
     if (!data || data.length === 0) {
@@ -277,9 +276,6 @@ ORDER BY
 
         // Debug logs
         if (project.phase_name) {
-          console.log(
-            `Project: ${project.project_name}, Original Phase: ${project.phase_name}, Mapped Phase: ${phase}`,
-          );
         }
       } else {
         console.warn(
@@ -389,7 +385,7 @@ ORDER BY
       availableEffort: formatToKMB(totalAvailPH),
       totalEffort: formatToKMB(portfolio_effort),
     };
-    console.log("phaseData.pitch.count:", phaseData.pitch.count);
+
     //get all phases for add project modal (ordered by id)
     const phases = await db.phases.findAll({ order: [["id", "ASC"]] });
     //get all priorities for add project modal

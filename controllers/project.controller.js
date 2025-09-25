@@ -343,11 +343,6 @@ exports.findAll = async (req, res) => {
       })
 
       .then((data) => {
-        console.log(
-          "************* Projects data retrieved successfully:",
-          data.length,
-        );
-
         // Remove duplicates based on project ID
         const uniqueProjects = [];
         const seenIds = new Set();
@@ -356,19 +351,12 @@ exports.findAll = async (req, res) => {
           if (!seenIds.has(project.id)) {
             seenIds.add(project.id);
             uniqueProjects.push(project);
-          } else {
-            console.log(
-              `Skipping duplicate project: ${project.project_name} (ID: ${project.id})`,
-            );
           }
         });
-
-        console.log(`Projects after deduplication: ${uniqueProjects.length}`);
 
         // Ensure the view has permission flags — admins should be able to update all
         const currentPerson =
           req.session && req.session.person ? req.session.person : null;
-        console.log("currentPerson:", currentPerson);
         const enriched = uniqueProjects.map((p) => {
           // For admins: can update only if they are prime or sponsor, can view all
           // For non-admins: can update only if they are prime, can view if they are prime or sponsor
@@ -400,7 +388,6 @@ exports.findAll = async (req, res) => {
         );
 
         if (enriched.length > 0) {
-          console.log("Sample project for render:", enriched[0]);
         } else {
           console.log("No projects to render (enriched array is empty)");
         }
