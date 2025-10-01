@@ -140,10 +140,6 @@ exports.create = (req, res) => {
           type: db.sequelize.QueryTypes.SELECT,
         })
         .then((data) => {
-          console.log(
-            `Create function: Total projects retrieved: ${data.length}`,
-          );
-
           // Remove duplicates based on project ID
           const uniqueProjects = [];
           const seenIds = new Set();
@@ -539,12 +535,7 @@ exports.findOne = (req, res) => {
 exports.cockpit = async (req, res) => {
   const project_id = req.params.id;
   const company_id_fk = req.session.company.id;
-  let tagsData = await Tag.findAll({
-    where: {
-      [Op.or]: [{ company_id_fk: company_id_fk }],
-    },
-    order: [["id", "ASC"]],
-  });
+
   //COCKPIT QUERY
   try {
     const query = `
@@ -595,45 +586,59 @@ exports.cockpit = async (req, res) => {
 
     let changed_projects;
     try {
-      changed_projects = await db.changed_projects.findAll({
+      const rawChangedProjects = await db.changed_projects.findAll({
         where: {
           project_id_fk: project_id,
         },
         order: [["createdAt", "DESC"]],
       });
+
+      // Remove duplicates by ID
+      const uniqueIds = new Set();
+      changed_projects = rawChangedProjects.filter((cp) => {
+        if (uniqueIds.has(cp.id)) {
+          return false;
+        }
+        uniqueIds.add(cp.id);
+        return true;
+      });
     } catch (error) {
       console.log("Cockpit Changed Projects error:", error);
     }
 
-    const statuses = await Status.findAll({
+    // Get status information for the project
+    const rawStatuses = await Status.findAll({
       where: { project_id_fk: project_id },
       order: [["status_date", "DESC"]],
     });
-    let lastStatusDate = null;
-    let statusColor = null;
-    if (statuses) {
-      if (statuses.length > 0) {
-        lastStatusDate = statuses[0].status_date;
-        statusColor = statuses[0].health;
-      } else {
-        lastStatusDate = "";
-        statusColor = "green";
-      }
-    }
 
-    let tagsData = await Tag.findAll({
-      where: {
-        [Op.or]: [{ company_id_fk: company_id_fk }],
-      },
-      order: [["id", "ASC"]],
+    // Remove duplicates by ID
+    const uniqueStatusIds = new Set();
+    const statuses = rawStatuses.filter((status) => {
+      if (uniqueStatusIds.has(status.id)) {
+        return false;
+      }
+      uniqueStatusIds.add(status.id);
+      return true;
     });
 
-    // In your controller before rendering the page:
+    let lastStatusDate = null;
+    let statusColor = null;
+    if (statuses && statuses.length > 0) {
+      lastStatusDate = statuses[0].status_date;
+      statusColor = statuses[0].health;
+    } else {
+      lastStatusDate = "";
+      statusColor = "green";
+    }
+
+    // Get change reasons for the dropdown
     const changeReasons = await ChangeReason.findAll();
     const changeReasonMap = {};
     changeReasons.forEach((r) => {
       changeReasonMap[r.id] = r.change_reason;
     });
+
     res.render("Pages/pages-cockpit", {
       pageTitle: "Flight Deck",
       project: data,
@@ -643,7 +648,6 @@ exports.cockpit = async (req, res) => {
       statusColor: statusColor,
       changed_projects,
       changeReasonMap,
-      // tags: tagsData,
     });
   } catch (error) {
     console.log("Database Query Error: ", error);
@@ -1919,15 +1923,11 @@ exports.findFunnel = async (req, res) => {
 
     data.forEach((project) => {
       // Correctly accumulate the total cost
-
-      console.log("project effort:", project.effort);
       pitchTotalCost +=
         parseFloat((project.project_cost || "0").replace(/,/g, "")) || 0;
       pitchTotalPH +=
         parseFloat((project.effort || "0").replace(/,/g, "")) || 0;
     });
-
-    console.log("Effort :", formatToKMB(pitchTotalPH));
     // Retrieve phases and priorities
     const phases = await Phase.findAll({
       order: [["id", "ASC"]],
@@ -2791,7 +2791,7 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
     const company_id_fk = req.session.company.id;
 
     // Fetch projects with phase_name, prime, sponsor, and benefit details
-    const projects = await db.sequelize.query(
+    const projectsRaw = await db.sequelize.query(
       `
       SELECT 
         proj.id,
@@ -2832,6 +2832,21 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
       WHERE proj.company_id_fk = ?
       `,
       { replacements: [company_id_fk], type: db.sequelize.QueryTypes.SELECT },
+    );
+
+    // Remove duplicates based on project ID (same logic as the projects page)
+    const projects = [];
+    const seenIds = new Set();
+
+    projectsRaw.forEach((project) => {
+      if (!seenIds.has(project.id)) {
+        seenIds.add(project.id);
+        projects.push(project);
+      }
+    });
+
+    console.log(
+      `Export: Total rows retrieved: ${projectsRaw.length}, Unique projects: ${projects.length}`,
     );
 
     // Fetch statuses for the projects
@@ -3067,3 +3082,130 @@ function formatToKMB(num) {
   if (num >= 1e3) return (isNegative ? "-" : "") + (num / 1e3).toFixed(2) + "K";
   return (isNegative ? "-" : "") + num.toFixed(2);
 }
+
+exports.exportAccomplishmentsToCSV = async (req, res) => {
+  console.log("Exporting accomplishments data to CSV...");
+  try {
+    const company_id_fk = req.session.company.id;
+    const portfolioName = req.session.company.company_headline;
+
+    // Use the same query structure as the accomplishments page
+    const query = `SELECT 
+      proj.company_id_fk,
+      proj.id AS project_id,
+      proj.project_name,
+      proj.start_date,
+      proj.end_date,
+      proj.next_milestone_date,
+      prime_person.first_name AS prime_first_name,
+      prime_person.last_name AS prime_last_name,
+      sponsor_person.first_name AS sponsor_first_name,
+      sponsor_person.last_name AS sponsor_last_name,
+      phases.phase_name,
+      last_status.health AS last_status_health,
+      last_status.status_date,
+      last_status.accomplishments,
+      last_status.issue,
+      last_status.actions,
+      last_status.progress
+  FROM projects proj
+  LEFT JOIN persons prime_person 
+      ON prime_person.id = proj.prime_id_fk
+  LEFT JOIN persons sponsor_person 
+      ON sponsor_person.id = proj.sponsor_id_fk
+  LEFT JOIN phases 
+      ON phases.id = proj.phase_id_fk
+  LEFT JOIN (
+      SELECT s1.*
+      FROM statuses s1
+      INNER JOIN (
+          SELECT project_id_fk, MAX(status_date) as max_date
+          FROM statuses
+          WHERE project_id_fk IN (SELECT id FROM projects WHERE company_id_fk = ?)
+          GROUP BY project_id_fk
+      ) s2 ON s1.project_id_fk = s2.project_id_fk AND s1.status_date = s2.max_date
+  ) last_status ON last_status.project_id_fk = proj.id
+  WHERE proj.company_id_fk = ? 
+    AND (phases.phase_name = 'Planning' OR phases.phase_name = 'Discovery' OR phases.phase_name = 'Delivery')
+  ORDER BY 
+    CASE phases.phase_name
+      WHEN 'Planning' THEN 1
+      WHEN 'Discovery' THEN 2
+      WHEN 'Delivery' THEN 3
+      ELSE 4
+    END,
+    proj.project_name ASC`;
+
+    const results = await db.sequelize.query(query, {
+      replacements: [company_id_fk, company_id_fk],
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    // Transform data for CSV export - focused on accomplishments
+    const csvData = results.map((project) => {
+      return {
+        Phase: project.phase_name || "",
+        Project: project.project_name || "",
+        "Start Date": project.start_date
+          ? moment(project.start_date).format("YYYY-MM-DD")
+          : "",
+        "End Date": project.end_date
+          ? moment(project.end_date).format("YYYY-MM-DD")
+          : "",
+        "Next Milestone": project.next_milestone_date
+          ? moment(project.next_milestone_date).format("YYYY-MM-DD")
+          : "",
+        Status: project.last_status_health || "N/A",
+        Prime:
+          project.prime_first_name && project.prime_last_name
+            ? `${project.prime_first_name} ${project.prime_last_name}`
+            : "",
+        Sponsor:
+          project.sponsor_first_name && project.sponsor_last_name
+            ? `${project.sponsor_first_name} ${project.sponsor_last_name}`
+            : "",
+        Accomplishments: project.accomplishments || "",
+        Issues: project.issue || "",
+        Actions: project.actions || "",
+        Progress: project.progress ? `${project.progress}%` : "",
+        "Status Date": project.status_date
+          ? moment(project.status_date).format("YYYY-MM-DD")
+          : "",
+      };
+    });
+
+    // Define CSV fields for accomplishments report
+    const fields = [
+      "Phase",
+      "Project",
+      "Start Date",
+      "End Date",
+      "Next Milestone",
+      "Status",
+      "Prime",
+      "Sponsor",
+      "Accomplishments",
+      "Issues",
+      "Actions",
+      "Progress",
+      "Status Date",
+    ];
+
+    // Convert to CSV
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(csvData);
+
+    const exportDate = moment().format("YYYY-MM-DD");
+    const fileName = `${exportDate} ${portfolioName} - Accomplishments Report.csv`;
+
+    // Set headers and send CSV
+    res.header("Content-Type", "text/csv");
+    res.attachment(fileName);
+    res.send(csv);
+  } catch (error) {
+    console.error("Error exporting accomplishments data to CSV:", error);
+    res
+      .status(500)
+      .send("Error exporting accomplishments data to CSV: " + error.message);
+  }
+};

@@ -114,13 +114,9 @@ ORDER BY
       type: db.sequelize.QueryTypes.SELECT,
     });
 
-    console.log(`Total projects retrieved: ${data.length}`);
-
-    // Log all unique phase names found in the data
     const uniquePhases = [
       ...new Set(data.map((p) => p.phase_name).filter(Boolean)),
     ];
-    console.log("Unique phase names in database:", uniquePhases);
 
     // Count projects per phase before mapping
     const phaseCount = {};
@@ -132,14 +128,6 @@ ORDER BY
 
     // If no data found, still render dashboard with empty state
     if (!data || data.length === 0) {
-      console.log(
-        "No data found for company_id_fk:",
-        company_id_fk,
-        "with date filters:",
-        { fromDate, toDate },
-        "rendering empty dashboard",
-      );
-
       // Get required data for empty dashboard render
       const phases = await db.phases.findAll({ order: [["id", "ASC"]] });
       const priorities = await db.priorities.findAll({});
@@ -194,7 +182,6 @@ ORDER BY
       });
     }
 
-    // console.log("Data retrieved successfully:", data.length, "records found.");
     // Initialize phase data with default values
     const phaseData = {
       pitch: { count: 0, cost: 0, ph: 0 },
@@ -285,16 +272,6 @@ ORDER BY
           phase,
         );
       }
-    });
-
-    // Log final phase counts after processing
-    console.log("Final phase counts:", {
-      pitch: phaseData.pitch.count,
-      planning: phaseData.planning.count,
-      discovery: phaseData.discovery.count,
-      delivery: phaseData.delivery.count,
-      done: phaseData.done.count,
-      archived: phaseData.archived.count,
     });
 
     // Calculate used values (from filtered projects only)
