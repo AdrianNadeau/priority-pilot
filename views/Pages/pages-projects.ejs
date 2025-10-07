@@ -1,13 +1,7 @@
 <%- contentFor('HeaderCss') %>
 <style>
   .sortable {
-    cur                    <th class="sortable" data-column="project_name" data-sort="default">Name <span class="sort-arrow">↓</span></th>
-                    <th class="sortable" data-column="prime_name" data-sort="default">Prime <span class="sort-arrow">↓</span></th>
-                    <th class="sortable" data-column="sponsor_name" data-sort="default">Sponsor <span class="sort-arrow">↓</span></th>
-                    <th class="sortable" data-column="start_date" data-sort="default">Start <span class="sort-arrow">↓</span></th>
-                    <th class="sortable" data-column="end_date" data-sort="default">End <span class="sort-arrow">↓</span></th>
-                    <th class="sortable" data-column="phase_name" data-sort="default">Phase <span class="sort-arrow">↓</span></th>
-                    <th class="sortable" data-column="project_cost" data-sort="default">Cost <span class="sort-arrow">↓</span></th>inter;
+    cursor: pointer;
     position: relative;
     user-select: none;
     padding: 12px 8px !important;
@@ -16,7 +10,7 @@
   }
   .sortable:hover {
     background-color: #e9ecef !important;
-    cursor:pointer
+    cursor: pointer;
   }
   .sort-arrow {
     display: inline-block;
@@ -32,11 +26,11 @@
   .sort-arrow:hover {
     color: #007bff !important;
     transform: scale(1.1);
-    cursor:pointer
+    cursor: pointer;
   }
   .sort-arrow.active {
     color: #007bff !important;
-    cursor:pointer
+    cursor: pointer;
   }
   .table thead th {
     font-weight: 600;
@@ -108,6 +102,157 @@
     </div>
   </div>
 </div>
+
+<!-- Status Updates Modal -->
+<div id="StatusUpdatesModal" class="modal fade" href="#" tabindex="-1" role="dialog" aria-labelledby="StatusUpdatesModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="StatusUpdatesModalLabel"><strong>Status Updates</strong></h5>
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+      <div class="modal-body" id="statusUpdates">
+        <!-- dynamic status -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Status Modal -->
+<div id="viewStatusModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="viewStatusModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewStatusModalLabel"><strong>View Status</strong></h5>
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- Modal content goes here -->
+        <strong>Date:</strong> <span id="view_status_date"></span><br/>
+        <strong>Prime:</strong> <span id="prime_name"></span>
+        
+        <div class="form-group">
+          <label for="status_accomplishments"><strong>Accomplishments:</strong></label>
+          <textarea id="view_status_accomplishments" maxlength="1000" class="form-control" rows="3" disabled></textarea>
+        </div>
+        <div class="form-group">
+          <label for="status_issue"><strong>Issue</strong></label>
+          <textarea id="view_status_issue" maxlength="1000" class="form-control" rows="3" disabled></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="status_action"><strong>Action</strong></label>
+          <textarea id="view_status_action" maxlength="1000" class="form-control" rows="3" disabled></textarea>
+        </div>
+        <div class="form-group">
+          <label for="status_progress"><strong>Progress</strong></label>
+          <input type="text" id="view_status_progress" class="form-control" disabled>
+        </div>
+        <div class="form-group">
+          <label for="status_health"><strong>Health</strong></label>
+          <input type="text" id="view_status_health" class="form-control" disabled>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Status Modals for each project -->
+<% projects.forEach(function(project) { %>
+<div id="myModal_<%= project.id %>" class="modal fade" href="#" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="/statuses" class="needs-validation" novalidate id="addStatusForm_<%= project.id %>" method="POST">
+        <input type="hidden" name="prime_only" value="n">
+        <div class="modal-header">
+          <h5 class="modal-title mt-0" id="myModalLabel">Add Status</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="project_id" value="<%= project.id %>">
+          <input type="hidden" name="prime_id_fk" value="<%= project.prime_id_fk %>">
+          
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <i class="bi bi-calendar-check"></i>
+                <input
+                  type="text"
+                  required
+                  class="form-control datepicker"
+                  id="status_date_<%= project.id %>"
+                  name="status_date"
+                  placeholder="Status Date"
+                />
+                <div class="invalid-feedback">
+                  Please select a valid status date.
+                </div>
+                
+                <strong>Prime:</strong> <%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %>
+              </div>
+              <div class="form-group">
+                <strong>Accomplishments:</strong>
+                <textarea class="form-control" maxlength="3000" name="status_accomplishments" id="accomplishments_<%= project.id %>" required rows="3" placeholder="Enter accomplishments..."></textarea>
+                <div class="invalid-feedback">
+                  Please enter accomplishments.
+                </div>
+              </div>
+              <div class="form-group">
+                <strong>Issues:</strong>
+                <textarea class="form-control" maxlength="3000" name="issue" id="issue_<%= project.id %>" rows="3" required placeholder="Enter issues..."></textarea>
+                <div class="invalid-feedback">
+                  Please enter issues.
+                </div>
+              </div>
+              <div class="form-group">
+                <strong>Actions:</strong>
+                <textarea class="form-control" maxlength="3000" name="actions" id="actions_<%= project.id %>" rows="3" required placeholder="Enter actions..."></textarea>
+                <div class="invalid-feedback">
+                  Please enter actions.
+                </div>
+              </div>
+              
+              <div class="d-flex align-items-center gap-2">
+                <div class="form-group needs-validation" novalidate>
+                  <strong>Progress:</strong>
+                  <select style="width:100px !important;" class="form-control" id="progress_<%= project.id %>" name="progress" required>
+                    <option value="">Select</option>
+                    <% for (let i = 10; i <= 100; i += 10) { %>
+                      <option value="<%= i %>"><%= i %></option>
+                    <% } %>
+                  </select>
+                  <div class="invalid-feedback">Please select a progress value.</div>
+                </div>
+
+                <div class="form-group" style="margin-left: 10px;">
+                  <strong>Health:</strong>
+                  <select style="width:100px !important;padding-left:10px;" class="form-control" id="health_<%= project.id %>" required name="health">
+                    <option value="">Select</option>
+                    <option value="green">Green</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="red">Red</option>
+                  </select>
+                  <div class="invalid-feedback">Please select a health status.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% }); %>
 
 <%- contentFor('FooterJs') %> 
 <%- contentFor('BottomJs') %>
@@ -421,6 +566,111 @@ document.addEventListener("DOMContentLoaded", function() {
     table.innerHTML = '';
     rows.forEach(row => table.appendChild(row));
   }
+
+  // Status modal functions
+  window.getStatusUpdates = function(project_id_fk){
+    var modalBody = document.getElementById("statusUpdates");
+    console.log("Fetching status updates for project ID:", project_id_fk);
+    modalBody.innerHTML = '';
+    fetch(`/statuses/projects/${project_id_fk}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          data.forEach(function(status) {
+            let healthStatus = status.health ? status.health.trim().toLowerCase() : '';
+            if (healthStatus === 'green') { 
+                modalBody.innerHTML += `<span style="display:inline-block; width:14px; height:14px; background-color:green; border-radius:50%; margin-right:6px; vertical-align:middle;"></span>`;
+            } else if (healthStatus === 'yellow') { 
+                modalBody.innerHTML += `<span style="display:inline-block; width:14px; height:14px; background-color:yellow; border-radius:50%; margin-right:6px; vertical-align:middle; border:1px solid #ccc;"></span>`;
+            } else if (healthStatus === 'red') { 
+                modalBody.innerHTML += `<span style="display:inline-block; width:14px; height:14px; background-color:red; border-radius:50%; margin-right:6px; vertical-align:middle;"></span>`;
+            }
+            modalBody.innerHTML += `[${status.progress}%]`;
+            if (status.status_date) {
+                modalBody.innerHTML += `<a href="#" onClick="getStatus(event, ${status.id})" data-target="#viewStatusModal" id="viewStatusLink">
+                    ${new Date(status.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </a>`;
+            }
+            modalBody.innerHTML += `<div style="width:100% !important;"><hr/></div>`;
+          });
+        } else {
+          modalBody.innerHTML = `<p>No status updates available</p>`;
+        }
+        $('#StatusUpdatesModal').modal('show');
+      })
+      .catch(err => console.error(err));
+  }
+
+  window.getStatus = function(event, id) {
+    event.preventDefault();
+
+    // Reset the fields before fetching new data
+    document.getElementById('view_status_accomplishments').value = '';
+    document.getElementById('view_status_issue').value = '';
+    document.getElementById('view_status_action').value = '';
+    document.getElementById('view_status_progress').value = '';
+    document.getElementById('view_status_health').value = '';
+    document.getElementById('view_status_date').innerText = '';
+
+    fetch(`/statuses/${id}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Fetched status data:", data);
+        if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
+        if (data.issue) document.getElementById('view_status_issue').value = data.issue;
+        if (data.actions) document.getElementById('view_status_action').value = data.actions;
+        if (data.progress) document.getElementById('view_status_progress').value = data.progress;
+        if (data.health) document.getElementById('view_status_health').value = data.health;
+        if (data.status_date) {
+          // Parse and adjust the status_date to ensure correct timezone handling
+          const parsedStatusDate = new Date(data.status_date);
+          const adjustedStatusDate = new Date(
+            parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
+          );
+          // Format adjustedStatusDate to yyyy-mm-dd
+          const formattedStatusDate = adjustedStatusDate.toISOString().split("T")[0];
+          document.getElementById('view_status_date').innerText = formattedStatusDate;
+          
+          //fetch prime name
+          console.log("Prime id", data.prime_id_fk)
+          fetch(`/persons/${data.prime_id_fk}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              const contentType = response.headers.get("content-type");
+              if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Not a JSON response");
+              }
+              return response.json();
+            })
+            .then(primeData => {
+              document.getElementById("prime_name").innerText = `${primeData.last_name}, ${primeData.first_name}`;
+            })
+            .catch(err => console.error("Error fetching prime data:", err));
+        }
+        $('#StatusUpdatesModal').one('hidden.bs.modal', function () {
+            $('#viewStatusModal').modal('show');
+          });
+          $('#StatusUpdatesModal').modal('hide');
+      })
+      .catch(err => console.error("Error fetching status data:", err));
+  }
+
+  // Add click handler for status eye icons
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('js-status-eye')) {
+      const projectId = e.target.getAttribute('data-project-id');
+      if (projectId) {
+        getStatusUpdates(projectId);
+      }
+    }
+  });
 
 });
 </script>
