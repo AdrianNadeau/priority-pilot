@@ -257,23 +257,26 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Table sorting functionality
   document.querySelectorAll('.sortable').forEach(header => {
-    header.addEventListener('click', function() {
+    header.addEventListener('click', function(e) {
+      // If clicking directly on the arrow, handle arrow-specific logic
+      if (e.target.classList.contains('sort-arrow')) {
+        return; // Let the arrow handler deal with this
+      }
+      
       const column = this.dataset.column;
       const arrow = this.querySelector('.sort-arrow');
-      const isCurrentlyDefault = arrow.classList.contains('fa-sort');
-      const isCurrentlyUp = arrow.classList.contains('fa-sort-up');
-      const isCurrentlyDown = arrow.classList.contains('fa-sort-down');
+      const currentSort = this.dataset.sort;
       
-      // Determine sort direction and OPPOSITE icon (showing what happens next)
+      // Determine new sort direction based on current state
       let newSort, newIconClass;
-      if (isCurrentlyDefault || isCurrentlyUp) {
-        // If default or showing up arrow, sort descending and show down arrow
-        newSort = 'desc';
-        newIconClass = 'fa-sort-down';
-      } else {
-        // If showing down arrow, sort ascending and show up arrow
+      if (currentSort === 'default' || currentSort === 'desc') {
+        // If default or descending, go to ascending
         newSort = 'asc';
         newIconClass = 'fa-sort-up';
+      } else {
+        // If ascending, go to descending
+        newSort = 'desc';
+        newIconClass = 'fa-sort-down';
       }
       
       // Reset other headers to default state
@@ -302,6 +305,55 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
+  // Arrow-specific click handler for toggling sort direction
+  document.querySelectorAll('.sort-arrow').forEach(arrow => {
+    arrow.addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevent header click event
+      
+      const header = this.closest('.sortable');
+      const column = header.dataset.column;
+      const currentSort = header.dataset.sort;
+      
+      // If column is already sorted, toggle the direction
+      let newSort, newIconClass;
+      if (currentSort === 'asc') {
+        newSort = 'desc';
+        newIconClass = 'fa-sort-down';
+      } else if (currentSort === 'desc') {
+        newSort = 'asc';
+        newIconClass = 'fa-sort-up';
+      } else {
+        // If default state, start with ascending
+        newSort = 'asc';
+        newIconClass = 'fa-sort-up';
+      }
+      
+      // Reset other headers to default state
+      document.querySelectorAll('.sortable').forEach(h => {
+        if (h !== header) {
+          h.dataset.sort = 'default';
+          const otherArrow = h.querySelector('.sort-arrow');
+          otherArrow.classList.remove('active', 'fa-sort-up', 'fa-sort-down');
+          if (!otherArrow.classList.contains('fa')) {
+            otherArrow.classList.add('fa');
+          }
+          otherArrow.classList.add('fa-sort');
+        }
+      });
+      
+      // Update current header
+      header.dataset.sort = newSort;
+      this.classList.remove('fa-sort-up', 'fa-sort-down', 'fa-sort');
+      if (!this.classList.contains('fa')) {
+        this.classList.add('fa');
+      }
+      this.classList.add('active', newIconClass);
+      
+      // Sort table
+      sortTable(column, newSort);
+    });
+  });
+
   function sortTable(column, direction) {
     const table = document.querySelector('.table tbody');
     if (!table) return;
@@ -309,20 +361,41 @@ document.addEventListener("DOMContentLoaded", function() {
     const rows = Array.from(table.querySelectorAll('tr'));
     rows.sort((a, b) => {
       let aVal, bVal;
+      let aIsNull = false, bIsNull = false;
       
       switch(column) {
-        case 'project_name': aVal = a.cells[1].textContent; bVal = b.cells[1].textContent; break;
-        case 'prime_name': aVal = a.cells[2].textContent; bVal = b.cells[2].textContent; break;
-        case 'sponsor_name': aVal = a.cells[3].textContent; bVal = b.cells[3].textContent; break;
+        case 'project_name': 
+          aVal = a.cells[1].textContent.trim(); 
+          bVal = b.cells[1].textContent.trim(); 
+          break;
+        case 'prime_name': 
+          aVal = a.cells[2].textContent.trim(); 
+          bVal = b.cells[2].textContent.trim(); 
+          break;
+        case 'sponsor_name': 
+          aVal = a.cells[3].textContent.trim(); 
+          bVal = b.cells[3].textContent.trim(); 
+          break;
         case 'start_date': 
-          aVal = a.cells[4].textContent ? new Date(a.cells[4].textContent) : new Date(0);
-          bVal = b.cells[4].textContent ? new Date(b.cells[4].textContent) : new Date(0);
+          const aStartText = a.cells[4].textContent.trim();
+          const bStartText = b.cells[4].textContent.trim();
+          aIsNull = !aStartText || aStartText === '';
+          bIsNull = !bStartText || bStartText === '';
+          if (!aIsNull) aVal = new Date(aStartText);
+          if (!bIsNull) bVal = new Date(bStartText);
           break;
         case 'end_date': 
-          aVal = a.cells[5].textContent ? new Date(a.cells[5].textContent) : new Date(0);
-          bVal = b.cells[5].textContent ? new Date(b.cells[5].textContent) : new Date(0);
+          const aEndText = a.cells[5].textContent.trim();
+          const bEndText = b.cells[5].textContent.trim();
+          aIsNull = !aEndText || aEndText === '';
+          bIsNull = !bEndText || bEndText === '';
+          if (!aIsNull) aVal = new Date(aEndText);
+          if (!bIsNull) bVal = new Date(bEndText);
           break;
-        case 'phase_name': aVal = a.cells[6].textContent; bVal = b.cells[6].textContent; break;
+        case 'phase_name': 
+          aVal = a.cells[6].textContent.trim(); 
+          bVal = b.cells[6].textContent.trim(); 
+          break;
         case 'project_cost': 
           aVal = parseFloat(a.cells[7].textContent.replace(/[$,]/g, '')) || 0;
           bVal = parseFloat(b.cells[7].textContent.replace(/[$,]/g, '')) || 0;
@@ -330,6 +403,14 @@ document.addEventListener("DOMContentLoaded", function() {
         default: return 0;
       }
       
+      // Handle null dates - always put them at the bottom regardless of sort direction
+      if (column === 'start_date' || column === 'end_date') {
+        if (aIsNull && bIsNull) return 0;
+        if (aIsNull) return 1; // a goes to bottom
+        if (bIsNull) return -1; // b goes to bottom
+      }
+      
+      // Normal sorting for non-null values
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         return direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
       }

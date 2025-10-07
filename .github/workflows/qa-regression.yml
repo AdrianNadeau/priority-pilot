@@ -1,0 +1,295 @@
+name: QA Regression Testing
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to test"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  NODE_VERSION: "18.x"
+  POSTGRES_VERSION: "14"
+
+jobs:
+  # Unit and Integration Tests
+  test-backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: priority_pilot_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:6-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup test environment
+        run: |
+          cp .env.test .env
+          echo "DB_HOST_NAME=localhost" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_USER_NAME=postgres" >> .env
+          echo "DB_PASSWORD=postgres" >> .env
+          echo "TEST_DB_NAME=priority_pilot_test" >> .env
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - name: Generate test coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: backend
+          name: backend-coverage
+
+      - name: Archive test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: backend-test-results
+          path: |
+            coverage/
+            test-results.xml
+
+  # Frontend E2E Tests
+  test-frontend:
+    name: Frontend E2E Tests
+    runs-on: ubuntu-latest
+    needs: test-backend
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: priority_pilot_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Setup test environment
+        run: |
+          cp .env.test .env
+          echo "DB_HOST_NAME=localhost" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_USER_NAME=postgres" >> .env
+          echo "DB_PASSWORD=postgres" >> .env
+          echo "TEST_DB_NAME=priority_pilot_test" >> .env
+
+      - name: Start application
+        run: |
+          npm start &
+          sleep 30
+          curl --retry 10 --retry-delay 5 --retry-connrefused http://localhost:3000/health
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Upload E2E results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: e2e-test-results
+          path: |
+            playwright-report/
+            test-results/
+
+  # Pre-deployment validation
+  pre-deployment:
+    name: Pre-deployment Validation
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    needs: [test-backend, test-frontend]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run pre-deployment checks
+        env:
+          BASE_URL: ${{ github.event.inputs.environment == 'production' && secrets.PROD_BASE_URL || secrets.STAGING_BASE_URL }}
+        run: node tests/deployment/pre-deployment.js
+
+  # Deployment (placeholder - replace with your deployment process)
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    needs: pre-deployment
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to ${{ github.event.inputs.environment || 'staging' }}
+        run: |
+          echo "Deploying to ${{ github.event.inputs.environment || 'staging' }}"
+          # Add your deployment commands here
+          # Example: docker build, push, deploy, etc.
+
+  # Post-deployment validation
+  post-deployment:
+    name: Post-deployment Validation
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run post-deployment validation
+        env:
+          BASE_URL: ${{ github.event.inputs.environment == 'production' && secrets.PROD_BASE_URL || secrets.STAGING_BASE_URL }}
+        run: node tests/deployment/post-deployment.js
+
+      - name: Run regression tests
+        env:
+          BASE_URL: ${{ github.event.inputs.environment == 'production' && secrets.PROD_BASE_URL || secrets.STAGING_BASE_URL }}
+        run: node tests/deployment/regression.js
+
+      - name: Upload deployment test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: deployment-test-results
+          path: |
+            deployment-report.json
+            regression-report.json
+
+  # Rollback on failure
+  rollback:
+    name: Rollback Deployment
+    runs-on: ubuntu-latest
+    needs: post-deployment
+    if: failure() && (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Rollback deployment
+        run: |
+          echo "Rolling back deployment due to test failures"
+          # Add your rollback commands here
+
+      - name: Notify team of rollback
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: "#deployments"
+          text: |
+            🚨 Deployment rollback triggered
+            Environment: ${{ github.event.inputs.environment || 'staging' }}
+            Commit: ${{ github.sha }}
+            Branch: ${{ github.ref }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Notification on success
+  notify-success:
+    name: Notify Success
+    runs-on: ubuntu-latest
+    needs: post-deployment
+    if: success() && (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
+
+    steps:
+      - name: Notify team of successful deployment
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: "#deployments"
+          text: |
+            ✅ Deployment successful!
+            Environment: ${{ github.event.inputs.environment || 'staging' }}
+            Commit: ${{ github.sha }}
+            Branch: ${{ github.ref }}
+            All regression tests passed!
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
