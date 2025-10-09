@@ -12,6 +12,18 @@
     background-color: #e9ecef !important;
     cursor: pointer;
   }
+  .sortable {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    padding: 12px 8px !important;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6 !important;
+  }
+  .sortable:hover {
+    background-color: #e9ecef !important;
+    cursor: pointer;
+  }
   .sort-arrow {
     display: inline-block;
     margin-left: 8px;
@@ -27,6 +39,14 @@
     color: #007bff !important;
     transform: scale(1.1);
     cursor: pointer;
+  }
+  .sort-arrow.active {
+    color: #007bff !important;
+    cursor: pointer;
+  }
+  .table thead th {
+    font-weight: 600;
+    vertical-align: middle;
   }
   .sort-arrow.active {
     color: #007bff !important;
@@ -254,6 +274,21 @@
 </div>
 <% }); %>
 
+<!-- Add Project Modal -->
+<div id="addProject" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="width: 900px;">
+      <div class="modal-header">
+        <h5 class="modal-title mt-0">Add Project</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      </div>
+      <div class="modal-body">
+        <%- include('../Partials/add-project', {phases: phases, priorities: priorities, sponsors: sponsors, primes: primes, tags: tags}) %>
+      </div>
+    </div>
+  </div>
+</div>
+
 <%- contentFor('FooterJs') %> 
 <%- contentFor('BottomJs') %>
 
@@ -283,6 +318,7 @@ document.addEventListener("DOMContentLoaded", function() {
           return response.blob();
         })
         .then(blob => {
+          console.log('Blob received:', blob);
           const today = new Date();
           const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
           const url = window.URL.createObjectURL(blob);
@@ -301,127 +337,25 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  // Table sorting
-  function initTableSorting() {
-    const headers = document.querySelectorAll('.sortable');
-    headers.forEach(header => {
-      header.addEventListener('click', function() {
-        const column = header.getAttribute('data-column');
-        let direction = header.getAttribute('data-sort');
-        direction = direction === 'asc' ? 'desc' : 'asc';
-        sortTable(column, direction);
-        headers.forEach(h => {
-          h.setAttribute('data-sort', 'default');
-          h.querySelector('.sort-arrow').className = 'sort-arrow default';
-        });
-        header.setAttribute('data-sort', direction);
-        header.querySelector('.sort-arrow').className = `sort-arrow active ${direction}`;
-      });
-    });
-  }
-
-  function sortTable(column, direction) {
-    const table = document.querySelector('.table');
-    const tbody = table.querySelector('tbody');
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    const columnIndex = Array.from(table.querySelectorAll('th')).findIndex(th => th.getAttribute('data-column') === column);
-
-    rows.sort((a, b) => {
-      const aText = a.cells[columnIndex + 1].textContent.trim();
-      const bText = b.cells[columnIndex + 1].textContent.trim();
-      if (!isNaN(parseFloat(aText)) && !isNaN(parseFloat(bText))) {
-        return direction === 'asc'
-          ? parseFloat(aText) - parseFloat(bText)
-          : parseFloat(bText) - parseFloat(aText);
-      }
-      return direction === 'asc'
-        ? aText.localeCompare(bText)
-        : bText.localeCompare(aText);
-    });
-
-    rows.forEach(row => tbody.appendChild(row));
-  }
-
-  try { initTableSorting(); } catch (error) {
-    console.log('Error initializing table sorting:', error);
-  }
-
-  // Numeric validation
-  ['project_cost', 'effort', 'benefit'].forEach(function(fieldId) {
-    const el = document.getElementById(fieldId);
-    if (!el) return;
-    el.addEventListener('keydown', function(event) {
-      if (![46,8,9,27,13,110,190].includes(event.keyCode) &&
-          !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
-          !(event.ctrlKey || event.metaKey)) {
-        event.preventDefault();
-        alert("Only numbers are allowed.");
-      }
-    });
-  });
-
-  // Row navigation
-  document.querySelectorAll(".table tbody tr").forEach(function(row) {
-    row.addEventListener('click', function(e) {
-      if (e.target.closest('[data-toggle="modal"]') || e.target.closest('.js-status-eye')) return;
-      var id = row.cells[0].textContent;
-      window.location.replace('/projects/edit/' + id);
-    });
-  });
-
-  // Flatpickr init
-  flatpickr(".datepicker, .start_datepicker, .end_datepicker, .nms_datepicker", {
-    dateFormat: "Y-m-d",
-    allowInput: true,
-    allowInvalidPreload: true
-  });
-
-  // Phase toggle
-  window.phaseSelect = document.getElementById("phase_id_fk");
-  window.dateSection = document.getElementById("date_section");
-  window.startDateInput = document.getElementById('start_date');
-  window.endDateInput = document.getElementById('end_date');
-  window.nextMilestoneDateInput = document.getElementById('next_milestone_date');
-  window.dateRequired = document.getElementById('dates_required');
-
-  window.toggleDateSection = function() {
-    if (phaseSelect.value == "1" || phaseSelect.value == "6") {
-      dateSection.style.display = 'none';
-      startDateInput.required = false;
-      endDateInput.required = false;
-      dateRequired.style.display = 'none';
-      startDateInput.value = "";
-      endDateInput.value = "";
-      nextMilestoneDateInput.value = "";
-    } else {
-      dateSection.style.display = 'block';
-      startDateInput.required = true;
-      endDateInput.required = true;
-    }
-  }
-
   // Table sorting functionality
   document.querySelectorAll('.sortable').forEach(header => {
-    header.addEventListener('click', function(e) {
-      // If clicking directly on the arrow, handle arrow-specific logic
-      if (e.target.classList.contains('sort-arrow')) {
-        return; // Let the arrow handler deal with this
-      }
-      
+    header.addEventListener('click', function() {
       const column = this.dataset.column;
       const arrow = this.querySelector('.sort-arrow');
-      const currentSort = this.dataset.sort;
+      const isCurrentlyDefault = arrow.classList.contains('fa-sort');
+      const isCurrentlyUp = arrow.classList.contains('fa-sort-up');
+      const isCurrentlyDown = arrow.classList.contains('fa-sort-down');
       
-      // Determine new sort direction based on current state
+      // Determine sort direction and OPPOSITE icon (showing what happens next)
       let newSort, newIconClass;
-      if (currentSort === 'default' || currentSort === 'desc') {
-        // If default or descending, go to ascending
-        newSort = 'asc';
-        newIconClass = 'fa-sort-up';
-      } else {
-        // If ascending, go to descending
+      if (isCurrentlyDefault || isCurrentlyUp) {
+        // If default or showing up arrow, sort descending and show down arrow
         newSort = 'desc';
         newIconClass = 'fa-sort-down';
+      } else {
+        // If showing down arrow, sort ascending and show up arrow
+        newSort = 'asc';
+        newIconClass = 'fa-sort-up';
       }
       
       // Reset other headers to default state
@@ -450,60 +384,51 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-  // Arrow-specific click handler for toggling sort direction
-  document.querySelectorAll('.sort-arrow').forEach(arrow => {
-    arrow.addEventListener('click', function(e) {
-      e.stopPropagation(); // Prevent header click event
-      
-      const header = this.closest('.sortable');
-      const column = header.dataset.column;
-      const currentSort = header.dataset.sort;
-      
-      // If column is already sorted, toggle the direction
-      let newSort, newIconClass;
-      if (currentSort === 'asc') {
-        newSort = 'desc';
-        newIconClass = 'fa-sort-down';
-      } else if (currentSort === 'desc') {
-        newSort = 'asc';
-        newIconClass = 'fa-sort-up';
-      } else {
-        // If default state, start with ascending
-        newSort = 'asc';
-        newIconClass = 'fa-sort-up';
-      }
-      
-      // Reset other headers to default state
-      document.querySelectorAll('.sortable').forEach(h => {
-        if (h !== header) {
-          h.dataset.sort = 'default';
-          const otherArrow = h.querySelector('.sort-arrow');
-          otherArrow.classList.remove('active', 'fa-sort-up', 'fa-sort-down');
-          if (!otherArrow.classList.contains('fa')) {
-            otherArrow.classList.add('fa');
-          }
-          otherArrow.classList.add('fa-sort');
-        }
-      });
-      
-      // Update current header
-      header.dataset.sort = newSort;
-      this.classList.remove('fa-sort-up', 'fa-sort-down', 'fa-sort');
-      if (!this.classList.contains('fa')) {
-        this.classList.add('fa');
-      }
-      this.classList.add('active', newIconClass);
-      
-      // Sort table
-      sortTable(column, newSort);
-    });
-  });
-
   function sortTable(column, direction) {
     const table = document.querySelector('.table tbody');
     if (!table) return;
     
     const rows = Array.from(table.querySelectorAll('tr'));
+    rows.sort((a, b) => {
+      let aVal, bVal;
+      
+      switch(column) {
+        case 'project_name': aVal = a.cells[1].textContent; bVal = b.cells[1].textContent; break;
+        case 'prime_name': aVal = a.cells[2].textContent; bVal = b.cells[2].textContent; break;
+        case 'sponsor_name': aVal = a.cells[3].textContent; bVal = b.cells[3].textContent; break;
+        case 'start_date': 
+          aVal = a.cells[4].textContent ? new Date(a.cells[4].textContent) : new Date(0);
+          bVal = b.cells[4].textContent ? new Date(b.cells[4].textContent) : new Date(0);
+          break;
+        case 'end_date': 
+          aVal = a.cells[5].textContent ? new Date(a.cells[5].textContent) : new Date(0);
+          bVal = b.cells[5].textContent ? new Date(b.cells[5].textContent) : new Date(0);
+          break;
+        case 'phase_name': aVal = a.cells[6].textContent; bVal = b.cells[6].textContent; break;
+        case 'project_cost': 
+          aVal = parseFloat(a.cells[7].textContent.replace(/[$,]/g, '')) || 0;
+          bVal = parseFloat(b.cells[7].textContent.replace(/[$,]/g, '')) || 0;
+          break;
+        default: return 0;
+      }
+      
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        return direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      }
+      
+      return direction === 'asc' ? (aVal < bVal ? -1 : 1) : (bVal < aVal ? -1 : 1);
+    });
+    
+    table.innerHTML = '';
+    rows.forEach(row => table.appendChild(row));
+  }
+
+  function sortTable(column, direction) {
+    const table = document.querySelector('.table');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const columnIndex = Array.from(table.querySelectorAll('th')).findIndex(th => th.getAttribute('data-column') === column);
+
     rows.sort((a, b) => {
       let aVal, bVal;
       let aIsNull = false, bIsNull = false;
@@ -562,10 +487,99 @@ document.addEventListener("DOMContentLoaded", function() {
       
       return direction === 'asc' ? (aVal < bVal ? -1 : 1) : (bVal < aVal ? -1 : 1);
     });
-    
-    table.innerHTML = '';
-    rows.forEach(row => table.appendChild(row));
+
+    tbody.innerHTML = '';
+    rows.forEach(row => tbody.appendChild(row));
   }
+
+  // Initialize table sorting
+  // Sorting is now handled by direct event listeners above
+  // try { initTableSorting(); } catch (error) {
+  //   console.log('Error initializing table sorting:', error);
+  // }
+
+  // Handle "add one project" link
+  const addProjectLink = document.getElementById('openAddProjectModal');
+  if (addProjectLink) {
+    addProjectLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      $('#addProject').modal('show');
+    });
+  }
+
+  // Numeric validation
+  ['project_cost', 'effort', 'benefit'].forEach(function(fieldId) {
+    const el = document.getElementById(fieldId);
+    if (!el) return;
+    el.addEventListener('keydown', function(event) {
+      if (![46,8,9,27,13,110,190].includes(event.keyCode) &&
+          !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
+          !(event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        alert("Only numbers are allowed.");
+      }
+    });
+  });
+
+  // Row navigation
+  document.querySelectorAll(".table tbody tr").forEach(function(row) {
+    row.addEventListener('click', function(e) {
+      if (e.target.closest('[data-toggle="modal"]') || e.target.closest('.js-status-eye')) return;
+      var id = row.cells[0].textContent;
+      window.location.replace('/projects/edit/' + id);
+    });
+  });
+
+  // Flatpickr init
+  flatpickr(".datepicker, .start_datepicker, .end_datepicker, .nms_datepicker", {
+    dateFormat: "Y-m-d",
+    allowInput: true,
+    allowInvalidPreload: true
+  });
+
+  // Phase toggle
+  window.phaseSelect = document.getElementById("phase_id_fk");
+  window.dateSection = document.getElementById("date_section");
+  window.startDateInput = document.getElementById('start_date');
+  window.endDateInput = document.getElementById('end_date');
+  window.nextMilestoneDateInput = document.getElementById('next_milestone_date');
+  window.dateRequired = document.getElementById('dates_required');
+
+  window.toggleDateSection = function() {
+    if (phaseSelect && dateSection) {
+      if (phaseSelect.value == "1" || phaseSelect.value == "6") {
+        dateSection.style.display = 'none';
+        if (startDateInput) startDateInput.required = false;
+        if (endDateInput) endDateInput.required = false;
+        if (dateRequired) dateRequired.style.display = 'none';
+        if (startDateInput) startDateInput.value = "";
+        if (endDateInput) endDateInput.value = "";
+        if (nextMilestoneDateInput) nextMilestoneDateInput.value = "";
+      } else {
+        dateSection.style.display = 'block';
+        if (startDateInput) startDateInput.required = true;
+        if (endDateInput) endDateInput.required = true;
+      }
+    }
+  }
+
+  // Initial phase check when add project modal opens
+  $('#addProject').on('shown.bs.modal', function () {
+    window.phaseSelect = document.getElementById("phase_id_fk");
+    window.dateSection = document.getElementById("date_section");
+    window.startDateInput = document.getElementById('start_date');
+    window.endDateInput = document.getElementById('end_date');
+    window.nextMilestoneDateInput = document.getElementById('next_milestone_date');
+    window.dateRequired = document.getElementById('dates_required');
+    
+    // Call toggle function to set initial state
+    toggleDateSection();
+    
+    // Add event listener for phase changes
+    if (phaseSelect) {
+      phaseSelect.addEventListener('change', toggleDateSection);
+    }
+  });
 
   // Status modal functions
   window.getStatusUpdates = function(project_id_fk){

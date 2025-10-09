@@ -1,174 +1,225 @@
-
 <%- contentFor('HeaderCss') %>
+<style>
+.accomplishments-table {
+  table-layout: fixed;
+  width: 100%;
+}
 
-<!-- <script src="frappe-gantt.min.js"></script> -->
+.accomplishments-table th,
+.accomplishments-table td {
+  vertical-align: top;
+  text-align: left;
+}
+
+.accomplishments-table th:nth-child(1),
+.accomplishments-table td:nth-child(1) {
+  width: 25%; /* Project name */
+  text-align: left;
+}
+
+.accomplishments-table th:nth-child(2),
+.accomplishments-table td:nth-child(2) {
+  width: 75%; /* Accomplishments - takes most space */
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  text-align: left;
+  max-width: 0; /* Forces table layout to respect width */
+}
+
+.accomplishment-item {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-left: 4px solid #007bff;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.accomplishment-meta {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.95em;
+  text-align: left;
+}
+
+.accomplishment-content {
+  line-height: 1.5;
+  text-align: left;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.accomplishment-text {
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  hyphens: auto;
+  line-height: 1.5;
+}
+
+.accomplishment-icon {
+  margin-right: 8px;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.accomplishment-text {
+  margin-right: 20px;
+  font-weight: 500;
+}
+</style>
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<%- contentFor('breadcrumb') %>
 
+<%- contentFor('breadcrumb') %>
 <%- contentFor('body') %>
 
 <div class="page-content-wrapper">
-    <div class="container-fluid">
-    
-        <button
-      type="button"
-      class="btn btn-success waves-effect waves-light ml-2"
-      id="btnExportCSV" name="btnExportCSV"
-    >
-    Download Report
-      
-    </button>
-      
-        <div class="row">
-            
-            <div class="col-lg-12 text-center">
-                <div class="card-body" style="border:0px !important;margin-top: 1.5em;">
-                    
-                    <div class="table-responsive">
-                        <table class="table mb-12">
-                           
-                            <tbody>
-                              <tr>
-                                    <th>Project</th>
-                                    <th>Start</th>
-                                    <th>End</th>
-                                    <th>NMS</th>
-                                    <th>Status</th>
-                                    <th>Prime</th>
-                                    <th>Sponsor</th>
-                                    <th>Issues</th>
-                                    <th>Actions</th>
-                                    <th>Progress</th>
-                                   
-                                   
-                                </tr>
-                                <% let currentPhase = ''; %>
-                                <% let health = ''; %>
-                                <% let statsHealth = ''; %>
-                        
-                                <% projects.forEach(project => { %>
-                                    <% if (project.phase_name === 'Planning' || project.phase_name === 'Discovery' || project.phase_name === 'Delivery') { %>
-                                    <% if (project.phase_name !== currentPhase) { %>
-                                        <% currentPhase = project.phase_name; %>
-                                        <tr>
-                                        <td colspan="12" style="background-color:#ececec;font-weight: bold; text-align: center;"><%= currentPhase %></td>
-                                        </tr>
-                                    <% } %>
-                                     <thead>
-                              
-                            </thead>
-                           
-                                   <%
-                                      let backgroundColor = 'gray'; // default gray
-                                      if (project.last_status && project.last_status.health) {
-                                        let health = project.last_status.health.toLowerCase().trim();
-                                        if (health === 'yellow') backgroundColor = 'yellow';
-                                        else if (health === 'green') backgroundColor = 'green';
-                                        else if (health === 'red') backgroundColor = 'red';
-                                        else if (health === '#000') backgroundColor = 'red';
-                                        
-                                      }
-                                    %>
-                                    <tr>
-                                      <td style="background-color:<%= backgroundColor %>;color:black;font-weight: bold;min-width: 250px;">
-                                        <%= project.project_name %>&nbsp;<a href="/projects/edit/<%= project.project_id %>"><i class="mdi mdi-border-color"></i></a>
-                                      </td>
-                                      <td><% if (project.start_date) { %><%= new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                      <td><% if (project.end_date) { %><%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                      <td><% if (project.next_milestone_date) { %><%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                      <td>
-                                        <%= project.last_status && project.last_status.health ? project.last_status.health : "N/A" %>
-                                      </td>
-                                      <% if (project.last_status && project.last_status.health) { %>
-                                        <% statsHealth = project.last_status.health.toUpperCase().trim(); %>
-                                      <% } %>
-                                      <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
-                                       
-                                     
-                                      
-                                      <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
-                                      <td><% if (project.last_status) { %><%= project.last_status.issue %><% } %></td>
-                                      <td><% if (project.last_status) { %><%= project.last_status.actions %><% } %></td>
-                                      <td><% if (project.last_status) { %><%= project.last_status.progress %> %<% } %></td>
-                                    </tr>
-                                    <% } %>
-                                <% }); %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="container-fluid">
+    <div class="mb-3">
+      <button
+        type="button"
+        class="btn btn-success waves-effect waves-light ml-2"
+        id="btnExportCSV"
+        name="btnExportCSV"
+      >
+        Download CSV
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary waves-effect waves-light ml-2"
+        id="btnExportPDF"
+        name="btnExportPDF"
+      >
+        Download PDF
+      </button>
     </div>
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card-body" style="border: 0; margin-top: 1.5em;">
+          <div class="table-responsive">
+            <table id="accomplishmentsTable" class="table mb-12 accomplishments-table">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Project</th>
+                  <th style="text-align: left;">Accomplishments</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% let currentPhase = ''; %>
+
+                <% projects.forEach(project => { %>
+                  
+
+                  <tr>
+                    <td style="font-weight: bold; min-width: 250px; vertical-align: top; padding: 15px;">
+                      <%= project.project_name %>
+                      &nbsp;
+                      <a href="/projects/edit/<%= project.project_id %>">
+                        <i class="mdi mdi-border-color"></i>
+                      </a>
+                      <br/>
+                     
+                    </td>
+
+                    <td style="padding: 15px; text-align: left;">
+                      <% if (project.accomplishments && project.accomplishments.length > 0) { %>
+                        <% project.accomplishments.forEach(accomplishment => { %>
+                          <div class="accomplishment-item" style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #007bff; background-color: #f8f9fa; border-radius: 4px;">
+                            <!-- Date and Progress Row -->
+                            <div style="display: flex; align-items: center; margin-bottom: 10px; text-align: left;">
+                              <i class="mdi mdi-calendar" style="color: #007bff; margin-right: 8px; font-size: 16px;"></i>
+                              <span style="font-weight: 500; margin-right: 20px;">
+                                <%= accomplishment.status_date ? new Date(accomplishment.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A' %>
+                              </span>
+                              
+                              <i class="mdi mdi-chart-line" style="color: #28a745; margin-right: 8px; font-size: 16px;"></i>
+                              <span style="font-weight: 500; margin-right: 20px;">
+                                <%= accomplishment.progress || '0' %>% Progress
+                              </span>
+                              
+                              <% if (accomplishment.health) { %>
+                                <i class="mdi mdi-heart-pulse" style="color: <%= accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d' %>; margin-right: 8px; font-size: 16px;"></i>
+                                <span style="color: <%= accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d' %>; font-weight: 500;">
+                                  <%= accomplishment.health %>
+                                </span>
+                              <% } %>
+                            </div>
+                            
+                            <!-- Accomplishments Content -->
+                            <div style="display: flex; align-items: flex-start; text-align: left;">
+                              <i class="mdi mdi-check-circle" style="color: #28a745; margin-right: 8px; margin-top: 2px; font-size: 16px; flex-shrink: 0;"></i>
+                              <div class="accomplishment-text" style="line-height: 1.5; text-align: left; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: normal; flex: 1; max-width: calc(100% - 24px);">
+                                <%= accomplishment.accomplishments %>
+                              </div>
+                            </div>
+                          </div>
+                        <% }); %>
+                      <% } else { %>
+                        <div style="text-align: left; padding: 20px;">
+                          <i class="mdi mdi-information-outline" style="color: #6c757d; margin-right: 8px;"></i>
+                          <em class="text-muted">No accomplishments recorded</em>
+                        </div>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <%- contentFor('FooterJs') %>
 <%- contentFor('BottomJs') %>
+
 <script>
-// CSV Export functionality
+// CSV Export
 document.getElementById("btnExportCSV").addEventListener("click", function () {
-  window.location.href = "/projects/export/health-data";
+  window.location.href = "/projects/export/accomplishments-data";
 });
 
-// Print/PDF functionality
-document.getElementById("btnPrintPage").addEventListener("click", function () {
-  // Get portfolio name from session data or set a default
-  const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
+// PDF Export
+document.getElementById("btnExportPDF").addEventListener("click", function () {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
 
-  // Create a style element for the print header
-  const style = document.createElement("style");
-  style.setAttribute("type", "text/css");
-  style.setAttribute("media", "print");
+  doc.setFontSize(16);
+  doc.text("Project Accomplishments Report", 40, 40);
+  doc.setFontSize(10);
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 60);
 
-  // Add CSS for the print header
-  const css = `
-    @page {
-      size: landscape;
-      margin-top: 3cm;
+  const table = document.getElementById("accomplishmentsTable");
+
+  doc.autoTable({
+    html: table,
+    startY: 80,
+    styles: { fontSize: 9, cellPadding: 4 },
+    headStyles: { fillColor: [33, 150, 243], textColor: 255 },
+    alternateRowStyles: { fillColor: [245, 245, 245] },
+    columnStyles: {
+      0: { cellWidth: 150 },
+      1: { cellWidth: 80 },
+      2: { cellWidth: 300 },
+      3: { cellWidth: 60 }
     }
-    body::before {
-      content: "${portfolioName} - Health Report";
-      display: block;
-      text-align: center;
-      font-weight: bold;
-      font-size: 1.5em;
-      margin-bottom: 1cm;
-    }
-    #btnPrintPage,
-    #btnExportCSV,
-    .page-buttons,
-    .button-menu-mobile,
-    .page-title,
-    .portfolio-title {
-      display: none !important;
-    }
-    td, th, tr, .table, .mini-stat, .card-body {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-  `;
+  });
 
-  style.appendChild(document.createTextNode(css));
-  document.head.appendChild(style);
-
-  // Save the current title
-  const oldTitle = document.title;
-  const today = new Date();
-  const yyyy_mm_dd = today.toISOString().split('T')[0];
-  
-  document.title = yyyy_mm_dd + " - PriorityPilot - Health Report";
-
-  // Print
-  window.print();
-
-  // Restore the old title after a short delay
-  setTimeout(() => {
-    document.title = oldTitle;
-    // Remove the added style element
-    document.head.removeChild(style);
-  }, 1000);
+  doc.save("accomplishments-report.pdf");
 });
 </script>
-Extension Icon
-

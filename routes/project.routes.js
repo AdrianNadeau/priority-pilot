@@ -119,6 +119,12 @@ module.exports = (app) => {
     projects.health,
   );
   router.get(
+    "/accomplishments/view/",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.accomplishments,
+  );
+  router.get(
     "/flightview/view/",
     sessionMiddleware,
     companyPortfolioName,

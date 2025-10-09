@@ -74,10 +74,18 @@ exports.create = (req, res) => {
 
   // Save Project in the database
   Project.create(project).then(async (createdProject) => {
-    const phasesData = await Phase.findAll({ order: [["id", "ASC"]] }).catch(
-      (error) => {
-        console.log("Error fetching phasesData:", error);
-      },
+    const phasesDataRaw = await Phase.findAll({
+      order: [["id", "ASC"]],
+      distinct: true,
+    }).catch((error) => {
+      console.log("Error fetching phasesData:", error);
+      return [];
+    });
+
+    // Additional deduplication in case of any remaining duplicates
+    const phasesData = phasesDataRaw.filter(
+      (phase, index, self) =>
+        index === self.findIndex((p) => p.id === phase.id),
     );
 
     const newChangedProject = {
@@ -242,9 +250,16 @@ exports.findAll = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
 
-    const phasesData = await Phase.findAll({
+    const phasesDataRaw = await Phase.findAll({
       order: [["id", "ASC"]],
+      distinct: true,
     });
+
+    // Additional deduplication in case of any remaining duplicates
+    const phasesData = phasesDataRaw.filter(
+      (phase, index, self) =>
+        index === self.findIndex((p) => p.id === phase.id),
+    );
     let priorities = await Priority.findAll();
 
     const personsData = await Person.findAll({
@@ -753,9 +768,16 @@ exports.findOneForEdit = async (req, res) => {
         lastStartDate = statuses[0].status_date;
         statusColor = statuses[0].health;
       }
-      const phasesData = await Phase.findAll({
+      const phasesDataRaw = await Phase.findAll({
         order: [["id", "ASC"]],
+        distinct: true,
       });
+
+      // Additional deduplication in case of any remaining duplicates
+      const phasesData = phasesDataRaw.filter(
+        (phase, index, self) =>
+          index === self.findIndex((p) => p.id === phase.id),
+      );
       const [prioritiesData] = await Promise.all([
         Priority.findAll(),
         Project.findAll(),
@@ -845,9 +867,15 @@ exports.findOneForPrime = async (req, res) => {
     statusColor = statuses[0].health;
   }
 
-  const phasesData = await Phase.findAll({
+  const phasesDataRaw = await Phase.findAll({
     order: [["id", "ASC"]],
+    distinct: true,
   });
+
+  // Additional deduplication in case of any remaining duplicates
+  const phasesData = phasesDataRaw.filter(
+    (phase, index, self) => index === self.findIndex((p) => p.id === phase.id),
+  );
 
   const prioritiesData = await Priority.findAll();
 
@@ -1929,9 +1957,16 @@ exports.findFunnel = async (req, res) => {
         parseFloat((project.effort || "0").replace(/,/g, "")) || 0;
     });
     // Retrieve phases and priorities
-    const phases = await Phase.findAll({
+    const phasesRaw = await Phase.findAll({
       order: [["id", "ASC"]],
+      distinct: true,
     });
+
+    // Additional deduplication in case of any remaining duplicates
+    const phases = phasesRaw.filter(
+      (phase, index, self) =>
+        index === self.findIndex((p) => p.id === phase.id),
+    );
     const priorities = await Priority.findAll();
 
     // Retrieve sponsors and primes
@@ -2140,7 +2175,16 @@ ORDER BY
     };
 
     //get all phases for add project modal
-    const phases = await db.phases.findAll({});
+    const phasesRaw = await db.phases.findAll({
+      distinct: true,
+      order: [["id", "ASC"]],
+    });
+
+    // Additional deduplication in case of any remaining duplicates
+    const phases = phasesRaw.filter(
+      (phase, index, self) =>
+        index === self.findIndex((p) => p.id === phase.id),
+    );
     //get all priorities for add project modal
     const priorities = await db.priorities.findAll({});
     //get all persons for primes and sponsors add project modal
@@ -2437,6 +2481,142 @@ ORDER BY
   }
 };
 
+exports.accomplishments = async (req, res) => {
+  //get all company projects with all their accomplishments
+  const company_id_fk = req.session.company.id;
+  const portfolioName = req.session.company.company_headline;
+
+  const query = `
+    SELECT DISTINCT
+      proj.id AS project_id,
+      proj.project_name,
+      proj.start_date,
+      proj.end_date,
+      proj.next_milestone_date,
+      phases.phase_name,
+      prime_person.first_name AS prime_first_name,
+      prime_person.last_name AS prime_last_name,
+      sponsor_person.first_name AS sponsor_first_name,
+      sponsor_person.last_name AS sponsor_last_name,
+      status.status_date,
+      status.accomplishments,
+      status.progress,
+      status.health,
+      status.id AS status_id,
+      CASE phases.phase_name 
+        WHEN 'Planning' THEN 1 
+        WHEN 'Discovery' THEN 2 
+        WHEN 'Delivery' THEN 3 
+        WHEN 'Done' THEN 4
+        ELSE 5 
+      END AS phase_order
+    FROM projects proj
+    LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk
+    LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+    LEFT JOIN phases ON phases.id = proj.phase_id_fk
+    LEFT JOIN statuses status ON status.project_id_fk = proj.id
+    WHERE proj.company_id_fk = ?
+      AND proj.phase_id_fk IN (
+        SELECT id FROM phases WHERE phase_name IN ('Planning', 'Discovery', 'Delivery', 'Done')
+      )
+      AND status.accomplishments IS NOT NULL 
+      AND status.accomplishments != ''
+    ORDER BY 
+      phase_order,
+      proj.project_name ASC,
+      status.status_date DESC,
+      status.id DESC;
+  `;
+
+  try {
+    console.log(
+      "Executing accomplishments query for company_id:",
+      company_id_fk,
+    );
+    const data = await db.sequelize.query(query, {
+      replacements: [company_id_fk],
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    console.log(
+      "Accomplishments query result:",
+      data.length,
+      "accomplishment records found",
+    );
+
+    // Debug: Log first accomplishment structure to understand data format
+    if (data.length > 0) {
+      console.log(
+        "Sample accomplishment data structure:",
+        JSON.stringify(data[0], null, 2),
+      );
+    }
+
+    // Group accomplishments by project
+    const projectsWithAccomplishments = {};
+
+    data.forEach((record) => {
+      const projectId = record.project_id;
+
+      if (!projectsWithAccomplishments[projectId]) {
+        projectsWithAccomplishments[projectId] = {
+          project_id: record.project_id,
+          project_name: record.project_name,
+          start_date: record.start_date,
+          end_date: record.end_date,
+          next_milestone_date: record.next_milestone_date,
+          phase_name: record.phase_name,
+          prime_first_name: record.prime_first_name,
+          prime_last_name: record.prime_last_name,
+          sponsor_first_name: record.sponsor_first_name,
+          sponsor_last_name: record.sponsor_last_name,
+          accomplishments: [],
+          accomplishmentIds: new Set(), // Track unique accomplishments by status_id
+        };
+      }
+
+      // Only add accomplishment if we haven't seen this status_id before
+      const statusId = record.status_id;
+      if (
+        !projectsWithAccomplishments[projectId].accomplishmentIds.has(statusId)
+      ) {
+        projectsWithAccomplishments[projectId].accomplishmentIds.add(statusId);
+        projectsWithAccomplishments[projectId].accomplishments.push({
+          status_id: record.status_id,
+          status_date: record.status_date,
+          accomplishments: record.accomplishments,
+          progress: record.progress,
+          health: record.health,
+        });
+      }
+    });
+
+    // Convert to array, remove the accomplishmentIds set, and sort by phase
+    const projects = Object.values(projectsWithAccomplishments)
+      .map((project) => {
+        delete project.accomplishmentIds; // Remove the Set used for deduplication
+        return project;
+      })
+      .sort((a, b) => {
+        const phaseOrder = { Planning: 1, Discovery: 2, Delivery: 3, Done: 4 };
+        const aPhase = phaseOrder[a.phase_name] || 5;
+        const bPhase = phaseOrder[b.phase_name] || 5;
+        if (aPhase !== bPhase) return aPhase - bPhase;
+        return a.project_name.localeCompare(b.project_name);
+      });
+
+    res.render("Pages/pages-accomplishments", {
+      pageTitle: "Accomplishments",
+      portfolioName,
+      projects: projects,
+      currentDate: moment().format("MMMM Do YYYY"),
+    });
+  } catch (error) {
+    console.error("Error in accomplishments query:", error);
+    res.status(500).send("Error fetching project data: " + error.message);
+  }
+};
+
 exports.ganttChart = async (req, res) => {
   //get all company projects
 
@@ -2723,9 +2903,15 @@ exports.exportHealthDataToCSV = async (req, res) => {
         }
       }
 
+      console.log("Project:", project.project_name);
+      console.log("WHY:", project.project_name);
+      console.log("Project:", project.project_name);
       return {
         Phase: project.phase_name || "",
         Project: project.project_name || "",
+        Why: project.project_why || "",
+        What: project.project_what || "",
+
         "Start Date": formattedStartDate,
         "End Date": formattedEndDate,
         "Status Date": formattedStatusDate,
@@ -2753,6 +2939,8 @@ exports.exportHealthDataToCSV = async (req, res) => {
     const fields = [
       "Phase",
       "Project",
+      "Why",
+      "What",
       "Start Date",
       "End Date",
       "Status Date",
@@ -2916,6 +3104,8 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
       return {
         Name: project.project_name,
         Headline: project.project_headline,
+        "Project Why": project.project_why || "",
+        "Project What": project.project_what || "",
         Phase: project.phase_name || "", // Include phase_name
         Sponsor: project.sponsor_first_name
           ? `${project.sponsor_last_name}, ${project.sponsor_first_name}`
@@ -3049,7 +3239,7 @@ exports.exportHealthDataToPDF = async (req, res) => {
     });
     const doc = new jsPDF();
     const date = moment().format("MMMM Do YYYY");
-    doc.text("Hello world!", 10, 10);
+
     doc.save(`${date} - PriorityPilot Health Report.pdf`);
     res.send(
       `PDF created successfully" ${date} - PriorityPilot Health Report.pdf`, //add link here for user to download

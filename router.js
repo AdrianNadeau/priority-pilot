@@ -129,7 +129,10 @@ ORDER BY
     // If no data found, still render dashboard with empty state
     if (!data || data.length === 0) {
       // Get required data for empty dashboard render
-      const phases = await db.phases.findAll({ order: [["id", "ASC"]] });
+      const phases = await db.phases.findAll({
+        order: [["id", "ASC"]],
+        distinct: true,
+      });
       const priorities = await db.priorities.findAll({});
       const persons = await db.persons.findAll({ where: { company_id_fk } });
       let tagsData = await Tag.findAll({
