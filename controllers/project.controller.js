@@ -2544,12 +2544,71 @@ exports.accomplishments = async (req, res) => {
       "accomplishment records found",
     );
 
-    // Debug: Log first accomplishment structure to understand data format
+    // Debug: Check for line breaks in accomplishments text
     if (data.length > 0) {
+      console.log("=== CHECKING FOR LINE BREAKS IN ACCOMPLISHMENTS ===");
+
+      let lineBreakCount = 0;
+      let samplesWithLineBreaks = [];
+
+      data.forEach((record, index) => {
+        if (record.accomplishments) {
+          const text = record.accomplishments;
+
+          // Check for various types of line breaks
+          const hasCarriageReturn = text.includes("\r");
+          const hasNewline = text.includes("\n");
+          const hasWindowsLineBreak = text.includes("\r\n");
+          const hasUnixLineBreak =
+            text.includes("\n") && !text.includes("\r\n");
+
+          if (hasCarriageReturn || hasNewline) {
+            lineBreakCount++;
+
+            // Keep first 5 samples for analysis
+            if (samplesWithLineBreaks.length < 5) {
+              samplesWithLineBreaks.push({
+                project_name: record.project_name,
+                status_id: record.status_id,
+                text: text,
+                hasCarriageReturn,
+                hasNewline,
+                hasWindowsLineBreak,
+                hasUnixLineBreak,
+                textLength: text.length,
+                // Show actual characters for first 100 chars
+                textPreview: text
+                  .substring(0, 100)
+                  .replace(/\r/g, "\\r")
+                  .replace(/\n/g, "\\n"),
+              });
+            }
+          }
+        }
+      });
+
       console.log(
-        "Sample accomplishment data structure:",
-        JSON.stringify(data[0], null, 2),
+        `Found ${lineBreakCount} accomplishments with line breaks out of ${data.length} total`,
       );
+
+      if (samplesWithLineBreaks.length > 0) {
+        console.log("=== SAMPLE ACCOMPLISHMENTS WITH LINE BREAKS ===");
+        samplesWithLineBreaks.forEach((sample, index) => {
+          console.log(`\nSample ${index + 1}:`);
+          console.log(`  Project: ${sample.project_name}`);
+          console.log(`  Status ID: ${sample.status_id}`);
+          console.log(`  Text Length: ${sample.textLength}`);
+          console.log(`  Has \\r: ${sample.hasCarriageReturn}`);
+          console.log(`  Has \\n: ${sample.hasNewline}`);
+          console.log(`  Has \\r\\n: ${sample.hasWindowsLineBreak}`);
+          console.log(`  Has Unix \\n: ${sample.hasUnixLineBreak}`);
+          console.log(`  Preview: "${sample.textPreview}"`);
+        });
+      } else {
+        console.log("No accomplishments with line breaks found.");
+      }
+
+      console.log("=== END LINE BREAK ANALYSIS ===");
     }
 
     // Group accomplishments by project
