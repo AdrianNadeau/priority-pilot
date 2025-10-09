@@ -138,7 +138,7 @@
                                 <%= accomplishment.status_date ? new Date(accomplishment.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A' %>
                               </span>
                               
-                              <i class="mdi mdi-chart-line" style="color: #28a745; margin-right: 8px; font-size: 16px;"></i>
+                              <i class="mdi mdi-chart-line" style="color: <%= accomplishment.health ? (accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d') : '#6c757d' %>; margin-right: 8px; font-size: 16px;"></i>
                               <span style="font-weight: 500; margin-right: 20px;">
                                 <%= accomplishment.progress || '0' %>% Progress
                               </span>
