@@ -153,9 +153,9 @@
                             
                             <!-- Accomplishments Content -->
                             <div style="display: flex; align-items: flex-start; text-align: left;">
-                              <i class="mdi mdi-check-circle" style="color: #28a745; margin-right: 8px; margin-top: 2px; font-size: 16px; flex-shrink: 0;"></i>
+                              <i class="mdi mdi-check-circle" style="color: <%= accomplishment.health ? (accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d') : '#6c757d' %>; margin-right: 8px; margin-top: 2px; font-size: 16px; flex-shrink: 0;"></i>
                               <div class="accomplishment-text" style="line-height: 1.5; text-align: left; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: normal; flex: 1; max-width: calc(100% - 24px);">
-                                <%= accomplishment.accomplishments %>
+                                <%- accomplishment.accomplishments.replace(/\r?\n/g, '<br>') %>
                               </div>
                             </div>
                           </div>
