@@ -93,17 +93,10 @@
         id="btnExportCSV"
         name="btnExportCSV"
       >
-        Download CSV
+        Download Report
       </button>
 
-      <button
-        type="button"
-        class="btn btn-primary waves-effect waves-light ml-2"
-        id="btnExportPDF"
-        name="btnExportPDF"
-      >
-        Download PDF
-      </button>
+      
     </div>
 
     <div class="row">
@@ -124,7 +117,7 @@
                   
 
                   <tr>
-                    <td style="font-weight: bold; min-width: 250px; vertical-align: top; padding: 15px;">
+                    <td style="font-weight: bold; min-width: 250px; vertical-align: top; padding: 5px;">
                       <%= project.project_name %>
                       &nbsp;
                       <a href="/projects/edit/<%= project.project_id %>">
@@ -134,10 +127,10 @@
                      
                     </td>
 
-                    <td style="padding: 15px; text-align: left;">
+                    <td style="padding: 5px; text-align: left;">
                       <% if (project.accomplishments && project.accomplishments.length > 0) { %>
                         <% project.accomplishments.forEach(accomplishment => { %>
-                          <div class="accomplishment-item" style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #007bff; background-color: #f8f9fa; border-radius: 4px;">
+                          <div class="accomplishment-item" style="margin-bottom: 20px; padding: 5px; border-left: 4px solid #007bff; background-color: #f8f9fa; border-radius: 4px;">
                             <!-- Date and Progress Row -->
                             <div style="display: flex; align-items: center; margin-bottom: 10px; text-align: left;">
                               <i class="mdi mdi-calendar" style="color: #007bff; margin-right: 8px; font-size: 16px;"></i>
