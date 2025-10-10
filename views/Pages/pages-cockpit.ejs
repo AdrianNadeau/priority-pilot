@@ -49,29 +49,29 @@
         <div class="mini-stat clearfix bg-white">
           <div class="row">
             <div class="col-md-3">
-              <div><strong>Name:</strong> <%= project[0].project_name %></div>
+              <div style="margin-left: 8px; font-size: 16px;"><strong>Name:</strong> <%= project[0].project_name %></div>
             </div>
             <div class="col-md-8">
-              <div><strong>Headline:</strong> <%= project[0].project_headline %></div>
+              <div style="margin-left: 8px; font-size: 16px;"><strong>Headline:</strong> <%= project[0].project_headline %></div>
             </div>
           </div>
           <div class="row">
             <div class="col-md-3">
-              <div><strong>Sponsor:</strong> 
+              <div style="margin-left: 8px; font-size: 16px;"><strong>Sponsor:</strong> 
                 <% if (project[0].sponsor_last_name && project[0].sponsor_first_name) { %>
                   <%= project[0].sponsor_last_name %>, <%= project[0].sponsor_first_name %>
                 <% } %>
               </div>
             </div>
             <div class="col-md-3">
-              <div><strong>Prime:</strong> 
+              <div style="margin-left: 8px; font-size: 16px;"><strong>Prime:</strong> 
                 <% if (project[0].prime_last_name && project[0].prime_first_name) { %>
                   <%= project[0].prime_last_name %>, <%= project[0].prime_first_name %>
                 <% } %>
               </div>
             </div>
             <div class="col-md-3">
-              <div><strong>Phase:</strong> 
+              <div style="margin-left: 8px; font-size: 16px;"><strong>Phase:</strong> 
                 <% if (project[0].phase_name) { %>
                   <%= project[0].phase_name %>
                 <% } %>
@@ -80,64 +80,83 @@
           </div>
           <div class="row">
             <div class="col-md-3">
-              <div>
-                <strong>Start:</strong> 
-                <% if (project[0].start_date) { %>
-                  
-                  <%= project[0].start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                <% } %>
+              <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <i class="mdi mdi-calendar-start" style="color: #007bff; margin-right: 8px; font-size: 16px;"></i>
+                <div>
+                  <strong>Start:</strong> 
+                  <% if (project[0].start_date) { %>
+                    <%= project[0].start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  <% } %>
+                </div>
               </div>
             </div>
             <div class="col-md-3">
-              <div>
-                
-                <strong>End:</strong> 
-                <% if (project[0].end_date) { %>
-                  
-                  <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                <% } %>
+              <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <i class="mdi mdi-calendar-end" style="color: #dc3545; margin-right: 8px; font-size: 16px;"></i>
+                <div>
+                  <strong>End:</strong> 
+                  <% if (project[0].end_date) { %>
+                    <%= project[0].end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  <% } %>
+                </div>
               </div>
             </div>
             <div class="col-md-3">
-              <div>
-                <strong>Next Milestone:</strong> 
-                
-                <% if (project[0].next_milestone_date) { %>
-                  
-                  <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                  
-                <% } %>
+              <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <i style="color: #ffc107; margin-right: 8px; font-size: 16px;"></i>
+                <div>
+                  <strong>Next Milestone:</strong> 
+                  <% if (project[0].next_milestone_date) { %>
+                    <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  <% } %>
+                </div>
               </div>
             </div>
           </div>
           <div class="row">
             <div class="col-md-3">
-              <div>
-                <strong>Cost:</strong> $<%= project[0].project_cost %>
-                
+              <div class="field-container">
+                <i class="mdi mdi-currency-usd field-icon" style="color: #28a745;"></i>
+                <div class="field-content">
+                  <strong>Cost:</strong> $<%= project[0].project_cost %>
+                </div>
               </div>
             </div>
             <div class="col-md-3">
-              <div>
-                <strong>Effort:</strong> <%= project[0].effort %> PH
+              <div class="field-container">
+                <i class="mdi mdi-clock-outline field-icon" style="color: #6f42c1;"></i>
+                <div class="field-content">
+                  <strong>Effort:</strong> <%= project[0].effort %> PH
+                </div>
               </div>
             </div>
             <div class="col-md-3">
-              <div>
-                <strong>Benefit:</strong> <%= project[0].benefit %>
+              <div class="field-container">
+                <i class="mdi mdi-trending-up field-icon" style="color: #fd7e14;"></i>
+                <div class="field-content">
+                  <strong>Benefit:</strong> <%= project[0].benefit %>
+                </div>
               </div>
             </div>
           </div>
           
           <div class="row">
             <div class="col-md-12" style="padding-top:20px;">
-              <strong>Why:</strong>
-              <textarea class="form-control" id="project_why" rows="5" disabled><%= project[0].project_why %></textarea>
+              <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <i style="color: #17a2b8; margin-right: 8px; font-size: 18px;"></i>
+                <strong>Why:</strong>
+              </div>
+              <div>
+                <i style="color: #17a2b8; margin-right: 8px; font-size: 18px;"></i>
+              <div><textarea class="form-control" id="project_why" rows="5" disabled><%= project[0].project_why %></textarea></div>
             </div>
           </div>
           <div class="row">
             <div class="col-md-12" style="padding-top:20px;">
-              <strong>What:</strong>
+              <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <i style="color: #ffc107; margin-right: 8px; font-size: 18px;"></i>
+                <strong>What:</strong>
+              </div>
               <textarea class="form-control" id="project_what" rows="5" disabled><%= project[0].project_what %></textarea>
               <% 
               let tags = [];
@@ -183,24 +202,23 @@
           <div class="col-4">
             <div class="mini-stat clearfix bg-white" style="padding-top: 10px;padding-left: 10px;">
               <!-- Status Updates and Change Log content -->
-            <strong>Status Updates:</strong><br/>
+              <div class="field-header">
+                <i class="mdi mdi-update field-header-icon" style="color: #007bff;"></i>
+                <strong>Status Updates:</strong>
+              </div>
            <% if (statuses && statuses.length > 0) { %>
           <% statuses.forEach(function(status) { %>
             <% let healthStatus = status.health ? status.health.trim().toLowerCase() : ''; %>
             <% if (healthStatus === 'green') { %>
-          <svg width="14" height="14" style="vertical-align:middle; margin-right:6px;">
-            <circle cx="7" cy="7" r="6" fill="green" />
-          </svg>
-        <% } else if (healthStatus === 'yellow') { %>
-          <svg width="14" height="14" style="vertical-align:middle; margin-right:6px;">
-            <circle cx="7" cy="7" r="6" fill="yellow" stroke="#ccc" stroke-width="1"/>
-          </svg>
-        <% } else if (healthStatus === 'red') { %>
-          <svg width="14" height="14" style="vertical-align:middle; margin-right:6px;">
-            <circle cx="7" cy="7" r="6" fill="red" />
-          </svg>
-        <% } %>
-          [%<%= status.progress %>]
+              <i class="mdi mdi-heart-pulse status-icon" style="color: #28a745;"></i>
+            <% } else if (healthStatus === 'yellow') { %>
+              <i class="mdi mdi-heart-pulse status-icon" style="color: #ffc107;"></i>
+            <% } else if (healthStatus === 'red') { %>
+              <i class="mdi mdi-heart-pulse status-icon" style="color: #dc3545;"></i>
+            <% } else { %>
+              <i class="mdi mdi-heart-pulse status-icon" style="color: #6c757d;"></i>
+            <% } %>
+            <i style="color: <%= healthStatus === 'green' ? '#28a745' : healthStatus === 'yellow' ? '#ffc107' : healthStatus === 'red' ? '#dc3545' : '#6c757d' %>; margin-right: 4px; font-size: 14px;"></i>[%<%= status.progress %>]
           <% if (status.status_date) { %>
             <a href="#" onClick="getStatus(event, '<%= status.id %>')" data-target="#viewStatusModal" id="viewStatusLink">
               <%= (() => {
