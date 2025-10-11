@@ -655,6 +655,7 @@ exports.cockpit = async (req, res) => {
     });
 
     res.render("Pages/pages-cockpit", {
+      layout: false,
       pageTitle: "Flight Deck",
       project: data,
       current_date: currentDate,
@@ -2592,18 +2593,6 @@ exports.accomplishments = async (req, res) => {
       );
 
       if (samplesWithLineBreaks.length > 0) {
-        console.log("=== SAMPLE ACCOMPLISHMENTS WITH LINE BREAKS ===");
-        samplesWithLineBreaks.forEach((sample, index) => {
-          console.log(`\nSample ${index + 1}:`);
-          console.log(`  Project: ${sample.project_name}`);
-          console.log(`  Status ID: ${sample.status_id}`);
-          console.log(`  Text Length: ${sample.textLength}`);
-          console.log(`  Has \\r: ${sample.hasCarriageReturn}`);
-          console.log(`  Has \\n: ${sample.hasNewline}`);
-          console.log(`  Has \\r\\n: ${sample.hasWindowsLineBreak}`);
-          console.log(`  Has Unix \\n: ${sample.hasUnixLineBreak}`);
-          console.log(`  Preview: "${sample.textPreview}"`);
-        });
       } else {
         console.log("No accomplishments with line breaks found.");
       }
@@ -3338,107 +3327,55 @@ exports.exportAccomplishmentsToCSV = async (req, res) => {
     const company_id_fk = req.session.company.id;
     const portfolioName = req.session.company.company_headline;
 
-    // Use the same query structure as the accomplishments page
-    const query = `SELECT 
-      proj.company_id_fk,
-      proj.id AS project_id,
-      proj.project_name,
-      proj.start_date,
-      proj.end_date,
-      proj.next_milestone_date,
-      prime_person.first_name AS prime_first_name,
-      prime_person.last_name AS prime_last_name,
-      sponsor_person.first_name AS sponsor_first_name,
-      sponsor_person.last_name AS sponsor_last_name,
-      phases.phase_name,
-      last_status.health AS last_status_health,
-      last_status.status_date,
-      last_status.accomplishments,
-      last_status.issue,
-      last_status.actions,
-      last_status.progress
-  FROM projects proj
-  LEFT JOIN persons prime_person 
-      ON prime_person.id = proj.prime_id_fk
-  LEFT JOIN persons sponsor_person 
-      ON sponsor_person.id = proj.sponsor_id_fk
-  LEFT JOIN phases 
-      ON phases.id = proj.phase_id_fk
-  LEFT JOIN (
-      SELECT s1.*
-      FROM statuses s1
-      INNER JOIN (
-          SELECT project_id_fk, MAX(status_date) as max_date
-          FROM statuses
-          WHERE project_id_fk IN (SELECT id FROM projects WHERE company_id_fk = ?)
-          GROUP BY project_id_fk
-      ) s2 ON s1.project_id_fk = s2.project_id_fk AND s1.status_date = s2.max_date
-  ) last_status ON last_status.project_id_fk = proj.id
-  WHERE proj.company_id_fk = ? 
-    AND (phases.phase_name = 'Planning' OR phases.phase_name = 'Discovery' OR phases.phase_name = 'Delivery')
-  ORDER BY 
-    CASE phases.phase_name
-      WHEN 'Planning' THEN 1
-      WHEN 'Discovery' THEN 2
-      WHEN 'Delivery' THEN 3
-      ELSE 4
-    END,
-    proj.project_name ASC`;
+    // Use the same query as the accomplishments page to get ALL accomplishments
+    const query = `
+      SELECT DISTINCT
+        proj.id AS project_id,
+        proj.project_name,
+        status.status_date,
+        status.accomplishments,
+        status.progress,
+        status.id AS status_id
+      FROM projects proj
+      LEFT JOIN phases ON phases.id = proj.phase_id_fk
+      LEFT JOIN statuses status ON status.project_id_fk = proj.id
+      WHERE proj.company_id_fk = ?
+        AND proj.phase_id_fk IN (
+          SELECT id FROM phases WHERE phase_name IN ('Planning', 'Discovery', 'Delivery', 'Done')
+        )
+        AND status.accomplishments IS NOT NULL 
+        AND status.accomplishments != ''
+      ORDER BY 
+        proj.project_name ASC,
+        status.status_date DESC,
+        status.id DESC;
+    `;
 
-    const results = await db.sequelize.query(query, {
-      replacements: [company_id_fk, company_id_fk],
+    const data = await db.sequelize.query(query, {
+      replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
 
-    // Transform data for CSV export - focused on accomplishments
-    const csvData = results.map((project) => {
+    console.log(
+      "Accomplishments query result:",
+      data.length,
+      "accomplishment records found",
+    );
+
+    // Transform data for CSV export - only requested fields
+    const csvData = data.map((record) => {
       return {
-        Phase: project.phase_name || "",
-        Project: project.project_name || "",
-        "Start Date": project.start_date
-          ? moment(project.start_date).format("YYYY-MM-DD")
+        Project: record.project_name || "",
+        Date: record.status_date
+          ? moment(record.status_date).format("YYYY-MM-DD")
           : "",
-        "End Date": project.end_date
-          ? moment(project.end_date).format("YYYY-MM-DD")
-          : "",
-        "Next Milestone": project.next_milestone_date
-          ? moment(project.next_milestone_date).format("YYYY-MM-DD")
-          : "",
-        Status: project.last_status_health || "N/A",
-        Prime:
-          project.prime_first_name && project.prime_last_name
-            ? `${project.prime_first_name} ${project.prime_last_name}`
-            : "",
-        Sponsor:
-          project.sponsor_first_name && project.sponsor_last_name
-            ? `${project.sponsor_first_name} ${project.sponsor_last_name}`
-            : "",
-        Accomplishments: project.accomplishments || "",
-        Issues: project.issue || "",
-        Actions: project.actions || "",
-        Progress: project.progress ? `${project.progress}%` : "",
-        "Status Date": project.status_date
-          ? moment(project.status_date).format("YYYY-MM-DD")
-          : "",
+        Accomplishments: record.accomplishments || "",
+        Progress: record.progress ? `${record.progress}%` : "0%",
       };
     });
 
-    // Define CSV fields for accomplishments report
-    const fields = [
-      "Phase",
-      "Project",
-      "Start Date",
-      "End Date",
-      "Next Milestone",
-      "Status",
-      "Prime",
-      "Sponsor",
-      "Accomplishments",
-      "Issues",
-      "Actions",
-      "Progress",
-      "Status Date",
-    ];
+    // Define CSV fields for accomplishments report - only requested fields
+    const fields = ["Project", "Date", "Accomplishments", "Progress"];
 
     // Convert to CSV
     const json2csvParser = new Parser({ fields });

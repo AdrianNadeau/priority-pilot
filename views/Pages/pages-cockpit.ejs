@@ -1,4 +1,71 @@
-<%- contentFor('HeaderCss') %>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Priority Pilot - your BEST Things done the BEST way at the BEST Time</title>
+    <meta content="Prority Pilot" name="description" />
+    <meta content="Author" name="Adrian Nadeau" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- App Icons -->
+    <link
+      rel="shortcut icon"
+      href="/public/assets/images/favicons/favicon.ico"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/public/assets/images/favicons/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/public/assets/images/favicons/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/public/assets/images/favicons/favicon-16x16.png"
+    />
+    <link
+      rel="manifest"
+      href="/public/assets/images/favicons/site.webmanifest"
+    />
+
+   
+    <link
+  href="/public/assets/css/bootstrap.min.css"
+  rel="stylesheet"
+  type="text/css"
+/>
+<link href="/public/assets/css/icons.css" rel="stylesheet" type="text/css" />
+<link href="/public/assets/css/style.css" rel="stylesheet" type="text/css" />
+<link
+  href="/public/assets/plugins/c3/c3.min.css"
+  rel="stylesheet"
+  type="text/css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css"
+/>
+<script
+  type="text/javascript"
+  src="https://www.gstatic.com/charts/loader.js"
+></script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
@@ -6,8 +73,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-
-
 
 <style>
 .green-circle, .yellow-circle, .red-circle {
@@ -33,20 +98,233 @@
   white-space: normal;       
   word-break: break-all;
 } 
-
 </style>
 
-<%- contentFor('breadcrumb') %>
+  <body class="fixed-left">
+    <!-- Loader -->
+    <div id="preloader">
+      <div id="status"><div class="spinner"></div></div>
+    </div>
+
+    <div id="wrapper">
+      
+        
+<div class="left side-menu">
+  <!-- LOGO -->
+  <div class="topbar-left">
+    <h3 class="text-center m-0">
+  <!-- Priority Pilot -->
+  <a href="/" class="logo logo-admin"
+    ><img
+      style="width: 80px; height: 80px; padding-top: 10px; padding-right: 10px"
+      src="/public/assets/images/sidebar-logo.png"
+      alt="logo"
+  /></a>
+</h3>
+
+  </div>
+
+  <div class="sidebar-inner slimscrollleft">
+    <div id="sidebar-menu">
+      <ul>
+        
+        <li class="has_sub">
+          <a a href="/" onclick="forwardToDashboard();"
+            ><i class="mdi mdi-view-dashboard"></i> <span>Dashboard</span>
+          </a>
+        </li>
+
+        <!-- <li>
+                    <a href="widgets" class="waves-effect"><i class="mdi mdi-cube-outline"></i><span> Widgets </span></a>
+                </li> -->
+
+        <!-- <li class="has_sub">
+                    <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-email-outline"></i><span> Email <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span></a>
+                    <ul class="list-unstyled">
+                        <li><a href="email-inbox">Inbox</a></li>
+                        <li><a href="email-read">Email Read</a></li>
+                        <li><a href="email-compose">Email Compose</a></li>
+                    </ul>
+                </li> -->
+
+        <!-- <li>
+                    <a href="calendar" class="waves-effect"><i class="mdi mdi-calendar-check"></i><span> Calendar </span></a>
+                </li> -->
+
+        <!-- <li class="menu-title">Components</li>
+
+                <li class="has_sub">
+                    <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-buffer"></i> <span> User Interface <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span> </a>
+                    <ul class="list-unstyled">
+                        <li><a href="ui-buttons">Buttons</a></li>
+                        <li><a href="ui-colors">Colors</a></li>
+                        <li><a href="ui-cards">Cards</a></li>
+                        <li><a href="ui-tabs-accordions">Tabs &amp; Accordions</a></li>
+                        <li><a href="ui-modals">Modals</a></li>
+                        <li><a href="ui-images">Images</a></li>
+                        <li><a href="ui-alerts">Alerts</a></li>
+                        <li><a href="ui-progressbars">Progress Bars</a></li>
+                        <li><a href="ui-dropdowns">Dropdowns</a></li>
+                        <li><a href="ui-lightbox">Lightbox</a></li>
+                        <li><a href="ui-navs">Navs</a></li>
+                        <li><a href="ui-pagination">Pagination</a></li>
+                        <li><a href="ui-popover-tooltips">Popover & Tooltips</a></li>
+                        <li><a href="ui-badge">Badge</a></li>
+                        <li><a href="ui-carousel">Carousel</a></li>
+                        <li><a href="ui-video">Video</a></li>
+                        <li><a href="ui-typography">Typography</a></li>
+                        <li><a href="ui-sweet-alert">Sweet-Alert</a></li>
+                        <li><a href="ui-grid">Grid</a></li>
+                        <li><a href="ui-animation">Animation</a></li>
+                        <li><a href="ui-highlight">Highlight</a></li>
+                        <li><a href="ui-rating">Rating</a></li>
+                        <li><a href="ui-nestable">Nestable</a></li>
+                        <li><a href="ui-alertify">Alertify</a></li>
+                        <li><a href="ui-rangeslider">Range Slider</a></li>
+                        <li><a href="ui-sessiontimeout">Session Timeout</a></li>
+                    </ul>
+                </li> -->
+                    <li>
+                        <a href="/projects" class="waves-effect"
+                          ><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a
+                        >
+                      </li>
+                      <li>
+                        <a href="/persons" class="waves-effect"
+                          ><i class="mdi mdi-account-location"></i><span> People </span></a
+                        >
+                      </li>
+                      <li>
+                        <a href="/companies/get/defaults" class="waves-effect"
+                          ><i class="dripicons-gear"></i><span> Defaults </span></a
+                        >
+                      </li>
+                      <!-- <li>
+                        <a href="/companies/get/defaults" class="waves-effect"
+                          ><i class="mdi mdi-folder-multiple-outline"></i><span> Sample Project </span></a>
+                        >
+                      </li> -->
+                      
+                  <li class="has_sub">
+                    <a href="/help" class="waves-effect" onclick="window.open('/help');return false;" target="_blank">
+                      <i class="mdi mdi-help"></i> <span> Help </span>
+                    </a>
+                  </li>
+                 
+        </ul>
+                  
+        
+        
+      
+    </div>
+    <div class="clearfix"></div>
+  </div>
+  <!-- end sidebarinner -->
+</div>
+<script>
+  function forwardToDashboard() {
+    window.location.replace("/");
+  }
+
+</script>
+      
+      <div class="content-page">
+        <div class="content">
+          <div class="topbar">
+  <nav class="navbar-custom">
+    <!-- Search input -->
+    <div class="search-wrap" id="search-wrap">
+      <div class="search-bar">
+        <input class="search-input" type="search" placeholder="Search" />
+        <a
+          href="#"
+          class="close-search toggle-search"
+          data-target="#search-wrap"
+        >
+          <i class="mdi mdi-close-circle"></i>
+        </a>
+      </div>
+    </div>
+
+    
+    <ul class="list-inline float-right mb-0">
+      <!-- Search -->
+      <!-- <li class="list-inline-item dropdown notification-list">
+        <a
+          class="nav-link waves-effect toggle-search"
+          href="#"
+          data-target="#search-wrap"
+        >
+          <i class="mdi mdi-magnify noti-icon"></i>
+        </a>
+      </li> -->
+      <!-- Fullscreen -->
+      <li class="list-inline-item dropdown notification-list hidden-xs-down">
+        <a class="nav-link waves-effect" href="#" id="btn-fullscreen">
+          <i class="mdi mdi-fullscreen noti-icon"></i>
+        </a>
+      </li>
+      <!-- language-->
+
+      <!-- User-->
+      <li class="list-inline-item dropdown notification-list">
+        <a
+          class="nav-link dropdown-toggle arrow-none waves-effect nav-user"
+          data-toggle="dropdown"
+          href="#"
+          role="button"
+          aria-haspopup="false"
+          aria-expanded="false"
+        >
+          <img
+            src="/public/assets/images/users/empty-avatar.webp"
+            alt="user"
+            class="rounded-circle"
+          />
+        </a>
+        <div class="dropdown-menu dropdown-menu-right profile-dropdown">
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#"
+            ><i class="mdi mdi-account-location"></i> Demo Admin</a
+          >
+          <a class="dropdown-item" href="/logout"
+            ><i class="dripicons-exit text-muted"></i> Logout</a
+          >
+        </div>
+      </li>
+    </ul>
+    
+
+    <!-- Navigation bar with proper navbar-custom styling -->
+    <div class="topbar">
+      <nav class="navbar-custom">
+        <div class="page-title-box">
+          <button type="button" class="button-menu-mobile open-left waves-effect">
+            <i class="ion-navicon"></i>
+          </button>
+          <h3 class="page-title"><%= pageTitle %></h3>
+        </div>
+      </nav>
+    </div>
 
 
-<%- contentFor('body') %>
+    <div class="clearfix"></div>
+  </nav>
+</div>
 
+        <div class="content">
+          
 <div class="page-content-wrapper">
   <div class="container-fluid">
+    
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card-body" style="border:0px !important;">
+            
     <div class="row">
       <!-- Left Section: Project Information (8 columns) -->
       <div class="col-8">
-        <div class="mini-stat clearfix bg-white">
+        <div class="mini-stat clearfix bg-white " style="padding: 15px;" >
           <div class="row">
             <div class="col-md-3">
               <div style="margin-left: 8px; font-size: 16px;"><strong>Name:</strong> <%= project[0].project_name %></div>
@@ -113,27 +391,46 @@
               </div>
             </div>
           </div>
+          
+          <!-- Next Milestone Details Row -->
+          <% if (project[0].next_milestone_date && project[0].next_milestone_details) { %>
+          <div class="row">
+            <div class="col-md-12">
+              <div style="margin-left: 10px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: flex-start;">
+                  <i class="mdi mdi-information-outline" style="color: #ffc107; margin-right: 8px; font-size: 16px; margin-top: 2px;"></i>
+                  <div>
+                    <strong>Milestone Details:</strong><br/>
+                    <span style="color: #6c757d; font-size: 14px; line-height: 1.4;">
+                      <%= project[0].next_milestone_details ? project[0].next_milestone_details.substring(0, 100) + (project[0].next_milestone_details.length > 100 ? '...' : '') : '' %>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <% } %>
           <div class="row">
             <div class="col-md-3">
-              <div class="field-container">
-                <i class="mdi mdi-currency-usd field-icon" style="color: #28a745;"></i>
-                <div class="field-content">
+              <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <i style=" margin-right: 8px; font-size: 16px;"></i>
+                <div>
                   <strong>Cost:</strong> $<%= project[0].project_cost %>
                 </div>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="field-container">
-                <i class="mdi mdi-clock-outline field-icon" style="color: #6f42c1;"></i>
-                <div class="field-content">
+              <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <i class="mdi mdi-clock-outline" style="color: #6f42c1; margin-right: 8px; font-size: 16px;"></i>
+                <div>
                   <strong>Effort:</strong> <%= project[0].effort %> PH
                 </div>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="field-container">
-                <i class="mdi mdi-trending-up field-icon" style="color: #fd7e14;"></i>
-                <div class="field-content">
+              <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <i style="color: #fd7e14; margin-right: 8px; font-size: 16px;"></i>
+                <div>
                   <strong>Benefit:</strong> <%= project[0].benefit %>
                 </div>
               </div>
@@ -146,9 +443,8 @@
                 <i style="color: #17a2b8; margin-right: 8px; font-size: 18px;"></i>
                 <strong>Why:</strong>
               </div>
-              <div>
-                <i style="color: #17a2b8; margin-right: 8px; font-size: 18px;"></i>
-              <div><textarea class="form-control" id="project_why" rows="5" disabled><%= project[0].project_why %></textarea></div>
+              <textarea class="form-control" id="project_why" rows="5" disabled><%= project[0].project_why %></textarea>
+              
             </div>
           </div>
           <div class="row">
@@ -200,23 +496,23 @@
           
           <!-- Right Section: Status and Button (4 columns) -->
           <div class="col-4">
-            <div class="mini-stat clearfix bg-white" style="padding-top: 10px;padding-left: 10px;">
+            <div class="mini-stat clearfix bg-white" style="padding-top: 10px;padding-left: 10px;padding-bottom: 15px;">
               <!-- Status Updates and Change Log content -->
-              <div class="field-header">
-                <i class="mdi mdi-update field-header-icon" style="color: #007bff;"></i>
+              <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <i class="mdi mdi-update" style="color: #007bff; margin-right: 8px; font-size: 18px;"></i>
                 <strong>Status Updates:</strong>
               </div>
            <% if (statuses && statuses.length > 0) { %>
           <% statuses.forEach(function(status) { %>
             <% let healthStatus = status.health ? status.health.trim().toLowerCase() : ''; %>
             <% if (healthStatus === 'green') { %>
-              <i class="mdi mdi-heart-pulse status-icon" style="color: #28a745;"></i>
+              <i class="mdi mdi-heart-pulse" style="color: #28a745; margin-right: 8px; font-size: 16px; vertical-align: middle;"></i>
             <% } else if (healthStatus === 'yellow') { %>
-              <i class="mdi mdi-heart-pulse status-icon" style="color: #ffc107;"></i>
+              <i class="mdi mdi-heart-pulse" style="color: #ffc107; margin-right: 8px; font-size: 16px; vertical-align: middle;"></i>
             <% } else if (healthStatus === 'red') { %>
-              <i class="mdi mdi-heart-pulse status-icon" style="color: #dc3545;"></i>
+              <i class="mdi mdi-heart-pulse" style="color: #dc3545; margin-right: 8px; font-size: 16px; vertical-align: middle;"></i>
             <% } else { %>
-              <i class="mdi mdi-heart-pulse status-icon" style="color: #6c757d;"></i>
+              <i class="mdi mdi-heart-pulse" style="color: #6c757d; margin-right: 8px; font-size: 16px; vertical-align: middle;"></i>
             <% } %>
             <i style="color: <%= healthStatus === 'green' ? '#28a745' : healthStatus === 'yellow' ? '#ffc107' : healthStatus === 'red' ? '#dc3545' : '#6c757d' %>; margin-right: 4px; font-size: 14px;"></i>[%<%= status.progress %>]
           <% if (status.status_date) { %>
@@ -450,6 +746,10 @@
   </div>
 </div><!-- /.modal -->
 
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
  
 
@@ -459,7 +759,6 @@
 <input type="text" id="view_status_action" class="form-control no-border" style="background-color:#f5f5f5;height:0px;"  disabled>
 <input type="text" id="view_status_date" class="form-control no-border" style="background-color:#f5f5f5;height:0px;"  disabled>
 
-<%- contentFor('FooterJs') %>
 <script src="/public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
 <script src="/public/assets/plugins/jquery-ui/jquery-ui.min.js"></script>
 <script src="/public/assets/plugins/d3/d3.min.js"></script>
@@ -628,5 +927,48 @@ function getChange(event, id) {
 }
 </script>
 
+        </div>
+        <footer class="footer">
+  2025 Priority Pilot
+  <br />[Version: 1.0.0]
+</footer>
 
-<%- contentFor('BottomJs') %>
+      </div>
+    </div>
+
+    <script src="/public/assets/js/jquery.min.js"></script>
+<script src="/public/assets/js/bootstrap.bundle.min.js"></script>
+<script src="/public/assets/js/modernizr.min.js"></script>
+<script src="/public/assets/js/jquery.slimscroll.js"></script>
+<script src="/public/assets/js/waves.js"></script>
+<script src="/public/assets/js/jquery.nicescroll.js"></script>
+<script src="/public/assets/js/jquery.scrollTo.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script src="https://unpkg.com/js-datepicker"></script>
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+
+<script>
+  // Push a custom state to the history stack
+  history.pushState(null, "", window.location.href);
+
+  window.addEventListener("popstate", function (event) {
+    // Redirect to the root URL when the back button is pressed
+    window.location.href = "/";
+  });
+</script>
+
+    <script src="/public/assets/js/app.js"></script>
+    <script src="/utils/dateUtils.js"></script>
+
+    
+  </body>
+</html>
+
