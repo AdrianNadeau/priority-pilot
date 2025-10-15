@@ -183,6 +183,16 @@
       </div>
     </div>
 
+    <!-- Third row: Individual Project Progress and Health -->
+    <div class="row mt-5">
+      <div class="col-lg-6 text-center">
+        <div id="progressChart"></div>
+      </div>
+      <div class="col-lg-6 text-center">
+        <div id="healthStatusChart"></div>
+      </div>
+    </div>
+
     <!-- Tag charts: three per row -->
     <div class="row mt-5">
       <p><strong>Tag 1</strong></p>
@@ -274,6 +284,7 @@
     // Redraw all charts with new data
     drawProjectsByPhaseChart();
     drawCostByPhaseChart();
+    drawProgressAndHealthCharts(); // Add progress and health charts
     updatePortfolioHealthChart(data.portfolioHealth);
     drawTagCharts(); // Now will use the date parameters in API calls
   }
@@ -382,6 +393,7 @@
           // Draw all charts
           drawProjectsByPhaseChart();
           drawCostByPhaseChart();
+          drawProgressAndHealthCharts();
           drawTagCharts();
         }
 
@@ -532,6 +544,149 @@
             document.getElementById('columnChartCost_values')
           );
           chart.draw(data, options);
+        }
+
+        function drawProgressAndHealthCharts() {
+          // Get current filter dates if available
+          const fromDate = document.getElementById("from_date").value;
+          const toDate = document.getElementById("to_date").value;
+
+          // Build query parameters for progress API call
+          const params = new URLSearchParams();
+          if (fromDate) params.append("from_date", fromDate);
+          if (toDate) params.append("to_date", toDate);
+          const queryString = params.toString() ? '?' + params.toString() : '';
+
+          // Fetch progress data
+          fetch(`/projects/radar/progress/${queryString}`)
+            .then((response) => response.json())
+            .then((data) => {
+              drawProgressChart(data);
+              drawHealthStatusChart(data);
+            })
+            .catch((err) => console.error("Error loading Progress/Health data:", err));
+        }
+
+        function drawProgressChart(data) {
+          if (!data || !data.project_names || data.project_names.length === 0) {
+            document.getElementById("progressChart").innerHTML = '<p>No progress data available</p>';
+            return;
+          }
+
+          // Create separate series for each health status to enable different colors
+          const chartData = [["Project", "Green", "Yellow", "Red", "No Status"]];
+
+          data.project_names.forEach((projectName, index) => {
+            const progress = data.progress[index] || 0;
+            const progressValue = typeof progress === 'number' ? progress :
+                                  (typeof progress === 'string' && progress !== 'No status available') ?
+                                  parseFloat(progress) : 0;
+
+            const health = data.colors[index] || 'No status available';
+
+            // Initialize row with zeros for all health statuses
+            const row = [projectName, 0, 0, 0, 0];
+
+            // Set the progress value only for the appropriate health status column
+            if (health === 'green' || health === 'Green') {
+              row[1] = progressValue; // Green column
+            } else if (health === 'yellow' || health === 'Yellow') {
+              row[2] = progressValue; // Yellow column
+            } else if (health === 'red' || health === 'Red') {
+              row[3] = progressValue; // Red column
+            } else {
+              row[4] = progressValue; // No Status column
+            }
+
+            chartData.push(row);
+          });
+
+          const chartDataTable = google.visualization.arrayToDataTable(chartData);
+
+          const options = {
+            title: 'Project Progress',
+            backgroundColor: 'transparent',
+            width: 650,
+            height: 400,
+            chartArea: { left: 80, top: 60, width: '75%', height: '70%' },
+            isStacked: true,
+            bar: { groupWidth: '70%' },
+            hAxis: {
+              textStyle: { fontSize: 10 }
+            },
+            vAxis: {
+              title: 'Progress %',
+              minValue: 0,
+              maxValue: 100,
+              format: '#\'%\'',
+              gridlines: { color: '#eee' }
+            },
+            legend: {
+              position: 'bottom',
+              textStyle: { fontSize: 10 }
+            },
+            colors: ['#28a745', '#ffc107', '#dc3545', '#6c757d'] // Green, Yellow, Red, Gray
+          };
+
+          const chart = new google.visualization.ColumnChart(
+            document.getElementById('progressChart')
+          );
+          chart.draw(chartDataTable, options);
+        }
+
+        function drawHealthStatusChart(data) {
+          if (!data || !data.project_names || data.project_names.length === 0) {
+            document.getElementById("healthStatusChart").innerHTML = '<p>No health data available</p>';
+            return;
+          }
+
+          // Count health statuses
+          const healthCounts = { 'Green': 0, 'Yellow': 0, 'Red': 0, 'No Status': 0 };
+
+          data.colors.forEach(health => {
+            if (health === 'green' || health === 'Green') {
+              healthCounts['Green']++;
+            } else if (health === 'yellow' || health === 'Yellow') {
+              healthCounts['Yellow']++;
+            } else if (health === 'red' || health === 'Red') {
+              healthCounts['Red']++;
+            } else {
+              healthCounts['No Status']++;
+            }
+          });
+
+          const chartData = [["Health Status", "Count"]];
+          Object.entries(healthCounts).forEach(([status, count]) => {
+            if (count > 0) {
+              chartData.push([status, count]);
+            }
+          });
+
+          if (chartData.length === 1) {
+            document.getElementById("healthStatusChart").innerHTML = '<p>No health status data available</p>';
+            return;
+          }
+
+          const chartDataTable = google.visualization.arrayToDataTable(chartData);
+
+          const options = {
+            title: 'Project Health Distribution',
+            backgroundColor: 'transparent',
+            width: 650,
+            height: 400,
+            pieHole: 0.4,
+            colors: ['#28a745', '#ffc107', '#dc3545', '#6c757d'],
+            legend: {
+              position: 'right',
+              textStyle: { color: '#333', fontSize: 12 }
+            },
+            pieSliceText: 'value'
+          };
+
+          const chart = new google.visualization.PieChart(
+            document.getElementById('healthStatusChart')
+          );
+          chart.draw(chartDataTable, options);
         }
 
         function drawTagCharts() {

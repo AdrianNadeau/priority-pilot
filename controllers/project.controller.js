@@ -1485,10 +1485,29 @@ async function getTagDataForFilter(companyId, tagField, dateWhereConditions) {
 
 exports.progress = async (req, res) => {
   const companyId = req.session.company.id;
+
+  // Extract date parameters from query string (same as radar function)
+  const fromDate = req.query.from_date;
+  const toDate = req.query.to_date;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (fromDate && toDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  } else if (fromDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+  } else if (toDate) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  }
+
   try {
-    // Get all projects for the company
+    // Get all projects for the company with date filtering
     const projects = await db.projects.findAll({
-      where: { company_id_fk: companyId },
+      where: {
+        company_id_fk: companyId,
+        ...dateWhereConditions,
+      },
       attributes: ["id", "project_name", "tag_1", "tag_2", "tag_3"],
     });
 
