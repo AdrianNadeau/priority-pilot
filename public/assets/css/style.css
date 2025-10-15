@@ -4984,9 +4984,9 @@ canvas {
 .datepicker {
   cursor: pointer;
 }
-#btnPrintPage {
+/* #btnPrintPage {
   margin-left: 30px;
-}
+} */
 /* Safari-specific navbar fixes */
 .navbar-custom {
   position: relative;

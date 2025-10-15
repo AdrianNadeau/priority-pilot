@@ -1,4 +1,10 @@
 <%- contentFor('HeaderCss') %>
+
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- Bootstrap Icons CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 <style>
 .accomplishments-table {
   table-layout: fixed;
@@ -86,6 +92,70 @@
 
 <div class="page-content-wrapper">
   <div class="container-fluid">
+    
+    <!-- Filter Section -->
+    <div class="row mb-3">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="mini-stat-info d-flex align-items-center">
+              <span class="counter" style="color: black; margin-right: 20px">
+                <strong>Filter: </strong>
+              </span>
+
+              <div class="d-flex align-items-center" style="margin-right: 15px">
+                <strong style="margin-right: 10px">From:</strong>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-calendar-check" style="margin-right: 5px"></i>
+                  <input
+                    type="text"
+                    class="form-control datepicker"
+                    id="from_date"
+                    name="from_date"
+                    placeholder="From Date"
+                    style="width: 150px"
+                  />
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center" style="margin-right: 15px">
+                <strong style="margin-right: 10px">To:</strong>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-calendar-check" style="margin-right: 5px"></i>
+                  <input
+                    type="text"
+                    class="form-control datepicker"
+                    id="to_date"
+                    name="to_date"
+                    placeholder="To Date"
+                    style="width: 150px"
+                  />
+                </div>
+              </div>
+
+              <div class="d-flex">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  style="margin-right: 5px"
+                  onclick="filterAccomplishments()"
+                >
+                  Filter
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  onclick="clearAccomplishmentsFilter()"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div class="mb-3">
       <button
         type="button"
@@ -102,75 +172,76 @@
     <div class="row">
       <div class="col-lg-12">
         <div class="card-body" style="border: 0; margin-top: 1.5em;">
-          <div class="table-responsive">
-            <table id="accomplishmentsTable" class="table mb-12 accomplishments-table">
-              <thead>
-                <tr>
-                  <th style="text-align: left;">Project</th>
-                  <th style="text-align: left;">Accomplishments</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% let currentPhase = ''; %>
-
-                <% projects.forEach(project => { %>
-                  
-
+          <div id="accomplishmentsTableContainer">
+            <div class="table-responsive">
+              <table id="accomplishmentsTable" class="table mb-12 accomplishments-table">
+                <thead>
                   <tr>
-                    <td style="font-weight: bold; min-width: 250px; vertical-align: top; padding: 5px;">
-                      <%= project.project_name %>
-                      &nbsp;
-                      <a href="/projects/edit/<%= project.project_id %>">
-                        <i class="mdi mdi-border-color"></i>
-                      </a>
-                      <br/>
-                     
-                    </td>
+                    <th style="text-align: left;">Project</th>
+                    <th style="text-align: left;">Accomplishments</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% let currentPhase = ''; %>
 
-                    <td style="padding: 5px; text-align: left;">
-                      <% if (project.accomplishments && project.accomplishments.length > 0) { %>
-                        <% project.accomplishments.forEach(accomplishment => { %>
-                          <div class="accomplishment-item" style="margin-bottom: 20px; padding: 5px; border-left: 4px solid #007bff; background-color: #f8f9fa; border-radius: 4px;">
-                            <!-- Date and Progress Row -->
-                            <div style="display: flex; align-items: center; margin-bottom: 10px; text-align: left;">
-                              <i class="mdi mdi-calendar" style="color: #007bff; margin-right: 8px; font-size: 16px;"></i>
-                              <span style="font-weight: 500; margin-right: 20px;">
-                                <%= accomplishment.status_date ? new Date(accomplishment.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A' %>
-                              </span>
-                              
-                              <i class="mdi mdi-chart-line" style="color: <%= accomplishment.health ? (accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d') : '#6c757d' %>; margin-right: 8px; font-size: 16px;"></i>
-                              <span style="font-weight: 500; margin-right: 20px;">
-                                <%= accomplishment.progress || '0' %>% Progress
-                              </span>
-                              
-                              <% if (accomplishment.health) { %>
-                                <i class="mdi mdi-heart-pulse" style="color: <%= accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d' %>; margin-right: 8px; font-size: 16px;"></i>
-                                <span style="color: <%= accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d' %>; font-weight: 500;">
-                                  <%= accomplishment.health %>
+                  <% projects.forEach(project => { %>
+
+                    <tr>
+                      <td style="font-weight: bold; min-width: 250px; vertical-align: top; padding: 5px;">
+                        <%= project.project_name %>
+                        &nbsp;
+                        <a href="/projects/edit/<%= project.project_id %>">
+                          <i class="mdi mdi-border-color"></i>
+                        </a>
+                        <br/>
+                       
+                      </td>
+
+                      <td style="padding: 5px; text-align: left;">
+                        <% if (project.accomplishments && project.accomplishments.length > 0) { %>
+                          <% project.accomplishments.forEach(accomplishment => { %>
+                            <div class="accomplishment-item" style="margin-bottom: 20px; padding: 5px; border-left: 4px solid #007bff; background-color: #f8f9fa; border-radius: 4px;">
+                              <!-- Date and Progress Row -->
+                              <div style="display: flex; align-items: center; margin-bottom: 10px; text-align: left;">
+                                <i class="mdi mdi-calendar" style="color: #007bff; margin-right: 8px; font-size: 16px;"></i>
+                                <span style="font-weight: 500; margin-right: 20px;">
+                                  <%= accomplishment.status_date ? new Date(accomplishment.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A' %>
                                 </span>
-                              <% } %>
-                            </div>
-                            
-                            <!-- Accomplishments Content -->
-                            <div style="display: flex; align-items: flex-start; text-align: left;">
-                              <i class="mdi mdi-check-circle" style="color: <%= accomplishment.health ? (accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d') : '#6c757d' %>; margin-right: 8px; margin-top: 2px; font-size: 16px; flex-shrink: 0;"></i>
-                              <div class="accomplishment-text" style="line-height: 1.5; text-align: left; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: normal; flex: 1; max-width: calc(100% - 24px);">
-                                <%- accomplishment.accomplishments.replace(/\r?\n/g, '<br>') %>
+                                
+                                <i class="mdi mdi-chart-line" style="color: <%= accomplishment.health ? (accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d') : '#6c757d' %>; margin-right: 8px; font-size: 16px;"></i>
+                                <span style="font-weight: 500; margin-right: 20px;">
+                                  <%= accomplishment.progress || '0' %>% Progress
+                                </span>
+                                
+                                <% if (accomplishment.health) { %>
+                                  <i class="mdi mdi-heart-pulse" style="color: <%= accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d' %>; margin-right: 8px; font-size: 16px;"></i>
+                                  <span style="color: <%= accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d' %>; font-weight: 500;">
+                                    <%= accomplishment.health %>
+                                  </span>
+                                <% } %>
+                              </div>
+                              
+                              <!-- Accomplishments Content -->
+                              <div style="display: flex; align-items: flex-start; text-align: left;">
+                                <i class="mdi mdi-check-circle" style="color: <%= accomplishment.health ? (accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d') : '#6c757d' %>; margin-right: 8px; margin-top: 2px; font-size: 16px; flex-shrink: 0;"></i>
+                                <div class="accomplishment-text" style="line-height: 1.5; text-align: left; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: normal; flex: 1; max-width: calc(100% - 24px);">
+                                  <%- accomplishment.accomplishments.replace(/\r?\n/g, '<br>') %>
+                                </div>
                               </div>
                             </div>
+                          <% }); %>
+                        <% } else { %>
+                          <div style="text-align: left; padding: 20px;">
+                            <i class="mdi mdi-information-outline" style="color: #6c757d; margin-right: 8px;"></i>
+                            <em class="text-muted">No accomplishments recorded</em>
                           </div>
-                        <% }); %>
-                      <% } else { %>
-                        <div style="text-align: left; padding: 20px;">
-                          <i class="mdi mdi-information-outline" style="color: #6c757d; margin-right: 8px;"></i>
-                          <em class="text-muted">No accomplishments recorded</em>
-                        </div>
-                      <% } %>
-                    </td>
-                  </tr>
-                <% }); %>
-              </tbody>
-            </table>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -181,38 +252,232 @@
 <%- contentFor('FooterJs') %>
 <%- contentFor('BottomJs') %>
 
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script>
+// Initialize Flatpickr for date inputs
+flatpickr(".datepicker", {
+      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+      allowInput: true, // Allow manual input if needed
+      allowInvalidPreload: true, // Allow invalid dates to be preloaded
+});
+
+// Filter functionality
+function filterAccomplishments() {
+    const startDate = document.getElementById('from_date').value;
+    const endDate = document.getElementById('to_date').value;
+    
+    // Build the query parameters
+    const params = new URLSearchParams();
+    if (startDate) params.append('from_date', startDate);
+    if (endDate) params.append('to_date', endDate);
+    
+    // Show loading state
+    const container = document.getElementById('accomplishmentsTableContainer');
+    container.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>';
+    
+    // Make AJAX request to get filtered data
+    fetch(`/projects/accomplishments/data?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateAccomplishmentsTable(data.projects);
+            } else {
+                console.error('Error:', data.error);
+                // Fallback: reload the page with filter parameters
+                window.location.href = `/projects/accomplishments/view/?${params.toString()}`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Fallback: reload the page with filter parameters
+            window.location.href = `/projects/accomplishments/view/?${params.toString()}`;
+        });
+}
+
+function updateAccomplishmentsTable(projects) {
+    const container = document.getElementById('accomplishmentsTableContainer');
+    
+    if (!projects || projects.length === 0) {
+        container.innerHTML = '<div class="alert alert-info">No accomplishments found for the selected date range.</div>';
+        return;
+    }
+    
+    let tableHTML = `
+        <div class="table-responsive">
+            <table id="accomplishmentsTable" class="table mb-12 accomplishments-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Project</th>
+                        <th style="text-align: left;">Accomplishments</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+    
+    projects.forEach(project => {
+        // Format dates
+        const formatDate = (dateStr) => {
+            if (!dateStr) return 'N/A';
+            return new Date(dateStr).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
+        };
+        
+        // Get health color
+        const getHealthColor = (health) => {
+            if (!health) return '#6c757d';
+            const h = health.toLowerCase();
+            if (h === 'green') return '#28a745';
+            if (h === 'yellow') return '#ffc107';
+            if (h === 'red') return '#dc3545';
+            return '#6c757d';
+        };
+        
+        tableHTML += `
+            <tr>
+                <td style="font-weight: bold; min-width: 250px; vertical-align: top; padding: 5px;">
+                    ${project.project_name}
+                    &nbsp;
+                    <a href="/projects/edit/${project.project_id}">
+                        <i class="mdi mdi-border-color"></i>
+                    </a>
+                    <br/>
+                </td>
+                <td style="padding: 5px; text-align: left;">`;
+        
+        if (project.accomplishments && project.accomplishments.length > 0) {
+            project.accomplishments.forEach(accomplishment => {
+                const healthColor = getHealthColor(accomplishment.health);
+                
+                tableHTML += `
+                    <div class="accomplishment-item" style="margin-bottom: 20px; padding: 5px; border-left: 4px solid #007bff; background-color: #f8f9fa; border-radius: 4px;">
+                        <!-- Date and Progress Row -->
+                        <div style="display: flex; align-items: center; margin-bottom: 10px; text-align: left;">
+                            <i class="mdi mdi-calendar" style="color: #007bff; margin-right: 8px; font-size: 16px;"></i>
+                            <span style="font-weight: 500; margin-right: 20px;">
+                                ${formatDate(accomplishment.status_date)}
+                            </span>
+                            
+                            <i class="mdi mdi-chart-line" style="color: ${healthColor}; margin-right: 8px; font-size: 16px;"></i>
+                            <span style="font-weight: 500; margin-right: 20px;">
+                                ${accomplishment.progress || '0'}% Progress
+                            </span>`;
+                
+                if (accomplishment.health) {
+                    tableHTML += `
+                            <i class="mdi mdi-heart-pulse" style="color: ${healthColor}; margin-right: 8px; font-size: 16px;"></i>
+                            <span style="color: ${healthColor}; font-weight: 500;">
+                                ${accomplishment.health}
+                            </span>`;
+                }
+                
+                tableHTML += `
+                        </div>
+                        
+                        <!-- Accomplishments Content -->
+                        <div style="display: flex; align-items: flex-start; text-align: left;">
+                            <i class="mdi mdi-check-circle" style="color: ${healthColor}; margin-right: 8px; margin-top: 2px; font-size: 16px; flex-shrink: 0;"></i>
+                            <div class="accomplishment-text" style="line-height: 1.5; text-align: left; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: normal; flex: 1; max-width: calc(100% - 24px);">
+                                ${accomplishment.accomplishments.replace(/\r?\n/g, '<br>')}
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        } else {
+            tableHTML += `
+                <div style="text-align: left; padding: 20px;">
+                    <i class="mdi mdi-information-outline" style="color: #6c757d; margin-right: 8px;"></i>
+                    <em class="text-muted">No accomplishments recorded</em>
+                </div>`;
+        }
+        
+        tableHTML += `
+                </td>
+            </tr>`;
+    });
+    
+    tableHTML += `
+                </tbody>
+            </table>
+        </div>`;
+    
+    container.innerHTML = tableHTML;
+}
+
+function clearAccomplishmentsFilter() {
+    document.getElementById('from_date').value = '';
+    document.getElementById('to_date').value = '';
+    
+    // Reload page without filter parameters
+    window.location.href = '/projects/accomplishments/view/';
+}
+
 // CSV Export
 document.getElementById("btnExportCSV").addEventListener("click", function () {
   window.location.href = "/projects/export/accomplishments-data";
 });
 
-// PDF Export
-document.getElementById("btnExportPDF").addEventListener("click", function () {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+// Print functionality
+document.getElementById("btnPrintPage").addEventListener("click", function () {
+  // Get portfolio name from session data or set a default
+  const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
 
-  doc.setFontSize(16);
-  doc.text("Project Accomplishments Report", 40, 40);
-  doc.setFontSize(10);
-  doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 60);
+  // Create a style element for the print header
+  const style = document.createElement("style");
+  style.setAttribute("type", "text/css");
+  style.setAttribute("media", "print");
 
-  const table = document.getElementById("accomplishmentsTable");
-
-  doc.autoTable({
-    html: table,
-    startY: 80,
-    styles: { fontSize: 9, cellPadding: 4 },
-    headStyles: { fillColor: [33, 150, 243], textColor: 255 },
-    alternateRowStyles: { fillColor: [245, 245, 245] },
-    columnStyles: {
-      0: { cellWidth: 150 },
-      1: { cellWidth: 80 },
-      2: { cellWidth: 300 },
-      3: { cellWidth: 60 }
+  // Add CSS for the print header
+  const css = `
+    @page {
+      size: landscape;
+      margin-top: 3cm;
     }
-  });
+    body::before {
+      content: "${portfolioName} - Accomplishments Report";
+      display: block;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.5em;
+      margin-bottom: 1cm;
+    }
+    #btnPrintPage,
+    #btnExportCSV,
+    .page-buttons,
+    .button-menu-mobile,
+    .page-title,
+    .portfolio-title,
+    .card:has(#from_date),
+    .mb-3 {
+      display: none !important;
+    }
+    td, th, tr, .table, .mini-stat, .card-body {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  `;
 
-  doc.save("accomplishments-report.pdf");
+  style.appendChild(document.createTextNode(css));
+  document.head.appendChild(style);
+
+  // Save the current title
+  const oldTitle = document.title;
+  const today = new Date();
+  const yyyy_mm_dd = today.toISOString().split('T')[0];
+  
+  document.title = yyyy_mm_dd + " - PriorityPilot - Accomplishments Report";
+
+  // Print
+  window.print();
+
+  // Restore the old title after a short delay
+  setTimeout(() => {
+    document.title = oldTitle;
+    // Remove the added style element
+    document.head.removeChild(style);
+  }, 1000);
 });
 </script>

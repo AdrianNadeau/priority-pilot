@@ -1,5 +1,26 @@
 <%- contentFor('HeaderCss') %>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+/>
 <style>
+  /* Ensure filter section is visible */
+  .page-content-wrapper .row:first-child {
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  .mini-stat.bg-white.clearfix {
+    background-color: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    padding: 15px !important;
+    margin-bottom: 15px !important;
+  }
+
   .dashboard-container {
     width: 75%;
     margin: 0 auto; /* Center the container */
@@ -49,46 +70,102 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-<%- contentFor('breadcrumb') %> <%- contentFor('body') %>
+<%- contentFor('breadcrumb') %>
+<div class="row">
+  <div class="col-md-4">
+    <button type="button" class="button-menu-mobile open-left waves-effect">
+      <i class="ion-navicon"></i>
+    </button>
 
-<div class="page-content-wrapper">
+    <button
+      type="button"
+      class="btn btn-primary waves-effect waves-light"
+      id="btnPrintPage"
+      name="btnPrintPage"
+    >
+      Download Report
+    </button>
+  </div>
+</div>
+
+<%- contentFor('body') %>
+
+<div class="page-content-wrapper" style="margin-top: 60px">
   <div class="container-fluid" style="margin-left: 0.5em">
-    <div class="page-buttons">
-      <button
-        type="button"
-        class="btn btn-primary waves-effect waves-light"
-        id="btnPrintPage"
-        name="btnPrintPage"
-      >
-        Download Report
-      </button>
-    </div>
+    <!-- Filter Section -->
     <div
       class="row"
-      class="progress-bar-container text-center"
-      style="margin-top: 5px"
+      style="
+        margin-bottom: 15px;
+
+        background-color: #f8f9fa;
+        padding: 10px;
+      "
     >
       <div class="col-md-12">
-        <span
-          style="margin-left: 45px; display: none"
-          id="download-label"
-          name="download-label"
-          >Reporting downloading...</span
+        <div
+          class="mini-stat bg-white clearfix"
+          style="border: 1px solid #dee2e6"
         >
-        <div class="progress" style="height: 24px; margin-left: 45px">
-          <div
-            class="progress-bar"
-            role="progressbar"
-            style="width: 0%"
-            aria-valuenow="0"
-            aria-valuemin="0"
-            aria-valuemax="100"
-          >
-            0%
+          <div class="mini-stat-info d-flex align-items-center">
+            <span class="counter" style="color: black; margin-right: 20px">
+              <strong>Filter: </strong>
+            </span>
+
+            <div class="d-flex align-items-center" style="margin-right: 15px">
+              <strong style="margin-right: 10px">From:</strong>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-calendar-check" style="margin-right: 5px"></i>
+                <input
+                  type="text"
+                  class="form-control datepicker"
+                  id="from_date"
+                  name="from_date"
+                  placeholder="Start Date"
+                  style="width: 150px"
+                  value="<%= currentFromDate %>"
+                />
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center" style="margin-right: 15px">
+              <strong style="margin-right: 10px">To:</strong>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-calendar-check" style="margin-right: 5px"></i>
+                <input
+                  type="text"
+                  class="form-control datepicker"
+                  id="to_date"
+                  name="to_date"
+                  placeholder="End Date"
+                  style="width: 150px"
+                  value="<%= currentToDate %>"
+                />
+              </div>
+            </div>
+
+            <div class="d-flex">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                style="margin-right: 5px"
+                onclick="filterRadar()"
+              >
+                Filter
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                onclick="clearFilters()"
+              >
+                Clear
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
     <!-- Top row: Projects by Phase & Investment by Phase -->
     <div class="row mt-5">
       <div class="col-lg-6 text-center">
@@ -99,12 +176,9 @@
       </div>
     </div>
 
-    <!-- Second row: Progress Bar & Portfolio Health -->
+    <!-- Second row: Portfolio Health -->
     <div class="row mt-5">
-      <div class="col-lg-6 text-center">
-        <canvas id="barChart"></canvas>
-      </div>
-      <div class="col-lg-6 text-center">
+      <div class="col-lg-12 text-center">
         <div id="pieChart"></div>
       </div>
     </div>
@@ -158,22 +232,118 @@
   </div>
 </div>
 
-<%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
+<%- contentFor('FooterJs') %>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<%- contentFor('BottomJs') %>
+<script>
+  // Date filtering functions
+  function filterRadar() {
+    const fromDate = document.getElementById("from_date").value;
+    const toDate = document.getElementById("to_date").value;
+
+    // Build the query parameters for API call
+    const params = new URLSearchParams();
+    if (fromDate) params.append("from_date", fromDate);
+    if (toDate) params.append("to_date", toDate);
+
+    // Make AJAX call to get filtered data
+    const queryString = params.toString();
+    const url = `/projects/radar/data${queryString ? "?" + queryString : ""}`;
+
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        // Update all charts with new data
+        updateChartsWithFilteredData(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching filtered data:", error);
+        // Fallback to page reload if AJAX fails
+        const pageUrl = queryString
+          ? `/projects/radar/view/?${queryString}`
+          : "/projects/radar/view/";
+        window.location.href = pageUrl;
+      });
+  }
+
+  function updateChartsWithFilteredData(data) {
+    // Update global phaseStats variable
+    window.phaseStats = data.phaseStats;
+
+    // Redraw all charts with new data
+    drawProjectsByPhaseChart();
+    drawCostByPhaseChart();
+    updatePortfolioHealthChart(data.portfolioHealth);
+    drawTagCharts(); // Now will use the date parameters in API calls
+  }
+  function updatePortfolioHealthChart(portfolioHealthData) {
+    const { labels, counts, colors } = portfolioHealthData;
+    const customLabels = ["Healthy", "Caution", "In Trouble"];
+
+    const total = counts.reduce((sum, count) => sum + count, 0);
+    const percentages = counts.map((count) =>
+      total > 0 ? Math.round((count / total) * 100) : 0,
+    );
+
+    const chartDataArray = [
+      ["Status", "Count", { role: "tooltip", p: { html: false } }],
+    ];
+    labels.forEach((label, i) => {
+      chartDataArray.push([
+        customLabels[i],
+        { v: counts[i], f: percentages[i] + "%" },
+        `${customLabels[i]}\n${counts[i]} (${percentages[i]}%)`,
+      ]);
+    });
+
+    const data = google.visualization.arrayToDataTable(chartDataArray);
+    const options = {
+      title: "Portfolio Health",
+      pieHole: 0.4,
+      backgroundColor: "transparent",
+      width: 600,
+      height: 350,
+      colors: colors,
+      legend: {
+        position: "right",
+        textStyle: { color: "#333", fontSize: 14 },
+      },
+      pieSliceText: "value",
+      tooltip: { isHtml: false },
+    };
+
+    const pieChart = new google.visualization.PieChart(
+      document.getElementById("pieChart"),
+    );
+    pieChart.draw(data, options);
+  }
+
+  function clearFilters() {
+    // Clear the input fields and reload without parameters
+    document.getElementById("from_date").value = "";
+    document.getElementById("to_date").value = "";
+    window.location.href = "/projects/radar/view/";
+  }
+
+  // Initialize Flatpickr for date inputs
+  document.addEventListener("DOMContentLoaded", function () {
+    flatpickr(".datepicker", {
+      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+      allowInput: true, // Allow manual input if needed
+      allowInvalidPreload: true, // Allow invalid dates to be preloaded
+    });
+  });
+</script>
 
 <script type="text/javascript">
       document.addEventListener("DOMContentLoaded", function() {
-        const portfolioTitle = document.getElementById("portfolioTitle");
-        if (portfolioTitle) {
-          portfolioTitle.textContent = "Portfolio Radar";
-        } else {
-          console.error("Portfolio title element not found!");
-        }
-
-        const barCtx = document.getElementById("barChart")?.getContext("2d");
-        if (!barCtx) {
-          console.error("Canvas element with ID 'barChart' not found!");
-          return;
-        }
+        // const portfolioTitle = document.getElementById("portfolioTitle");
+        // if (portfolioTitle) {
+        //   portfolioTitle.textContent = portfolioTitle;
+        // } else {
+        //   console.error("Portfolio title element not found!");
+        // }
 
         // Global tag color mapping to ensure consistency across all charts
         const globalTagColors = new Map();
@@ -210,155 +380,20 @@
 
         function drawCharts() {
           // Draw all charts
-          drawProgressBarChart();
           drawProjectsByPhaseChart();
           drawCostByPhaseChart();
           drawTagCharts();
         }
 
-        function drawProgressBarChart() {
-          // ---------------------------------------------
-          // 1) Progress Data & Bar Chart
-          // ---------------------------------------------
-          fetch(`/projects/radar/progress`)
-            .then((response) => response.json())
-            .then((progressData) => {
-              console.log("Progress Headline:", progressData);
-              if (
-                progressData &&
-                progressData.progress &&
-                Array.isArray(progressData.progress)
-              ) {
-                const colorMapping = {
-                  Green: "#28a745",
-                  Yellow: "#ffc107",
-                  Red: "#dc3545",
-                };
-
-                const validProgressData = progressData.progress.filter(
-                  (_, i) => progressData.colors[i].trim() !== "No status available"
-                );
-                const validColors = progressData.colors.filter(
-                  (color) => color.trim() !== "No status available"
-                );
-                const validProjectNames = progressData.project_names.filter(
-                  (_, i) => progressData.colors[i].trim() !== "No status available"
-                );
-                const mappedColors = validColors.map(
-                  (color) => colorMapping[color.trim()] || "#000000"
-                );
-
-                const barCtx = document.getElementById("barChart")?.getContext("2d");
-                console.log(barCtx); // Should log the 2D context or `null` if not found
-                new Chart(barCtx, {
-                  type: "bar",
-                  data: {
-                    labels: validProjectNames,
-                    datasets: [{
-                      label: "",
-                      data: validProgressData,
-                      backgroundColor: mappedColors,
-                      borderWidth: 1,
-                    }],
-                  },
-                  options: {
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: { stepSize: 10 },
-                        title: {
-                          display: true,
-                          text: "Progress (%)",
-                        },
-                      },
-                    },
-                    plugins: {
-                      title: { display: false },
-                      legend: { display: false },
-                      tooltip: {
-                        callbacks: {
-                          label: (tooltipItem) =>
-                            `Progress: ${Math.round(validProgressData[tooltipItem.dataIndex])}%`,
-                        },
-                      },
-                      datalabels: {
-                        anchor: "end",
-                        align: "end",
-                        formatter: (value) => Math.round(value) + "%",
-                        color: "#000",
-                        font: { weight: "bold" },
-                      },
-                    },
-                  },
-                  plugins: [ChartDataLabels],
-                });
-
-                // ---------------------------------------------
-                // 2) Portfolio Health Pie Chart
-                // ---------------------------------------------
-                const colorCounts = { Green: 0, Yellow: 0, Red: 0 };
-                validColors.forEach((color) => {
-                  if (colorCounts[color.trim()] !== undefined) {
-                    colorCounts[color.trim()] += 1;
-                  }
-                });
-
-                const labels = Object.keys(colorCounts);
-                const counts = Object.values(colorCounts);
-                const chartColors = ["#28a745", "#ffc107", "#dc3545"];
-                const total = counts.reduce((sum, count) => sum + count, 0);
-                const percentages = counts.map((count) =>
-                  Math.round((count / total) * 100)
-                );
-                const customLabels = ["Healthy", "Caution", "In Trouble"];
-
-                const chartDataArray = [
-                  ["Status", "Count", { role: "tooltip", p: { html: false } }],
-                ];
-                labels.forEach((label, i) => {
-                  chartDataArray.push([
-                    customLabels[i],
-                    { v: counts[i], f: percentages[i] + "%" },
-                    `${customLabels[i]}\n${counts[i]} (${percentages[i]}%)`,
-                  ]);
-                });
-
-                const data = google.visualization.arrayToDataTable(chartDataArray);
-                const options = {
-                  title: "Portfolio Health",
-                  pieHole: 0.4,
-                  backgroundColor: "transparent",
-                  width: 600,
-                  height: 350,
-                  colors: chartColors,
-                  legend: {
-                    position: "right",
-                    textStyle: { color: "#333", fontSize: 14 },
-                  },
-                  pieSliceText: "value",
-                  tooltip: { isHtml: false },
-                };
-
-                const pieChart = new google.visualization.PieChart(
-                  document.getElementById("pieChart")
-                );
-                pieChart.draw(data, options);
-              } else {
-                console.error("Expected an array but got:", progressData);
-              }
-            })
-            .catch((err) => console.error(err));
-        }
-
-        const phaseStats = <%- JSON.stringify(phaseStats) %>;
+        // Make phaseStats a global variable
+        window.phaseStats = <%- JSON.stringify(phaseStats) %>;
 
         function drawProjectsByPhaseChart() {
-          const phases          = phaseStats.map(p => p.phaseName);
-          const troubleCounts   = phaseStats.map(p => p.troubleCount);
-          const cautionCounts   = phaseStats.map(p => p.cautionCount);
-          const healthyCounts   = phaseStats.map(p => p.healthyCount);
-          const noStatusCounts  = phaseStats.map(p => p.noStatusCount);
+          const phases          = window.phaseStats.map(p => p.phaseName);
+          const troubleCounts   = window.phaseStats.map(p => p.troubleCount);
+          const cautionCounts   = window.phaseStats.map(p => p.cautionCount);
+          const healthyCounts   = window.phaseStats.map(p => p.healthyCount);
+          const noStatusCounts  = window.phaseStats.map(p => p.noStatusCount);
 
           // Build annotations only for non‐zero values
           const ann = arr => arr.map(c => c > 0 ? String(c) : '');
@@ -422,11 +457,11 @@
 
         function drawCostByPhaseChart() {
           // Extract names & per‐status cost arrays from phaseStats
-          const phases         = phaseStats.map(p => p.phaseName);
-          const troubleCosts   = phaseStats.map(p => p.troubleCost);
-          const cautionCosts   = phaseStats.map(p => p.cautionCost);
-          const healthyCosts   = phaseStats.map(p => p.healthyCost);
-          const noStatusCosts  = phaseStats.map(p => p.noStatusCost);
+          const phases         = window.phaseStats.map(p => p.phaseName);
+          const troubleCosts   = window.phaseStats.map(p => p.troubleCost);
+          const cautionCosts   = window.phaseStats.map(p => p.cautionCost);
+          const healthyCosts   = window.phaseStats.map(p => p.healthyCost);
+          const noStatusCosts  = window.phaseStats.map(p => p.noStatusCost);
 
           // Formatter: only show annotation if cost > 0, add commas & dollar sign
           const fmt = n => {
@@ -500,8 +535,18 @@
         }
 
         function drawTagCharts() {
-          // Tag 1 Chart
-          fetch(`/projects/radar/countProjectsByTag1`)
+          // Get current filter dates if available
+          const fromDate = document.getElementById("from_date").value;
+          const toDate = document.getElementById("to_date").value;
+
+          // Build query parameters for tag API calls
+          const params = new URLSearchParams();
+          if (fromDate) params.append("from_date", fromDate);
+          if (toDate) params.append("to_date", toDate);
+          const queryString = params.toString() ? '?' + params.toString() : '';
+
+          // Tag 1 Chart with date filtering
+          fetch(`/projects/radar/countProjectsByTag1${queryString}`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -537,8 +582,8 @@
             })
             .catch((err) => console.error("Error loading Tag 1 Chart:", err));
 
-          // Tag 1 Cost Chart
-          fetch(`/projects/radar/countCostsByTag1`)
+          // Tag 1 Cost Chart with date filtering
+          fetch(`/projects/radar/countCostsByTag1${queryString}`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -577,8 +622,8 @@
             })
             .catch((err) => console.error("Error loading Tag 1 Cost Chart:", err));
 
-          // Tag 1 Effort Chart
-          fetch(`/projects/radar/countEffortByTag1`)
+          // Tag 1 Effort Chart with date filtering
+          fetch(`/projects/radar/countEffortByTag1${queryString}`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -617,8 +662,8 @@
             })
             .catch((err) => console.error("Error loading Tag 1 Effort Chart:", err));
 
-          // Tag 2 Chart
-          fetch(`/projects/radar/countProjectsByTag2`)
+          // Tag 2 Chart with date filtering
+          fetch(`/projects/radar/countProjectsByTag2${queryString}`)
             .then((response) => response.json())
             .then((tagsData) => {
               console.log("Tag 2 Data:", tagsData); // Debugging log
@@ -655,8 +700,8 @@
             })
             .catch((err) => console.error("Error loading Tag 2 Chart:", err));
 
-            // Tag 2 Cost Chart
-          fetch(`/projects/radar/countCostsByTag2`)
+            // Tag 2 Cost Chart with date filtering
+          fetch(`/projects/radar/countCostsByTag2${queryString}`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -695,8 +740,8 @@
             })
             .catch((err) => console.error("Error loading Tag 2 Cost Chart:", err));
 
-            // Tag 2 Effort Chart
-          fetch(`/projects/radar/countEffortByTag2`)
+            // Tag 2 Effort Chart with date filtering
+          fetch(`/projects/radar/countEffortByTag2${queryString}`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -735,8 +780,8 @@
             })
             .catch((err) => console.error("Error loading Tag 2 Effort Chart:", err));
 
-          // Tag 3 Chart
-          fetch(`/projects/radar/countProjectsByTag3`)
+          // Tag 3 Chart with date filtering
+          fetch(`/projects/radar/countProjectsByTag3${queryString}`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -793,8 +838,8 @@
             })
             .catch((err) => console.error(err));
 
-            // Tag 3 Cost Chart
-          fetch(`/projects/radar/countCostsByTag3`)
+            // Tag 3 Cost Chart with date filtering
+          fetch(`/projects/radar/countCostsByTag3${queryString}`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -833,8 +878,8 @@
             })
             .catch((err) => console.error("Error loading Tag 3 Cost Chart:", err));
 
-            // Tag 3 Effort Chart
-          fetch(`/projects/radar/countEffortByTag3`)
+            // Tag 3 Effort Chart with date filtering
+          fetch(`/projects/radar/countEffortByTag3${queryString}`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -875,41 +920,60 @@
         }
       });
      document.getElementById("btnPrintPage").addEventListener("click", function () {
-    // Get the progress bar element
-     const downloadLabel = document.getElementById("download-label");
-     console.log(downloadLabel);
-    downloadLabel.style.display = "block"; // Show the label
-    const progressBar = document.querySelector(".progress-bar");
-    let progress = 0;
-    progressBar.style.width = "0%";
-    progressBar.textContent = "0%";
-    const htmlContent = document.querySelector(".page-content-wrapper").innerHTML;
-    console.log(htmlContent);
-    // Animate progress bar from 0 to 100%
-    const interval = setInterval(() => {
-      progress += 2; // Increase speed as needed
-      if (progress > 100) progress = 100;
-      progressBar.style.width = progress + "%";
-      progressBar.textContent = progress + "%";
-      progressBar.setAttribute("aria-valuenow", progress);
+    // Get portfolio name from session data or set a default
+    const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
 
-      if (progress >= 100) {
-        clearInterval(interval);
+    // Create a style element for the print header
+    const style = document.createElement("style");
+    style.setAttribute("type", "text/css");
+    style.setAttribute("media", "print");
 
-        // Now trigger your PDF generation here
-        // For example:
-
-        // generatePDF();
-        window.print();
-
-        // Optionally reset progress bar after printing
-        setTimeout(() => {
-          progressBar.style.width = "0%";
-          progressBar.textContent = "0%";
-          progressBar.setAttribute("aria-valuenow", 0);
-        }, 1000);
+    // Add CSS for the print header
+    const css = `
+      @page {
+        size: landscape;
+        margin-top: 3cm;
       }
-    }, 20); // Adjust interval speed as needed
-    downloadLabel.style.display = "none";
+      body::before {
+        content: "${portfolioName} - Radar Report";
+        display: block;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.5em;
+        margin-bottom: 1cm;
+      }
+      #btnPrintPage,
+      .page-buttons,
+      .button-menu-mobile,
+      .page-title,
+      .portfolio-title {
+        display: none !important;
+      }
+      .filter-section,
+      .mini-stat {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    `;
+
+    style.appendChild(document.createTextNode(css));
+    document.head.appendChild(style);
+
+    // Save the current title
+    const oldTitle = document.title;
+    const today = new Date();
+    const yyyy_mm_dd = today.toISOString().split('T')[0];
+
+    document.title = yyyy_mm_dd + " - PriorityPilot - Radar Report";
+
+    // Print
+    window.print();
+
+    // Restore the old title after a short delay
+    setTimeout(() => {
+      document.title = oldTitle;
+      // Remove the added style element
+      document.head.removeChild(style);
+    }, 1000);
   });
 </script>

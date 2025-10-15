@@ -34,7 +34,34 @@
             <!-- Main content -->
             <div class="col-md-10">
                 <div class="row">
-                   
+                  <div class="col-md-12" style="min-height: 50px;padding-bottom:15px;">
+            <div class="mini-stat bg-white clearfix" >
+              <div class="mini-stat-info d-flex align-items-center">
+                <span class="counter" style="color:black; margin-right: 20px;"><strong>Filter: </strong></span>
+                
+                <div class="d-flex align-items-center" style="margin-right: 15px;">
+                  <strong style="margin-right: 10px;">From:</strong>
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-calendar-check" style="margin-right: 5px;"></i>
+                    <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From Date" style="width: 150px;" value="<%= currentFromDate %>">
+                  </div>
+                </div>
+                
+                <div class="d-flex align-items-center" style="margin-right: 15px;">
+                  <strong style="margin-right: 10px;">To:</strong>
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-calendar-check" style="margin-right: 5px;"></i>
+                    <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To Date" style="width: 150px;" value="<%= currentToDate %>">
+                  </div>
+                </div>
+                
+                <div class="d-flex">
+                  <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterDashboard()">Filter</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear</button>
+                </div>
+              </div>
+            </div>
+            </div> 
                     
            <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
             <div class="mini-stat bg-white clearfix" >
@@ -222,35 +249,13 @@
                       const rawEff = (typeof availableEffortPercent !== 'undefined' && availableEffortPercent !== null) ? sanitizeNumber(availableEffortPercent) : NaN;
                       const effPercent = !isNaN(rawEff) ? padFormatNumber(rawEff) : '00.00';
                     %>
-                    <div class="row text-center" style="padding-top: 20px;">
+                    <div class="row text-center" style="padding-top: 20px;padding-bottom: 20px;">
                         <div class="col-md-12">
                           
                           <strong class="list-percent">$$</strong><br/>
                           <span class="list-percent percent-cost" data-color="<%= costColor %>"><%= costPercent %>%</span><br/>
                           <strong class="list-percent">PH</strong><br/>
                           <span class="list-percent percent-effort" data-color="<%= effColor %>"><%= effPercent %>%</span>
-                        </div>
-                    </div>
-                    <div class="row text-center" style="padding-top: 20px;padding-bottom: 50px;">
-                        <div class="col-md-12 d-flex flex-column align-items-center">
-                          
-                          <strong>From:</strong><br/>
-                          <div class="d-flex align-items-center justify-content-center mb-2">
-                            <i class="bi bi-calendar-check mr-2"></i>
-                            <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="Start Date" style="width: 150px;" value="<%= currentFromDate %>">
-                          </div>
-                          
-                          <strong>To:</strong><br/>
-                          <div class="d-flex align-items-center justify-content-center mb-3">
-                            <i class="bi bi-calendar-check mr-2"></i>
-                            <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="End Date" style="width: 150px;" value="<%= currentToDate %>">
-                          </div>
-                          
-                          <div class="d-flex justify-content-center">
-                            <button type="button" class="btn btn-primary btn-sm mr-2" onclick="filterDashboard()">Filter</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear</button>
-                          </div>
-                          
                         </div>
                     </div>
                 </div>

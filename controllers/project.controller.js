@@ -908,10 +908,28 @@ exports.findOneForPrime = async (req, res) => {
 exports.radar = async (req, res) => {
   const companyId = req.session.company.id;
 
+  // Extract date parameters from query string
+  const fromDate = req.query.from_date;
+  const toDate = req.query.to_date;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (fromDate && toDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  } else if (fromDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+  } else if (toDate) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  }
+
   try {
     // One query: stats per phase, with conditional SUMs for health counts & costs
     const phaseStatsRaw = await db.projects.findAll({
-      where: { company_id_fk: companyId },
+      where: {
+        company_id_fk: companyId,
+        ...dateWhereConditions,
+      },
       attributes: [
         "phase_id_fk",
         // overall
@@ -1068,12 +1086,402 @@ exports.radar = async (req, res) => {
       portfolioName: company.company_headline,
       currentDate: new Date().toLocaleDateString(),
       phaseStats,
+      // Pass current filter values back to template
+      currentFromDate: fromDate || "",
+      currentToDate: toDate || "",
     });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error");
   }
 };
+
+// API endpoint for filtered radar data (returns JSON)
+exports.radarData = async (req, res) => {
+  const companyId = req.session.company.id;
+
+  // Extract date parameters from query string
+  const fromDate = req.query.from_date;
+  const toDate = req.query.to_date;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (fromDate && toDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  } else if (fromDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+  } else if (toDate) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  }
+
+  try {
+    // Get phase stats with the same logic as radar function
+    const phaseStatsRaw = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        ...dateWhereConditions,
+      },
+      attributes: [
+        "phase_id_fk",
+        [db.Sequelize.fn("COUNT", db.Sequelize.col("*")), "projectCount"],
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn(
+                  "REPLACE",
+                  db.Sequelize.col("project_cost"),
+                  ",",
+                  "",
+                ),
+                "",
+              ),
+              "DECIMAL",
+            ),
+          ),
+          "totalCost",
+        ],
+        // Red counts & costs
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(`CASE WHEN health='Red' THEN 1 ELSE 0 END`),
+          ),
+          "redCount",
+        ],
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(
+              `CASE WHEN health='Red' 
+               THEN COALESCE(NULLIF(REPLACE(project_cost, ',', ''), '')::DECIMAL, 0) 
+               ELSE 0 END`,
+            ),
+          ),
+          "redCost",
+        ],
+        // Yellow counts & costs
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(`CASE WHEN health='Yellow' THEN 1 ELSE 0 END`),
+          ),
+          "yellowCount",
+        ],
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(
+              `CASE WHEN health='Yellow' 
+               THEN COALESCE(NULLIF(REPLACE(project_cost, ',', ''), '')::DECIMAL, 0) 
+               ELSE 0 END`,
+            ),
+          ),
+          "yellowCost",
+        ],
+        // Green counts & costs
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(`CASE WHEN health='Green' THEN 1 ELSE 0 END`),
+          ),
+          "greenCount",
+        ],
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(
+              `CASE WHEN health='Green' 
+               THEN COALESCE(NULLIF(REPLACE(project_cost, ',', ''), '')::DECIMAL, 0) 
+               ELSE 0 END`,
+            ),
+          ),
+          "greenCost",
+        ],
+        // No status counts & costs
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(
+              `CASE WHEN health IS NULL OR health='' THEN 1 ELSE 0 END`,
+            ),
+          ),
+          "noStatusCount",
+        ],
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.literal(
+              `CASE WHEN health IS NULL OR health='' 
+               THEN COALESCE(NULLIF(REPLACE(project_cost, ',', ''), '')::DECIMAL, 0) 
+               ELSE 0 END`,
+            ),
+          ),
+          "noStatusCost",
+        ],
+      ],
+      group: ["phase_id_fk"],
+      raw: true,
+    });
+
+    // Fetch phase names separately (same as original radar function)
+    const phaseRows = await db.phases.findAll({
+      attributes: ["id", "phase_name"],
+      raw: true,
+    });
+
+    // Create a lookup map for phase names
+    const phaseMap = {};
+    phaseRows.forEach((p) => {
+      phaseMap[p.id] = p.phase_name;
+    });
+
+    // Transform data (same as original radar function)
+    const phaseStats = phaseStatsRaw.map((r) => {
+      return {
+        phaseName: phaseMap[r.phase_id_fk] || "No Phase",
+        projectCount: Number(r.projectCount || 0),
+        totalCost: Number(r.totalCost || 0),
+
+        troubleCount: Number(r.redCount || 0),
+        cautionCount: Number(r.yellowCount || 0),
+        healthyCount: Number(r.greenCount || 0),
+        noStatusCount: Number(r.noStatusCount || 0),
+
+        troubleCost: Number(r.redCost || 0),
+        cautionCost: Number(r.yellowCost || 0),
+        healthyCost: Number(r.greenCost || 0),
+        noStatusCost: Number(r.noStatusCost || 0),
+      };
+    });
+
+    // Get portfolio health data (similar to what was in drawProgressBarChart)
+    const projects = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        ...dateWhereConditions,
+      },
+      attributes: ["health"],
+    });
+
+    const colorCounts = { Green: 0, Yellow: 0, Red: 0 };
+    projects.forEach((project) => {
+      const health = project.health?.trim();
+      if (health && colorCounts[health] !== undefined) {
+        colorCounts[health] += 1;
+      }
+    });
+
+    // Return JSON data
+    res.json({
+      phaseStats,
+      portfolioHealth: {
+        labels: Object.keys(colorCounts),
+        counts: Object.values(colorCounts),
+        colors: ["#28a745", "#ffc107", "#dc3545"], // Green, Yellow, Red
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Helper function to get tag data with date filtering
+async function getTagDataForFilter(companyId, tagField, dateWhereConditions) {
+  const Op = db.Sequelize.Op;
+
+  try {
+    // Get projects count by tag
+    const tagProjectCounts = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        [tagField]: {
+          [Op.and]: {
+            [Op.ne]: 0,
+            [Op.ne]: null,
+          },
+        },
+        ...dateWhereConditions,
+      },
+      attributes: [
+        tagField,
+        [
+          db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")),
+          "project_count",
+        ],
+      ],
+      group: [tagField],
+      order: [
+        [db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")), "DESC"],
+      ],
+    });
+
+    // Get costs by tag
+    const tagCosts = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        [tagField]: {
+          [Op.and]: {
+            [Op.ne]: 0,
+            [Op.ne]: null,
+          },
+        },
+        ...dateWhereConditions,
+      },
+      attributes: [
+        tagField,
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn(
+                  "REPLACE",
+                  db.Sequelize.col("project_cost"),
+                  ",",
+                  "",
+                ),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "total_cost",
+        ],
+      ],
+      group: [tagField],
+      order: [
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn(
+                  "REPLACE",
+                  db.Sequelize.col("project_cost"),
+                  ",",
+                  "",
+                ),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "DESC",
+        ],
+      ],
+    });
+
+    // Get effort by tag
+    const tagEfforts = await db.projects.findAll({
+      where: {
+        company_id_fk: companyId,
+        [tagField]: {
+          [Op.and]: {
+            [Op.ne]: 0,
+            [Op.ne]: null,
+          },
+        },
+        ...dateWhereConditions,
+      },
+      attributes: [
+        tagField,
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn("REPLACE", db.Sequelize.col("effort"), ",", ""),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "total_effort",
+        ],
+      ],
+      group: [tagField],
+      order: [
+        [
+          db.Sequelize.fn(
+            "SUM",
+            db.Sequelize.cast(
+              db.Sequelize.fn(
+                "NULLIF",
+                db.Sequelize.fn("REPLACE", db.Sequelize.col("effort"), ",", ""),
+                "",
+              ),
+              "NUMERIC",
+            ),
+          ),
+          "DESC",
+        ],
+      ],
+    });
+
+    // Get tag names and colors
+    const tagIds = [
+      ...new Set([
+        ...tagProjectCounts.map((t) => t[tagField]),
+        ...tagCosts.map((t) => t[tagField]),
+        ...tagEfforts.map((t) => t[tagField]),
+      ]),
+    ];
+
+    const tagNames = await db.tags.findAll({
+      where: { id: { [Op.in]: tagIds } },
+      attributes: ["id", "tag_name", "tag_color"],
+    });
+
+    // Create lookup map
+    const tagMap = {};
+    tagNames.forEach((tag) => {
+      tagMap[tag.id] = {
+        name: tag.tag_name,
+        color: tag.tag_color,
+      };
+    });
+
+    // Format the data
+    const projectsData = tagProjectCounts.map((tag) => ({
+      tag_name: tagMap[tag[tagField]]?.name || "Unknown",
+      tag_color: tagMap[tag[tagField]]?.color || "#6c757d",
+      project_count: tag.project_count,
+    }));
+
+    const costsData = tagCosts.map((tag) => ({
+      tag_name: tagMap[tag[tagField]]?.name || "Unknown",
+      tag_color: tagMap[tag[tagField]]?.color || "#6c757d",
+      total_cost: tag.total_cost || 0,
+    }));
+
+    const effortsData = tagEfforts.map((tag) => ({
+      tag_name: tagMap[tag[tagField]]?.name || "Unknown",
+      tag_color: tagMap[tag[tagField]]?.color || "#6c757d",
+      total_effort: tag.total_effort || 0,
+    }));
+
+    return {
+      projects: projectsData,
+      costs: costsData,
+      efforts: effortsData,
+    };
+  } catch (error) {
+    console.error(`Error getting tag data for ${tagField}:`, error);
+    return {
+      projects: [],
+      costs: [],
+      efforts: [],
+    };
+  }
+}
 
 exports.progress = async (req, res) => {
   const companyId = req.session.company.id;
@@ -1151,6 +1559,21 @@ exports.progress = async (req, res) => {
 exports.countProjectsByTag1 = async (req, res) => {
   let companyId = req.session.company.id;
 
+  // Extract date parameters from query string (same as radar function)
+  const fromDate = req.query.from_date;
+  const toDate = req.query.to_date;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (fromDate && toDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  } else if (fromDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+  } else if (toDate) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  }
+
   try {
     // Count projects grouped by tag_1 and ensure tag_1 is not 0
     const tag1Counts = await db.projects.findAll({
@@ -1162,6 +1585,7 @@ exports.countProjectsByTag1 = async (req, res) => {
             [Op.ne]: null, // Ensure tag_1 is not null
           },
         },
+        ...dateWhereConditions, // Add date filtering
       },
       attributes: [
         "tag_1",
@@ -1208,6 +1632,21 @@ exports.countProjectsByTag1 = async (req, res) => {
 exports.countCostsByTag1 = async (req, res) => {
   const companyId = req.session.company.id;
 
+  // Extract date parameters from query string
+  const fromDate = req.query.from_date;
+  const toDate = req.query.to_date;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (fromDate && toDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  } else if (fromDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+  } else if (toDate) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  }
+
   try {
     const tag1Costs = await db.projects.findAll({
       where: {
@@ -1218,6 +1657,7 @@ exports.countCostsByTag1 = async (req, res) => {
             [Op.ne]: null,
           },
         },
+        ...dateWhereConditions, // Add date filtering
       },
       attributes: [
         "tag_1",
@@ -1293,6 +1733,21 @@ exports.countCostsByTag1 = async (req, res) => {
 exports.countEffortByTag1 = async (req, res) => {
   const companyId = req.session.company.id;
 
+  // Extract date parameters from query string
+  const fromDate = req.query.from_date;
+  const toDate = req.query.to_date;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (fromDate && toDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  } else if (fromDate) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+  } else if (toDate) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  }
+
   try {
     const tag1Efforts = await db.projects.findAll({
       where: {
@@ -1303,6 +1758,7 @@ exports.countEffortByTag1 = async (req, res) => {
             [Op.ne]: null,
           },
         },
+        ...dateWhereConditions, // Add date filtering
       },
       attributes: [
         "tag_1",
@@ -2362,6 +2818,25 @@ exports.health = async (req, res) => {
   const company_id_fk = req.session.company.id;
   const portfolioName = req.session.company.company_headline;
 
+  // Extract date parameters from query string (same as radar function)
+  const fromDate = req.query.from_date;
+  const toDate = req.query.to_date;
+
+  // Build date filter conditions for the SQL query
+  let dateFilter = "";
+  let queryParams = [company_id_fk];
+
+  if (fromDate && toDate) {
+    dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
+    queryParams.push(fromDate, toDate);
+  } else if (fromDate) {
+    dateFilter = " AND proj.start_date >= ?";
+    queryParams.push(fromDate);
+  } else if (toDate) {
+    dateFilter = " AND proj.end_date <= ?";
+    queryParams.push(toDate);
+  }
+
   const query = `SELECT 
     company_id_fk,
     project_id,
@@ -2424,7 +2899,7 @@ FROM (
         ORDER BY status.status_date DESC
         LIMIT 1
     ) last_status ON true
-    WHERE proj.company_id_fk = ?
+    WHERE proj.company_id_fk = ?${dateFilter}
     ORDER BY proj.id, last_status.status_date DESC NULLS LAST
 ) subquery
 ORDER BY 
@@ -2444,7 +2919,7 @@ ORDER BY
   try {
     console.log("Executing health query for company_id:", company_id_fk);
     const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk],
+      replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
     });
 
@@ -2482,10 +2957,149 @@ ORDER BY
   }
 };
 
+// API endpoint for filtered health data (AJAX calls)
+exports.healthData = async (req, res) => {
+  try {
+    const company_id_fk = req.session.company.id;
+    const portfolioName = req.session.company.company_headline;
+
+    // Extract date parameters from query string
+    const fromDate = req.query.from_date;
+    const toDate = req.query.to_date;
+
+    // Build date filter conditions for the SQL query
+    let dateFilter = "";
+    let queryParams = [company_id_fk];
+
+    if (fromDate && toDate) {
+      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
+      queryParams.push(fromDate, toDate);
+    } else if (fromDate) {
+      dateFilter = " AND proj.start_date >= ?";
+      queryParams.push(fromDate);
+    } else if (toDate) {
+      dateFilter = " AND proj.end_date <= ?";
+      queryParams.push(toDate);
+    }
+
+    const query = `SELECT 
+      company_id_fk,
+      project_id,
+      project_name,
+      start_date,
+      end_date,
+      health,
+      effort,
+      reference,
+      prime_first_name,
+      prime_last_name,
+      sponsor_first_name,
+      sponsor_last_name,
+      project_cost,
+      company_budget,
+      company_effort,
+      last_status,
+      status_date,
+      phase_name 
+  FROM (
+      SELECT DISTINCT ON (proj.id)
+          proj.company_id_fk,
+          proj.id AS project_id,
+          proj.project_name,
+          proj.start_date,
+          proj.end_date,
+          proj.health,
+          proj.effort,
+          proj.reference,
+          prime_person.first_name AS prime_first_name,
+          prime_person.last_name AS prime_last_name,
+          sponsor_person.first_name AS sponsor_first_name,
+          sponsor_person.last_name AS sponsor_last_name,
+          proj.project_cost,
+          companies.portfolio_budget AS company_budget,
+          companies.effort AS company_effort,
+          last_status.last_status,
+          last_status.status_date,
+          phases.phase_name 
+      FROM
+          projects proj
+      LEFT JOIN persons prime_person 
+          ON prime_person.id = proj.prime_id_fk
+      LEFT JOIN persons sponsor_person 
+          ON sponsor_person.id = proj.sponsor_id_fk
+      LEFT JOIN phases 
+          ON phases.id = proj.phase_id_fk
+      LEFT JOIN companies 
+          ON companies.id = proj.company_id_fk
+      LEFT JOIN LATERAL (
+          SELECT json_build_object(
+              'progress', status.progress,
+              'issue', status.issue,
+              'actions', status.actions,
+              'health', status.health
+          ) AS last_status,
+            status.status_date
+          FROM statuses status
+          WHERE status.project_id_fk = proj.id
+          ORDER BY status.status_date DESC
+          LIMIT 1
+      ) last_status ON true
+      WHERE proj.company_id_fk = ?${dateFilter}
+      ORDER BY proj.id, last_status.status_date DESC NULLS LAST
+  ) subquery
+  ORDER BY 
+      CASE phase_name 
+          WHEN 'Planning' THEN 1 
+          WHEN 'Discovery' THEN 2 
+          WHEN 'Delivery' THEN 3 
+          ELSE 4 
+      END,
+      start_date ASC NULLS LAST;
+  `;
+
+    const data = await db.sequelize.query(query, {
+      replacements: queryParams,
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    res.json({
+      success: true,
+      projects: data,
+      portfolioName,
+      currentDate: moment().format("MMMM Do YYYY"),
+    });
+  } catch (error) {
+    console.error("Error in healthData API:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error fetching project data: " + error.message,
+    });
+  }
+};
+
 exports.accomplishments = async (req, res) => {
   //get all company projects with all their accomplishments
   const company_id_fk = req.session.company.id;
   const portfolioName = req.session.company.company_headline;
+
+  // Extract date parameters from query string
+  const fromDate = req.query.from_date;
+  const toDate = req.query.to_date;
+
+  // Build date filter conditions for the SQL query
+  let dateFilter = "";
+  let queryParams = [company_id_fk];
+
+  if (fromDate && toDate) {
+    dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
+    queryParams.push(fromDate, toDate);
+  } else if (fromDate) {
+    dateFilter = " AND proj.start_date >= ?";
+    queryParams.push(fromDate);
+  } else if (toDate) {
+    dateFilter = " AND proj.end_date <= ?";
+    queryParams.push(toDate);
+  }
 
   const query = `
     SELECT DISTINCT
@@ -2516,7 +3130,7 @@ exports.accomplishments = async (req, res) => {
     LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
     LEFT JOIN phases ON phases.id = proj.phase_id_fk
     LEFT JOIN statuses status ON status.project_id_fk = proj.id
-    WHERE proj.company_id_fk = ?
+    WHERE proj.company_id_fk = ?${dateFilter}
       AND proj.phase_id_fk IN (
         SELECT id FROM phases WHERE phase_name IN ('Planning', 'Discovery', 'Delivery', 'Done')
       )
@@ -2535,7 +3149,7 @@ exports.accomplishments = async (req, res) => {
       company_id_fk,
     );
     const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk],
+      replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
     });
 
@@ -2547,8 +3161,6 @@ exports.accomplishments = async (req, res) => {
 
     // Debug: Check for line breaks in accomplishments text
     if (data.length > 0) {
-      console.log("=== CHECKING FOR LINE BREAKS IN ACCOMPLISHMENTS ===");
-
       let lineBreakCount = 0;
       let samplesWithLineBreaks = [];
 
@@ -2596,8 +3208,6 @@ exports.accomplishments = async (req, res) => {
       } else {
         console.log("No accomplishments with line breaks found.");
       }
-
-      console.log("=== END LINE BREAK ANALYSIS ===");
     }
 
     // Group accomplishments by project
@@ -2662,6 +3272,145 @@ exports.accomplishments = async (req, res) => {
   } catch (error) {
     console.error("Error in accomplishments query:", error);
     res.status(500).send("Error fetching project data: " + error.message);
+  }
+};
+
+// API endpoint for filtered accomplishments data (AJAX calls)
+exports.accomplishmentsData = async (req, res) => {
+  try {
+    const company_id_fk = req.session.company.id;
+    const portfolioName = req.session.company.company_headline;
+
+    // Extract date parameters from query string
+    const fromDate = req.query.from_date;
+    const toDate = req.query.to_date;
+
+    // Build date filter conditions for the SQL query
+    let dateFilter = "";
+    let queryParams = [company_id_fk];
+
+    if (fromDate && toDate) {
+      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
+      queryParams.push(fromDate, toDate);
+    } else if (fromDate) {
+      dateFilter = " AND proj.start_date >= ?";
+      queryParams.push(fromDate);
+    } else if (toDate) {
+      dateFilter = " AND proj.end_date <= ?";
+      queryParams.push(toDate);
+    }
+
+    const query = `
+      SELECT DISTINCT
+        proj.id AS project_id,
+        proj.project_name,
+        proj.start_date,
+        proj.end_date,
+        proj.next_milestone_date,
+        phases.phase_name,
+        prime_person.first_name AS prime_first_name,
+        prime_person.last_name AS prime_last_name,
+        sponsor_person.first_name AS sponsor_first_name,
+        sponsor_person.last_name AS sponsor_last_name,
+        status.status_date,
+        status.accomplishments,
+        status.progress,
+        status.health,
+        status.id AS status_id,
+        CASE phases.phase_name 
+          WHEN 'Planning' THEN 1 
+          WHEN 'Discovery' THEN 2 
+          WHEN 'Delivery' THEN 3 
+          WHEN 'Done' THEN 4
+          ELSE 5 
+        END AS phase_order
+      FROM projects proj
+      LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk
+      LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+      LEFT JOIN phases ON phases.id = proj.phase_id_fk
+      LEFT JOIN statuses status ON status.project_id_fk = proj.id
+      WHERE proj.company_id_fk = ?${dateFilter}
+        AND proj.phase_id_fk IN (
+          SELECT id FROM phases WHERE phase_name IN ('Planning', 'Discovery', 'Delivery', 'Done')
+        )
+        AND status.accomplishments IS NOT NULL 
+        AND status.accomplishments != ''
+      ORDER BY 
+        phase_order,
+        proj.project_name ASC,
+        status.status_date DESC,
+        status.id DESC;
+    `;
+
+    const data = await db.sequelize.query(query, {
+      replacements: queryParams,
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    // Group accomplishments by project (same logic as main function)
+    const projectsWithAccomplishments = {};
+
+    data.forEach((record) => {
+      const projectId = record.project_id;
+
+      if (!projectsWithAccomplishments[projectId]) {
+        projectsWithAccomplishments[projectId] = {
+          project_id: record.project_id,
+          project_name: record.project_name,
+          start_date: record.start_date,
+          end_date: record.end_date,
+          next_milestone_date: record.next_milestone_date,
+          phase_name: record.phase_name,
+          prime_first_name: record.prime_first_name,
+          prime_last_name: record.prime_last_name,
+          sponsor_first_name: record.sponsor_first_name,
+          sponsor_last_name: record.sponsor_last_name,
+          accomplishments: [],
+          accomplishmentIds: new Set(),
+        };
+      }
+
+      const statusId = record.status_id;
+      if (
+        !projectsWithAccomplishments[projectId].accomplishmentIds.has(statusId)
+      ) {
+        projectsWithAccomplishments[projectId].accomplishmentIds.add(statusId);
+        projectsWithAccomplishments[projectId].accomplishments.push({
+          status_id: record.status_id,
+          status_date: record.status_date,
+          accomplishments: record.accomplishments,
+          progress: record.progress,
+          health: record.health,
+        });
+      }
+    });
+
+    // Convert to array and sort
+    const projects = Object.values(projectsWithAccomplishments)
+      .map((project) => {
+        delete project.accomplishmentIds;
+        return project;
+      })
+      .sort((a, b) => {
+        const phaseOrder = { Planning: 1, Discovery: 2, Delivery: 3, Done: 4 };
+        const aPhase = phaseOrder[a.phase_name] || 5;
+        const bPhase = phaseOrder[b.phase_name] || 5;
+        if (aPhase !== bPhase) return aPhase - bPhase;
+        return a.project_name.localeCompare(b.project_name);
+      });
+
+    res.json({
+      success: true,
+      projects: projects,
+      portfolioName,
+      currentDate: moment().format("MMMM Do YYYY"),
+    });
+  } catch (error) {
+    console.error("Error in accomplishmentsData API:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error fetching project data: " + error.message,
+    });
   }
 };
 
@@ -2950,10 +3699,6 @@ exports.exportHealthDataToCSV = async (req, res) => {
           console.log("Error parsing status JSON:", e);
         }
       }
-
-      console.log("Project:", project.project_name);
-      console.log("WHY:", project.project_name);
-      console.log("Project:", project.project_name);
       return {
         Phase: project.phase_name || "",
         Project: project.project_name || "",

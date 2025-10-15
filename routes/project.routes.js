@@ -60,6 +60,19 @@ module.exports = (app) => {
     projects.radar,
   );
 
+  // New API endpoint for filtered radar data
+  router.get("/radar/data", sessionMiddleware, projects.radarData);
+
+  // New API endpoint for filtered health data
+  router.get("/health/data", sessionMiddleware, projects.healthData);
+
+  // New API endpoint for filtered accomplishments data
+  router.get(
+    "/accomplishments/data",
+    sessionMiddleware,
+    projects.accomplishmentsData,
+  );
+
   router.get("/radar/progress/", sessionMiddleware, projects.progress);
   router.get(
     "/radar/countProjectsByTag1/",
