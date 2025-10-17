@@ -45,7 +45,7 @@
     "express": "^4.21.2",
     "express-ejs-layouts": "^2.5.0",
     "express-flash-messages": "^0.1.1",
-    "express-rate-limit": "^7.5.0",
+    "express-rate-limit": "^7.5.1",
     "express-session": "^1.18.1",
     "express-validator": "^7.0.1",
     "express-view-helpers": "^0.0.2",
@@ -73,7 +73,8 @@
     "req-flash": "0.0.3",
     "sequelize": "^6.37.5",
     "util": "^0.12.5",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "lusca": "^1.7.0"
   },
   "repository": {},
   "devDependencies": {
@@ -85,14 +86,14 @@
     "@types/jest": "^29.5.5",
     "@types/node": "^20.8.0",
     "@types/supertest": "^2.0.12",
+    "axios": "^1.6.0",
+    "chance": "^1.1.11",
     "cross-env": "^7.0.3",
     "eslint": "^9.11.1",
+    "factory-girl": "^5.0.4",
     "globals": "^15.9.0",
     "jest": "^29.7.0",
     "jest-environment-node": "^29.7.0",
-    "supertest": "^6.3.3",
-    "axios": "^1.6.0",
-    "chance": "^1.1.11",
-    "factory-girl": "^5.0.4"
+    "supertest": "^6.3.3"
   }
 }

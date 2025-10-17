@@ -1,4 +1,4 @@
-﻿<form action="/projects" class="needs-validation" novalidate method="POST">
+<form action="/projects" class="needs-validation" novalidate method="POST">
   <input type="hidden" name="funnelPage" id="funnelPage" value="n">
   <div class="container">
     <div class="row">
@@ -208,3 +208,15 @@
     </div>
   </div>
 </form>
+
+<script>
+// Show milestone details input when milestone date is clicked
+document.getElementById('next_milestone_date').addEventListener('click', function() {
+  document.getElementById('milestone_details_row').style.display = 'block';
+});
+
+// Also show when milestone date receives focus
+document.getElementById('next_milestone_date').addEventListener('focus', function() {
+  document.getElementById('milestone_details_row').style.display = 'block';
+});
+</script>

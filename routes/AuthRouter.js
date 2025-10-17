@@ -2,6 +2,7 @@ const db = require("../models");
 var express = require("express");
 require("dotenv").config();
 var Authrouter = express.Router();
+const rateLimit = require("express-rate-limit");
 const companies = require("../controllers/company.controller");
 const persons = require("../controllers/person.controller");
 // const sendEmail = require("../utils/emailSender");
@@ -118,58 +119,6 @@ Authrouter.get("/email-status", function (req, res) {
 });
 Authrouter.post("/auth/login", persons.login);
 
-// Authrouter.get("/test", function (req, res) {
-//   res.render("Pages/pages-reset-password");
-// });
-// Authrouter.get('/pages-coming-soon', function(req, res)
-// {
-//       res.render('Pages/pages-coming-soon');
-// });
-// Authrouter.get('/pages-lock-screen', function(req, res)
-// {
-//       res.render('Pages/pages-lock-screen');
-// });
-// Authrouter.get('/pages-lock-screen-2', function(req, res)
-// {
-//       res.render('Pages/pages-lock-screen-2');
-// });
-// Authrouter.get('/pages-maintenance', function(req, res)
-// {
-//       res.render('Pages/pages-maintenance');
-// });
-
-// Authrouter.get('/pages-recoverpw-2', function(req, res)
-// {
-//       res.render('Pages/pages-recoverpw-2');
-// });
-// router.get("/about", function (req, res) {
-//       res.send("About this wiki");
-//     });
-
-// Authrouter.get('/pages-coming-soon', function(req, res)
-// {
-//       res.render('Pages/pages-comingsoon');
-// });
-// Authrouter.get('/logout', function(req, res) {
-//       try {
-//           fetch(process.env.SERVER_HOST + "/logout")
-//               .then(response => {
-//                   if (!response.ok) {
-//                       throw new Error('Network response was not ok');
-//                   } else {
-//                       // destroy session
-//                       res.redirect('/register');
-//                   }
-//               })
-//               .catch(error => {
-//                   console.error('Error sending data:', error);
-//                   res.status(500).json({ error: error.message });
-//               });
-//       } catch (error) {
-//           console.error('Error:', error);
-//           res.status(500).json({ error: error.message });
-//       }
-//   });
 Authrouter.get("/logout", function (req, res) {
   // Destroy session on the server-side
   req.session.destroy((err) => {

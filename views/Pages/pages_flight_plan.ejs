@@ -31,6 +31,11 @@
     background-color: #dc3545 !important;
     color: white;
   }
+
+  .no-status .gantt_task_content {
+    background-color: #6c757d !important;
+    color: white;
+  }
 </style>
 
 <%- contentFor('breadcrumb') %> <%- contentFor('body') %>
@@ -86,6 +91,7 @@
               ),
               parent: phaseId || null,
               color: colorMapping[project.health] || "#000000",
+              health: project.health,
               type: "task",
             };
           }),
@@ -106,7 +112,7 @@
             return task.health.toLowerCase();
           }
 
-          return "";
+          return "no-status";
         };
       });
   });

@@ -16,8 +16,11 @@ const ChangedPasswordToken = db.changed_password_token;
 // Helper function to authenticate user credentials
 const authenticateUser = async (email, password) => {
   try {
+    // Check if email and password are provided
+    if (!email || !password) return null;
+
     const person = await Person.findOne({ where: { email } });
-    if (!person) return null;
+    if (!person || !person.password) return null;
 
     const isMatch = await bcrypt.compare(
       password.trim(),
