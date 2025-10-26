@@ -95,18 +95,65 @@
     <!-- Filter Section -->
     <div
       class="row"
-      style="
-        margin-bottom: 15px;
-
-        background-color: #f8f9fa;
-        padding: 10px;
-      "
+      style="margin-bottom: 15px; background-color: #f8f9fa; padding: 10px"
     >
       <div class="col-md-12">
         <div
           class="mini-stat bg-white clearfix"
-          style="border: 1px solid #dee2e6"
-        ></div>
+          style="border: 1px solid #dee2e6; padding: 15px"
+        >
+          <div class="d-flex align-items-center justify-content-center">
+            <div class="d-flex align-items-center" style="margin-right: 15px">
+              <strong style="margin-right: 10px">From:</strong>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-calendar-check" style="margin-right: 5px"></i>
+                <input
+                  type="text"
+                  class="form-control datepicker"
+                  id="from_date"
+                  name="from_date"
+                  placeholder="From Date"
+                  style="width: 150px"
+                  value="<%= currentFromDate %>"
+                />
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center" style="margin-right: 15px">
+              <strong style="margin-right: 10px">To:</strong>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-calendar-check" style="margin-right: 5px"></i>
+                <input
+                  type="text"
+                  class="form-control datepicker"
+                  id="to_date"
+                  name="to_date"
+                  placeholder="To Date"
+                  style="width: 150px"
+                  value="<%= currentToDate %>"
+                />
+              </div>
+            </div>
+
+            <div class="d-flex">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                style="margin-right: 5px"
+                onclick="filterRadar()"
+              >
+                Filter
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                onclick="clearFilters()"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -334,9 +381,6 @@
         google.charts.setOnLoadCallback(drawCharts);
 
         function drawCharts() {
-          console.log('Drawing charts...');
-          console.log('phaseStats:', window.phaseStats);
-
           // Draw all charts
           drawProjectsByPhaseChart();
           drawCostByPhaseChart();
@@ -348,11 +392,7 @@
         window.phaseStats = <%- JSON.stringify(phaseStats) %>;
 
         function drawProjectsByPhaseChart() {
-          console.log('Drawing Projects by Phase chart...');
-          console.log('phaseStats available:', !!window.phaseStats);
-
           if (!window.phaseStats || window.phaseStats.length === 0) {
-            console.error('No phaseStats data available for Projects by Phase chart');
             return;
           }
 
@@ -361,9 +401,6 @@
           const cautionCounts   = window.phaseStats.map(p => p.cautionCount);
           const healthyCounts   = window.phaseStats.map(p => p.healthyCount);
           const noStatusCounts  = window.phaseStats.map(p => p.noStatusCount);
-
-          console.log('Phases:', phases);
-          console.log('Data counts:', { troubleCounts, cautionCounts, healthyCounts, noStatusCounts });
 
           // Build annotations only for non‐zero values
           const ann = arr => arr.map(c => c > 0 ? String(c) : '');
@@ -422,15 +459,11 @@
           const chart = new google.visualization.ColumnChart(
             document.getElementById('columnchart_values')
           );
-          console.log('Drawing Projects by Phase chart to columnchart_values');
           chart.draw(data, options);
         }
 
         function drawCostByPhaseChart() {
-          console.log('Drawing Investment by Phase chart...');
-
           if (!window.phaseStats || window.phaseStats.length === 0) {
-            console.error('No phaseStats data available for Investment by Phase chart');
             return;
           }
 
@@ -440,8 +473,6 @@
           const cautionCosts   = window.phaseStats.map(p => p.cautionCost);
           const healthyCosts   = window.phaseStats.map(p => p.healthyCost);
           const noStatusCosts  = window.phaseStats.map(p => p.noStatusCost);
-
-          console.log('Cost data:', { troubleCosts, cautionCosts, healthyCosts, noStatusCosts });
 
           // Formatter: only show annotation if cost > 0, add commas & dollar sign
           const fmt = n => {
@@ -511,7 +542,6 @@
           const chart = new google.visualization.ColumnChart(
             document.getElementById('columnChartCost_values')
           );
-          console.log('Drawing Investment by Phase chart to columnChartCost_values');
           chart.draw(data, options);
         }
 
