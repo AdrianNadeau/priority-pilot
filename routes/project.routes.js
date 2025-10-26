@@ -3,12 +3,33 @@ module.exports = (app) => {
   const sessionMiddleware = require("../middleware/sessionMiddleware.js");
   const checkProjectReadonly = require("../middleware/readOnlyProject");
   const companyPortfolioName = require("../middleware/companyPortfolioName.js");
+  const {
+    applyGlobalFilter,
+  } = require("../middleware/globalFilterMiddleware.js");
 
   var router = require("express").Router();
   // Define routes using controller functions
-  router.post("/", sessionMiddleware, companyPortfolioName, projects.create);
-  router.get("/", sessionMiddleware, companyPortfolioName, projects.findAll);
-  router.get("/:id", sessionMiddleware, companyPortfolioName, projects.findOne);
+  router.post(
+    "/",
+    sessionMiddleware,
+    companyPortfolioName,
+    applyGlobalFilter,
+    projects.create,
+  );
+  router.get(
+    "/",
+    sessionMiddleware,
+    companyPortfolioName,
+    applyGlobalFilter,
+    projects.findAll,
+  );
+  router.get(
+    "/:id",
+    sessionMiddleware,
+    companyPortfolioName,
+    applyGlobalFilter,
+    projects.findOne,
+  );
   router.post("/:id", sessionMiddleware, companyPortfolioName, projects.update);
   router.delete(
     "/:id",
@@ -57,23 +78,40 @@ module.exports = (app) => {
     "/radar/view/",
     sessionMiddleware,
     companyPortfolioName,
+    applyGlobalFilter,
     projects.radar,
   );
 
   // New API endpoint for filtered radar data
-  router.get("/radar/data", sessionMiddleware, projects.radarData);
+  router.get(
+    "/radar/data",
+    sessionMiddleware,
+    applyGlobalFilter,
+    projects.radarData,
+  );
 
   // New API endpoint for filtered health data
-  router.get("/health/data", sessionMiddleware, projects.healthData);
+  router.get(
+    "/health/data",
+    sessionMiddleware,
+    applyGlobalFilter,
+    projects.healthData,
+  );
 
   // New API endpoint for filtered accomplishments data
   router.get(
     "/accomplishments/data",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.accomplishmentsData,
   );
 
-  router.get("/radar/progress/", sessionMiddleware, projects.progress);
+  router.get(
+    "/radar/progress/",
+    sessionMiddleware,
+    applyGlobalFilter,
+    projects.progress,
+  );
   router.get(
     "/radar/countProjectsByTag1/",
     sessionMiddleware,

@@ -43,6 +43,12 @@ module.exports = (sequelize, Sequelize) => {
     company_id_fk: {
       type: Sequelize.DataTypes.INTEGER,
     },
+    filtered_start: {
+      type: Sequelize.DATE,
+    },
+    filtered_end: {
+      type: Sequelize.DATE,
+    },
   });
 
   return Person;

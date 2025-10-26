@@ -20,6 +20,11 @@ const { Parser } = require("json2csv");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const { jsPDF } = require("jspdf");
+const {
+  applyProjectDateFilter,
+  applyRawSQLDateFilter,
+  getCurrentFilterValues,
+} = require("../utils/filterHelper");
 
 // Create and Save a new Project
 exports.create = (req, res) => {
@@ -908,28 +913,14 @@ exports.findOneForPrime = async (req, res) => {
 exports.radar = async (req, res) => {
   const companyId = req.session.company.id;
 
-  // Extract date parameters from query string
-  const fromDate = req.query.from_date;
-  const toDate = req.query.to_date;
-
-  // Build date filter conditions
-  let dateWhereConditions = {};
-  if (fromDate && toDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
-  } else if (fromDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
-  } else if (toDate) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
-  }
+  // Use global filter helper instead of manual date extraction
+  const baseWhere = { company_id_fk: companyId };
+  const whereConditions = applyProjectDateFilter(req, baseWhere);
 
   try {
     // One query: stats per phase, with conditional SUMs for health counts & costs
     const phaseStatsRaw = await db.projects.findAll({
-      where: {
-        company_id_fk: companyId,
-        ...dateWhereConditions,
-      },
+      where: whereConditions,
       attributes: [
         "phase_id_fk",
         // overall
@@ -1086,9 +1077,8 @@ exports.radar = async (req, res) => {
       portfolioName: company.company_headline,
       currentDate: new Date().toLocaleDateString(),
       phaseStats,
-      // Pass current filter values back to template
-      currentFromDate: fromDate || "",
-      currentToDate: toDate || "",
+      // Pass current filter values back to template using helper
+      ...getCurrentFilterValues(req),
     });
   } catch (err) {
     console.error(err);

@@ -193,6 +193,63 @@
           
             </div> <!-- close inner delivery/done row -->
 
+            <!-- Budget and Effort Summary Section -->
+            <div class="row" style="margin-top: 20px;">
+              <div class="col-md-12">
+                <div class="row">
+                  <!-- Cost Summary -->
+                  <div class="col-md-6">
+                    <div class="mini-stat bg-white clearfix">
+                      <div class="mini-stat-info text-center">
+                        <h5 class="mb-3"><strong>Budget ($)</strong></h5>
+                        <div class="row">
+                          <div class="col-4">
+                            <div class="text-muted">Total</div>
+                            <div class="h6 mb-0">$<%= totalCost %></div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-muted">Used</div>
+                            <div class="h6 mb-0">$ <%= usedCost %></div>
+                            
+                          </div>
+                          <div class="col-4">
+                            <div class="text-muted">Available</div>
+                            <div class="h6 mb-0 <%= availableCostColor %>"><%= availableCost %></div>
+                           
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Effort Summary -->
+                  <div class="col-md-6">
+                    <div class="mini-stat bg-white clearfix">
+                      <div class="mini-stat-info text-center">
+                        <h5 class="mb-3"><strong>Effort (PH)</strong></h5>
+                        <div class="row">
+                          <div class="col-4">
+                            <div class="text-muted">Total</div>
+                            <div class="h6 mb-0"><%= totalPH %></div>
+                          </div>
+                          <div class="col-4">
+                            <div class="text-muted">Used</div>
+                            <div class="h6 mb-0"><%= totalUsedPH %></div>
+                            
+                          </div>
+                          <div class="col-4">
+                            <div class="text-muted">Available</div>
+                            <div class="h6 mb-0 <%= availablePHColor %>"><%= totalAvailPH %></div>
+                            
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           
           </div>
 
@@ -458,7 +515,7 @@
     window.location.replace('/projects/');
   }
 
-  // Date filtering functions
+  // Centralized date filtering functions
   function filterDashboard() {
     const fromDate = document.getElementById('from_date').value;
     const toDate = document.getElementById('to_date').value;
@@ -468,6 +525,19 @@
     if (fromDate) params.append('from_date', fromDate);
     if (toDate) params.append('to_date', toDate);
     
+    // Store in sessionStorage for other pages to use
+    if (fromDate) {
+      sessionStorage.setItem('globalFilterStart', fromDate);
+    } else {
+      sessionStorage.removeItem('globalFilterStart');
+    }
+    
+    if (toDate) {
+      sessionStorage.setItem('globalFilterEnd', toDate);
+    } else {
+      sessionStorage.removeItem('globalFilterEnd');
+    }
+    
     // Redirect to the same page with date parameters
     const queryString = params.toString();
     const url = queryString ? `/?${queryString}` : '/';
@@ -475,10 +545,23 @@
   }
   
   function clearFilters() {
-    // Clear the input fields and reload without parameters
+    // Clear the input fields and session storage
     document.getElementById('from_date').value = '';
     document.getElementById('to_date').value = '';
+    sessionStorage.removeItem('globalFilterStart');
+    sessionStorage.removeItem('globalFilterEnd');
     window.location.href = '/';
   }
+
+  // Global function to get current filter values for other pages
+  function getGlobalFilterValues() {
+    return {
+      fromDate: sessionStorage.getItem('globalFilterStart') || '<%= currentFromDate %>',
+      toDate: sessionStorage.getItem('globalFilterEnd') || '<%= currentToDate %>'
+    };
+  }
+
+  // Make the function globally available
+  window.getGlobalFilterValues = getGlobalFilterValues;
 
 </script>

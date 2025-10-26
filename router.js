@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const isAdminMiddleware = require("./middleware/isAdminMiddleware");
+const {
+  applyGlobalFilter,
+  buildDateFilter,
+} = require("./middleware/globalFilterMiddleware");
 
 const db = require("./models");
 const Project = db.projects;
@@ -42,12 +46,41 @@ function removeCommasAndConvert(numStr) {
   return parseFloat(numStr.replace(/,/g, ""));
 }
 
-router.get("/", isAdminMiddleware, async (req, res) => {
+router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
   const company_id_fk = req.session.company.id;
 
   // Extract date parameters from query string
-  const fromDate = req.query.from_date;
-  const toDate = req.query.to_date;
+  let fromDate = req.query.from_date;
+  let toDate = req.query.to_date;
+
+  // If no query parameters, check session for stored filter values
+  if (!fromDate && req.session.filtered_start) {
+    fromDate = req.session.filtered_start;
+  }
+  if (!toDate && req.session.filtered_end) {
+    toDate = req.session.filtered_end;
+  }
+
+  // Store filter values in session when they change
+  if (fromDate || toDate) {
+    req.session.filtered_start = fromDate;
+    req.session.filtered_end = toDate;
+
+    // Update person model with filtered dates
+    try {
+      await db.persons.update(
+        {
+          filtered_start: fromDate || null,
+          filtered_end: toDate || null,
+        },
+        {
+          where: { id: req.session.person.id },
+        },
+      );
+    } catch (error) {
+      console.error("Error updating person filter dates:", error);
+    }
+  }
 
   // Build the WHERE clause for date filtering
   let dateFilter = "";
