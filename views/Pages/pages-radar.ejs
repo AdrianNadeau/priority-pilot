@@ -95,67 +95,13 @@
     <!-- Filter Section -->
     <div
       class="row"
-      style="margin-bottom: 15px; background-color: #f8f9fa; padding: 10px"
-    >
-      <div class="col-md-12">
-        <div
-          class="mini-stat bg-white clearfix"
-          style="border: 1px solid #dee2e6; padding: 15px"
-        >
-          <div class="d-flex align-items-center justify-content-center">
-            <div class="d-flex align-items-center" style="margin-right: 15px">
-              <strong style="margin-right: 10px">From:</strong>
-              <div class="d-flex align-items-center">
-                <i class="bi bi-calendar-check" style="margin-right: 5px"></i>
-                <input
-                  type="text"
-                  class="form-control datepicker"
-                  id="from_date"
-                  name="from_date"
-                  placeholder="From Date"
-                  style="width: 150px"
-                  value="<%= currentFromDate %>"
-                />
-              </div>
-            </div>
+      style="
+        margin-bottom: 15px;
 
-            <div class="d-flex align-items-center" style="margin-right: 15px">
-              <strong style="margin-right: 10px">To:</strong>
-              <div class="d-flex align-items-center">
-                <i class="bi bi-calendar-check" style="margin-right: 5px"></i>
-                <input
-                  type="text"
-                  class="form-control datepicker"
-                  id="to_date"
-                  name="to_date"
-                  placeholder="To Date"
-                  style="width: 150px"
-                  value="<%= currentToDate %>"
-                />
-              </div>
-            </div>
-
-            <div class="d-flex">
-              <button
-                type="button"
-                class="btn btn-primary btn-sm"
-                style="margin-right: 5px"
-                onclick="filterRadar()"
-              >
-                Filter
-              </button>
-              <button
-                type="button"
-                class="btn btn-secondary btn-sm"
-                onclick="clearFilters()"
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        background-color: #f8f9fa;
+        padding: 10px;
+      "
+    ></div>
 
     <!-- Top row: Projects by Phase & Investment by Phase -->
     <div class="row mt-5">
@@ -240,8 +186,10 @@
 <script>
   // Date filtering functions
   function filterRadar() {
-    const fromDate = document.getElementById("from_date").value;
-    const toDate = document.getElementById("to_date").value;
+    const fromDateElement = document.getElementById("from_date");
+    const toDateElement = document.getElementById("to_date");
+    const fromDate = fromDateElement ? fromDateElement.value : "";
+    const toDate = toDateElement ? toDateElement.value : "";
 
     // Build the query parameters for API call
     const params = new URLSearchParams();
@@ -323,8 +271,12 @@
 
   function clearFilters() {
     // Clear the input fields and reload without parameters
-    document.getElementById("from_date").value = "";
-    document.getElementById("to_date").value = "";
+    const fromDateElement = document.getElementById("from_date");
+    const toDateElement = document.getElementById("to_date");
+
+    if (fromDateElement) fromDateElement.value = "";
+    if (toDateElement) toDateElement.value = "";
+
     window.location.href = "/projects/radar/view/";
   }
 
@@ -392,10 +344,6 @@
         window.phaseStats = <%- JSON.stringify(phaseStats) %>;
 
         function drawProjectsByPhaseChart() {
-          if (!window.phaseStats || window.phaseStats.length === 0) {
-            return;
-          }
-
           const phases          = window.phaseStats.map(p => p.phaseName);
           const troubleCounts   = window.phaseStats.map(p => p.troubleCount);
           const cautionCounts   = window.phaseStats.map(p => p.cautionCount);
@@ -463,10 +411,6 @@
         }
 
         function drawCostByPhaseChart() {
-          if (!window.phaseStats || window.phaseStats.length === 0) {
-            return;
-          }
-
           // Extract names & per‐status cost arrays from phaseStats
           const phases         = window.phaseStats.map(p => p.phaseName);
           const troubleCosts   = window.phaseStats.map(p => p.troubleCost);
@@ -547,8 +491,10 @@
 
         function drawProgressAndHealthCharts() {
           // Get current filter dates if available
-          const fromDate = document.getElementById("from_date").value;
-          const toDate = document.getElementById("to_date").value;
+          const fromDateElement = document.getElementById("from_date");
+          const toDateElement = document.getElementById("to_date");
+          const fromDate = fromDateElement ? fromDateElement.value : "";
+          const toDate = toDateElement ? toDateElement.value : "";
 
           // Build query parameters for progress API call
           const params = new URLSearchParams();
@@ -689,9 +635,11 @@
         }
 
         function drawTagCharts() {
-          // Get current filter dates if available
-          const fromDate = document.getElementById("from_date").value;
-          const toDate = document.getElementById("to_date").value;
+          // Get current filter dates if available - with null checks
+          const fromDateElement = document.getElementById("from_date");
+          const toDateElement = document.getElementById("to_date");
+          const fromDate = fromDateElement ? fromDateElement.value : '';
+          const toDate = toDateElement ? toDateElement.value : '';
 
           // Build query parameters for tag API calls
           const params = new URLSearchParams();
