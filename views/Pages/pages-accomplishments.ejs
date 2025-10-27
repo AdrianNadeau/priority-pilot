@@ -93,69 +93,7 @@
 <div class="page-content-wrapper">
   <div class="container-fluid">
     
-    <!-- Filter Section -->
-    <div class="row mb-3">
-      <div class="col-md-12">
-        <div class="card">
-          <div class="card-body">
-            <div class="mini-stat-info d-flex align-items-center">
-              <span class="counter" style="color: black; margin-right: 20px">
-                <strong>Filter: </strong>
-              </span>
-
-              <div class="d-flex align-items-center" style="margin-right: 15px">
-                <strong style="margin-right: 10px">From:</strong>
-                <div class="d-flex align-items-center">
-                  <i class="bi bi-calendar-check" style="margin-right: 5px"></i>
-                  <input
-                    type="text"
-                    class="form-control datepicker"
-                    id="from_date"
-                    name="from_date"
-                    placeholder="From Date"
-                    style="width: 150px"
-                  />
-                </div>
-              </div>
-
-              <div class="d-flex align-items-center" style="margin-right: 15px">
-                <strong style="margin-right: 10px">To:</strong>
-                <div class="d-flex align-items-center">
-                  <i class="bi bi-calendar-check" style="margin-right: 5px"></i>
-                  <input
-                    type="text"
-                    class="form-control datepicker"
-                    id="to_date"
-                    name="to_date"
-                    placeholder="To Date"
-                    style="width: 150px"
-                  />
-                </div>
-              </div>
-
-              <div class="d-flex">
-                <button
-                  type="button"
-                  class="btn btn-primary btn-sm"
-                  style="margin-right: 5px"
-                  onclick="filterAccomplishments()"
-                >
-                  Filter
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-sm"
-                  onclick="clearAccomplishmentsFilter()"
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
+   
     <div class="mb-3">
       <button
         type="button"
@@ -208,22 +146,19 @@
                                   <%= accomplishment.status_date ? new Date(accomplishment.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A' %>
                                 </span>
                                 
-                                <i class="mdi mdi-chart-line" style="color: <%= accomplishment.health ? (accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d') : '#6c757d' %>; margin-right: 8px; font-size: 16px;"></i>
+                                
                                 <span style="font-weight: 500; margin-right: 20px;">
                                   <%= accomplishment.progress || '0' %>% Progress
                                 </span>
                                 
                                 <% if (accomplishment.health) { %>
-                                  <i class="mdi mdi-heart-pulse" style="color: <%= accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d' %>; margin-right: 8px; font-size: 16px;"></i>
-                                  <span style="color: <%= accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d' %>; font-weight: 500;">
-                                    <%= accomplishment.health %>
-                                  </span>
+                                  <i class="mdi mdi-heart-pulse" style="color: <%= accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d' %>; margin-right: 8px; font-size: 16px; vertical-align: middle;"></i>
                                 <% } %>
                               </div>
                               
                               <!-- Accomplishments Content -->
                               <div style="display: flex; align-items: flex-start; text-align: left;">
-                                <i class="mdi mdi-check-circle" style="color: <%= accomplishment.health ? (accomplishment.health.toLowerCase() === 'green' ? '#28a745' : accomplishment.health.toLowerCase() === 'yellow' ? '#ffc107' : accomplishment.health.toLowerCase() === 'red' ? '#dc3545' : '#6c757d') : '#6c757d' %>; margin-right: 8px; margin-top: 2px; font-size: 16px; flex-shrink: 0;"></i>
+                                
                                 <div class="accomplishment-text" style="line-height: 1.5; text-align: left; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: normal; flex: 1; max-width: calc(100% - 24px);">
                                   <%- accomplishment.accomplishments.replace(/\r?\n/g, '<br>') %>
                                 </div>
@@ -368,10 +303,7 @@ function updateAccomplishmentsTable(projects) {
                 
                 if (accomplishment.health) {
                     tableHTML += `
-                            <i class="mdi mdi-heart-pulse" style="color: ${healthColor}; margin-right: 8px; font-size: 16px;"></i>
-                            <span style="color: ${healthColor}; font-weight: 500;">
-                                ${accomplishment.health}
-                            </span>`;
+                            <i class="mdi mdi-heart-pulse" style="color: ${healthColor}; margin-right: 8px; font-size: 16px; vertical-align: middle;"></i>`;
                 }
                 
                 tableHTML += `

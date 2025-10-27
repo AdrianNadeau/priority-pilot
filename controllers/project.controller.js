@@ -3153,10 +3153,6 @@ exports.accomplishments = async (req, res) => {
   `;
 
   try {
-    console.log(
-      "Executing accomplishments query for company_id:",
-      company_id_fk,
-    );
     const data = await db.sequelize.query(query, {
       replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
@@ -3208,10 +3204,6 @@ exports.accomplishments = async (req, res) => {
           }
         }
       });
-
-      console.log(
-        `Found ${lineBreakCount} accomplishments with line breaks out of ${data.length} total`,
-      );
 
       if (samplesWithLineBreaks.length > 0) {
       } else {
