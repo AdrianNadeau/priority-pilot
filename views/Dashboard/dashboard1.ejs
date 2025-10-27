@@ -195,54 +195,50 @@
 
             <!-- Budget and Effort Summary Section -->
             <div class="row" style="margin-top: 20px;">
-              <div class="col-md-12">
-                <div class="row">
-                  <!-- Cost Summary -->
-                  <div class="col-md-6">
-                    <div class="mini-stat bg-white clearfix">
-                      <div class="mini-stat-info text-center">
-                        <h5 class="mb-3"><strong>Budget ($)</strong></h5>
-                        <div class="row">
-                          <div class="col-4">
-                            <div class="text-muted">Total</div>
-                            <div class="h6 mb-0">$<%= totalCost %></div>
-                          </div>
-                          <div class="col-4">
-                            <div class="text-muted">Used</div>
-                            <div class="h6 mb-0">$ <%= usedCost %></div>
-                            
-                          </div>
-                          <div class="col-4">
-                            <div class="text-muted">Available</div>
-                            <div class="h6 mb-0 <%= availableCostColor %>"><%= availableCost %></div>
-                           
-                          </div>
-                        </div>
+              <!-- Budget Column (50%) -->
+              <div class="col-md-6 phase-column">
+                <div class="mini-stat bg-white clearfix" style="min-height: 100px; max-height: 200px;">
+                  <div class="mini-stat-info">
+                    <span class="counter"><strong>Budget ($)</strong></span>
+                  </div>
+                  <div style="padding-left: 10px;">
+                    <div class="row">
+                      <div class="col-4 text-left">
+                        <div class="text-muted">Total</div>
+                        <div class="h6 mb-0">$<%= totalCost %></div>
+                      </div>
+                      <div class="col-4 text-left">
+                        <div class="text-muted">Used</div>
+                        <div class="h6 mb-0">$<%= usedCost %></div>
+                      </div>
+                      <div class="col-4 text-left">
+                        <div class="text-muted">Available</div>
+                        <div class="h6 mb-0 <%= availableCostColor %>"><%= availableCost %></div>
                       </div>
                     </div>
                   </div>
-                  
-                  <!-- Effort Summary -->
-                  <div class="col-md-6">
-                    <div class="mini-stat bg-white clearfix">
-                      <div class="mini-stat-info text-center">
-                        <h5 class="mb-3"><strong>Effort (PH)</strong></h5>
-                        <div class="row">
-                          <div class="col-4">
-                            <div class="text-muted">Total</div>
-                            <div class="h6 mb-0"><%= totalPH %></div>
-                          </div>
-                          <div class="col-4">
-                            <div class="text-muted">Used</div>
-                            <div class="h6 mb-0"><%= totalUsedPH %></div>
-                            
-                          </div>
-                          <div class="col-4">
-                            <div class="text-muted">Available</div>
-                            <div class="h6 mb-0 <%= availablePHColor %>"><%= totalAvailPH %></div>
-                            
-                          </div>
-                        </div>
+                </div>
+              </div>
+
+              <!-- Effort Column (50%) -->
+              <div class="col-md-6 phase-column">
+                <div class="mini-stat bg-white clearfix" style="min-height: 100px; max-height: 200px;">
+                  <div class="mini-stat-info">
+                    <span class="counter"><strong>Effort (PH)</strong></span>
+                  </div>
+                  <div style="padding-left: 10px;">
+                    <div class="row">
+                      <div class="col-4 text-left">
+                        <div class="text-muted">Total</div>
+                        <div class="h6 mb-0"><%= totalPH %></div>
+                      </div>
+                      <div class="col-4 text-left">
+                        <div class="text-muted">Used</div>
+                        <div class="h6 mb-0"><%= totalUsedPH %></div>
+                      </div>
+                      <div class="col-4 text-left">
+                        <div class="text-muted">Available</div>
+                        <div class="h6 mb-0 <%= availablePHColor %>"><%= totalAvailPH %></div>
                       </div>
                     </div>
                   </div>
@@ -250,7 +246,6 @@
               </div>
             </div>
 
-          
           </div>
 
             <div class="col-md-2">
