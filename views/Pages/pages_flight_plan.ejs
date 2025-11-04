@@ -105,7 +105,7 @@
 
             return {
               id: project.id + 1000,
-              text: project.project_name,
+              text: project.project_name + " " + "(Next Milestone: " + moment(project.next_milestone_date).format("DD MMM, YYYY") + ")",
               start_date: new Date(project.start_date).toLocaleDateString(
                 "en-GB",
               ),

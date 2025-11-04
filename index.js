@@ -38,15 +38,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Determine if we need SSL for session store (only for remote databases)
-const isRemoteDB = process.env.DB_HOST_NAME !== "localhost";
-const sessionSSLConfig = isRemoteDB
-  ? {
+const isLocalDB =
+  ["localhost", "127.0.0.1"].includes(process.env.DB_HOST_NAME) ||
+  process.env.NODE_ENV === "development";
+
+const sessionSSLConfig = isLocalDB
+  ? { ssl: false }
+  : {
       ssl: {
         require: true,
         rejectUnauthorized: false,
       },
-    }
-  : {};
+    };
 
 const sessionMiddleware = session({
   store: new pgSession({

@@ -145,12 +145,10 @@ exports.login = async (req, res, next) => {
 
     req.session.save((err) => {
       if (err) {
-        const error = new Error(
-          "Error Logging in, try again. If the problem persists, contact support.",
-        );
-        error.statusCode = 401;
-        throw error;
+        console.error("🔥 SESSION SAVE ERROR:", err); // ← See real cause
+        return next(new Error("Session save failed."));
       }
+      console.log("✅ Session saved successfully");
       res.redirect("/");
     });
   } catch (error) {
