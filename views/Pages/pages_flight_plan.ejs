@@ -43,7 +43,6 @@
   <div class="container-fluid">
     
     <!-- Filter Display Section -->
-    <% if (currentFromDate || currentToDate) { %>
     <div class="row">
         <div class="col-md-12">
             <div class="alert alert-info" style="margin-bottom: 15px; padding: 10px; background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px;">
@@ -51,19 +50,22 @@
                     <i class="mdi mdi-filter-variant" style="margin-right: 8px; font-size: 18px; color: #1976d2;"></i>
                     <strong style="margin-right: 10px; color: #1976d2;">Active Filter:</strong>
                     <span style="color: #333;">
-                        <% if (currentFromDate && currentToDate) { %>
-                            From <strong><%= currentFromDate %></strong> to <strong><%= currentToDate %></strong>
-                        <% } else if (currentFromDate) { %>
-                            From <strong><%= currentFromDate %></strong> onwards
-                        <% } else if (currentToDate) { %>
-                            Up to <strong><%= currentToDate %></strong>
+                        <% if (currentFromDate || currentToDate) { %>
+                            <% if (currentFromDate && currentToDate) { %>
+                                From <strong><%= currentFromDate %></strong> to <strong><%= currentToDate %></strong>
+                            <% } else if (currentFromDate) { %>
+                                From <strong><%= currentFromDate %></strong> onwards
+                            <% } else if (currentToDate) { %>
+                                Up to <strong><%= currentToDate %></strong>
+                            <% } %>
+                        <% } else { %>
+                            No filter set
                         <% } %>
                     </span>
                 </div>
             </div>
         </div>
     </div>
-    <% } %>
     
     <div id="gantt_here" style="width: 1200px; height: 800px"></div>
   </div>
@@ -87,10 +89,18 @@
         const categories = Object.values(phaseMapping);
 
         const filteredProjects = projects.filter(
-          (project) =>
-            project.phase_id_fk === 2 ||
-            project.phase_id_fk === 3 ||
-            project.phase_id_fk === 4,
+          (project) => {
+            // Filter by phase
+            const validPhase = project.phase_id_fk === 2 ||
+                              project.phase_id_fk === 3 ||
+                              project.phase_id_fk === 4;
+            
+            // Additional date validation to ensure we have valid dates
+            const hasValidStartDate = project.start_date && new Date(project.start_date) instanceof Date && !isNaN(new Date(project.start_date));
+            const hasValidEndDate = project.end_date && new Date(project.end_date) instanceof Date && !isNaN(new Date(project.end_date));
+            
+            return validPhase && hasValidStartDate && hasValidEndDate;
+          }
         );
 
         const colorMapping = {
@@ -105,7 +115,11 @@
 
             return {
               id: project.id + 1000,
-              text: project.project_name + " " + "(Next Milestone: " + moment(project.next_milestone_date).format("DD MMM, YYYY") + ")",
+              text: project.project_name + 
+                    (project.next_milestone_date && moment(project.next_milestone_date).isValid() ? 
+                      " (NMD: " + moment(project.next_milestone_date).format("DD MMM, YYYY") + ")" : "") + 
+                    (project.next_milestone_date_details && project.next_milestone_date_details.trim() !== "" ? 
+                      " " + project.next_milestone_date_details : ""),
               start_date: new Date(project.start_date).toLocaleDateString(
                 "en-GB",
               ),

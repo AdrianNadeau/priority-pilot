@@ -94,7 +94,6 @@
   <div class="container-fluid" style="margin-left: 0.5em">
     
     <!-- Filter Display Section -->
-    <% if (currentFromDate || currentToDate) { %>
     <div class="row">
         <div class="col-md-12">
             <div class="alert alert-info" style="margin-bottom: 15px; padding: 10px; background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px;">
@@ -102,19 +101,22 @@
                     <i class="mdi mdi-filter-variant" style="margin-right: 8px; font-size: 18px; color: #1976d2;"></i>
                     <strong style="margin-right: 10px; color: #1976d2;">Active Filter:</strong>
                     <span style="color: #333;">
-                        <% if (currentFromDate && currentToDate) { %>
-                            From <strong><%= currentFromDate %></strong> to <strong><%= currentToDate %></strong>
-                        <% } else if (currentFromDate) { %>
-                            From <strong><%= currentFromDate %></strong> onwards
-                        <% } else if (currentToDate) { %>
-                            Up to <strong><%= currentToDate %></strong>
+                        <% if (currentFromDate || currentToDate) { %>
+                            <% if (currentFromDate && currentToDate) { %>
+                                From <strong><%= currentFromDate %></strong> to <strong><%= currentToDate %></strong>
+                            <% } else if (currentFromDate) { %>
+                                From <strong><%= currentFromDate %></strong> onwards
+                            <% } else if (currentToDate) { %>
+                                Up to <strong><%= currentToDate %></strong>
+                            <% } %>
+                        <% } else { %>
+                            No filter set
                         <% } %>
                     </span>
                 </div>
             </div>
         </div>
     </div>
-    <% } %>
     
     <!-- Filter Section -->
     <div

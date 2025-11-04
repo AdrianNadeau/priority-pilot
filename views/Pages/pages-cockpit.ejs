@@ -386,6 +386,9 @@
                   <strong>Next Milestone:</strong> 
                   <% if (project[0].next_milestone_date) { %>
                     <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                    <% if (project[0].next_milestone_date && project[0].next_milestone_date_details) { %>
+                      <br/><small style="color: #6c757d; font-size: 12px;"><%= project[0].next_milestone_date_details %></small>
+                    <% } %>
                   <% } %>
                 </div>
               </div>

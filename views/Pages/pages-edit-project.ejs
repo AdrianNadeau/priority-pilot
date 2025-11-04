@@ -54,6 +54,12 @@
                               <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date" value="<%= nextMilestoneDateTest %>">
                             </div>
                           </div>
+                          <div class="form-row" id="milestone_details_row" style="padding-top:5px;">
+                            <div class="col">
+                              <input type="text" class="form-control" id="next_milestone_date_details" name="next_milestone_date_details" placeholder="Next Milestone Details" maxlength="100" value="<%= project.next_milestone_date_details || '' %>">
+                              <small class="form-text text-muted">Maximum 100 characters</small>
+                            </div>
+                          </div>
                           <div><span class="required_star" id ="dates_required" style="display:none;">Start and End dates are required</span></span></div>
                         </div>
                       </div>
@@ -297,11 +303,16 @@
     Array.prototype.slice.call(forms).forEach(function (form) {
         form.addEventListener('submit', function (event) {
             const phaseSelect = document.getElementById("phase_id_fk");
-            console.log("Phase ID: " + phaseSelect.value);
-            if (phaseSelect.value == "1" || phaseSelect.value == "6") {
-                document.getElementById('start_date').value = "";
-                document.getElementById('end_date').value = "";
-                document.getElementById('next_milestone_date').value = "";
+            const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+            const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+            console.log("Phase Name: " + phaseName);
+            
+            // Don't clear values when phase is pitch or done - let the server handle the logic
+            // Just ensure flatpickr instances are cleared to prevent errors
+            if (phaseName === 'pitch' || phaseName === 'done') {
+                if (typeof startDatePicker !== 'undefined') startDatePicker.clear();
+                if (typeof endDatePicker !== 'undefined') endDatePicker.clear();
+                if (typeof nextMilestoneDatePicker !== 'undefined') nextMilestoneDatePicker.clear();
             }
 
             if (!form.checkValidity()) {
@@ -350,74 +361,208 @@
 
     console.log("Initializing flatpickr");
     
-    // Initialize Flatpickr for all datepicker inputs
+    // Initialize Flatpickr for all datepicker inputs with error handling
     const startDatePicker = flatpickr("#start_date", {
       dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
       allowInput: true,    // Allow manual input if needed
+      defaultDate: null,   // Start with no default date
+      parseDate: function(datestr, format) {
+        // Custom parse function to handle invalid dates gracefully
+        if (!datestr || datestr.trim() === '' || datestr === 'Invalid date') {
+          return null;
+        }
+        return flatpickr.parseDate(datestr, format);
+      }
     });
 
     const endDatePicker = flatpickr("#end_date", {
       dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
       allowInput: true,    // Allow manual input if needed
+      defaultDate: null,   // Start with no default date
+      parseDate: function(datestr, format) {
+        // Custom parse function to handle invalid dates gracefully
+        if (!datestr || datestr.trim() === '' || datestr === 'Invalid date') {
+          return null;
+        }
+        return flatpickr.parseDate(datestr, format);
+      }
     });
 
     const nextMilestoneDatePicker = flatpickr("#next_milestone_date", {
       dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
       allowInput: true,    // Allow manual input if needed
+      defaultDate: null,   // Start with no default date
+      parseDate: function(datestr, format) {
+        // Custom parse function to handle invalid dates gracefully
+        if (!datestr || datestr.trim() === '' || datestr === 'Invalid date') {
+          return null;
+        }
+        return flatpickr.parseDate(datestr, format);
+      }
     });
 
     // Show or hide date_section based on phase selection
     const phaseSelect = document.getElementById("phase_id_fk");
     const dateSection = document.getElementById("date_section");
+    const milestoneDetailsRow = document.getElementById("milestone_details_row");
     const startDateInput = document.getElementById('start_date');
     const endDateInput = document.getElementById('end_date');
     const nextMilestoneDateInput = document.getElementById('next_milestone_date');
+    const nextMilestoneDetailsInput = document.getElementById('next_milestone_date_details');
     const dateRequired = document.getElementById('dates_required');
 
-    function toggleDateSection() {
-      
-      if (phaseSelect.value == "1" || phaseSelect.value == "6") {
-        // Phase is pitch, hide dates and clear validation messages
-        dateSection.style.display = 'none';
-        startDateInput.required = false;
-        endDateInput.required = false;
-        dateRequired.style.display = 'none';
-        startDateInput.value = "";
-        endDateInput.value = "";
-        nextMilestoneDateInput.value = "";
-      } else {
-        // Phase is not pitch, show dates and set required
-        dateSection.style.display = 'block';
-        startDateInput.required = true;
-        endDateInput.required = true;
-        if (!startDateInput.value) {
-          // Set the placeholder
-          startDateInput.placeholder = "Start Date";
+    // Function to toggle date section and milestone details visibility
+    function toggleDateSectionVisibility() {
+        const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+        const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+        
+        if (dateSection) {
+            if (phaseName === 'pitch' || phaseName === 'done') {
+                // Hide entire date section when phase is Pitch or Done
+                dateSection.style.display = 'none';
+                startDateInput.required = false;
+                endDateInput.required = false;
+                dateRequired.style.display = 'none';
+                // Store current values before clearing flatpickr
+                const startValue = startDateInput.value;
+                const endValue = endDateInput.value;
+                const milestoneValue = nextMilestoneDateInput.value;
+                
+                // Clear flatpickr instances to prevent invalid date errors
+                if (typeof startDatePicker !== 'undefined') {
+                    startDatePicker.clear();
+                }
+                if (typeof endDatePicker !== 'undefined') {
+                    endDatePicker.clear();
+                }
+                if (typeof nextMilestoneDatePicker !== 'undefined') {
+                    nextMilestoneDatePicker.clear();
+                }
+                
+                // Restore the input values after clearing flatpickr
+                startDateInput.value = startValue;
+                endDateInput.value = endValue;
+                nextMilestoneDateInput.value = milestoneValue;
+            } else {
+                // Show date section for all other phases
+                dateSection.style.display = 'block';
+                startDateInput.required = true;
+                endDateInput.required = true;
+                if (!startDateInput.value) {
+                    startDateInput.placeholder = "Start Date";
+                }
+                if (!endDateInput.value) {
+                    endDateInput.placeholder = "End Date";
+                }
+                if (!nextMilestoneDateInput.value) {
+                    nextMilestoneDateInput.placeholder = "Milestone Date";
+                }
+                // Restore flatpickr dates if inputs have values
+                if (startDateInput.value && isValidDateString(startDateInput.value)) {
+                    try {
+                        startDatePicker.setDate(startDateInput.value, false); // false = don't trigger change event
+                    } catch (error) {
+                        console.warn('Could not restore start date:', startDateInput.value);
+                    }
+                }
+                if (endDateInput.value && isValidDateString(endDateInput.value)) {
+                    try {
+                        endDatePicker.setDate(endDateInput.value, false); // false = don't trigger change event
+                    } catch (error) {
+                        console.warn('Could not restore end date:', endDateInput.value);
+                    }
+                }
+                if (nextMilestoneDateInput.value && isValidDateString(nextMilestoneDateInput.value)) {
+                    try {
+                        nextMilestoneDatePicker.setDate(nextMilestoneDateInput.value, false); // false = don't trigger change event
+                    } catch (error) {
+                        console.warn('Could not restore milestone date:', nextMilestoneDateInput.value);
+                    }
+                }
+                // Show milestone details if phase is not pitch or done
+                toggleMilestoneDetails();
+            }
         }
-        if (!endDateInput.value) {
-          endDateInput.placeholder = "End Date";
+    }
+    
+    // Function to toggle milestone details visibility (separate from date section)
+    function toggleMilestoneDetails() {
+        const shouldShow = (nextMilestoneDateInput && nextMilestoneDateInput.value) || 
+                          (nextMilestoneDetailsInput && nextMilestoneDetailsInput.value) ||
+                          checkPhaseTransition();
+        
+        if (milestoneDetailsRow) {
+            if (shouldShow) {
+                milestoneDetailsRow.style.display = 'block';
+            } else {
+                milestoneDetailsRow.style.display = 'none';
+                // Don't clear the details input when hiding - preserve the data
+            }
         }
-        if (!nextMilestoneDateInput.value) {
-          nextMilestoneDateInput.placeholder = "Milestone Date";
-        }
-      }
+    }
+    
+    // Function to check if phase has changed from Pitch to another phase
+    function checkPhaseTransition() {
+        if (!phaseSelect) return false;
+        
+        const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+        const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+        
+        // Show milestone details if phase is not Pitch and not Done
+        return phaseName !== 'pitch' && phaseName !== 'done' && phaseName !== '';
     }
 
-    // Initial check
-    toggleDateSection();
+    // Add event listener to next milestone date input
+    if (nextMilestoneDateInput) {
+        nextMilestoneDateInput.addEventListener('change', toggleMilestoneDetails);
+        nextMilestoneDateInput.addEventListener('input', toggleMilestoneDetails);
+    }
+    
+    // Add event listener to phase selection for both date section and milestone details
+    if (phaseSelect) {
+        phaseSelect.addEventListener('change', function() {
+            toggleDateSectionVisibility();
+        });
+    }
 
-    // Add event listener to phase selection change
-    phaseSelect.addEventListener("change", toggleDateSection);
+    // Initial check on page load
+    if (phaseSelect) {
+        toggleDateSectionVisibility();
+    }
 
     // Set the date to default for datepicker start_date then change to date if it exists
-    if (startDateInput.value) {
-      startDatePicker.setDate(startDateInput.value);
+    // Helper function to check if a date string is valid
+    function isValidDateString(dateStr) {
+      if (!dateStr || dateStr.trim() === '' || dateStr === 'Invalid date' || dateStr === 'null' || dateStr === 'undefined') {
+        return false;
+      }
+      const date = new Date(dateStr);
+      return date instanceof Date && !isNaN(date);
     }
-    if (endDateInput.value) {
-      endDatePicker.setDate(endDateInput.value);
+
+    if (startDateInput.value && isValidDateString(startDateInput.value)) {
+      try {
+        startDatePicker.setDate(startDateInput.value);
+      } catch (error) {
+        console.warn('Could not set start date:', startDateInput.value, error);
+        startDateInput.value = '';
+      }
     }
-    if (nextMilestoneDateInput.value) {
-      nextMilestoneDatePicker.setDate(nextMilestoneDateInput.value);
+    if (endDateInput.value && isValidDateString(endDateInput.value)) {
+      try {
+        endDatePicker.setDate(endDateInput.value);
+      } catch (error) {
+        console.warn('Could not set end date:', endDateInput.value, error);
+        endDateInput.value = '';
+      }
+    }
+    if (nextMilestoneDateInput.value && isValidDateString(nextMilestoneDateInput.value)) {
+      try {
+        nextMilestoneDatePicker.setDate(nextMilestoneDateInput.value);
+      } catch (error) {
+        console.warn('Could not set milestone date:', nextMilestoneDateInput.value, error);
+        nextMilestoneDateInput.value = '';
+      }
     }
   });
 

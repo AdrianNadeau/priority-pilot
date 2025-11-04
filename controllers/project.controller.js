@@ -594,6 +594,7 @@ exports.cockpit = async (req, res) => {
       proj.start_date, 
       proj.end_date,
       proj.next_milestone_date,
+      proj.next_milestone_date_details,
       proj.effort,
       proj.project_why,
       proj.project_what,
@@ -721,6 +722,7 @@ exports.findOneForEdit = async (req, res) => {
       proj.start_date,
       proj.end_date,
       proj.next_milestone_date,
+      proj.next_milestone_date_details,
       proj.project_why,
       proj.project_what,
       proj.phase_id_fk,
@@ -758,24 +760,44 @@ exports.findOneForEdit = async (req, res) => {
       }
       //format dates for pickers
       try {
-        startDateTest = moment.utc(data[0].start_date).format("YYYY-MM-DD");
-        endDateTest = moment.utc(data[0].end_date).format("YYYY-MM-DD");
-        nextMilestoneDateTest = moment
-          .utc(data[0].next_milestone_date)
-          .format("YYYY-MM-DD");
+        startDateTest =
+          data[0].start_date && moment.utc(data[0].start_date).isValid()
+            ? moment.utc(data[0].start_date).format("YYYY-MM-DD")
+            : "";
+        endDateTest =
+          data[0].end_date && moment.utc(data[0].end_date).isValid()
+            ? moment.utc(data[0].end_date).format("YYYY-MM-DD")
+            : "";
+        nextMilestoneDateTest =
+          data[0].next_milestone_date &&
+          moment.utc(data[0].next_milestone_date).isValid()
+            ? moment.utc(data[0].next_milestone_date).format("YYYY-MM-DD")
+            : "";
       } catch (error) {
-        startDateTest = null;
-        endDateTest = null;
-        nextMilestoneDateTest = null;
+        startDateTest = "";
+        endDateTest = "";
+        nextMilestoneDateTest = "";
       }
       // Get reasons for change for the project
-      const change_reasons = await ChangeReason.findAll({
+      const changeReasonsRaw = await ChangeReason.findAll({
         where: {
           id: {
             [Op.ne]: 1, // Exclude records where id is equal to 1
           },
         },
+        order: [["id", "ASC"]],
+        distinct: true,
       });
+
+      // Additional deduplication in case of any remaining duplicates
+      const change_reasons = changeReasonsRaw.filter(
+        (reason, index, self) =>
+          index ===
+          self.findIndex(
+            (r) =>
+              r.id === reason.id && r.change_reason === reason.change_reason,
+          ),
+      );
       let tagsData = await Tag.findAll({
         where: {
           [Op.or]: [{ company_id_fk: company_id_fk }],
@@ -802,10 +824,25 @@ exports.findOneForEdit = async (req, res) => {
         (phase, index, self) =>
           index === self.findIndex((p) => p.id === phase.id),
       );
-      const [prioritiesData] = await Promise.all([
-        Priority.findAll(),
-        Project.findAll(),
-      ]);
+
+      // Fetch priorities with deduplication
+      const prioritiesDataRaw = await Priority.findAll({
+        order: [["id", "ASC"]],
+        distinct: true,
+      });
+
+      // Additional deduplication in case of any remaining duplicates
+      const prioritiesData = prioritiesDataRaw.filter(
+        (priority, index, self) =>
+          index ===
+          self.findIndex(
+            (p) =>
+              p.id === priority.id &&
+              p.priority_name === priority.priority_name,
+          ),
+      );
+
+      await Promise.all([Project.findAll()]);
 
       // Render the cockpit page with the retrieved data
       const personsData = await Person.findAll({
@@ -2837,6 +2874,7 @@ exports.update = async (req, res) => {
       benefit,
       phase_id_fk,
       next_milestone_date,
+      next_milestone_date_details,
       tag_1,
       tag_2,
       tag_3,
@@ -2881,6 +2919,7 @@ exports.update = async (req, res) => {
         benefit: sanitizedBenefit,
         phase_id_fk,
         next_milestone_date: nextMilestoneDateTest,
+        next_milestone_date_details,
         tag_1: sanitizedTag1,
         tag_2: sanitizedTag2,
         tag_3: sanitizedTag3,
@@ -3612,17 +3651,27 @@ exports.flightview = async (req, res) => {
   }
 
   // Get current filter values from session
-  const currentFromDate = req.session.filtered_start || null;
-  const currentToDate = req.session.filtered_end || null;
-
   const portfolioName = company.company_headline;
   res.render("Pages/pages_flight_plan", {
     pageTitle: "Flight Plan",
     projects: companyProjects,
     currentDate: moment().format("MMMM Do YYYY"),
     portfolioName,
-    currentFromDate,
-    currentToDate,
+    // Pass current filter values back to template using session values
+    currentFromDate: req.session.filtered_start
+      ? new Date(req.session.filtered_start).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : null,
+    currentToDate: req.session.filtered_end
+      ? new Date(req.session.filtered_end).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : null,
   });
 };
 
