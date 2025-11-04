@@ -115,36 +115,43 @@ module.exports = (app) => {
   router.get(
     "/radar/countProjectsByTag1/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countProjectsByTag1,
   );
   router.get(
     "/radar/countCostsByTag1/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countCostsByTag1,
   );
   router.get(
     "/radar/countEffortByTag1/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countEffortByTag1,
   );
   router.get(
     "/radar/countProjectsByTag2/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countProjectsByTag2,
   );
   router.get(
     "/radar/countCostsByTag2/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countCostsByTag2,
   );
   router.get(
     "/radar/countEffortByTag2/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countEffortByTag2,
   );
   router.get(
     "/radar/countProjectsByTag3/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countProjectsByTag3,
   );
   router.get(
@@ -167,6 +174,7 @@ module.exports = (app) => {
     "/health/view",
     sessionMiddleware,
     companyPortfolioName,
+    applyGlobalFilter,
     projects.health,
   );
   router.get(
@@ -181,7 +189,12 @@ module.exports = (app) => {
     companyPortfolioName,
     projects.flightview,
   );
-  router.get("/flightview/ganttChart/", sessionMiddleware, projects.ganttChart);
+  router.get(
+    "/flightview/ganttChart/",
+    sessionMiddleware,
+    applyGlobalFilter,
+    projects.ganttChart,
+  );
   // Diagnostic debug route
   router.get(
     "/debug/raw",

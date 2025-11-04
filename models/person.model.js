@@ -49,6 +49,10 @@ module.exports = (sequelize, Sequelize) => {
     filtered_end: {
       type: Sequelize.DATE,
     },
+    next_milestone_date_details: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
   });
 
   return Person;

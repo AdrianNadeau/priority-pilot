@@ -61,6 +61,80 @@ router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
     toDate = req.session.filtered_end;
   }
 
+  // If no filter values in session or query, load from database
+  if (!fromDate || !toDate) {
+    try {
+      const currentUser = await db.persons.findByPk(req.session.person.id);
+      if (currentUser) {
+        if (!fromDate && currentUser.filtered_start) {
+          fromDate = currentUser.filtered_start;
+          req.session.filtered_start = fromDate; // Update session
+        }
+        if (!toDate && currentUser.filtered_end) {
+          toDate = currentUser.filtered_end;
+          req.session.filtered_end = toDate; // Update session
+        }
+      }
+    } catch (error) {
+      console.error(
+        "Error loading user filter preferences from database:",
+        error,
+      );
+    }
+  }
+
+  // Handle month-only format (YYYY-MM) for SQL queries
+  if (fromDate && /^\d{4}-\d{2}$/.test(fromDate)) {
+    fromDate = fromDate + "-01";
+  }
+  if (toDate && /^\d{4}-\d{2}$/.test(toDate)) {
+    // For end date, use the last day of the month
+    const [year, month] = toDate.split("-");
+    const lastDay = new Date(year, month, 0).getDate();
+    toDate = `${year}-${month}-${lastDay.toString().padStart(2, "0")}`;
+  }
+
+  // Get current user's milestone details from database
+  let currentMilestoneDetails = "";
+  try {
+    const currentUser = await db.persons.findByPk(req.session.person.id);
+    if (currentUser && currentUser.next_milestone_date_details) {
+      currentMilestoneDetails = currentUser.next_milestone_date_details;
+    }
+  } catch (error) {
+    console.error("Error fetching user milestone details:", error);
+  }
+
+  // If no query parameters at all, this might be a clear filters request
+  // In this case, ensure session and database are clean
+  if (
+    !req.query.from_date &&
+    !req.query.to_date &&
+    Object.keys(req.query).length === 0
+  ) {
+    // Clear session values
+    delete req.session.filtered_start;
+    delete req.session.filtered_end;
+    delete req.session.next_milestone_date_details;
+
+    // Reset database values to null for clean state
+    try {
+      await db.persons.update(
+        {
+          filtered_start: null,
+          filtered_end: null,
+          next_milestone_date_details: null,
+        },
+        {
+          where: { id: req.session.person.id },
+        },
+      );
+      currentMilestoneDetails = ""; // Reset the display value too
+    } catch (error) {
+      console.error("Error clearing person filter data:", error);
+    }
+  }
+
   // Store filter values in session when they change
   if (fromDate || toDate) {
     req.session.filtered_start = fromDate;
@@ -449,12 +523,78 @@ ORDER BY
       // Pass current filter values back to template
       currentFromDate: fromDate || "",
       currentToDate: toDate || "",
+      currentMilestoneDetails: currentMilestoneDetails,
     });
   } catch (error) {
     console.error("Error executing query:", error);
     res.status(500).send("Internal Server Error");
   }
 });
+
+// POST route to update user filter preferences and milestone details
+router.post("/update-filter", isAdminMiddleware, async (req, res) => {
+  try {
+    let { from_date, to_date, next_milestone_date_details } = req.body;
+    const personId = req.session.person.id;
+
+    // Handle month-only format (YYYY-MM) by adding the first day of the month
+    if (from_date && /^\d{4}-\d{2}$/.test(from_date)) {
+      from_date = from_date + "-01";
+    }
+    if (to_date && /^\d{4}-\d{2}$/.test(to_date)) {
+      // For end date, use the last day of the month
+      const [year, month] = to_date.split("-");
+      const lastDay = new Date(year, month, 0).getDate();
+      to_date = `${year}-${month}-${lastDay.toString().padStart(2, "0")}`;
+    }
+
+    // Update person model with filtered dates and milestone details
+    await db.persons.update(
+      {
+        filtered_start: from_date || null,
+        filtered_end: to_date || null,
+        next_milestone_date_details: next_milestone_date_details || null,
+      },
+      {
+        where: { id: personId },
+      },
+    );
+
+    // Store filter values in session (or clear them if null)
+    if (from_date === null || from_date === undefined) {
+      delete req.session.filtered_start;
+    } else {
+      req.session.filtered_start = from_date;
+    }
+
+    if (to_date === null || to_date === undefined) {
+      delete req.session.filtered_end;
+    } else {
+      req.session.filtered_end = to_date;
+    }
+
+    if (
+      next_milestone_date_details === null ||
+      next_milestone_date_details === undefined
+    ) {
+      delete req.session.next_milestone_date_details;
+    } else {
+      req.session.next_milestone_date_details = next_milestone_date_details;
+    }
+
+    res.json({
+      success: true,
+      message: "Filter preferences updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating filter preferences:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating filter preferences",
+    });
+  }
+});
+
 router.get("/terms", (req, res) => {
   res.render("Pages/pages-terms", { layout: "layout-public" });
 });

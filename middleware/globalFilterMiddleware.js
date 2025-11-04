@@ -14,9 +14,9 @@ const applyGlobalFilter = (req, res, next) => {
     toDate: filteredEnd,
   };
 
-  // Add to locals so templates can access them
-  res.locals.currentFromDate = filteredStart || "";
-  res.locals.currentToDate = filteredEnd || "";
+  // Add to locals so templates can access them (only if values exist)
+  res.locals.currentFromDate = filteredStart || null;
+  res.locals.currentToDate = filteredEnd || null;
 
   next();
 };

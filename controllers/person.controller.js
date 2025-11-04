@@ -8,6 +8,7 @@ const sendEmail = require("../utils/emailSender");
 const sgMail = require("@sendgrid/mail");
 const ejs = require("ejs");
 const { v4: uuidv4 } = require("uuid");
+const moment = require("moment");
 const e = require("express");
 const Person = db.persons;
 const Company = db.companies;
@@ -128,6 +129,22 @@ exports.login = async (req, res, next) => {
       company_id_fk: person.company_id_fk,
       isAdmin: person.isAdmin,
     };
+
+    // Load user's saved filter preferences into session
+    if (person.filtered_start) {
+      // Format the date to ensure consistent display format (YYYY-MM-DD)
+      const formattedStart = moment(person.filtered_start).format("YYYY-MM-DD");
+      req.session.filtered_start = formattedStart;
+    }
+    if (person.filtered_end) {
+      // Format the date to ensure consistent display format (YYYY-MM-DD)
+      const formattedEnd = moment(person.filtered_end).format("YYYY-MM-DD");
+      req.session.filtered_end = formattedEnd;
+    }
+    if (person.next_milestone_date_details) {
+      req.session.next_milestone_date_details =
+        person.next_milestone_date_details;
+    }
 
     req.session.save((err) => {
       if (err) {

@@ -92,6 +92,30 @@
 
 <div class="page-content-wrapper" style="margin-top: 60px">
   <div class="container-fluid" style="margin-left: 0.5em">
+    
+    <!-- Filter Display Section -->
+    <% if (currentFromDate || currentToDate) { %>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-info" style="margin-bottom: 15px; padding: 10px; background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px;">
+                <div style="display: flex; align-items: center;">
+                    <i class="mdi mdi-filter-variant" style="margin-right: 8px; font-size: 18px; color: #1976d2;"></i>
+                    <strong style="margin-right: 10px; color: #1976d2;">Active Filter:</strong>
+                    <span style="color: #333;">
+                        <% if (currentFromDate && currentToDate) { %>
+                            From <strong><%= currentFromDate %></strong> to <strong><%= currentToDate %></strong>
+                        <% } else if (currentFromDate) { %>
+                            From <strong><%= currentFromDate %></strong> onwards
+                        <% } else if (currentToDate) { %>
+                            Up to <strong><%= currentToDate %></strong>
+                        <% } %>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
+    
     <!-- Filter Section -->
     <div
       class="row"
@@ -184,36 +208,40 @@
 
 <%- contentFor('BottomJs') %>
 <script>
-  // Date filtering functions
+  // Date filtering functions - Updated to use global filter system
   function filterRadar() {
     const fromDateElement = document.getElementById("from_date");
     const toDateElement = document.getElementById("to_date");
     const fromDate = fromDateElement ? fromDateElement.value : "";
     const toDate = toDateElement ? toDateElement.value : "";
 
-    // Build the query parameters for API call
-    const params = new URLSearchParams();
-    if (fromDate) params.append("from_date", fromDate);
-    if (toDate) params.append("to_date", toDate);
-
-    // Make AJAX call to get filtered data
-    const queryString = params.toString();
-    const url = `/projects/radar/data${queryString ? "?" + queryString : ""}`;
-
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        // Update all charts with new data
-        updateChartsWithFilteredData(data);
+    // Send filter data to server to save in persons table (same as dashboard)
+    fetch('/update-filter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from_date: fromDate,
+        to_date: toDate,
+        next_milestone_date_details: null
       })
-      .catch((error) => {
-        console.error("Error fetching filtered data:", error);
-        // Fallback to page reload if AJAX fails
-        const pageUrl = queryString
-          ? `/projects/radar/view/?${queryString}`
-          : "/projects/radar/view/";
-        window.location.href = pageUrl;
-      });
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log('Filter preferences saved successfully to persons table');
+        // Redirect to refresh the page with updated filter values from database
+        window.location.href = '/projects/radar/view/';
+      } else {
+        console.error('Error saving filter preferences:', data.error);
+        alert('Error saving filter preferences. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error saving filter preferences. Please try again.');
+    });
   }
 
   function updateChartsWithFilteredData(data) {
@@ -270,14 +298,40 @@
   }
 
   function clearFilters() {
-    // Clear the input fields and reload without parameters
+    // Clear the input fields
     const fromDateElement = document.getElementById("from_date");
     const toDateElement = document.getElementById("to_date");
 
     if (fromDateElement) fromDateElement.value = "";
     if (toDateElement) toDateElement.value = "";
 
-    window.location.href = "/projects/radar/view/";
+    // Send empty filter data to server to clear saved preferences
+    fetch('/update-filter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from_date: '',
+        to_date: '',
+        next_milestone_date_details: null
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log('Filter preferences cleared successfully');
+        // Redirect to refresh the page without filters
+        window.location.href = '/projects/radar/view/';
+      } else {
+        console.error('Error clearing filter preferences:', data.error);
+        alert('Error clearing filter preferences. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error clearing filter preferences. Please try again.');
+    });
   }
 
   // Initialize Flatpickr for date inputs
@@ -360,7 +414,7 @@
               'Trouble',   { type:'string', role:'annotation' },
               'Caution',   { type:'string', role:'annotation' },
               'Healthy',   { type:'string', role:'annotation' },
-              'No Status', { type:'string', role:'annotation' }
+              'Danger', { type:'string', role:'annotation' }
             ]
           ];
           phases.forEach((phase, i) => {
@@ -490,20 +544,8 @@
         }
 
         function drawProgressAndHealthCharts() {
-          // Get current filter dates if available
-          const fromDateElement = document.getElementById("from_date");
-          const toDateElement = document.getElementById("to_date");
-          const fromDate = fromDateElement ? fromDateElement.value : "";
-          const toDate = toDateElement ? toDateElement.value : "";
-
-          // Build query parameters for progress API call
-          const params = new URLSearchParams();
-          if (fromDate) params.append("from_date", fromDate);
-          if (toDate) params.append("to_date", toDate);
-          const queryString = params.toString() ? '?' + params.toString() : '';
-
-          // Fetch progress data
-          fetch(`/projects/radar/progress/${queryString}`)
+          // Fetch progress data - no need for query parameters since we use session-based filtering
+          fetch(`/projects/radar/progress/`)
             .then((response) => response.json())
             .then((data) => {
               drawProgressChart(data);
@@ -635,20 +677,10 @@
         }
 
         function drawTagCharts() {
-          // Get current filter dates if available - with null checks
-          const fromDateElement = document.getElementById("from_date");
-          const toDateElement = document.getElementById("to_date");
-          const fromDate = fromDateElement ? fromDateElement.value : '';
-          const toDate = toDateElement ? toDateElement.value : '';
+          // Tag charts now use session-based filtering - no need for query parameters
 
-          // Build query parameters for tag API calls
-          const params = new URLSearchParams();
-          if (fromDate) params.append("from_date", fromDate);
-          if (toDate) params.append("to_date", toDate);
-          const queryString = params.toString() ? '?' + params.toString() : '';
-
-          // Tag 1 Chart with date filtering
-          fetch(`/projects/radar/countProjectsByTag1${queryString}`)
+          // Tag 1 Chart with session-based filtering
+          fetch(`/projects/radar/countProjectsByTag1`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -685,7 +717,7 @@
             .catch((err) => console.error("Error loading Tag 1 Chart:", err));
 
           // Tag 1 Cost Chart with date filtering
-          fetch(`/projects/radar/countCostsByTag1${queryString}`)
+          fetch(`/projects/radar/countCostsByTag1`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -725,7 +757,7 @@
             .catch((err) => console.error("Error loading Tag 1 Cost Chart:", err));
 
           // Tag 1 Effort Chart with date filtering
-          fetch(`/projects/radar/countEffortByTag1${queryString}`)
+          fetch(`/projects/radar/countEffortByTag1`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -764,8 +796,8 @@
             })
             .catch((err) => console.error("Error loading Tag 1 Effort Chart:", err));
 
-          // Tag 2 Chart with date filtering
-          fetch(`/projects/radar/countProjectsByTag2${queryString}`)
+          // Tag 2 Chart with session-based filtering
+          fetch(`/projects/radar/countProjectsByTag2`)
             .then((response) => response.json())
             .then((tagsData) => {
               console.log("Tag 2 Data:", tagsData); // Debugging log
@@ -803,7 +835,7 @@
             .catch((err) => console.error("Error loading Tag 2 Chart:", err));
 
             // Tag 2 Cost Chart with date filtering
-          fetch(`/projects/radar/countCostsByTag2${queryString}`)
+          fetch(`/projects/radar/countCostsByTag2`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -843,7 +875,7 @@
             .catch((err) => console.error("Error loading Tag 2 Cost Chart:", err));
 
             // Tag 2 Effort Chart with date filtering
-          fetch(`/projects/radar/countEffortByTag2${queryString}`)
+          fetch(`/projects/radar/countEffortByTag2`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -882,8 +914,8 @@
             })
             .catch((err) => console.error("Error loading Tag 2 Effort Chart:", err));
 
-          // Tag 3 Chart with date filtering
-          fetch(`/projects/radar/countProjectsByTag3${queryString}`)
+          // Tag 3 Chart with session-based filtering
+          fetch(`/projects/radar/countProjectsByTag3`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -941,7 +973,7 @@
             .catch((err) => console.error(err));
 
             // Tag 3 Cost Chart with date filtering
-          fetch(`/projects/radar/countCostsByTag3${queryString}`)
+          fetch(`/projects/radar/countCostsByTag3`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {
@@ -981,7 +1013,7 @@
             .catch((err) => console.error("Error loading Tag 3 Cost Chart:", err));
 
             // Tag 3 Effort Chart with date filtering
-          fetch(`/projects/radar/countEffortByTag3${queryString}`)
+          fetch(`/projects/radar/countEffortByTag3`)
             .then((response) => response.json())
             .then((tagsData) => {
               if (!tagsData || tagsData.length === 0) {

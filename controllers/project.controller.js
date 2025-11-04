@@ -23,7 +23,6 @@ const { jsPDF } = require("jspdf");
 const {
   applyProjectDateFilter,
   applyRawSQLDateFilter,
-  getCurrentFilterValues,
 } = require("../utils/filterHelper");
 
 // Create and Save a new Project
@@ -255,6 +254,25 @@ exports.findAll = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
 
+    // Get current filter values from session (set by global filter system)
+    const fromDate = req.session.filtered_start;
+    const toDate = req.session.filtered_end;
+
+    // Build date filter conditions for the SQL query
+    let dateFilter = "";
+    let queryParams = [company_id_fk];
+
+    if (fromDate && toDate) {
+      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
+      queryParams.push(fromDate, toDate);
+    } else if (fromDate) {
+      dateFilter = " AND proj.start_date >= ?";
+      queryParams.push(fromDate);
+    } else if (toDate) {
+      dateFilter = " AND proj.end_date <= ?";
+      queryParams.push(toDate);
+    }
+
     const phasesDataRaw = await Phase.findAll({
       order: [["id", "ASC"]],
       distinct: true,
@@ -317,7 +335,7 @@ exports.findAll = async (req, res) => {
     phases ON phases.id = proj.phase_id_fk
   WHERE 
     proj.company_id_fk = ?
-    AND proj.phase_id_fk NOT IN (1, 6)
+    AND proj.phase_id_fk NOT IN (1, 6)${dateFilter}
   ORDER BY proj.project_name ASC;
 `;
 
@@ -347,14 +365,14 @@ exports.findAll = async (req, res) => {
   LEFT JOIN 
     phases ON phases.id = proj.phase_id_fk
   WHERE 
-    proj.company_id_fk = ?
+    proj.company_id_fk = ?${dateFilter}
   ORDER BY proj.project_name ASC;
 `;
 
     const query = isAdminFlag ? adminQuery : nonAdminQuery;
     await db.sequelize
       .query(query, {
-        replacements: [company_id_fk],
+        replacements: queryParams,
         type: db.sequelize.QueryTypes.SELECT,
       })
 
@@ -1077,8 +1095,21 @@ exports.radar = async (req, res) => {
       portfolioName: company.company_headline,
       currentDate: new Date().toLocaleDateString(),
       phaseStats,
-      // Pass current filter values back to template using helper
-      ...getCurrentFilterValues(req),
+      // Pass current filter values back to template using session values
+      currentFromDate: req.session.filtered_start
+        ? new Date(req.session.filtered_start).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : null,
+      currentToDate: req.session.filtered_end
+        ? new Date(req.session.filtered_end).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : null,
     });
   } catch (err) {
     console.error(err);
@@ -1476,28 +1507,14 @@ async function getTagDataForFilter(companyId, tagField, dateWhereConditions) {
 exports.progress = async (req, res) => {
   const companyId = req.session.company.id;
 
-  // Extract date parameters from query string (same as radar function)
-  const fromDate = req.query.from_date;
-  const toDate = req.query.to_date;
-
-  // Build date filter conditions
-  let dateWhereConditions = {};
-  if (fromDate && toDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
-  } else if (fromDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
-  } else if (toDate) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
-  }
+  // Use the same global filter approach as radar function
+  const baseWhere = { company_id_fk: companyId };
+  const whereConditions = applyProjectDateFilter(req, baseWhere);
 
   try {
     // Get all projects for the company with date filtering
     const projects = await db.projects.findAll({
-      where: {
-        company_id_fk: companyId,
-        ...dateWhereConditions,
-      },
+      where: whereConditions,
       attributes: ["id", "project_name", "tag_1", "tag_2", "tag_3"],
     });
 
@@ -1568,19 +1585,19 @@ exports.progress = async (req, res) => {
 exports.countProjectsByTag1 = async (req, res) => {
   let companyId = req.session.company.id;
 
-  // Extract date parameters from query string (same as radar function)
-  const fromDate = req.query.from_date;
-  const toDate = req.query.to_date;
+  // Get filter dates from session (same as other functions)
+  const filtered_start = req.session.filtered_start;
+  const filtered_end = req.session.filtered_end;
 
   // Build date filter conditions
   let dateWhereConditions = {};
-  if (fromDate && toDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
-  } else if (fromDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
-  } else if (toDate) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  if (filtered_start && filtered_end) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  } else if (filtered_start) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+  } else if (filtered_end) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -1641,19 +1658,19 @@ exports.countProjectsByTag1 = async (req, res) => {
 exports.countCostsByTag1 = async (req, res) => {
   const companyId = req.session.company.id;
 
-  // Extract date parameters from query string
-  const fromDate = req.query.from_date;
-  const toDate = req.query.to_date;
+  // Get filter dates from session (same as other functions)
+  const filtered_start = req.session.filtered_start;
+  const filtered_end = req.session.filtered_end;
 
   // Build date filter conditions
   let dateWhereConditions = {};
-  if (fromDate && toDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
-  } else if (fromDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
-  } else if (toDate) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  if (filtered_start && filtered_end) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  } else if (filtered_start) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+  } else if (filtered_end) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -1742,19 +1759,19 @@ exports.countCostsByTag1 = async (req, res) => {
 exports.countEffortByTag1 = async (req, res) => {
   const companyId = req.session.company.id;
 
-  // Extract date parameters from query string
-  const fromDate = req.query.from_date;
-  const toDate = req.query.to_date;
+  // Get filter dates from session (same as other functions)
+  const filtered_start = req.session.filtered_start;
+  const filtered_end = req.session.filtered_end;
 
   // Build date filter conditions
   let dateWhereConditions = {};
-  if (fromDate && toDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
-  } else if (fromDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
-  } else if (toDate) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+  if (filtered_start && filtered_end) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  } else if (filtered_start) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+  } else if (filtered_end) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -1833,17 +1850,33 @@ exports.countEffortByTag1 = async (req, res) => {
 exports.countProjectsByTag2 = async (req, res) => {
   const companyId = req.session.company.id;
 
+  // Get filter dates from session (same as other functions)
+  const filtered_start = req.session.filtered_start;
+  const filtered_end = req.session.filtered_end;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (filtered_start && filtered_end) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  } else if (filtered_start) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+  } else if (filtered_end) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  }
+
   try {
-    // Count projects grouped by tag_1 and ensure tag_1 is not 0
+    // Count projects grouped by tag_2 and ensure tag_2 is not 0
     const tag2Counts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        tag_1: {
+        tag_2: {
           [Op.and]: {
-            [Op.ne]: 0, // Ensure tag_1 is not 0
-            [Op.ne]: null, // Ensure tag_1 is not null
+            [Op.ne]: 0, // Ensure tag_2 is not 0
+            [Op.ne]: null, // Ensure tag_2 is not null
           },
         },
+        ...dateWhereConditions, // Add date filtering
       },
       attributes: [
         "tag_2",
@@ -1889,6 +1922,21 @@ exports.countProjectsByTag2 = async (req, res) => {
 exports.countCostsByTag2 = async (req, res) => {
   const companyId = req.session.company.id;
 
+  // Get filter dates from session (same as other functions)
+  const filtered_start = req.session.filtered_start;
+  const filtered_end = req.session.filtered_end;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (filtered_start && filtered_end) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  } else if (filtered_start) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+  } else if (filtered_end) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  }
+
   try {
     const tag2Costs = await db.projects.findAll({
       where: {
@@ -1899,6 +1947,7 @@ exports.countCostsByTag2 = async (req, res) => {
             [Op.ne]: null,
           },
         },
+        ...dateWhereConditions, // Add date filtering
       },
       attributes: [
         "tag_2",
@@ -1974,6 +2023,21 @@ exports.countCostsByTag2 = async (req, res) => {
 exports.countEffortByTag2 = async (req, res) => {
   const companyId = req.session.company.id;
 
+  // Get filter dates from session (same as other functions)
+  const filtered_start = req.session.filtered_start;
+  const filtered_end = req.session.filtered_end;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (filtered_start && filtered_end) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  } else if (filtered_start) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+  } else if (filtered_end) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  }
+
   try {
     const tag2Efforts = await db.projects.findAll({
       where: {
@@ -1984,6 +2048,7 @@ exports.countEffortByTag2 = async (req, res) => {
             [Op.ne]: null,
           },
         },
+        ...dateWhereConditions, // Add date filtering
       },
       attributes: [
         "tag_2",
@@ -2049,17 +2114,33 @@ exports.countEffortByTag2 = async (req, res) => {
 exports.countProjectsByTag3 = async (req, res) => {
   const companyId = req.session.company.id;
 
+  // Get filter dates from session (same as other functions)
+  const filtered_start = req.session.filtered_start;
+  const filtered_end = req.session.filtered_end;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (filtered_start && filtered_end) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  } else if (filtered_start) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+  } else if (filtered_end) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  }
+
   try {
-    // Count projects grouped by tag_1 and ensure tag_1 is not 0
+    // Count projects grouped by tag_3 and ensure tag_3 is not 0
     const tag3Counts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
         tag_3: {
           [Op.and]: {
-            [Op.ne]: 0, // Ensure tag_1 is not 0
-            [Op.ne]: null, // Ensure tag_1 is not null
+            [Op.ne]: 0, // Ensure tag_3 is not 0
+            [Op.ne]: null, // Ensure tag_3 is not null
           },
         },
+        ...dateWhereConditions, // Add date filtering
       },
       attributes: [
         "tag_3",
@@ -2105,6 +2186,21 @@ exports.countProjectsByTag3 = async (req, res) => {
 exports.countCostsByTag3 = async (req, res) => {
   const companyId = req.session.company.id;
 
+  // Get filter dates from session (same as other functions)
+  const filtered_start = req.session.filtered_start;
+  const filtered_end = req.session.filtered_end;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (filtered_start && filtered_end) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  } else if (filtered_start) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+  } else if (filtered_end) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  }
+
   try {
     const tag3Costs = await db.projects.findAll({
       where: {
@@ -2115,6 +2211,7 @@ exports.countCostsByTag3 = async (req, res) => {
             [Op.ne]: null,
           },
         },
+        ...dateWhereConditions, // Add date filtering
       },
       attributes: [
         "tag_3",
@@ -2190,6 +2287,21 @@ exports.countCostsByTag3 = async (req, res) => {
 exports.countEffortByTag3 = async (req, res) => {
   const companyId = req.session.company.id;
 
+  // Get filter dates from session (same as other functions)
+  const filtered_start = req.session.filtered_start;
+  const filtered_end = req.session.filtered_end;
+
+  // Build date filter conditions
+  let dateWhereConditions = {};
+  if (filtered_start && filtered_end) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  } else if (filtered_start) {
+    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+  } else if (filtered_end) {
+    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+  }
+
   try {
     const tag3Efforts = await db.projects.findAll({
       where: {
@@ -2200,6 +2312,7 @@ exports.countEffortByTag3 = async (req, res) => {
             [Op.ne]: null,
           },
         },
+        ...dateWhereConditions, // Add date filtering
       },
       attributes: [
         "tag_3",
@@ -2827,9 +2940,9 @@ exports.health = async (req, res) => {
   const company_id_fk = req.session.company.id;
   const portfolioName = req.session.company.company_headline;
 
-  // Extract date parameters from query string (same as radar function)
-  const fromDate = req.query.from_date;
-  const toDate = req.query.to_date;
+  // Get current filter values from session (set by global filter system)
+  const fromDate = req.session.filtered_start;
+  const toDate = req.session.filtered_end;
 
   // Build date filter conditions for the SQL query
   let dateFilter = "";
@@ -2950,6 +3063,10 @@ ORDER BY
         portfolioName,
         projects: data,
         currentDate: moment().format("MMMM Do YYYY"),
+        currentFromDate: fromDate
+          ? moment(fromDate).format("MMM DD, YYYY")
+          : null,
+        currentToDate: toDate ? moment(toDate).format("MMM DD, YYYY") : null,
       });
     } else {
       console.log("No project data found for company:", company_id_fk);
@@ -2958,6 +3075,10 @@ ORDER BY
         portfolioName,
         projects: [],
         currentDate: moment().format("MMMM Do YYYY"),
+        currentFromDate: fromDate
+          ? moment(fromDate).format("MMM DD, YYYY")
+          : null,
+        currentToDate: toDate ? moment(toDate).format("MMM DD, YYYY") : null,
       });
     }
   } catch (error) {
@@ -3420,8 +3541,42 @@ exports.ganttChart = async (req, res) => {
 
   const company_id_fk = req.session.company.id;
 
+  // Get filter dates from session
+  const filtered_start = req.session.filtered_start;
+  const filtered_end = req.session.filtered_end;
+
+  // Build where clause with date filtering if filters exist
+  let whereClause = { company_id_fk: company_id_fk };
+
+  if (filtered_start && filtered_end) {
+    // Both start and end dates specified - projects must be completely within the date range
+    whereClause = {
+      [Op.and]: [
+        { company_id_fk: company_id_fk },
+        { start_date: { [Op.gte]: filtered_start } },
+        { end_date: { [Op.lte]: filtered_end } },
+      ],
+    };
+  } else if (filtered_start) {
+    // Only start date specified - projects must start after filter start
+    whereClause = {
+      [Op.and]: [
+        { company_id_fk: company_id_fk },
+        { start_date: { [Op.gte]: filtered_start } },
+      ],
+    };
+  } else if (filtered_end) {
+    // Only end date specified - projects must end before filter end
+    whereClause = {
+      [Op.and]: [
+        { company_id_fk: company_id_fk },
+        { end_date: { [Op.lte]: filtered_end } },
+      ],
+    };
+  }
+
   const companyProjects = await Project.findAll({
-    where: { company_id_fk: company_id_fk },
+    where: whereClause,
   });
 
   const colors = [];
@@ -3456,12 +3611,18 @@ exports.flightview = async (req, res) => {
     return res.status(404).json({ message: "Company not found" });
   }
 
+  // Get current filter values from session
+  const currentFromDate = req.session.filtered_start || null;
+  const currentToDate = req.session.filtered_end || null;
+
   const portfolioName = company.company_headline;
   res.render("Pages/pages_flight_plan", {
     pageTitle: "Flight Plan",
     projects: companyProjects,
     currentDate: moment().format("MMMM Do YYYY"),
     portfolioName,
+    currentFromDate,
+    currentToDate,
   });
 };
 
