@@ -94,19 +94,9 @@ router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
     toDate = `${year}-${month}-${lastDay.toString().padStart(2, "0")}`;
   }
 
-  // Get current user's milestone details from database
+  // Get current user's milestone details from database - removed, column doesn't exist in persons table
   let currentMilestoneDetails = "";
-  try {
-    const currentUser = await db.persons.findByPk(req.session.person.id);
-    if (currentUser && currentUser.next_milestone_date_details) {
-      currentMilestoneDetails = currentUser.next_milestone_date_details;
-    }
-  } catch (error) {
-    console.error("Error fetching user milestone details:", error);
-  }
 
-  // If no query parameters at all, this might be a clear filters request
-  // In this case, ensure session and database are clean
   if (
     !req.query.from_date &&
     !req.query.to_date &&
@@ -115,15 +105,13 @@ router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
     // Clear session values
     delete req.session.filtered_start;
     delete req.session.filtered_end;
-    delete req.session.next_milestone_date_details;
 
-    // Reset database values to null for clean state
+    // Reset database values to null for clean state (persons table only has filter dates)
     try {
       await db.persons.update(
         {
           filtered_start: null,
           filtered_end: null,
-          next_milestone_date_details: null,
         },
         {
           where: { id: req.session.person.id },
@@ -549,11 +537,12 @@ router.post("/update-filter", isAdminMiddleware, async (req, res) => {
     }
 
     // Update person model with filtered dates and milestone details
+    // Temporarily disabled milestone details until database column is added
     await db.persons.update(
       {
         filtered_start: from_date || null,
         filtered_end: to_date || null,
-        next_milestone_date_details: next_milestone_date_details || null,
+        // next_milestone_date_details: next_milestone_date_details || null,
       },
       {
         where: { id: personId },
@@ -573,6 +562,8 @@ router.post("/update-filter", isAdminMiddleware, async (req, res) => {
       req.session.filtered_end = to_date;
     }
 
+    // Temporarily disabled milestone details until database column is added
+    /*
     if (
       next_milestone_date_details === null ||
       next_milestone_date_details === undefined
@@ -581,6 +572,7 @@ router.post("/update-filter", isAdminMiddleware, async (req, res) => {
     } else {
       req.session.next_milestone_date_details = next_milestone_date_details;
     }
+    */
 
     res.json({
       success: true,

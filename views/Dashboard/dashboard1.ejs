@@ -647,8 +647,7 @@
       },
       body: JSON.stringify({
         from_date: fromDate,
-        to_date: toDate,
-        next_milestone_date_details: null
+        to_date: toDate
       })
     })
     .then(response => response.json())
@@ -693,8 +692,7 @@
       },
       body: JSON.stringify({
         from_date: null,
-        to_date: null,
-        next_milestone_date_details: null
+        to_date: null
       })
     })
     .then(response => response.json())
