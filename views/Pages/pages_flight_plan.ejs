@@ -78,6 +78,7 @@
     fetch("/projects/flightview/ganttChart/")
       .then((response) => response.json())
       .then((pData) => {
+        console.log(pData); // Debug: Log the fetched data
         const projects = pData.companyProjects;
 
         const phaseMapping = {
@@ -115,11 +116,7 @@
 
             return {
               id: project.id + 1000,
-              text: project.project_name + 
-                    (project.next_milestone_date && moment(project.next_milestone_date).isValid() ? 
-                      " (NMD: " + moment(project.next_milestone_date).format("DD MMM, YYYY") + ")" : "") + 
-                    (project.next_milestone_date_details && project.next_milestone_date_details.trim() !== "" ? 
-                      " " + project.next_milestone_date_details : ""),
+              text: project.project_name,
               start_date: new Date(project.start_date).toLocaleDateString(
                 "en-GB",
               ),
@@ -131,6 +128,8 @@
               color: colorMapping[project.health] || "#000000",
               health: project.health,
               type: "task",
+              next_milestone_date: project.next_milestone_date,
+              next_milestone_date_details: project.next_milestone_date_details,
             };
           }),
           links: [],
@@ -140,7 +139,20 @@
           a.id === 2 ? -1 : 1,
         );
 
+        gantt.plugins({ tooltip: true });
         gantt.init("gantt_here");
+        gantt.templates.tooltip_text = function (start, end, task) {
+          if (task.type === "phase") return "";
+          const milestone = task.next_milestone_date
+            ? moment(task.next_milestone_date).format("DD MMM, YYYY")
+            : "N/A";
+          const details = task.next_milestone_date_details || "No details available";
+          return `
+            <b>${task.text}</b><br/>
+            <b>Next Milestone:</b> ${milestone}<br/>
+            <b>Details:</b> ${details}
+          `;
+        };
         gantt.parse({ data: sortedData });
 
         gantt.templates.task_class = function (start, end, task) {
