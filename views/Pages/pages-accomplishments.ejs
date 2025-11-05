@@ -93,6 +93,31 @@
 <div class="page-content-wrapper">
   <div class="container-fluid">
     
+    <!-- Filter Display Section -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-info" style="margin-bottom: 15px; padding: 10px; background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px;">
+                <div style="display: flex; align-items: center;">
+                    <i class="mdi mdi-filter-variant" style="margin-right: 8px; font-size: 18px; color: #1976d2;"></i>
+                    <strong style="margin-right: 10px; color: #1976d2;">Active Filter:</strong>
+                    <span style="color: #333;">
+                        <% if (locals.currentFromDate || locals.currentToDate) { %>
+                            <% if (locals.currentFromDate && locals.currentToDate) { %>
+                                From <strong><%= new Date(locals.currentFromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></strong> to <strong><%= new Date(locals.currentToDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></strong>
+                            <% } else if (locals.currentFromDate) { %>
+                                From <strong><%= new Date(locals.currentFromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></strong> onwards
+                            <% } else if (locals.currentToDate) { %>
+                                Up to <strong><%= new Date(locals.currentToDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></strong>
+                            <% } %>
+                        <% } else { %>
+                            No filter set
+                        <% } %>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="mb-3">
       <button
         type="button"

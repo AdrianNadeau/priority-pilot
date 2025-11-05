@@ -3251,9 +3251,9 @@ exports.accomplishments = async (req, res) => {
   const company_id_fk = req.session.company.id;
   const portfolioName = req.session.company.company_headline;
 
-  // Extract date parameters from query string
-  const fromDate = req.query.from_date;
-  const toDate = req.query.to_date;
+  // Get date filter from session instead of query parameters
+  const fromDate = req.session.filtered_start;
+  const toDate = req.session.filtered_end;
 
   // Build date filter conditions for the SQL query
   let dateFilter = "";
@@ -3429,6 +3429,9 @@ exports.accomplishments = async (req, res) => {
       portfolioName,
       projects: projects,
       currentDate: moment().format("MMMM Do YYYY"),
+      // Pass current filter values back to template using session values
+      currentFromDate: req.session.filtered_start || null,
+      currentToDate: req.session.filtered_end || null,
     });
   } catch (error) {
     console.error("Error in accomplishments query:", error);
@@ -3786,7 +3789,26 @@ exports.exportHealthDataToCSV = async (req, res) => {
     const company_id_fk = req.session.company.id;
     const portfolioName = req.session.company.company_headline;
 
-    // Use the same query as the health page
+    // Get date filter from session
+    const fromDate = req.session.filtered_start;
+    const toDate = req.session.filtered_end;
+
+    // Build date filter conditions for the SQL query
+    let dateFilter = "";
+    let queryParams = [company_id_fk];
+
+    if (fromDate && toDate) {
+      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
+      queryParams.push(fromDate, toDate);
+    } else if (fromDate) {
+      dateFilter = " AND proj.start_date >= ?";
+      queryParams.push(fromDate);
+    } else if (toDate) {
+      dateFilter = " AND proj.end_date <= ?";
+      queryParams.push(toDate);
+    }
+
+    // Use the same query as the health page with date filtering
     const query = `SELECT 
       company_id_fk,
       project_id,
@@ -3849,7 +3871,7 @@ exports.exportHealthDataToCSV = async (req, res) => {
           ORDER BY status.status_date DESC
           LIMIT 1
       ) last_status ON true
-      WHERE proj.company_id_fk = ?
+      WHERE proj.company_id_fk = ?${dateFilter}
       ORDER BY proj.id, last_status.status_date DESC NULLS LAST
   ) subquery
   ORDER BY 
@@ -3862,7 +3884,7 @@ exports.exportHealthDataToCSV = async (req, res) => {
       start_date ASC NULLS LAST;`;
 
     const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk],
+      replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
     });
 
@@ -3982,6 +4004,25 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
 
+    // Get date filter from session
+    const fromDate = req.session.filtered_start;
+    const toDate = req.session.filtered_end;
+
+    // Build date filter conditions for the SQL query
+    let dateFilter = "";
+    let queryParams = [company_id_fk];
+
+    if (fromDate && toDate) {
+      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
+      queryParams.push(fromDate, toDate);
+    } else if (fromDate) {
+      dateFilter = " AND proj.start_date >= ?";
+      queryParams.push(fromDate);
+    } else if (toDate) {
+      dateFilter = " AND proj.end_date <= ?";
+      queryParams.push(toDate);
+    }
+
     // Fetch projects with phase_name, prime, sponsor, and benefit details
     const projectsRaw = await db.sequelize.query(
       `
@@ -4021,9 +4062,9 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
       LEFT JOIN tags tag1 ON tag1.id = proj.tag_1
       LEFT JOIN tags tag2 ON tag2.id = proj.tag_2
       LEFT JOIN tags tag3 ON tag3.id = proj.tag_3
-      WHERE proj.company_id_fk = ?
+      WHERE proj.company_id_fk = ?${dateFilter}
       `,
-      { replacements: [company_id_fk], type: db.sequelize.QueryTypes.SELECT },
+      { replacements: queryParams, type: db.sequelize.QueryTypes.SELECT },
     );
 
     // Remove duplicates based on project ID (same logic as the projects page)
@@ -4194,7 +4235,26 @@ exports.exportHealthDataToPDF = async (req, res) => {
     const company_id_fk = req.session.company.id;
     const portfolioName = req.session.company.company_headline;
 
-    // Fetch the same data as your health page
+    // Get date filter from session
+    const fromDate = req.session.filtered_start;
+    const toDate = req.session.filtered_end;
+
+    // Build date filter conditions for the SQL query
+    let dateFilter = "";
+    let queryParams = [company_id_fk];
+
+    if (fromDate && toDate) {
+      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
+      queryParams.push(fromDate, toDate);
+    } else if (fromDate) {
+      dateFilter = " AND proj.start_date >= ?";
+      queryParams.push(fromDate);
+    } else if (toDate) {
+      dateFilter = " AND proj.end_date <= ?";
+      queryParams.push(toDate);
+    }
+
+    // Fetch the same data as your health page with date filtering
     const costQuery = `SELECT 
       proj.company_id_fk,
       proj.id AS project_id,
@@ -4233,12 +4293,12 @@ exports.exportHealthDataToPDF = async (req, res) => {
     LEFT JOIN
       companies ON companies.id = proj.company_id_fk
     WHERE
-      proj.company_id_fk = ?
+      proj.company_id_fk = ?${dateFilter}
     ORDER BY
       proj.phase_id_fk, proj.id;`;
 
     const costData = await db.sequelize.query(costQuery, {
-      replacements: [company_id_fk],
+      replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
     });
     const doc = new jsPDF();
@@ -4283,7 +4343,26 @@ exports.exportAccomplishmentsToCSV = async (req, res) => {
     const company_id_fk = req.session.company.id;
     const portfolioName = req.session.company.company_headline;
 
-    // Use the same query as the accomplishments page to get ALL accomplishments
+    // Get date filter from session
+    const fromDate = req.session.filtered_start;
+    const toDate = req.session.filtered_end;
+
+    // Build date filter conditions for the SQL query
+    let dateFilter = "";
+    let queryParams = [company_id_fk];
+
+    if (fromDate && toDate) {
+      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
+      queryParams.push(fromDate, toDate);
+    } else if (fromDate) {
+      dateFilter = " AND proj.start_date >= ?";
+      queryParams.push(fromDate);
+    } else if (toDate) {
+      dateFilter = " AND proj.end_date <= ?";
+      queryParams.push(toDate);
+    }
+
+    // Use the same query as the accomplishments page with date filtering
     const query = `
       SELECT DISTINCT
         proj.id AS project_id,
@@ -4295,7 +4374,7 @@ exports.exportAccomplishmentsToCSV = async (req, res) => {
       FROM projects proj
       LEFT JOIN phases ON phases.id = proj.phase_id_fk
       LEFT JOIN statuses status ON status.project_id_fk = proj.id
-      WHERE proj.company_id_fk = ?
+      WHERE proj.company_id_fk = ?${dateFilter}
         AND proj.phase_id_fk IN (
           SELECT id FROM phases WHERE phase_name IN ('Planning', 'Discovery', 'Delivery', 'Done')
         )
@@ -4308,7 +4387,7 @@ exports.exportAccomplishmentsToCSV = async (req, res) => {
     `;
 
     const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk],
+      replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
     });
 
