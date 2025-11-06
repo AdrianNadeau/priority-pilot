@@ -209,10 +209,13 @@ exports.findAllRadar = async (req, res) => {
 
   const company_id_fk = req.session.company.id;
 
-  // Get all company projects with the latest status health
+  // Get all company projects with the latest status health (excluding Pitch phase)
   try {
     const projects = await Project.findAll({
-      where: { company_id_fk: company_id_fk },
+      where: {
+        company_id_fk: company_id_fk,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+      },
     });
 
     // Get the most recent status for each project
@@ -1104,8 +1107,8 @@ exports.radar = async (req, res) => {
       phaseStatsRaw.map((r) => [r.phase_id_fk, r]),
     );
 
-    // Build the ordered array phaseStats
-    const PHASE_ORDER = [1, 2, 3, 4, 5];
+    // Build the ordered array phaseStats (excluding Pitch phase ID 1)
+    const PHASE_ORDER = [2, 3, 4, 5];
     const phaseStats = PHASE_ORDER.map((pid) => {
       const r = statsByPhase[pid] || {};
       return {
@@ -1174,10 +1177,11 @@ exports.radarData = async (req, res) => {
   }
 
   try {
-    // Get phase stats with the same logic as radar function
+    // Get phase stats with the same logic as radar function (excluding Pitch phase ID 1)
     const phaseStatsRaw = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         ...dateWhereConditions,
       },
       attributes: [
@@ -1638,10 +1642,11 @@ exports.countProjectsByTag1 = async (req, res) => {
   }
 
   try {
-    // Count projects grouped by tag_1 and ensure tag_1 is not 0
+    // Count projects grouped by tag_1 and ensure tag_1 is not 0 (excluding Pitch phase)
     const tag1Counts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         tag_1: {
           [Op.and]: {
             [Op.ne]: 0, // Ensure tag_1 is not 0
@@ -1714,6 +1719,7 @@ exports.countCostsByTag1 = async (req, res) => {
     const tag1Costs = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         tag_1: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -1815,6 +1821,7 @@ exports.countEffortByTag1 = async (req, res) => {
     const tag1Efforts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         tag_1: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -1903,10 +1910,11 @@ exports.countProjectsByTag2 = async (req, res) => {
   }
 
   try {
-    // Count projects grouped by tag_2 and ensure tag_2 is not 0
+    // Count projects grouped by tag_2 and ensure tag_2 is not 0 (excluding Pitch phase)
     const tag2Counts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         tag_2: {
           [Op.and]: {
             [Op.ne]: 0, // Ensure tag_2 is not 0
@@ -1978,6 +1986,7 @@ exports.countCostsByTag2 = async (req, res) => {
     const tag2Costs = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         tag_2: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2079,6 +2088,7 @@ exports.countEffortByTag2 = async (req, res) => {
     const tag2Efforts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         tag_2: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2167,10 +2177,11 @@ exports.countProjectsByTag3 = async (req, res) => {
   }
 
   try {
-    // Count projects grouped by tag_3 and ensure tag_3 is not 0
+    // Count projects grouped by tag_3 and ensure tag_3 is not 0 (excluding Pitch phase)
     const tag3Counts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         tag_3: {
           [Op.and]: {
             [Op.ne]: 0, // Ensure tag_3 is not 0
@@ -2242,6 +2253,7 @@ exports.countCostsByTag3 = async (req, res) => {
     const tag3Costs = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         tag_3: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2343,6 +2355,7 @@ exports.countEffortByTag3 = async (req, res) => {
     const tag3Efforts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         tag_3: {
           [Op.and]: {
             [Op.ne]: 0,
