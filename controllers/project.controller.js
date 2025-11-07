@@ -972,7 +972,10 @@ exports.radar = async (req, res) => {
   const companyId = req.session.company.id;
 
   // Use global filter helper instead of manual date extraction
-  const baseWhere = { company_id_fk: companyId };
+  const baseWhere = {
+    company_id_fk: companyId,
+    phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+  };
   const whereConditions = applyProjectDateFilter(req, baseWhere);
 
   try {
@@ -982,7 +985,13 @@ exports.radar = async (req, res) => {
       attributes: [
         "phase_id_fk",
         // overall
-        [db.Sequelize.fn("COUNT", db.Sequelize.col("*")), "projectCount"],
+        [
+          db.Sequelize.fn(
+            "COUNT",
+            db.Sequelize.fn("DISTINCT", db.Sequelize.col("id")),
+          ),
+          "projectCount",
+        ],
         [
           db.Sequelize.fn(
             "SUM",
@@ -1005,11 +1014,8 @@ exports.radar = async (req, res) => {
         // Red
         [
           db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(
-              `CASE WHEN health='Red' 
-                THEN 1 ELSE 0 END`,
-            ),
+            "COUNT",
+            db.Sequelize.literal(`DISTINCT CASE WHEN health='Red' THEN id END`),
           ),
           "redCount",
         ],
@@ -1027,8 +1033,10 @@ exports.radar = async (req, res) => {
         // Yellow
         [
           db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(`CASE WHEN health='Yellow' THEN 1 ELSE 0 END`),
+            "COUNT",
+            db.Sequelize.literal(
+              `DISTINCT CASE WHEN health='Yellow' THEN id END`,
+            ),
           ),
           "yellowCount",
         ],
@@ -1046,8 +1054,10 @@ exports.radar = async (req, res) => {
         // Green
         [
           db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(`CASE WHEN health='Green' THEN 1 ELSE 0 END`),
+            "COUNT",
+            db.Sequelize.literal(
+              `DISTINCT CASE WHEN health='Green' THEN id END`,
+            ),
           ),
           "greenCount",
         ],
@@ -1065,9 +1075,9 @@ exports.radar = async (req, res) => {
         // No Status (NULL or empty)
         [
           db.Sequelize.fn(
-            "SUM",
+            "COUNT",
             db.Sequelize.literal(
-              `CASE WHEN health IS NULL OR health='' THEN 1 ELSE 0 END`,
+              `DISTINCT CASE WHEN health IS NULL OR health='' THEN id END`,
             ),
           ),
           "noStatusCount",
@@ -1186,7 +1196,13 @@ exports.radarData = async (req, res) => {
       },
       attributes: [
         "phase_id_fk",
-        [db.Sequelize.fn("COUNT", db.Sequelize.col("*")), "projectCount"],
+        [
+          db.Sequelize.fn(
+            "COUNT",
+            db.Sequelize.fn("DISTINCT", db.Sequelize.col("id")),
+          ),
+          "projectCount",
+        ],
         [
           db.Sequelize.fn(
             "SUM",
@@ -1209,8 +1225,8 @@ exports.radarData = async (req, res) => {
         // Red counts & costs
         [
           db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(`CASE WHEN health='Red' THEN 1 ELSE 0 END`),
+            "COUNT",
+            db.Sequelize.literal(`DISTINCT CASE WHEN health='Red' THEN id END`),
           ),
           "redCount",
         ],
@@ -1228,8 +1244,10 @@ exports.radarData = async (req, res) => {
         // Yellow counts & costs
         [
           db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(`CASE WHEN health='Yellow' THEN 1 ELSE 0 END`),
+            "COUNT",
+            db.Sequelize.literal(
+              `DISTINCT CASE WHEN health='Yellow' THEN id END`,
+            ),
           ),
           "yellowCount",
         ],
@@ -1247,8 +1265,10 @@ exports.radarData = async (req, res) => {
         // Green counts & costs
         [
           db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(`CASE WHEN health='Green' THEN 1 ELSE 0 END`),
+            "COUNT",
+            db.Sequelize.literal(
+              `DISTINCT CASE WHEN health='Green' THEN id END`,
+            ),
           ),
           "greenCount",
         ],
@@ -1266,9 +1286,9 @@ exports.radarData = async (req, res) => {
         // No status counts & costs
         [
           db.Sequelize.fn(
-            "SUM",
+            "COUNT",
             db.Sequelize.literal(
-              `CASE WHEN health IS NULL OR health='' THEN 1 ELSE 0 END`,
+              `DISTINCT CASE WHEN health IS NULL OR health='' THEN id END`,
             ),
           ),
           "noStatusCount",
@@ -1320,10 +1340,11 @@ exports.radarData = async (req, res) => {
       };
     });
 
-    // Get portfolio health data (similar to what was in drawProgressBarChart)
+    // Get portfolio health data (similar to what was in drawProgressBarChart, excluding Pitch phase)
     const projects = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         ...dateWhereConditions,
       },
       attributes: ["health"],
@@ -1357,10 +1378,11 @@ async function getTagDataForFilter(companyId, tagField, dateWhereConditions) {
   const Op = db.Sequelize.Op;
 
   try {
-    // Get projects count by tag
+    // Get projects count by tag (excluding Pitch phase)
     const tagProjectCounts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         [tagField]: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -1372,20 +1394,30 @@ async function getTagDataForFilter(companyId, tagField, dateWhereConditions) {
       attributes: [
         tagField,
         [
-          db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")),
+          db.Sequelize.fn(
+            "COUNT",
+            db.Sequelize.fn("DISTINCT", db.Sequelize.col("projects.id")),
+          ),
           "project_count",
         ],
       ],
       group: [tagField],
       order: [
-        [db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")), "DESC"],
+        [
+          db.Sequelize.fn(
+            "COUNT",
+            db.Sequelize.fn("DISTINCT", db.Sequelize.col("projects.id")),
+          ),
+          "DESC",
+        ],
       ],
     });
 
-    // Get costs by tag
+    // Get costs by tag (excluding Pitch phase)
     const tagCosts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         [tagField]: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -1440,10 +1472,11 @@ async function getTagDataForFilter(companyId, tagField, dateWhereConditions) {
       ],
     });
 
-    // Get effort by tag
+    // Get effort by tag (excluding Pitch phase)
     const tagEfforts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
+        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
         [tagField]: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -1548,15 +1581,19 @@ async function getTagDataForFilter(companyId, tagField, dateWhereConditions) {
 exports.progress = async (req, res) => {
   const companyId = req.session.company.id;
 
-  // Use the same global filter approach as radar function
-  const baseWhere = { company_id_fk: companyId };
+  // Use the same global filter approach as radar function (excluding Pitch phase)
+  const baseWhere = {
+    company_id_fk: companyId,
+    phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+  };
   const whereConditions = applyProjectDateFilter(req, baseWhere);
 
   try {
-    // Get all projects for the company with date filtering
+    // Get all projects for the company with date filtering (ensure distinct projects)
     const projects = await db.projects.findAll({
       where: whereConditions,
       attributes: ["id", "project_name", "tag_1", "tag_2", "tag_3"],
+      group: ["id", "project_name", "tag_1", "tag_2", "tag_3"], // Ensure distinct projects
     });
 
     if (!projects || projects.length === 0) {
@@ -1565,13 +1602,20 @@ exports.progress = async (req, res) => {
         .send({ message: "No projects found for this company." });
     }
 
-    // Get the most recent status for each project
+    // Get the most recent status for each project (with deduplication)
     const projectNames = [];
     const progress = [];
     const tags = { tag_1: [], tag_2: [], tag_3: [] };
     const colors = [];
+    const processedProjectIds = new Set(); // Track processed projects to avoid duplicates
 
     for (const project of projects) {
+      // Skip if we've already processed this project
+      if (processedProjectIds.has(project.id)) {
+        continue;
+      }
+      processedProjectIds.add(project.id);
+
       projectNames.push(project.project_name);
 
       // Fetch the most recent status for this project
@@ -1658,13 +1702,22 @@ exports.countProjectsByTag1 = async (req, res) => {
       attributes: [
         "tag_1",
         [
-          db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")),
+          db.Sequelize.fn(
+            "COUNT",
+            db.Sequelize.fn("DISTINCT", db.Sequelize.col("projects.id")),
+          ),
           "project_count",
         ],
       ],
       group: ["tag_1"],
       order: [
-        [db.Sequelize.fn("COUNT", db.Sequelize.col("projects.id")), "DESC"],
+        [
+          db.Sequelize.fn(
+            "COUNT",
+            db.Sequelize.fn("DISTINCT", db.Sequelize.col("projects.id")),
+          ),
+          "DESC",
+        ],
       ],
     });
 
@@ -3073,7 +3126,7 @@ FROM (
         ORDER BY status.status_date DESC
         LIMIT 1
     ) last_status ON true
-    WHERE proj.company_id_fk = ?${dateFilter}
+    WHERE proj.company_id_fk = ? AND proj.phase_id_fk != 1${dateFilter}
     ORDER BY proj.id, last_status.status_date DESC NULLS LAST
 ) subquery
 ORDER BY 
@@ -3226,7 +3279,7 @@ exports.healthData = async (req, res) => {
           ORDER BY status.status_date DESC
           LIMIT 1
       ) last_status ON true
-      WHERE proj.company_id_fk = ?${dateFilter}
+      WHERE proj.company_id_fk = ? AND proj.phase_id_fk != 1${dateFilter}
       ORDER BY proj.id, last_status.status_date DESC NULLS LAST
   ) subquery
   ORDER BY 
