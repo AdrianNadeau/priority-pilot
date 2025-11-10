@@ -90,14 +90,29 @@ exports.create = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   try {
     const company_id_fk = req.session.company?.id;
-    const data = await Person.findAll({
+
+    const rawData = await Person.findAll({
       where: { company_id_fk },
       order: [
         ["last_name", "ASC"],
         ["first_name", "ASC"],
       ],
     });
-    res.render("Pages/pages-persons", { persons: data, pageTitle: "People" });
+
+    // Remove any potential duplicates based on person ID
+    const uniquePersons = rawData.filter(
+      (person, index, self) =>
+        index === self.findIndex((p) => p.id === person.id),
+    );
+
+    console.log(
+      `DEBUG - Persons query: ${rawData.length} total records, ${uniquePersons.length} unique records`,
+    );
+
+    res.render("Pages/pages-persons", {
+      persons: uniquePersons,
+      pageTitle: "People",
+    });
   } catch (error) {
     next(error);
   }
