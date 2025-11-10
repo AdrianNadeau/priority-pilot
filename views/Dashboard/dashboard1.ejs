@@ -55,6 +55,30 @@
         </div>
         <% } %>
         
+        <!-- Summary Section for Filtered Data -->
+        <% if (currentFromDate || currentToDate) { %>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-success" style="margin-bottom: 15px; padding: 15px; background-color: #d4edda; border: 1px solid #28a745; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
+                            <strong style="color: #155724; font-size: 16px;">Filtered Date Range Totals:</strong>
+                        </div>
+                        <div style="display: flex; gap: 30px;">
+                            <span style="color: #155724; font-weight: bold;">
+                                Total Cost: $<%= usedCost %>
+                            </span>
+                            <span style="color: #155724; font-weight: bold;">
+                                Total Effort: <%= totalUsedPH %> PH
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% } %>
+        
         <div class="row">
             <!-- Main content -->
             <div class="col-md-10">
@@ -85,14 +109,14 @@
            <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
             <div class="mini-stat bg-white clearfix" >
               <div class="mini-stat-info">
-                <a href="/projects/funnel/view/"><span class="counter" style="color:black"><strong>Funnel</strong> (<%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.effort %> PH)</span></a>
+                <a href="/projects/funnel/view/"><span class="counter" style="color:black"><strong>Funnel</strong> (<%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)</span></a>
               </div>
             </div>
             </div>
                       <div class="col-md-6 phase-column">
                         <div class="mini-stat bg-white clearfix" style="min-height: 50px;">
                             <div class="mini-stat-info" data-phase="Archive">
-                                <a href="/projects/freezer/view/"><span class="counter" style="color:black"><strong>Archive</strong> (<%= archived.count %>, $<%= archived.cost %>, <%= archived.effort %> PH)</span></a>
+                                <a href="/projects/freezer/view/"><span class="counter" style="color:black"><strong>Archive</strong> (<%= archived.count %>, $<%= archived.cost %>, <%= archived.ph %> PH)</span></a>
                             </div>
                         </div>
                       </div>
