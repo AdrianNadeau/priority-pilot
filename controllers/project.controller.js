@@ -27,7 +27,6 @@ const {
 
 // Create and Save a new Project
 exports.create = (req, res) => {
-  const funnelPage = req.body.funnelPage;
   company_id_fk = req.session.company.id;
 
   // Convert dates
@@ -142,63 +141,58 @@ exports.create = (req, res) => {
       Project.findAll(),
     ]);
 
-    if (funnelPage == "n") {
-      const query =
-        "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name, proj.prime_id_fk, proj.sponsor_id_fk FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
+    const query =
+      "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name, proj.prime_id_fk, proj.sponsor_id_fk FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
 
-      await db.sequelize
-        .query(query, {
-          replacements: [company_id_fk],
-          type: db.sequelize.QueryTypes.SELECT,
-        })
-        .then((data) => {
-          // Remove duplicates based on project ID
-          const uniqueProjects = [];
-          const seenIds = new Set();
+    await db.sequelize
+      .query(query, {
+        replacements: [company_id_fk],
+        type: db.sequelize.QueryTypes.SELECT,
+      })
+      .then((data) => {
+        // Remove duplicates based on project ID
+        const uniqueProjects = [];
+        const seenIds = new Set();
 
-          data.forEach((project) => {
-            if (!seenIds.has(project.id)) {
-              seenIds.add(project.id);
-              uniqueProjects.push(project);
-            }
-          });
-
-          // enrich each project with permission flags based on current session person
-          const currentPerson =
-            req.session && req.session.person ? req.session.person : null;
-          const enriched = uniqueProjects.map((p) => {
-            const canModify = currentPerson
-              ? currentPerson.isAdmin ||
-                currentPerson.id === p.prime_id_fk ||
-                currentPerson.id === p.sponsor_id_fk
-              : false;
-            return {
-              ...p,
-              can_update_status: canModify,
-              can_view: canModify,
-            };
-          });
-
-          res.render("Pages/pages-projects", {
-            pageTitle: "Projects",
-            projects: enriched,
-            phases: phasesData,
-            priorities: prioritiesData,
-            sponsors: personsData,
-            primes: personsData,
-            tags: tagsData,
-            company_id: company_id_fk,
-          });
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while retrieving data.",
-          });
+        data.forEach((project) => {
+          if (!seenIds.has(project.id)) {
+            seenIds.add(project.id);
+            uniqueProjects.push(project);
+          }
         });
-    } else {
-      res.redirect("/projects/funnel/view/");
-    }
+
+        // enrich each project with permission flags based on current session person
+        const currentPerson =
+          req.session && req.session.person ? req.session.person : null;
+        const enriched = uniqueProjects.map((p) => {
+          const canModify = currentPerson
+            ? currentPerson.isAdmin ||
+              currentPerson.id === p.prime_id_fk ||
+              currentPerson.id === p.sponsor_id_fk
+            : false;
+          return {
+            ...p,
+            can_update_status: canModify,
+            can_view: canModify,
+          };
+        });
+
+        res.render("Pages/pages-projects", {
+          pageTitle: "Projects",
+          projects: enriched,
+          phases: phasesData,
+          priorities: prioritiesData,
+          sponsors: personsData,
+          primes: personsData,
+          tags: tagsData,
+          company_id: company_id_fk,
+        });
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message: err.message || "Some error occurred while retrieving data.",
+        });
+      });
   });
 };
 
@@ -702,7 +696,6 @@ exports.cockpit = async (req, res) => {
 exports.findOneForEdit = async (req, res) => {
   try {
     const project_id = req.params.id;
-
     let company_id_fk;
     let startDateTest = null,
       endDateTest = null,
@@ -974,7 +967,7 @@ exports.radar = async (req, res) => {
   // Use global filter helper instead of manual date extraction
   const baseWhere = {
     company_id_fk: companyId,
-    phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+    phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 3] }, // Exclude Pitch and Planning phases
   };
   const whereConditions = applyProjectDateFilter(req, baseWhere);
 
@@ -1117,8 +1110,8 @@ exports.radar = async (req, res) => {
       phaseStatsRaw.map((r) => [r.phase_id_fk, r]),
     );
 
-    // Build the ordered array phaseStats (excluding Pitch phase ID 1)
-    const PHASE_ORDER = [2, 3, 4, 5];
+    // Build the ordered array phaseStats (excluding Pitch phase ID 1 and Planning phases 2,3)
+    const PHASE_ORDER = [4, 5];
     const phaseStats = PHASE_ORDER.map((pid) => {
       const r = statsByPhase[pid] || {};
       return {
@@ -2922,8 +2915,6 @@ ORDER BY
 };
 
 exports.update = async (req, res) => {
-  const funnelPage = req.body.funnelPage;
-
   try {
     const { id } = req.params;
     const {
@@ -2969,6 +2960,21 @@ exports.update = async (req, res) => {
     const sanitizedTag2 = tag_2 ? parseInt(tag_2.replace(/,/g, ""), 10) : null;
     const sanitizedTag3 = tag_3 ? parseInt(tag_3.replace(/,/g, ""), 10) : null;
 
+    // Debug logging
+    console.log("Update request for project ID:", id);
+    console.log("Request body:", req.body);
+    console.log("Company ID from session:", req.session.company?.id);
+
+    // First, check if the project exists
+    const existingProject = await Project.findByPk(id);
+    if (!existingProject) {
+      console.log(`Project with ID ${id} not found in database`);
+      return res.status(404).send({
+        message: `Project with id=${id} not found!`,
+      });
+    }
+    console.log("Found existing project:", existingProject.dataValues);
+
     // Update the project
     const [num] = await Project.update(
       {
@@ -2995,6 +3001,28 @@ exports.update = async (req, res) => {
         where: { id },
       },
     );
+
+    console.log("Update result - number of rows affected:", num);
+    console.log("Update data sent:", {
+      project_name,
+      project_headline,
+      project_why,
+      project_what,
+      start_date: startDateTest,
+      end_date: endDateTest,
+      prime_id_fk,
+      sponsor_id_fk,
+      project_cost: sanitizedProjectCost,
+      effort: sanitizedEffort,
+      benefit: sanitizedBenefit,
+      phase_id_fk,
+      next_milestone_date: nextMilestoneDateTest,
+      next_milestone_date_details,
+      tag_1: sanitizedTag1,
+      tag_2: sanitizedTag2,
+      tag_3: sanitizedTag3,
+      reference,
+    });
 
     if (num === 1) {
       // Create a new ChangedProject entry after successful update
@@ -3023,12 +3051,8 @@ exports.update = async (req, res) => {
       };
 
       await ChangeProject.create(newChangedProject);
-
-      if (funnelPage !== undefined && funnelPage !== null) {
-        res.redirect("/projects/funnel");
-      } else {
-        res.redirect("/projects/");
-      }
+      console.log("Project updated successfully:", newChangedProject);
+      res.redirect("/projects/");
     } else {
       res.status(404).send({
         message: `Cannot update Project with id=${id}. Maybe Project was not found or req.body is empty!`,
