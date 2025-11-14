@@ -203,12 +203,12 @@ exports.findAllRadar = async (req, res) => {
 
   const company_id_fk = req.session.company.id;
 
-  // Get all company projects with the latest status health (excluding Pitch phase)
+  // Get all company projects with the latest status health (excluding Pitch and Planning phases)
   try {
     const projects = await Project.findAll({
       where: {
         company_id_fk: company_id_fk,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 3] }, // Exclude Pitch and Planning phases
       },
     });
 
@@ -240,6 +240,9 @@ exports.findAllRadar = async (req, res) => {
       return projectData;
     });
     const portfolioName = await returnPortfolioName(company_id_fk);
+    console.log("Returning projects with status for radar:", {
+      count: projectsWithStatus.length,
+    });
     res.status(200).json(projectsWithStatus, portfolioName);
   } catch (error) {
     console.log("Error retrieving projects:", error);
@@ -702,15 +705,12 @@ exports.findOneForEdit = async (req, res) => {
       nextMilestoneDateTest = null;
 
     company_id_fk = req.session.company.id;
-    // Query to fetch project details
+    // Query to fetch project details - simplified to avoid duplicates
     const query = `
      SELECT 
       proj.tag_1, 
-      tag1.tag_name AS tag_1_name,
       proj.tag_2, 
-      tag2.tag_name AS tag_2_name,
       proj.tag_3,
-      tag3.tag_name AS tag_3_name,
       proj.company_id_fk,
       proj.id,
       proj.project_name,
@@ -733,15 +733,6 @@ exports.findOneForEdit = async (req, res) => {
       proj.reference
     FROM 
       projects proj
-    LEFT JOIN 
-      persons prime_person ON prime_person.id = proj.prime_id_fk
-    LEFT JOIN 
-      persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-    LEFT JOIN 
-      phases ON phases.id = proj.phase_id_fk
-    LEFT JOIN tags tag1 ON tag1.id = proj.tag_1
-    LEFT JOIN tags tag2 ON tag2.id = proj.tag_2
-    LEFT JOIN tags tag3 ON tag3.id = proj.tag_3
     WHERE 
       proj.company_id_fk = ? AND proj.id = ?`;
 
@@ -754,6 +745,22 @@ exports.findOneForEdit = async (req, res) => {
       if (!data || data.length === 0) {
         return res.status(404).send({ message: "Project not found" });
       }
+
+      // Debug: Check for duplicate results
+      if (data.length > 1) {
+        console.warn(
+          `Warning: findOneForEdit returned ${data.length} rows for project ${project_id}. Using first result.`,
+        );
+        console.log(
+          "Duplicate data:",
+          data.map((d) => ({ id: d.id, project_name: d.project_name })),
+        );
+      }
+
+      console.log(
+        `findOneForEdit: Found project ${project_id} for company ${company_id_fk}`,
+      );
+
       //format dates for pickers
       try {
         startDateTest =
@@ -774,6 +781,35 @@ exports.findOneForEdit = async (req, res) => {
         endDateTest = "";
         nextMilestoneDateTest = "";
       }
+
+      // Get tag names for the project (fetch separately to avoid JOIN duplicates)
+      const project = data[0];
+      const tagIds = [project.tag_1, project.tag_2, project.tag_3].filter(
+        (id) => id && id !== 0,
+      );
+
+      let tagNames = {};
+      if (tagIds.length > 0) {
+        const tags = await db.tags.findAll({
+          where: { id: { [Op.in]: tagIds } },
+          attributes: ["id", "tag_name"],
+        });
+        tags.forEach((tag) => {
+          tagNames[tag.id] = tag.tag_name;
+        });
+      }
+
+      // Add tag names to the project data
+      project.tag_1_name = project.tag_1
+        ? tagNames[project.tag_1] || null
+        : null;
+      project.tag_2_name = project.tag_2
+        ? tagNames[project.tag_2] || null
+        : null;
+      project.tag_3_name = project.tag_3
+        ? tagNames[project.tag_3] || null
+        : null;
+
       // Get reasons for change for the project
       const changeReasonsRaw = await ChangeReason.findAll({
         where: {
@@ -1180,11 +1216,11 @@ exports.radarData = async (req, res) => {
   }
 
   try {
-    // Get phase stats with the same logic as radar function (excluding Pitch phase ID 1)
+    // Get phase stats with the same logic as radar function (excluding Pitch and Planning phases)
     const phaseStatsRaw = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 3] }, // Exclude Pitch and Planning phases
         ...dateWhereConditions,
       },
       attributes: [
@@ -1333,11 +1369,11 @@ exports.radarData = async (req, res) => {
       };
     });
 
-    // Get portfolio health data (similar to what was in drawProgressBarChart, excluding Pitch phase)
+    // Get portfolio health data (similar to what was in drawProgressBarChart, excluding Pitch and Planning phases)
     const projects = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 3] }, // Exclude Pitch and Planning phases
         ...dateWhereConditions,
       },
       attributes: ["health"],
@@ -2951,10 +2987,6 @@ exports.update = async (req, res) => {
     const sanitizedBenefit = benefit
       ? removeCommasAndConvertToNumber(benefit)
       : 0;
-    // const sanitizedImpact = impact ? removeCommasAndConvertToNumber(impact) : 0;
-    // const sanitizedComplexity = complexity
-    //   ? removeCommasAndConvertToNumber(complexity)
-    //   : 0;
 
     const sanitizedTag1 = tag_1 ? parseInt(tag_1.replace(/,/g, ""), 10) : null;
     const sanitizedTag2 = tag_2 ? parseInt(tag_2.replace(/,/g, ""), 10) : null;
@@ -2965,45 +2997,134 @@ exports.update = async (req, res) => {
     console.log("Request body:", req.body);
     console.log("Company ID from session:", req.session.company?.id);
 
-    // First, check if the project exists
-    const existingProject = await Project.findByPk(id);
-    if (!existingProject) {
-      console.log(`Project with ID ${id} not found in database`);
-      return res.status(404).send({
-        message: `Project with id=${id} not found!`,
-      });
-    }
-    console.log("Found existing project:", existingProject.dataValues);
+    // First, check if the project exists AND belongs to the correct company
+    const existingProject = await Project.findOne({
+      where: {
+        id: id,
+        company_id_fk: req.session.company?.id,
+      },
+    });
 
-    // Update the project
-    const [num] = await Project.update(
-      {
-        project_name,
-        project_headline,
-        project_why,
-        project_what,
-        start_date: startDateTest,
-        end_date: endDateTest,
-        prime_id_fk,
-        sponsor_id_fk,
-        project_cost: sanitizedProjectCost,
-        effort: sanitizedEffort,
-        benefit: sanitizedBenefit,
-        phase_id_fk,
-        next_milestone_date: nextMilestoneDateTest,
-        next_milestone_date_details,
-        tag_1: sanitizedTag1,
-        tag_2: sanitizedTag2,
-        tag_3: sanitizedTag3,
-        reference,
-      },
-      {
-        where: { id },
-      },
-    );
+    if (!existingProject) {
+      console.log(
+        `Project with ID ${id} not found in database OR doesn't belong to company ${req.session.company?.id}`,
+      );
+
+      // Let's check if the project exists but belongs to a different company
+      const projectAnyCompany = await Project.findByPk(id);
+      if (projectAnyCompany) {
+        console.log(
+          `Project ${id} exists but belongs to company ${projectAnyCompany.company_id_fk}, not ${req.session.company?.id}`,
+        );
+        return res.status(403).send({
+          message: `Project with id=${id} belongs to a different company!`,
+        });
+      } else {
+        console.log(`Project with ID ${id} does not exist in database at all`);
+        return res.status(404).send({
+          message: `Project with id=${id} not found!`,
+        });
+      }
+    }
+    console.log("Found existing project:", existingProject.dataValues); // Compare current vs new values to see what's changing
+    const currentValues = {
+      project_name: existingProject.project_name,
+      project_headline: existingProject.project_headline,
+      project_why: existingProject.project_why,
+      project_what: existingProject.project_what,
+      start_date: existingProject.start_date,
+      end_date: existingProject.end_date,
+      prime_id_fk: existingProject.prime_id_fk,
+      sponsor_id_fk: existingProject.sponsor_id_fk,
+      project_cost: existingProject.project_cost,
+      effort: existingProject.effort,
+      benefit: existingProject.benefit,
+      phase_id_fk: existingProject.phase_id_fk,
+      next_milestone_date: existingProject.next_milestone_date,
+      next_milestone_date_details: existingProject.next_milestone_date_details,
+      tag_1: existingProject.tag_1,
+      tag_2: existingProject.tag_2,
+      tag_3: existingProject.tag_3,
+      reference: existingProject.reference,
+    };
+
+    const newValues = {
+      project_name,
+      project_headline,
+      project_why,
+      project_what,
+      start_date: startDateTest,
+      end_date: endDateTest,
+      prime_id_fk,
+      sponsor_id_fk,
+      project_cost: sanitizedProjectCost,
+      effort: sanitizedEffort,
+      benefit: sanitizedBenefit,
+      phase_id_fk,
+      next_milestone_date: nextMilestoneDateTest,
+      next_milestone_date_details,
+      tag_1: sanitizedTag1,
+      tag_2: sanitizedTag2,
+      tag_3: sanitizedTag3,
+      reference,
+    };
+
+    console.log("Current values in DB:", currentValues);
+    console.log("New values being sent:", newValues);
+
+    // Check for differences
+    const differences = {};
+    Object.keys(newValues).forEach((key) => {
+      if (currentValues[key] !== newValues[key]) {
+        differences[key] = {
+          current: currentValues[key],
+          new: newValues[key],
+        };
+      }
+    });
+    console.log("Value differences:", differences);
+
+    // Update the project with enhanced error catching
+    let num;
+    try {
+      const updateResult = await Project.update(
+        {
+          project_name,
+          project_headline,
+          project_why,
+          project_what,
+          start_date: startDateTest,
+          end_date: endDateTest,
+          prime_id_fk,
+          sponsor_id_fk,
+          project_cost: sanitizedProjectCost,
+          effort: sanitizedEffort,
+          benefit: sanitizedBenefit,
+          phase_id_fk,
+          next_milestone_date: nextMilestoneDateTest,
+          next_milestone_date_details,
+          tag_1: sanitizedTag1,
+          tag_2: sanitizedTag2,
+          tag_3: sanitizedTag3,
+          reference,
+        },
+        {
+          where: {
+            id: id,
+            company_id_fk: req.session.company?.id,
+          },
+        },
+      );
+      num = updateResult[0];
+      console.log("Full update result:", updateResult);
+    } catch (updateError) {
+      console.error("Sequelize update error:", updateError);
+      throw updateError;
+    }
 
     console.log("Update result - number of rows affected:", num);
     console.log("Update data sent:", {
+      id,
       project_name,
       project_headline,
       project_why,

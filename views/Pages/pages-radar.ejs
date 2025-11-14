@@ -246,6 +246,13 @@
   }
 
   function updateChartsWithFilteredData(data) {
+    // Filter out any Planning phases from the incoming data
+    if (data.phaseStats) {
+      data.phaseStats = data.phaseStats.filter(p => 
+        p.phaseName !== 'Planning' && !p.phaseName.toLowerCase().includes('planning')
+      );
+    }
+    
     // Update global phaseStats variable
     window.phaseStats = data.phaseStats;
 
@@ -394,15 +401,22 @@
           drawTagCharts();
         }
 
-        // Make phaseStats a global variable
-        window.phaseStats = <%- JSON.stringify(phaseStats) %>;
+        // Make phaseStats a global variable and filter out Planning phases
+        window.phaseStats = (<%- JSON.stringify(phaseStats) %>).filter(p => 
+          p.phaseName !== 'Planning' && !p.phaseName.toLowerCase().includes('planning')
+        );
 
         function drawProjectsByPhaseChart() {
-          const phases          = window.phaseStats.map(p => p.phaseName);
-          const troubleCounts   = window.phaseStats.map(p => p.troubleCount);
-          const cautionCounts   = window.phaseStats.map(p => p.cautionCount);
-          const healthyCounts   = window.phaseStats.map(p => p.healthyCount);
-          const noStatusCounts  = window.phaseStats.map(p => p.noStatusCount);
+          // Filter out any Planning phases that might have made it through
+          const filteredPhaseStats = window.phaseStats.filter(p => 
+            p.phaseName !== 'Planning' && !p.phaseName.toLowerCase().includes('planning')
+          );
+          
+          const phases          = filteredPhaseStats.map(p => p.phaseName);
+          const troubleCounts   = filteredPhaseStats.map(p => p.troubleCount);
+          const cautionCounts   = filteredPhaseStats.map(p => p.cautionCount);
+          const healthyCounts   = filteredPhaseStats.map(p => p.healthyCount);
+          const noStatusCounts  = filteredPhaseStats.map(p => p.noStatusCount);
 
           // Build annotations only for non‐zero values
           const ann = arr => arr.map(c => c > 0 ? String(c) : '');
@@ -465,12 +479,17 @@
         }
 
         function drawCostByPhaseChart() {
+          // Filter out any Planning phases that might have made it through
+          const filteredPhaseStats = window.phaseStats.filter(p => 
+            p.phaseName !== 'Planning' && !p.phaseName.toLowerCase().includes('planning')
+          );
+          
           // Extract names & per‐status cost arrays from phaseStats
-          const phases         = window.phaseStats.map(p => p.phaseName);
-          const troubleCosts   = window.phaseStats.map(p => p.troubleCost);
-          const cautionCosts   = window.phaseStats.map(p => p.cautionCost);
-          const healthyCosts   = window.phaseStats.map(p => p.healthyCost);
-          const noStatusCosts  = window.phaseStats.map(p => p.noStatusCost);
+          const phases         = filteredPhaseStats.map(p => p.phaseName);
+          const troubleCosts   = filteredPhaseStats.map(p => p.troubleCost);
+          const cautionCosts   = filteredPhaseStats.map(p => p.cautionCost);
+          const healthyCosts   = filteredPhaseStats.map(p => p.healthyCost);
+          const noStatusCosts  = filteredPhaseStats.map(p => p.noStatusCost);
 
           // Formatter: only show annotation if cost > 0, add commas & dollar sign
           const fmt = n => {
@@ -560,8 +579,8 @@
             return;
           }
 
-          // Create separate series for each health status to enable different colors
-          const chartData = [["Project", "Green", "Yellow", "Red", "No Status"]];
+          // Create separate series for each health status to enable different colors (excluding No Status)
+          const chartData = [["Project", "Green", "Yellow", "Red"]];
 
           data.project_names.forEach((projectName, index) => {
             const progress = data.progress[index] || 0;
@@ -571,8 +590,13 @@
 
             const health = data.colors[index] || 'No status available';
 
+            // Skip projects with no status - don't include them in the chart
+            if (!health || health === 'No status available' || health === '' || health === null) {
+              return; // Skip this project
+            }
+
             // Initialize row with zeros for all health statuses
-            const row = [projectName, 0, 0, 0, 0];
+            const row = [projectName, 0, 0, 0];
 
             // Set the progress value only for the appropriate health status column
             if (health === 'green' || health === 'Green') {
@@ -581,9 +605,8 @@
               row[2] = progressValue; // Yellow column
             } else if (health === 'red' || health === 'Red') {
               row[3] = progressValue; // Red column
-            } else {
-              row[4] = progressValue; // No Status column
             }
+            // No longer handling "No Status" cases
 
             chartData.push(row);
           });
@@ -612,7 +635,7 @@
               position: 'bottom',
               textStyle: { fontSize: 10 }
             },
-            colors: ['#28a745', '#ffc107', '#dc3545', '#6c757d'] // Green, Yellow, Red, Gray
+            colors: ['#28a745', '#ffc107', '#dc3545'] // Green, Yellow, Red (removed gray for No Status)
           };
 
           const chart = new google.visualization.ColumnChart(
@@ -627,8 +650,8 @@
             return;
           }
 
-          // Count health statuses
-          const healthCounts = { 'Green': 0, 'Yellow': 0, 'Red': 0, 'No Status': 0 };
+          // Count health statuses (excluding No Status)
+          const healthCounts = { 'Green': 0, 'Yellow': 0, 'Red': 0 };
 
           data.colors.forEach(health => {
             if (health === 'green' || health === 'Green') {
@@ -637,9 +660,8 @@
               healthCounts['Yellow']++;
             } else if (health === 'red' || health === 'Red') {
               healthCounts['Red']++;
-            } else {
-              healthCounts['No Status']++;
             }
+            // Skip "No Status" entries - don't count them
           });
 
           const chartData = [["Health Status", "Count"]];
@@ -653,7 +675,7 @@
             document.getElementById("healthStatusChart").innerHTML = '<p>No health status data available</p>';
             return;
           }
-
+          console.log("Health Status Chart Data:", chartData); // Debugging log
           const chartDataTable = google.visualization.arrayToDataTable(chartData);
 
           const options = {
@@ -662,7 +684,7 @@
             width: 650,
             height: 400,
             pieHole: 0.4,
-            colors: ['#28a745', '#ffc107', '#dc3545', '#6c757d'],
+            colors: ['#28a745', '#ffc107', '#dc3545'], // Green, Yellow, Red (removed gray for No Status)
             legend: {
               position: 'right',
               textStyle: { color: '#333', fontSize: 12 }
