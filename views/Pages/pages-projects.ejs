@@ -712,5 +712,86 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 
+  // Table sorting functionality
+  function sortTable(columnIndex, dataType = 'string') {
+    const table = document.querySelector('.table');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.rows);
+    const headers = table.querySelectorAll('th.sortable');
+    const currentHeader = headers[columnIndex];
+    const sortDirection = currentHeader.getAttribute('data-sort');
+    
+    // Reset all other arrows
+    headers.forEach(header => {
+      const arrow = header.querySelector('.sort-arrow');
+      arrow.className = 'sort-arrow fa fa-sort';
+      arrow.classList.remove('active');
+      header.setAttribute('data-sort', 'default');
+    });
+    
+    let newDirection;
+    if (sortDirection === 'default' || sortDirection === 'desc') {
+      newDirection = 'asc';
+    } else {
+      newDirection = 'desc';
+    }
+    
+    // Update current header
+    currentHeader.setAttribute('data-sort', newDirection);
+    const currentArrow = currentHeader.querySelector('.sort-arrow');
+    currentArrow.classList.add('active');
+    
+    if (newDirection === 'asc') {
+      currentArrow.className = 'sort-arrow fa fa-sort-up active';
+    } else {
+      currentArrow.className = 'sort-arrow fa fa-sort-down active';
+    }
+    
+    // Sort the rows
+    rows.sort((a, b) => {
+      let aVal = a.cells[columnIndex + 1].textContent.trim(); // +1 because of hidden ID column
+      let bVal = b.cells[columnIndex + 1].textContent.trim();
+      
+      if (dataType === 'date') {
+        aVal = new Date(aVal) || new Date(0);
+        bVal = new Date(bVal) || new Date(0);
+      } else if (dataType === 'number') {
+        aVal = parseFloat(aVal.replace(/[$,]/g, '')) || 0;
+        bVal = parseFloat(bVal.replace(/[$,]/g, '')) || 0;
+      } else {
+        aVal = aVal.toLowerCase();
+        bVal = bVal.toLowerCase();
+      }
+      
+      if (newDirection === 'asc') {
+        return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+      } else {
+        return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+      }
+    });
+    
+    // Re-append sorted rows
+    rows.forEach(row => tbody.appendChild(row));
+  }
+
+  // Add click handlers for sortable headers
+  document.addEventListener('click', function(e) {
+    const header = e.target.closest('th.sortable');
+    if (header) {
+      const columnName = header.getAttribute('data-column');
+      const headers = Array.from(document.querySelectorAll('th.sortable'));
+      const columnIndex = headers.indexOf(header);
+      
+      let dataType = 'string';
+      if (columnName === 'start_date' || columnName === 'end_date') {
+        dataType = 'date';
+      } else if (columnName === 'project_cost') {
+        dataType = 'number';
+      }
+      
+      sortTable(columnIndex, dataType);
+    }
+  });
+
 });
 </script>

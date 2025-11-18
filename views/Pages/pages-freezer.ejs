@@ -24,8 +24,19 @@
                       <span class="counter">Archived (<%= archivedCount %>, $<%= archivedTotalCost %>, <%= archivedTotalPH %> PH)</span>
                   </div>
                   <div>
+                    <% 
+                    // Create a Set to track unique project IDs and prevent duplicates
+                    const uniqueProjectIds = new Set();
+                    const uniqueProjects = projects.filter(project => {
+                      if (uniqueProjectIds.has(project.id)) {
+                        return false; // Skip duplicate
+                      }
+                      uniqueProjectIds.add(project.id);
+                      return true; // Include unique project
+                    });
+                    %>
                     
-                  <% projects.forEach(function(project) { 
+                  <% uniqueProjects.forEach(function(project) { 
                     let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
                     let borderColor = '';
                     if (health === 'green') borderColor = 'green';

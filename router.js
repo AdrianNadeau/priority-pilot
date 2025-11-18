@@ -160,7 +160,7 @@ router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
   }
 
   const query = `
-   SELECT 
+   SELECT DISTINCT ON (proj.id)
   proj.company_id_fk, 
   proj.id, 
   proj.project_name, 
@@ -190,18 +190,20 @@ LEFT JOIN
 LEFT JOIN 
   companies ON companies.id = proj.company_id_fk
 LEFT JOIN (
-    SELECT s1.*
+    SELECT DISTINCT ON (project_id_fk) 
+           project_id_fk, health, status_date
     FROM statuses s1
-    INNER JOIN (
-        SELECT project_id_fk, MAX(status_date) AS max_date
-        FROM statuses
-        GROUP BY project_id_fk
-    ) s2 ON s1.project_id_fk = s2.project_id_fk AND s1.status_date = s2.max_date
+    WHERE s1.status_date = (
+        SELECT MAX(status_date) 
+        FROM statuses s2 
+        WHERE s2.project_id_fk = s1.project_id_fk
+    )
+    ORDER BY project_id_fk, id DESC
 ) latest_status ON latest_status.project_id_fk = proj.id
 WHERE 
   proj.company_id_fk = ? ${dateFilter}
 ORDER BY 
-  proj.phase_id_fk;`;
+  proj.id, proj.phase_id_fk;`;
 
   try {
     const data = await db.sequelize.query(query, {

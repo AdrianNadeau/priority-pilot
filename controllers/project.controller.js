@@ -2713,7 +2713,7 @@ exports.findFreezer = async (req, res) => {
   const company_id_fk = req.session.company.id;
 
   const query = `
-    SELECT  
+    SELECT DISTINCT
     proj.company_id_fk, 
     proj.id, 
     proj.project_name, 
@@ -2751,20 +2751,22 @@ LEFT JOIN
 LEFT JOIN 
     companies ON companies.id = proj.company_id_fk
 LEFT JOIN (
-    SELECT s1.*
+    SELECT DISTINCT ON (project_id_fk) 
+           project_id_fk, health, status_date
     FROM statuses s1
-    INNER JOIN (
-        SELECT project_id_fk, MAX(status_date) AS max_date
-        FROM statuses
-        GROUP BY project_id_fk
-    ) s2 ON s1.project_id_fk = s2.project_id_fk AND s1.status_date = s2.max_date
+    WHERE s1.status_date = (
+        SELECT MAX(status_date) 
+        FROM statuses s2 
+        WHERE s2.project_id_fk = s1.project_id_fk
+    )
+    ORDER BY project_id_fk, id DESC
 ) latest_status ON latest_status.project_id_fk = proj.id
 
 WHERE 
     proj.company_id_fk = ? AND proj.phase_id_fk = 6
 
 ORDER BY 
-    proj.phase_id_fk;
+    proj.project_name;
 `;
 
   try {
@@ -2918,19 +2920,23 @@ ORDER BY
 
     // Render dashboard with all calculated values
     const portfolioName = req.session.company.company_headline;
-    const projects = await db.projects.findAll({
-      where: {
-        company_id_fk: company_id_fk,
-        phase_id_fk: 6,
-      },
-      attributes: ["id", "project_name", "project_cost", "effort", "reference"],
+
+    // Create a Set to ensure distinct project IDs and calculate totals from the main query data
+    const uniqueProjectIds = new Set();
+    const uniqueProjects = data.filter((project) => {
+      if (uniqueProjectIds.has(project.id)) {
+        return false; // Skip duplicate
+      }
+      uniqueProjectIds.add(project.id);
+      return true; // Include unique project
     });
-    const archivedCount = projects.length;
+
+    const archivedCount = uniqueProjects.length;
 
     let archivedTotalPH = 0;
     let archivedTotalCost = 0;
 
-    projects.forEach((project) => {
+    uniqueProjects.forEach((project) => {
       archivedTotalCost += Number(project.project_cost) || 0;
       archivedTotalPH += parseFloat(project.effort) || 0;
     });
