@@ -17,12 +17,18 @@ const {
  */
 const applyProjectDateFilter = (req, baseWhere = {}) => {
   const filter = req.globalFilter || {};
-  const dateFilter = buildSequelizeFilter(filter);
+  console.log("applyProjectDateFilter - filter:", filter);
 
-  return {
+  const dateFilter = buildSequelizeFilter(filter);
+  console.log("applyProjectDateFilter - dateFilter:", dateFilter);
+
+  const result = {
     ...baseWhere,
     ...dateFilter,
   };
+
+  console.log("applyProjectDateFilter - result:", result);
+  return result;
 };
 
 /**

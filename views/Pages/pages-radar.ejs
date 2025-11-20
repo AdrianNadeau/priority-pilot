@@ -95,28 +95,56 @@
     
     <!-- Filter Display Section -->
     <div class="row">
-        <div class="col-md-12">
-            <div class="alert alert-info" style="margin-bottom: 15px; padding: 10px; background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px;">
-                <div style="display: flex; align-items: center;">
-                    <i class="mdi mdi-filter-variant" style="margin-right: 8px; font-size: 18px; color: #1976d2;"></i>
-                    <strong style="margin-right: 10px; color: #1976d2;">Active Filter:</strong>
-                    <span style="color: #333;">
-                        <% if (currentFromDate || currentToDate) { %>
-                            <% if (currentFromDate && currentToDate) { %>
-                                From <strong><%= currentFromDate %></strong> to <strong><%= currentToDate %></strong>
-                            <% } else if (currentFromDate) { %>
-                                From <strong><%= currentFromDate %></strong> onwards
-                            <% } else if (currentToDate) { %>
-                                Up to <strong><%= currentToDate %></strong>
-                            <% } %>
-                        <% } else { %>
-                            No filter set
-                        <% } %>
-                    </span>
+        <div class="col-md-12" style="min-height: 50px; padding-bottom: 15px;">
+            <div class="mini-stat clearfix" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 10px;">
+                <div class="mini-stat-info d-flex align-items-center">
+                    <div class="d-flex align-items-center">
+                        <span class="counter" style="color: black; margin-right: 20px;"><strong>Filter:</strong></span>
+                        
+                        <div class="d-flex align-items-center" style="margin-right: 15px;">
+                            <strong style="margin-right: 10px;">From:</strong>
+                            <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px;" value="<%= currentFromDate || '' %>">
+                        </div>
+                        
+                        <div class="d-flex align-items-center" style="margin-right: 15px;">
+                            <strong style="margin-right: 10px;">To:</strong>
+                            <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px;" value="<%= currentToDate || '' %>">
+                        </div>
+                        
+                        <div class="d-flex">
+                            <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterRadar()">Filter</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Filtered Date Range Totals Section -->
+    <% if (currentFromDate || currentToDate) { %>
+    <div class="row" style="margin-top: 15px;">
+        <div class="col-md-12">
+            <div class="alert alert-success" style="margin-bottom: 15px; padding: 15px; background-color: #d4edda; border: 1px solid #28a745; border-radius: 4px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center;">
+                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
+                        <strong style="color: #155724; font-size: 16px;">Filtered Date Range:</strong>
+                        <span style="color: #155724; margin-left: 10px; font-weight: 500;">
+                            <% if (currentFromDate && currentToDate) { %>
+                                <%= currentFromDate %> to <%= currentToDate %>
+                            <% } else if (currentFromDate) { %>
+                                From <%= currentFromDate %>
+                            <% } else if (currentToDate) { %>
+                                To <%= currentToDate %>
+                            <% } %>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
     
     <!-- Filter Section -->
     <div
@@ -131,10 +159,12 @@
 
     <!-- Top row: Projects by Phase & Investment by Phase -->
     <div class="row mt-5">
-      <div class="col-lg-6 text-center">
-        <div id="columnchart_values"></div>
+      <div class="text-center" style="font-weight: 700;">
+        Initiatives by Phase
+        <div class="text-center;" style="align-items:center;" id="columnchart_values"></div>
       </div>
-      <div class="col-lg-6 text-center">
+      <div class="text-center" style="font-weight: 700;">
+        Investments by Phase
         <div id="columnChartCost_values"></div>
       </div>
     </div>
@@ -148,10 +178,12 @@
 
     <!-- Third row: Individual Project Progress and Health -->
     <div class="row mt-5">
-      <div class="col-lg-6 text-center">
+      <div class="text-center" style="font-weight: 700;">
+        Project Progress
         <div id="progressChart"></div>
       </div>
-      <div class="col-lg-6 text-center">
+      <div class="text-center"style="font-weight: 700;">
+        Project Health
         <div id="healthStatusChart"></div>
       </div>
     </div>
@@ -159,45 +191,54 @@
     <!-- Tag charts: three per row -->
     <div class="row mt-5">
       <p><strong>Tag 1</strong></p>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
+        Initiatives
         <div id="tag1Chart"></div>
         <span id="tag1NoTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
+        Cost
         <div id="tag1CostChart"></div>
         <span id="tag1NoCostTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
+        Effort
         <div id="tag1EffortChart"></div>
         <span id="tag1NoEffortTags" class="d-block"></span>
       </div>
     </div>
     <div class="row mt-3">
       <p><strong>Tag 2</strong></p>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
+        Initiatives
         <div id="tag2Chart"></div>
         <span id="tag2NoTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
+        Cost
         <div id="tag2CostChart"></div>
         <span id="tag2NoCostTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
+        Effort
         <div id="tag2EffortChart"></div>
         <span id="tag2NoEffortTags" class="d-block"></span>
       </div>
     </div>
     <div class="row mt-3">
       <p><strong>Tag 3</strong></p>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
+        Initiatives
         <div id="tag3Chart"></div>
         <span id="tag3NoTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
+        Cost
         <div id="tag3CostChart"></div>
         <span id="tag3NoCostTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
+        Effort
         <div id="tag3EffortChart"></div>
         <span id="tag3NoEffortTags" class="d-block"></span>
       </div>
@@ -206,6 +247,100 @@
 </div>
 
 <%- contentFor('FooterJs') %>
+
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+  // Filter functions
+  function filterDashboard() {
+    const fromDate = document.getElementById('from_date').value;
+    const toDate = document.getElementById('to_date').value;
+    
+    // Send filter data to server to save in persons table
+    fetch('/update-filter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from_date: fromDate,
+        to_date: toDate
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log('Filter preferences saved successfully');
+        // Redirect to current page with filters
+        window.location.href = window.location.pathname;
+      } else {
+        console.error('Error saving filter preferences:', data.message);
+        // Still redirect to try to apply filters
+        const params = new URLSearchParams();
+        if (fromDate) params.append('from_date', fromDate);
+        if (toDate) params.append('to_date', toDate);
+        const queryString = params.toString();
+        const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+        window.location.href = url;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Fallback: redirect with query parameters
+      const params = new URLSearchParams();
+      if (fromDate) params.append('from_date', fromDate);
+      if (toDate) params.append('to_date', toDate);
+      const queryString = params.toString();
+      const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+      window.location.href = url;
+    });
+  }
+  
+  function clearFilters() {
+    // Clear the input fields first
+    document.getElementById('from_date').value = '';
+    document.getElementById('to_date').value = '';
+    
+    // Send clear filter data to server to update persons table
+    fetch('/update-filter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from_date: null,
+        to_date: null
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log('Filter preferences cleared successfully');
+        // Redirect to current page without filters
+        window.location.href = window.location.pathname;
+      } else {
+        console.error('Error clearing filter preferences:', data.message);
+        // Still redirect even if there's an error to reset the page
+        window.location.href = window.location.pathname;
+      }
+    })
+    .catch(error => {
+      console.error('Error clearing filters:', error);
+      // Still redirect even if there's an error to reset the page
+      window.location.href = window.location.pathname;
+    });
+  }
+
+  // Initialize Flatpickr for date inputs
+  flatpickr(".datepicker", {
+    dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+    allowInput: true, // Allow manual input if needed
+    allowInvalidPreload: true, // Allow invalid dates to be preloaded
+  });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <%- contentFor('BottomJs') %>
@@ -232,8 +367,8 @@
     .then(data => {
       if (data.success) {
         console.log('Filter preferences saved successfully to persons table');
-        // Redirect to refresh the page with updated filter values from database
-        window.location.href = '/projects/radar/view/';
+        // Reload the page to apply session-based filtering
+        window.location.reload();
       } else {
         console.error('Error saving filter preferences:', data.error);
         alert('Error saving filter preferences. Please try again.');
@@ -286,6 +421,11 @@
     const data = google.visualization.arrayToDataTable(chartDataArray);
     const options = {
       title: "Portfolio Health",
+        titleTextStyle: {
+        fontSize: 20,
+        bold: true,
+         
+      },
       pieHole: 0.4,
       backgroundColor: "transparent",
       width: 600,
@@ -293,7 +433,7 @@
       colors: colors,
       legend: {
         position: "right",
-        textStyle: { color: "#333", fontSize: 14 },
+        textStyle: { color: "#333", fontSize: 14, alignment: 'center', },
       },
       pieSliceText: "value",
       tooltip: { isHtml: false },
@@ -444,7 +584,7 @@
           // Draw with Google Charts
           const data = google.visualization.arrayToDataTable(dataArray);
           const options = {
-            title: 'Initiatives by Phase',
+            // title: 'Initiatives by Phase',
             isStacked: true,
             width: 650,
             height: 300,
@@ -526,7 +666,7 @@
 
           // Chart options – stacked, currency axis, white annotations, one‐row legend
           const options = {
-            title: 'Investment by Phase',
+            // title: 'Investment by Phase',
             isStacked: true,
             width: 650,
             height: 300,
@@ -614,7 +754,7 @@
           const chartDataTable = google.visualization.arrayToDataTable(chartData);
 
           const options = {
-            title: 'Project Progress',
+            // title: 'Project Progress',
             backgroundColor: 'transparent',
             width: 650,
             height: 400,
@@ -679,7 +819,7 @@
           const chartDataTable = google.visualization.arrayToDataTable(chartData);
 
           const options = {
-            title: 'Project Health',
+            // title: 'Project Health',
             backgroundColor: 'transparent',
             width: 650,
             height: 400,
@@ -723,11 +863,12 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Initiatives ",
+                // title: "Initiatives ",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
                 slices: colorsToSlices(colors),
               };
 
@@ -768,6 +909,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
                 slices: colorsToSlices(colors),
               };
 
@@ -808,6 +950,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
                 slices: colorsToSlices(colors),
               };
 
@@ -846,6 +989,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
                 slices: colorsToSlices(colors),
               };
 
@@ -886,6 +1030,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
                 slices: colorsToSlices(colors),
               };
 
@@ -926,6 +1071,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
                 slices: colorsToSlices(colors),
               };
 
@@ -984,6 +1130,7 @@
                 height: 300,
                 tooltip: { text: "value" },
                 pieSliceText: "value",
+                legend: { position: 'none' },
                 slices: colorsToSlices(colors),
               };
 
@@ -1024,6 +1171,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
                 slices: colorsToSlices(colors),
               };
 
@@ -1064,6 +1212,7 @@
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
                 slices: colorsToSlices(colors),
               };
 

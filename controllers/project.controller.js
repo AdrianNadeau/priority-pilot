@@ -1000,12 +1000,22 @@ exports.findOneForPrime = async (req, res) => {
 exports.radar = async (req, res) => {
   const companyId = req.session.company.id;
 
+  // Debug logging
+  console.log("=== RADAR FILTERING DEBUG ===");
+  console.log("Session filtered_start:", req.session.filtered_start);
+  console.log("Session filtered_end:", req.session.filtered_end);
+  console.log("Global filter:", req.globalFilter);
+
   // Use global filter helper instead of manual date extraction
   const baseWhere = {
     company_id_fk: companyId,
     phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 3] }, // Exclude Pitch and Planning phases
   };
   const whereConditions = applyProjectDateFilter(req, baseWhere);
+
+  console.log("Base where:", baseWhere);
+  console.log("Final where conditions:", whereConditions);
+  console.log("===============================");
 
   try {
     // One query: stats per phase, with conditional SUMs for health counts & costs
@@ -1146,8 +1156,8 @@ exports.radar = async (req, res) => {
       phaseStatsRaw.map((r) => [r.phase_id_fk, r]),
     );
 
-    // Build the ordered array phaseStats (excluding Pitch phase ID 1 and Planning phases 2,3)
-    const PHASE_ORDER = [4, 5];
+    // Build the ordered array phaseStats (excluding Pitch phase ID 1 and Planning phase ID 2)
+    const PHASE_ORDER = [3, 4, 5];
     const phaseStats = PHASE_ORDER.map((pid) => {
       const r = statsByPhase[pid] || {};
       return {

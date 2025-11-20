@@ -65,15 +65,28 @@ const buildSequelizeFilter = (
   const { Op } = require("sequelize");
   const whereConditions = {};
 
+  console.log("buildSequelizeFilter - input filter:", filter);
+  console.log("buildSequelizeFilter - fromDate:", filter.fromDate);
+  console.log("buildSequelizeFilter - toDate:", filter.toDate);
+
   if (filter.fromDate && filter.toDate) {
-    whereConditions[startDateColumn] = { [Op.gte]: filter.fromDate };
-    whereConditions[endDateColumn] = { [Op.lte]: filter.toDate };
+    // Show projects that overlap with the filter period
+    whereConditions[startDateColumn] = { [Op.lte]: filter.toDate };
+    whereConditions[endDateColumn] = { [Op.gte]: filter.fromDate };
+    console.log("buildSequelizeFilter - both dates set, using overlap logic");
   } else if (filter.fromDate) {
-    whereConditions[startDateColumn] = { [Op.gte]: filter.fromDate };
+    // Show projects that end on or after the from date
+    whereConditions[endDateColumn] = { [Op.gte]: filter.fromDate };
+    console.log("buildSequelizeFilter - only fromDate set");
   } else if (filter.toDate) {
-    whereConditions[endDateColumn] = { [Op.lte]: filter.toDate };
+    // Show projects that start on or before the to date
+    whereConditions[startDateColumn] = { [Op.lte]: filter.toDate };
+    console.log("buildSequelizeFilter - only toDate set");
+  } else {
+    console.log("buildSequelizeFilter - no dates set, no filter applied");
   }
 
+  console.log("buildSequelizeFilter - result:", whereConditions);
   return whereConditions;
 };
 

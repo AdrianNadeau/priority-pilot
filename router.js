@@ -53,54 +53,21 @@ router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
   let fromDate = req.query.from_date;
   let toDate = req.query.to_date;
 
-  // If no query parameters, check session for stored filter values
-  if (!fromDate && req.session.filtered_start) {
-    fromDate = req.session.filtered_start;
+  // Handle null/empty values from clear button (treat as clearing filters)
+  if (fromDate === "null" || fromDate === "" || fromDate === null) {
+    fromDate = null;
   }
-  if (!toDate && req.session.filtered_end) {
-    toDate = req.session.filtered_end;
-  }
-
-  // If no filter values in session or query, load from database
-  if (!fromDate || !toDate) {
-    try {
-      const currentUser = await db.persons.findByPk(req.session.person.id);
-      if (currentUser) {
-        if (!fromDate && currentUser.filtered_start) {
-          fromDate = currentUser.filtered_start;
-          req.session.filtered_start = fromDate; // Update session
-        }
-        if (!toDate && currentUser.filtered_end) {
-          toDate = currentUser.filtered_end;
-          req.session.filtered_end = toDate; // Update session
-        }
-      }
-    } catch (error) {
-      console.error(
-        "Error loading user filter preferences from database:",
-        error,
-      );
-    }
+  if (toDate === "null" || toDate === "" || toDate === null) {
+    toDate = null;
   }
 
-  // Handle month-only format (YYYY-MM) for SQL queries
-  if (fromDate && /^\d{4}-\d{2}$/.test(fromDate)) {
-    fromDate = fromDate + "-01";
-  }
-  if (toDate && /^\d{4}-\d{2}$/.test(toDate)) {
-    // For end date, use the last day of the month
-    const [year, month] = toDate.split("-");
-    const lastDay = new Date(year, month, 0).getDate();
-    toDate = `${year}-${month}-${lastDay.toString().padStart(2, "0")}`;
-  }
-
-  // Get current user's milestone details from database - removed, column doesn't exist in persons table
-  let currentMilestoneDetails = "";
-
+  // If no query parameters or null values sent (clear action), clear all filters
   if (
-    !req.query.from_date &&
-    !req.query.to_date &&
-    Object.keys(req.query).length === 0
+    (!fromDate && !toDate) ||
+    (req.query.from_date !== undefined &&
+      req.query.to_date !== undefined &&
+      !fromDate &&
+      !toDate)
   ) {
     // Clear session values
     delete req.session.filtered_start;
@@ -117,11 +84,54 @@ router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
           where: { id: req.session.person.id },
         },
       );
-      currentMilestoneDetails = ""; // Reset the display value too
     } catch (error) {
       console.error("Error clearing person filter data:", error);
     }
+  } else {
+    // If no query parameters, check session for stored filter values
+    if (!fromDate && req.session.filtered_start) {
+      fromDate = req.session.filtered_start;
+    }
+    if (!toDate && req.session.filtered_end) {
+      toDate = req.session.filtered_end;
+    }
+
+    // If no filter values in session or query, load from database
+    if (!fromDate || !toDate) {
+      try {
+        const currentUser = await db.persons.findByPk(req.session.person.id);
+        if (currentUser) {
+          if (!fromDate && currentUser.filtered_start) {
+            fromDate = currentUser.filtered_start;
+            req.session.filtered_start = fromDate; // Update session
+          }
+          if (!toDate && currentUser.filtered_end) {
+            toDate = currentUser.filtered_end;
+            req.session.filtered_end = toDate; // Update session
+          }
+        }
+      } catch (error) {
+        console.error(
+          "Error loading user filter preferences from database:",
+          error,
+        );
+      }
+    }
   }
+
+  // Handle month-only format (YYYY-MM) for SQL queries
+  if (fromDate && /^\d{4}-\d{2}$/.test(fromDate)) {
+    fromDate = fromDate + "-01";
+  }
+  if (toDate && /^\d{4}-\d{2}$/.test(toDate)) {
+    // For end date, use the last day of the month
+    const [year, month] = toDate.split("-");
+    const lastDay = new Date(year, month, 0).getDate();
+    toDate = `${year}-${month}-${lastDay.toString().padStart(2, "0")}`;
+  }
+
+  // Get current user's milestone details from database - removed, column doesn't exist in persons table
+  let currentMilestoneDetails = "";
 
   // Store filter values in session when they change
   if (fromDate || toDate) {
@@ -149,13 +159,17 @@ router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
   let queryParams = [company_id_fk];
 
   if (fromDate && toDate) {
-    dateFilter = `AND proj.start_date >= ? AND proj.end_date <= ?`;
-    queryParams.push(fromDate, toDate);
+    // Show projects that overlap with the filter period
+    // A project overlaps if: project_start <= filter_end AND project_end >= filter_start
+    dateFilter = `AND proj.start_date <= ? AND proj.end_date >= ?`;
+    queryParams.push(toDate, fromDate);
   } else if (fromDate) {
-    dateFilter = `AND proj.start_date >= ?`;
+    // Show projects that end on or after the from date
+    dateFilter = `AND proj.end_date >= ?`;
     queryParams.push(fromDate);
   } else if (toDate) {
-    dateFilter = `AND proj.end_date <= ?`;
+    // Show projects that start on or before the to date
+    dateFilter = `AND proj.start_date <= ?`;
     queryParams.push(toDate);
   }
 
