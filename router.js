@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const moment = require("moment");
 const isAdminMiddleware = require("./middleware/isAdminMiddleware");
 const {
   applyGlobalFilter,
@@ -13,29 +14,42 @@ const Tag = db.tags;
 const { Op, fn, col, literal, where } = require("sequelize");
 const { format } = require("sequelize/lib/utils");
 
-// Function to format numbers with K, M, B
+// Function to format numbers with commas (no K/M/B abbreviations)
 function formatToKMB(num) {
-  // Accept numbers or numeric strings; return a formatted string with two decimals and suffix
-  if (num === null || typeof num === "undefined" || num === "") return "0.00";
+  // Accept numbers or numeric strings; return full number with commas
+  if (num === null || typeof num === "undefined" || num === "") return "0";
   if (typeof num !== "number") {
     const parsed = parseFloat(String(num).replace(/[^0-9.\-]/g, ""));
-    if (isNaN(parsed)) return "0.00";
+    if (isNaN(parsed)) return "0";
     num = parsed;
   }
-  const isNegative = num < 0;
-  const abs = Math.abs(num);
-  const sign = isNegative ? "-" : "";
 
-  if (abs >= 1e9) {
-    return sign + (abs / 1e9).toFixed(2) + "B";
+  // Return full number with commas and no decimals for whole numbers
+  const isWhole = num % 1 === 0;
+  const formatted = isWhole
+    ? Math.abs(num).toFixed(0)
+    : Math.abs(num).toFixed(2);
+
+  // Use toLocaleString for proper comma formatting
+  const withCommas = parseFloat(formatted).toLocaleString("en-US");
+
+  return num < 0 ? "-" + withCommas : withCommas;
+}
+
+// Function to format counts (always whole numbers, no decimals, with commas)
+function formatCount(num) {
+  if (num === null || typeof num === "undefined" || num === "") return "0";
+  if (typeof num !== "number") {
+    const parsed = parseInt(String(num).replace(/[^0-9\-]/g, ""));
+    if (isNaN(parsed)) return "0";
+    num = parsed;
   }
-  if (abs >= 1e6) {
-    return sign + (abs / 1e6).toFixed(2) + "M";
-  }
-  if (abs >= 1e3) {
-    return sign + (abs / 1e3).toFixed(2) + "K";
-  }
-  return sign + abs.toFixed(2);
+  const wholeNum = Math.floor(Math.abs(num));
+
+  // Use toLocaleString for proper comma formatting
+  const withCommas = wholeNum.toLocaleString("en-US");
+
+  return num < 0 ? "-" + withCommas : withCommas;
 }
 
 // Function to remove commas and convert to number
@@ -46,12 +60,21 @@ function removeCommasAndConvert(numStr) {
   return parseFloat(numStr.replace(/,/g, ""));
 }
 
+// Helper function to calculate days between dates
+function calculateFilteredDays(fromDate, toDate) {
+  if (!fromDate || !toDate) return null;
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+  const diffTime = Math.abs(to - from);
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both dates
+}
+
 router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
   const company_id_fk = req.session.company.id;
 
-  // Extract date parameters from query string
-  let fromDate = req.query.from_date;
-  let toDate = req.query.to_date;
+  // Priority order: session values first, then query params, then database
+  let fromDate = req.session.filtered_start || req.query.from_date;
+  let toDate = req.session.filtered_end || req.query.to_date;
 
   // Handle null/empty values from clear button (treat as clearing filters)
   if (fromDate === "null" || fromDate === "" || fromDate === null) {
@@ -61,61 +84,24 @@ router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
     toDate = null;
   }
 
-  // If no query parameters or null values sent (clear action), clear all filters
-  if (
-    (!fromDate && !toDate) ||
-    (req.query.from_date !== undefined &&
-      req.query.to_date !== undefined &&
-      !fromDate &&
-      !toDate)
-  ) {
-    // Clear session values
-    delete req.session.filtered_start;
-    delete req.session.filtered_end;
-
-    // Reset database values to null for clean state (persons table only has filter dates)
+  // If no filter values and user just loaded page, check database
+  if (!fromDate || !toDate) {
     try {
-      await db.persons.update(
-        {
-          filtered_start: null,
-          filtered_end: null,
-        },
-        {
-          where: { id: req.session.person.id },
-        },
-      );
-    } catch (error) {
-      console.error("Error clearing person filter data:", error);
-    }
-  } else {
-    // If no query parameters, check session for stored filter values
-    if (!fromDate && req.session.filtered_start) {
-      fromDate = req.session.filtered_start;
-    }
-    if (!toDate && req.session.filtered_end) {
-      toDate = req.session.filtered_end;
-    }
-
-    // If no filter values in session or query, load from database
-    if (!fromDate || !toDate) {
-      try {
-        const currentUser = await db.persons.findByPk(req.session.person.id);
-        if (currentUser) {
-          if (!fromDate && currentUser.filtered_start) {
-            fromDate = currentUser.filtered_start;
-            req.session.filtered_start = fromDate; // Update session
-          }
-          if (!toDate && currentUser.filtered_end) {
-            toDate = currentUser.filtered_end;
-            req.session.filtered_end = toDate; // Update session
-          }
+      const currentUser = await db.persons.findByPk(req.session.person.id);
+      if (currentUser) {
+        if (!fromDate && currentUser.filtered_start) {
+          fromDate = moment(currentUser.filtered_start).format("YYYY-MM-DD");
+          req.session.filtered_start = fromDate; // Update session
         }
-      } catch (error) {
-        console.error(
-          "Error loading user filter preferences from database:",
-          error,
-        );
+        if (!toDate && currentUser.filtered_end) {
+          toDate = moment(currentUser.filtered_end).format("YYYY-MM-DD");
+          req.session.filtered_end = toDate; // Update session
+        }
+        // Calculate filtered days when loading from user defaults
+        req.session.filtered_days = calculateFilteredDays(fromDate, toDate);
       }
+    } catch (error) {
+      console.error("Error loading user filter data:", error);
     }
   }
 
@@ -137,6 +123,7 @@ router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
   if (fromDate || toDate) {
     req.session.filtered_start = fromDate;
     req.session.filtered_end = toDate;
+    req.session.filtered_days = calculateFilteredDays(fromDate, toDate);
 
     // Update person model with filtered dates
     try {
@@ -144,6 +131,7 @@ router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
         {
           filtered_start: fromDate || null,
           filtered_end: toDate || null,
+          filtered_days: req.session.filtered_days || null,
         },
         {
           where: { id: req.session.person.id },
@@ -155,26 +143,26 @@ router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
   }
 
   // Build the WHERE clause for date filtering
+  // Pitch (phase_id_fk = 1) and Archived (phase_id_fk = 6) projects should always be shown regardless of date filters
   let dateFilter = "";
   let queryParams = [company_id_fk];
 
   if (fromDate && toDate) {
-    // Show projects that overlap with the filter period
-    // A project overlaps if: project_start <= filter_end AND project_end >= filter_start
-    dateFilter = `AND proj.start_date <= ? AND proj.end_date >= ?`;
+    // Show projects that overlap with the filter period, but always include pitch and archived
+    dateFilter = `AND (proj.phase_id_fk IN (1, 6) OR (proj.start_date <= ? AND proj.end_date >= ?))`;
     queryParams.push(toDate, fromDate);
   } else if (fromDate) {
-    // Show projects that end on or after the from date
-    dateFilter = `AND proj.end_date >= ?`;
+    // Show projects that end on or after the from date, but always include pitch and archived
+    dateFilter = `AND (proj.phase_id_fk IN (1, 6) OR proj.end_date >= ?)`;
     queryParams.push(fromDate);
   } else if (toDate) {
-    // Show projects that start on or before the to date
-    dateFilter = `AND proj.start_date <= ?`;
+    // Show projects that start on or before the to date, but always include pitch and archived
+    dateFilter = `AND (proj.phase_id_fk IN (1, 6) OR proj.start_date <= ?)`;
     queryParams.push(toDate);
   }
 
   const query = `
-   SELECT DISTINCT ON (proj.id)
+   SELECT DISTINCT 
   proj.company_id_fk, 
   proj.id, 
   proj.project_name, 
@@ -204,20 +192,20 @@ LEFT JOIN
 LEFT JOIN 
   companies ON companies.id = proj.company_id_fk
 LEFT JOIN (
-    SELECT DISTINCT ON (project_id_fk) 
-           project_id_fk, health, status_date
-    FROM statuses s1
-    WHERE s1.status_date = (
-        SELECT MAX(status_date) 
-        FROM statuses s2 
-        WHERE s2.project_id_fk = s1.project_id_fk
-    )
-    ORDER BY project_id_fk, id DESC
+  SELECT DISTINCT ON (project_id_fk) 
+         project_id_fk, health, status_date
+  FROM statuses s1
+  WHERE s1.status_date = (
+      SELECT MAX(status_date) 
+      FROM statuses s2 
+      WHERE s2.project_id_fk = s1.project_id_fk
+  )
+  ORDER BY project_id_fk, id DESC
 ) latest_status ON latest_status.project_id_fk = proj.id
 WHERE 
-  proj.company_id_fk = ? ${dateFilter}
+  proj.company_id_fk = ? AND proj.deleted_yn = false ${dateFilter}
 ORDER BY 
-  proj.id, proj.phase_id_fk;`;
+  proj.id;`;
 
   try {
     const data = await db.sequelize.query(query, {
@@ -293,6 +281,7 @@ ORDER BY
         // Pass current filter values back to template
         currentFromDate: fromDate || "",
         currentToDate: toDate || "",
+        filteredDays: req.session.filtered_days || null,
       });
     }
 
@@ -351,6 +340,8 @@ ORDER BY
 
     // Process data and calculate totals
     const seenProjectIds = new Set(); // Track processed projects to avoid duplicates
+    let pitchProjects = []; // Track pitch projects for debugging
+
     data.forEach((project) => {
       // Skip if we've already processed this project (prevents duplicates)
       if (seenProjectIds.has(project.id)) {
@@ -375,8 +366,13 @@ ORDER BY
         phaseData[phase].cost += projectCost;
         phaseData[phase].ph += projectEffortPH;
 
-        // Debug logs
-        if (project.phase_name) {
+        // Track pitch projects for debugging
+        if (phase === "pitch") {
+          pitchProjects.push({
+            id: project.id,
+            name: project.project_name,
+            phase_name: project.phase_name,
+          });
         }
       } else {
         console.warn(
@@ -418,32 +414,32 @@ ORDER BY
       totalUsedPH: formatToKMB(usedEffort),
       totalAvailPH: formatToKMB(totalAvailPH),
       pitch: {
-        count: phaseData.pitch.count,
-        cost: formatToKMB(phaseData.pitch.cost),
+        count: formatCount(phaseData.pitch.count),
+        cost: "0", // Force cost to 0 as requested
         ph: formatToKMB(phaseData.pitch.ph),
       },
       planning: {
-        count: phaseData.planning.count,
+        count: formatCount(phaseData.planning.count),
         cost: formatToKMB(phaseData.planning.cost),
         ph: formatToKMB(phaseData.planning.ph),
       },
       discovery: {
-        count: phaseData.discovery.count,
+        count: formatCount(phaseData.discovery.count),
         cost: formatToKMB(phaseData.discovery.cost),
         ph: formatToKMB(phaseData.discovery.ph),
       },
       delivery: {
-        count: phaseData.delivery.count,
+        count: formatCount(phaseData.delivery.count),
         cost: formatToKMB(phaseData.delivery.cost),
         ph: formatToKMB(phaseData.delivery.ph),
       },
       operations: {
-        count: phaseData.done.count,
+        count: formatCount(phaseData.done.count),
         cost: formatToKMB(phaseData.done.cost),
         ph: formatToKMB(phaseData.done.ph),
       },
       archived: {
-        count: phaseData.archived.count,
+        count: formatCount(phaseData.archived.count),
         cost: formatToKMB(phaseData.archived.cost),
         ph: formatToKMB(phaseData.archived.ph),
       },
@@ -527,6 +523,7 @@ ORDER BY
       // Pass current filter values back to template
       currentFromDate: fromDate || "",
       currentToDate: toDate || "",
+      filteredDays: req.session.filtered_days || null,
       currentMilestoneDetails: currentMilestoneDetails,
     });
   } catch (error) {
@@ -552,20 +549,19 @@ router.post("/update-filter", isAdminMiddleware, async (req, res) => {
       to_date = `${year}-${month}-${lastDay.toString().padStart(2, "0")}`;
     }
 
-    // Update person model with filtered dates and milestone details
-    // Temporarily disabled milestone details until database column is added
+    // Update person model with filtered dates
     await db.persons.update(
       {
         filtered_start: from_date || null,
         filtered_end: to_date || null,
-        // next_milestone_date_details: next_milestone_date_details || null,
+        filtered_days: calculateFilteredDays(from_date, to_date) || null,
       },
       {
         where: { id: personId },
       },
     );
 
-    // Store filter values in session (or clear them if null)
+    // Store filter values in session (like previous versions)
     if (from_date === null || from_date === undefined) {
       delete req.session.filtered_start;
     } else {
@@ -577,6 +573,12 @@ router.post("/update-filter", isAdminMiddleware, async (req, res) => {
     } else {
       req.session.filtered_end = to_date;
     }
+
+    // Calculate and store filtered days
+    req.session.filtered_days = calculateFilteredDays(
+      req.session.filtered_start,
+      req.session.filtered_end,
+    );
 
     // Temporarily disabled milestone details until database column is added
     /*

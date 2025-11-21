@@ -49,6 +49,9 @@ module.exports = (sequelize, Sequelize) => {
     filtered_end: {
       type: Sequelize.DATE,
     },
+    filtered_days: {
+      type: Sequelize.INTEGER,
+    },
   });
 
   return Person;

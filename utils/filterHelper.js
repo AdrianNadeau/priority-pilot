@@ -17,21 +17,13 @@ const {
  */
 const applyProjectDateFilter = (req, baseWhere = {}) => {
   const filter = req.globalFilter || {};
-  console.log("applyProjectDateFilter - filter:", filter);
-
   const dateFilter = buildSequelizeFilter(filter);
-  console.log("applyProjectDateFilter - dateFilter:", dateFilter);
 
-  const result = {
+  return {
     ...baseWhere,
     ...dateFilter,
   };
-
-  console.log("applyProjectDateFilter - result:", result);
-  return result;
-};
-
-/**
+}; /**
  * Apply global date filter to raw SQL queries
  * @param {Object} req - Express request object
  * @param {Array} baseParams - Base parameters for the query

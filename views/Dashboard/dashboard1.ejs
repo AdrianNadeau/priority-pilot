@@ -58,6 +58,15 @@
                                 <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterDashboard()">Filter</button>
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear</button>
                             </div>
+                            
+                            <!-- Display number of days in date range -->
+                            <% if (currentFromDate && currentToDate && filteredDays) { %>
+                                <div class="d-flex align-items-center" style="margin-left: 20px;">
+                                    <span class="counter" style="color: #2196f3; font-size: 14px;">
+                                        <strong>(<%= filteredDays %> days)</strong>
+                                    </span>
+                                </div>
+                            <% } %>
                         </div>
                     </div>
                 </div>
@@ -73,14 +82,14 @@
            <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
             <div class="mini-stat bg-white clearfix" >
               <div class="mini-stat-info">
-                <a href="/projects/funnel/view/"><span class="counter" style="color:black"><strong>Funnel</strong> (<%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)</span></a>
+                <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)</span></a>
               </div>
             </div>
             </div>
                       <div class="col-md-6 phase-column">
                         <div class="mini-stat bg-white clearfix" style="min-height: 50px;">
                             <div class="mini-stat-info" data-phase="Archive">
-                                <a href="/projects/freezer/view/"><span class="counter" style="color:black"><strong>Archive</strong> (<%= archived.count %>, $<%= archived.cost %>, <%= archived.ph %> PH)</span></a>
+                                <a href="/projects/freezer/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Archive</strong> (<%= archived.count %>, $<%= archived.cost %>, <%= archived.ph %> PH)</span></a>
                             </div>
                         </div>
                       </div>

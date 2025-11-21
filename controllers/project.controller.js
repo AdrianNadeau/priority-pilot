@@ -254,22 +254,25 @@ exports.findAll = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
 
-    // Get current filter values from session (set by global filter system)
+    // Get filter dates from session
     const fromDate = req.session.filtered_start;
     const toDate = req.session.filtered_end;
 
-    // Build date filter conditions for the SQL query
+    // Build date filter using overlap logic
     let dateFilter = "";
     let queryParams = [company_id_fk];
 
     if (fromDate && toDate) {
-      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
-      queryParams.push(fromDate, toDate);
+      // Show projects that overlap with the filter period
+      dateFilter = " AND proj.start_date <= ? AND proj.end_date >= ?";
+      queryParams.push(toDate, fromDate);
     } else if (fromDate) {
-      dateFilter = " AND proj.start_date >= ?";
+      // Show projects that end on or after the from date
+      dateFilter = " AND proj.end_date >= ?";
       queryParams.push(fromDate);
     } else if (toDate) {
-      dateFilter = " AND proj.end_date <= ?";
+      // Show projects that start on or before the to date
+      dateFilter = " AND proj.start_date <= ?";
       queryParams.push(toDate);
     }
 
@@ -1000,23 +1003,28 @@ exports.findOneForPrime = async (req, res) => {
 exports.radar = async (req, res) => {
   const companyId = req.session.company.id;
 
-  // Debug logging
-  console.log("=== RADAR FILTERING DEBUG ===");
-  console.log("Session filtered_start:", req.session.filtered_start);
-  console.log("Session filtered_end:", req.session.filtered_end);
-  console.log("Global filter:", req.globalFilter);
+  // Get filter dates from session
+  const fromDate = req.session.filtered_start;
+  const toDate = req.session.filtered_end;
 
-  // Use global filter helper instead of manual date extraction
-  const baseWhere = {
+  // Build base where conditions
+  const whereConditions = {
     company_id_fk: companyId,
     phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 3] }, // Exclude Pitch and Planning phases
   };
-  const whereConditions = applyProjectDateFilter(req, baseWhere);
 
-  console.log("Base where:", baseWhere);
-  console.log("Final where conditions:", whereConditions);
-  console.log("===============================");
-
+  // Add date filtering using overlap logic
+  if (fromDate && toDate) {
+    // Show projects that overlap with the filter period
+    whereConditions.start_date = { [db.Sequelize.Op.lte]: toDate };
+    whereConditions.end_date = { [db.Sequelize.Op.gte]: fromDate };
+  } else if (fromDate) {
+    // Show projects that end on or after the from date
+    whereConditions.end_date = { [db.Sequelize.Op.gte]: fromDate };
+  } else if (toDate) {
+    // Show projects that start on or before the to date
+    whereConditions.start_date = { [db.Sequelize.Op.lte]: toDate };
+  }
   try {
     // One query: stats per phase, with conditional SUMs for health counts & costs
     const phaseStatsRaw = await db.projects.findAll({
@@ -2616,10 +2624,9 @@ exports.findFunnel = async (req, res) => {
       order: [["id", "ASC"]],
     });
     // Custom SQL query to retrieve project data
-    console.log("Company ID:", company_id_fk, "Person ID:", person_id_fk);
 
     const query = `
-    SELECT 
+    SELECT DISTINCT
       proj.company_id_fk,
       proj.id,
       proj.project_name,
@@ -2632,8 +2639,7 @@ exports.findFunnel = async (req, res) => {
       sponsor_person.first_name AS sponsor_first_name,
       sponsor_person.last_name AS sponsor_last_name,
       proj.project_cost,
-      phases.phase_name,
-      COUNT(proj.id) AS phase_count
+      phases.phase_name
     FROM
       projects proj
     LEFT JOIN
@@ -2643,25 +2649,13 @@ exports.findFunnel = async (req, res) => {
     LEFT JOIN
       phases ON phases.id = proj.phase_id_fk
     WHERE
-      proj.company_id_fk = ? AND proj.phase_id_fk = 1
-    GROUP BY
-      proj.company_id_fk,
-      proj.id,
-      proj.project_name,
-      proj.start_date,
-      proj.end_date,
-      proj.health,
-      proj.effort,
-      prime_person.first_name,
-      prime_person.last_name,
-      sponsor_person.first_name,
-      sponsor_person.last_name,
-      proj.project_cost,
-      phases.phase_name
+      proj.company_id_fk = ? AND proj.phase_id_fk = 1 AND proj.deleted_yn = false
+    ORDER BY
+      proj.id
   `;
 
     const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk, person_id_fk, person_id_fk],
+      replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
 
