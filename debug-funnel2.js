@@ -1,11 +1,11 @@
-const { sequelize } = require('./models');
+const { sequelize } = require("./models");
 
 (async () => {
   try {
-    console.log('=== INVESTIGATING FUNNEL DISCREPANCY ===\n');
-    
+    console.log("=== INVESTIGATING FUNNEL DISCREPANCY ===\n");
+
     // Test the exact funnel query
-    console.log('1. Testing exact funnel controller query:');
+    console.log("1. Testing exact funnel controller query:");
     const funnelQuery = `
       SELECT DISTINCT
         proj.company_id_fk,
@@ -34,49 +34,53 @@ const { sequelize } = require('./models');
       ORDER BY
         proj.id
     `;
-    
+
     const funnelData = await sequelize.query(funnelQuery, {
-      type: sequelize.QueryTypes.SELECT
+      type: sequelize.QueryTypes.SELECT,
     });
-    
+
     console.log(`Funnel query result count: ${funnelData.length}`);
     funnelData.forEach((p, i) => {
-      console.log(`${i+1}. ID ${p.id}: ${p.project_name}`);
+      console.log(`${i + 1}. ID ${p.id}: ${p.project_name}`);
     });
-    
+
     // Test simpler query without JOINs
-    console.log('\n2. Testing simple project count (no JOINs):');
+    console.log("\n2. Testing simple project count (no JOINs):");
     const simpleCount = await sequelize.query(
-      'SELECT COUNT(*) as count FROM projects WHERE company_id_fk = 23 AND phase_id_fk = 1 AND deleted_yn = false',
-      { type: sequelize.QueryTypes.SELECT }
+      "SELECT COUNT(*) as count FROM projects WHERE company_id_fk = 23 AND phase_id_fk = 1 AND deleted_yn = false",
+      { type: sequelize.QueryTypes.SELECT },
     );
     console.log(`Simple count: ${simpleCount[0].count}`);
-    
+
     // Check for duplicate phase records
-    console.log('\n3. Checking phases table for duplicates:');
+    console.log("\n3. Checking phases table for duplicates:");
     const phaseCheck = await sequelize.query(
-      'SELECT id, phase_name, COUNT(*) as count FROM phases GROUP BY id, phase_name ORDER BY id',
-      { type: sequelize.QueryTypes.SELECT }
+      "SELECT id, phase_name, COUNT(*) as count FROM phases GROUP BY id, phase_name ORDER BY id",
+      { type: sequelize.QueryTypes.SELECT },
     );
-    phaseCheck.forEach(p => {
+    phaseCheck.forEach((p) => {
       if (p.count > 1) {
-        console.log(`⚠️  Duplicate phase: ID ${p.id} (${p.phase_name}) appears ${p.count} times`);
+        console.log(
+          `⚠️  Duplicate phase: ID ${p.id} (${p.phase_name}) appears ${p.count} times`,
+        );
       } else {
         console.log(`✅ Phase ID ${p.id} (${p.phase_name}) - unique`);
       }
     });
-    
+
     // Check for duplicate person records that might affect JOINs
-    console.log('\n4. Checking for person duplicates that could affect JOINs:');
+    console.log("\n4. Checking for person duplicates that could affect JOINs:");
     const personCheck = await sequelize.query(
-      'SELECT COUNT(DISTINCT id) as unique_persons, COUNT(*) as total_persons FROM persons WHERE company_id_fk = 23',
-      { type: sequelize.QueryTypes.SELECT }
+      "SELECT COUNT(DISTINCT id) as unique_persons, COUNT(*) as total_persons FROM persons WHERE company_id_fk = 23",
+      { type: sequelize.QueryTypes.SELECT },
     );
-    console.log(`Unique persons: ${personCheck[0].unique_persons}, Total records: ${personCheck[0].total_persons}`);
-    
+    console.log(
+      `Unique persons: ${personCheck[0].unique_persons}, Total records: ${personCheck[0].total_persons}`,
+    );
+
     process.exit(0);
-  } catch(e) {
-    console.error('Error:', e.message);
+  } catch (e) {
+    console.error("Error:", e.message);
     process.exit(1);
   }
 })();
