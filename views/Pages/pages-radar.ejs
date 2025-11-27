@@ -94,6 +94,20 @@
   <div class="container-fluid" style="margin-left: 0.5em">
     
     <!-- Filter Display Section -->
+    <!-- Dynamic Cost Summary Row -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="alert alert-info" style="margin-bottom: 10px; padding: 12px; background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px;">
+          <div style="display: flex; align-items: center;">
+            <i class="bi bi-cash-stack" style="margin-right: 8px; font-size: 20px; color: #1565c0;"></i>
+            <strong style="color: #1565c0; font-size: 16px; padding-right: 5px;">Portfolio Cost:</strong>
+            <span style="color: #1565c0; font-weight: bold; padding-right: 10px;">Total: $<%= totalCost ? totalCost.toLocaleString() : '0' %></span>
+            <span style="color: #1565c0; font-weight: bold; padding-right: 10px;">Used: $<%= usedCost ? usedCost.toLocaleString() : '0' %></span>
+            <span style="color: #1565c0; font-weight: bold;">Avail: $<%= availableCost ? availableCost.toLocaleString() : '0' %></span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="row">
         <div class="col-md-12" style="min-height: 50px; padding-bottom: 15px;">
             <div class="mini-stat clearfix" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 10px;">
@@ -121,30 +135,7 @@
         </div>
     </div>
     
-    <!-- Filtered Date Range Totals Section -->
-    <% if (currentFromDate || currentToDate) { %>
-    <div class="row" style="margin-top: 15px;">
-        <div class="col-md-12">
-            <div class="alert alert-success" style="margin-bottom: 15px; padding: 15px; background-color: #d4edda; border: 1px solid #28a745; border-radius: 4px;">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center;">
-                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
-                        <strong style="color: #155724; font-size: 16px;">Filtered Date Range:</strong>
-                        <span style="color: #155724; margin-left: 10px; font-weight: 500;">
-                            <% if (currentFromDate && currentToDate) { %>
-                                <%= currentFromDate %> to <%= currentToDate %>
-                            <% } else if (currentFromDate) { %>
-                                From <%= currentFromDate %>
-                            <% } else if (currentToDate) { %>
-                                To <%= currentToDate %>
-                            <% } %>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <% } %>
+  
     
     <!-- Filter Section -->
     <div
@@ -192,17 +183,17 @@
     <div class="row mt-5">
       <p><strong>Tag 1</strong></p>
       <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        Initiatives
+        <span style="padding-left: 126px;">Initiatives</span>
         <div id="tag1Chart"></div>
         <span id="tag1NoTags" class="d-block"></span>
       </div>
       <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        Cost
+        <span style="padding-left: 126px;">Cost</span>
         <div id="tag1CostChart"></div>
         <span id="tag1NoCostTags" class="d-block"></span>
       </div>
       <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        Effort
+        <span style="padding-left: 126px;"></span>Effort</span>
         <div id="tag1EffortChart"></div>
         <span id="tag1NoEffortTags" class="d-block"></span>
       </div>
@@ -210,17 +201,19 @@
     <div class="row mt-3">
       <p><strong>Tag 2</strong></p>
       <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        Initiatives
+        <span style="padding-left: 126px;"></span>Initiatives</span>
         <div id="tag2Chart"></div>
         <span id="tag2NoTags" class="d-block"></span>
       </div>
       <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        Cost
+         <span style="padding-left: 126px;"></span>Cost</span>
+        
         <div id="tag2CostChart"></div>
         <span id="tag2NoCostTags" class="d-block"></span>
       </div>
       <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        Effort
+        <span style="padding-left: 126px;"></span>Effort</span>
+        
         <div id="tag2EffortChart"></div>
         <span id="tag2NoEffortTags" class="d-block"></span>
       </div>
@@ -228,17 +221,19 @@
     <div class="row mt-3">
       <p><strong>Tag 3</strong></p>
       <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        Initiatives
+         <span style="padding-left: 126px;"></span>Initiatives</span>
+        
         <div id="tag3Chart"></div>
         <span id="tag3NoTags" class="d-block"></span>
       </div>
       <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        Cost
+        <span style="padding-left: 126px;"></span>Cost</span>
+        
         <div id="tag3CostChart"></div>
         <span id="tag3NoCostTags" class="d-block"></span>
       </div>
       <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        Effort
+        <span style="padding-left: 126px;"></span>Effort</span>
         <div id="tag3EffortChart"></div>
         <span id="tag3NoEffortTags" class="d-block"></span>
       </div>
@@ -334,12 +329,6 @@
     });
   }
 
-  // Initialize Flatpickr for date inputs
-  flatpickr(".datepicker", {
-    dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-    allowInput: true, // Allow manual input if needed
-    allowInvalidPreload: true, // Allow invalid dates to be preloaded
-  });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
@@ -420,12 +409,12 @@
 
     const data = google.visualization.arrayToDataTable(chartDataArray);
     const options = {
-      title: "Portfolio Health",
-        titleTextStyle: {
-        fontSize: 20,
-        bold: true,
+      // title: "Portfolio Health3",
+      //   titleTextStyle: {
+      //   fontSize: 20,
+      //   bold: true,
          
-      },
+      // },
       pieHole: 0.4,
       backgroundColor: "transparent",
       width: 600,
@@ -483,11 +472,33 @@
 
   // Initialize Flatpickr for date inputs
   document.addEventListener("DOMContentLoaded", function () {
-    flatpickr(".datepicker", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true, // Allow manual input if needed
-      allowInvalidPreload: true, // Allow invalid dates to be preloaded
+    // Get session values for date pickers
+    var currentFromDate = '<%= currentFromDate || "" %>';
+    var currentToDate = '<%= currentToDate || "" %>';
+
+    function isValidDateString(dateStr) {
+      // Accepts YYYY-MM-DD only
+      return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+    }
+
+    var fromPicker = flatpickr("#from_date", {
+      dateFormat: "Y-m-d",
+      allowInput: true,
+      allowInvalidPreload: true
     });
+    var toPicker = flatpickr("#to_date", {
+      dateFormat: "Y-m-d",
+      allowInput: true,
+      allowInvalidPreload: true
+    });
+
+    // Force Flatpickr and input to session value after initialization
+    if (isValidDateString(currentFromDate)) {
+      fromPicker.setDate(currentFromDate, true);
+    }
+    if (isValidDateString(currentToDate)) {
+      toPicker.setDate(currentToDate, true);
+    }
   });
 </script>
 
@@ -542,7 +553,7 @@
         }
 
         // Make phaseStats a global variable and filter out Planning phases
-        window.phaseStats = (<%- JSON.stringify(phaseStats) %>).filter(p => 
+        window.phaseStats = (<%= JSON.stringify(phaseStats) %>).filter(p => 
           p.phaseName !== 'Planning' && !p.phaseName.toLowerCase().includes('planning')
         );
 
@@ -904,7 +915,7 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Cost",
+                // title: "Cost",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -945,7 +956,6 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Effort",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -984,7 +994,6 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Initiatives",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -992,7 +1001,6 @@
                 legend: { position: 'none' },
                 slices: colorsToSlices(colors),
               };
-
               const chart = new google.visualization.PieChart(
                 document.getElementById("tag2Chart")
               );
@@ -1025,7 +1033,6 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Cost",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -1066,7 +1073,6 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Effort",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -1123,7 +1129,6 @@
               const data = google.visualization.arrayToDataTable(formattedData);
 
               const options = {
-                title: "Initiatives",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -1166,7 +1171,6 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Cost",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -1207,7 +1211,6 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Effort",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,

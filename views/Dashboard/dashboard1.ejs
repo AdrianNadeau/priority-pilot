@@ -82,21 +82,22 @@
            <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
             <div class="mini-stat bg-white clearfix" >
               <div class="mini-stat-info">
-                <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)</span></a>
+                <% function formatNumberWithCommas(x) { if (x == null) return '0'; var parts = x.toString().split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); return parts.join('.'); } %>
+                <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %> / $<%= formatNumberWithCommas(pitch.cost) %> / <%= formatNumberWithCommas(pitch.ph) %> PH)</span></a>
               </div>
             </div>
             </div>
                       <div class="col-md-6 phase-column">
                         <div class="mini-stat bg-white clearfix" style="min-height: 50px;">
                             <div class="mini-stat-info" data-phase="Archive">
-                                <a href="/projects/freezer/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Archive</strong> (<%= archived.count %>, $<%= archived.cost %>, <%= archived.ph %> PH)</span></a>
+                                <a href="/projects/freezer/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Archive</strong> (<%= archived.count %> / $<%= formatNumberWithCommas(archived.cost) %> / <%= formatNumberWithCommas(archived.ph) %> PH)</span></a>
                             </div>
                         </div>
                       </div>
                     <div class="col-md-6 phase-column">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Planning</strong> (<%= planning.count %>, $<%= planning.cost %>, <%= planning.ph %> PH)</span>
+                                <span class="counter"><strong>Planning</strong> (<%= planning.count %> / $<%= formatNumberWithCommas(planning.cost) %> / <%= formatNumberWithCommas(planning.ph) %> PH)</span>
                             </div>
                             <div class="phase-buttons" style="padding-left: 10px;">
 
@@ -131,7 +132,7 @@
            <div class="col-md-6 phase-column" style="padding-bottom: 15px;">
             <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
               <div class="mini-stat-info">
-                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %>, $<%= discovery.cost %>, <%= discovery.ph %> PH)</span>
+                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %> / $<%= formatNumberWithCommas(discovery.cost) %> / <%= formatNumberWithCommas(discovery.ph) %> PH)</span>
                             </div>
                             <div class="phase-buttons" style="padding-left: 10px;">
                                  <% projects.forEach(function(project) { 
@@ -159,7 +160,7 @@
       <div class="col-md-6 phase-column">
             <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Delivery</strong> (<%= delivery.count %>, $<%= delivery.cost %>, <%= delivery.ph %> PH)</span>
+                                <span class="counter"><strong>Delivery</strong> (<%= delivery.count %> / $<%= formatNumberWithCommas(delivery.cost) %> / <%= formatNumberWithCommas(delivery.ph) %> PH)</span>
                             </div>
                             <div class="phase-buttons" style="padding-left: 10px;">
                             <% projects.forEach(function(project) { 
@@ -184,7 +185,7 @@
           <div class="col-md-6 phase-column">
             <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                              <span class="counter"><strong>Done</strong> (<%= operations.count %>, $<%= operations.cost  %>, <%= operations.ph %> PH)</span>
+                              <span class="counter"><strong>Done</strong> (<%= operations.count %> / $<%= formatNumberWithCommas(operations.cost) %> / <%= formatNumberWithCommas(operations.ph) %> PH)</span>
                             </div>
                             <div class="phase-buttons" style="padding-left: 10px;">
                                  <% projects.forEach(function(project) { 
@@ -213,40 +214,36 @@
             <!-- Filtered Date Range Totals Section -->
             <% if (currentFromDate || currentToDate) { %>
             <div class="row" style="margin-top: 15px;">
-                <div class="col-md-12">
-                    <div class="alert alert-success" style="margin-bottom: 15px; padding: 15px; background-color: #d4edda; border: 1px solid #28a745; border-radius: 4px;">
-                        <div style="display: flex; align-items: center;">
-                            <div style="width: 50%; display: flex; align-items: center;">
-                                <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
-                                <strong style="color: #155724; font-size: 16px;padding-right:5px;">Cost:</strong>
-                                  <span style="color: #155724; font-weight: bold;padding-right:5px;">
-                                    Total: $<%= totalCost %>
-                                  </span>
-                                  <span style="color: #155724; font-weight: bold; margin-left:5px;">
-                                    Used: $<%= usedCost %>
-                                  </span>
-                                  <span style="color: #155724; font-weight: bold; margin-left:5px;">
-                                    Avail: $<%= availableCost %>
-                                  </span>
-                               
-                            </div>
-                             <div style="width: 50%; display: flex; align-items: center;">
-                                <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
-                                <strong style="color: #155724; font-size: 16px;padding-right:5px;">Effort:</strong>
-                                  <span style="color: #155724; font-weight: bold;padding-right:5px;">
-                                    Total: <%= totalPH %> PH
-                                  </span>
-                                  <span style="color: #155724; font-weight: bold; margin-left:5px;">
-                                    Used: <%= totalUsedPH %> PH
-                                  </span>
-                                  <span style="color: #155724; font-weight: bold; margin-left:5px;">
-                                    Avail: <%= totalAvailPH %> PH
-                                  </span>
-                               
-                            </div>
-                        </div>
+              <div class="col-md-12">
+                <div class="alert alert-success" style="margin-bottom: 15px; padding: 15px; background-color: #d4edda; border: 1px solid #28a745; border-radius: 4px;">
+                  <div style="display: flex; align-items: center;">
+                    <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
+                      <div style="display: flex; align-items: center;">
+                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
+                        <strong style="color: #155724; font-size: 16px;padding-right:5px;">Cost:</strong>
+                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: $<%= totalCost %></span>
+                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: $<%= usedCost %></span>
+                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: $<%= availableCost %></span>
+                      </div>
+                      <div style="margin-top: 5px; color: #0d47a1; font-size: 13px;">
+                        <em>Budget for Filter: $<%= budgetForFilter %> (annual default × days/365)</em>
+                      </div>
                     </div>
+                    <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
+                      <div style="display: flex; align-items: center;">
+                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
+                        <strong style="color: #155724; font-size: 16px;padding-right:5px;">Effort:</strong>
+                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: <%= totalPH %> PH</span>
+                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: <%= totalUsedPH %> PH</span>
+                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: <%= totalAvailPH %> PH</span>
+                      </div>
+                      <div style="margin-top: 5px; color: #0d47a1; font-size: 13px;">
+                        <em>Effort for Filter: <%= effortForFilter %> PH (annual default × days/365)</em>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              </div>
             </div>
             <% } %>
             
@@ -308,10 +305,19 @@
                     <div class="row text-center" style="padding-top: 20px;padding-bottom: 20px;">
                         <div class="col-md-12">
                           
+                          <% 
+                            // Always show percent block, using same logic for all-time and filtered
+                            let costPercentVal = (typeof usedCost !== 'undefined' && typeof totalCost !== 'undefined' && sanitizeNumber(totalCost) && !isNaN(sanitizeNumber(totalCost)))
+                              ? ((sanitizeNumber(usedCost) / sanitizeNumber(totalCost)) * 100).toFixed(1) + '%'
+                              : '0%';
+                            let effortPercentVal = (typeof totalUsedPH !== 'undefined' && typeof totalPH !== 'undefined' && sanitizeNumber(totalPH) && !isNaN(sanitizeNumber(totalPH)))
+                              ? ((sanitizeNumber(totalUsedPH) / sanitizeNumber(totalPH)) * 100).toFixed(1) + '%'
+                              : '0%';
+                          %>
                           <strong class="list-percent">COST</strong><br/>
-                          <span id="cost-percentage" class="list-percent percent-cost" data-color="<%= costColor %>"><%= costPercent %>%</span><br/>
+                          <span id="cost-percentage" class="list-percent percent-cost" data-color="<%= costColor %>"><%= costPercentVal %></span><br/>
                           <strong class="list-percent">EFFORT</strong><br/>
-                          <span id="effort-percentage" class="list-percent percent-effort" data-color="<%= effColor %>"><%= effPercent %>%</span>
+                          <span id="effort-percentage" class="list-percent percent-effort" data-color="<%= effColor %>"><%= effortPercentVal %></span>
                         </div>
                     </div>
                 </div>

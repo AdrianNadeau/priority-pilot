@@ -24,15 +24,9 @@ function formatToKMB(num) {
     num = parsed;
   }
 
-  // Return full number with commas and no decimals for whole numbers
-  const isWhole = num % 1 === 0;
-  const formatted = isWhole
-    ? Math.abs(num).toFixed(0)
-    : Math.abs(num).toFixed(2);
-
-  // Use toLocaleString for proper comma formatting
-  const withCommas = parseFloat(formatted).toLocaleString("en-US");
-
+  // Always return full number with commas, no decimals
+  const formatted = Math.round(Math.abs(num)).toString();
+  const withCommas = parseInt(formatted, 10).toLocaleString("en-US");
   return num < 0 ? "-" + withCommas : withCommas;
 }
 
@@ -213,6 +207,34 @@ ORDER BY
       type: db.sequelize.QueryTypes.SELECT,
     });
 
+    // Get all pitch projects separately to ensure accurate count (to match funnel)
+    const pitchQuery = `
+      SELECT DISTINCT
+        proj.id,
+        proj.project_name,
+        proj.project_cost,
+        proj.effort,
+        phases.phase_name
+      FROM projects proj
+      LEFT JOIN phases ON phases.id = proj.phase_id_fk
+      WHERE proj.company_id_fk = ? AND proj.phase_id_fk = 1 AND proj.deleted_yn = false
+      ORDER BY proj.id
+    `;
+
+    const pitchData = await db.sequelize.query(pitchQuery, {
+      replacements: [company_id_fk],
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    console.log(
+      `Dashboard separate pitch query: Found ${pitchData.length} pitch projects:`,
+    );
+    pitchData.forEach((project) => {
+      console.log(
+        `Dashboard separate: Project ID ${project.id}: ${project.project_name}`,
+      );
+    });
+
     const uniquePhases = [
       ...new Set(data.map((p) => p.phase_name).filter(Boolean)),
     ];
@@ -345,6 +367,9 @@ ORDER BY
     data.forEach((project) => {
       // Skip if we've already processed this project (prevents duplicates)
       if (seenProjectIds.has(project.id)) {
+        console.log(
+          `Dashboard: Skipping duplicate project ID ${project.id}: ${project.project_name}`,
+        );
         return;
       }
       seenProjectIds.add(project.id);
@@ -373,6 +398,9 @@ ORDER BY
             name: project.project_name,
             phase_name: project.phase_name,
           });
+          console.log(
+            `Dashboard: Added pitch project ID ${project.id}: ${project.project_name}`,
+          );
         }
       } else {
         console.warn(
@@ -384,94 +412,128 @@ ORDER BY
       }
     });
 
-    // Calculate used values (from filtered projects only)
-    const usedCost =
-      phaseData.planning.cost +
-      phaseData.discovery.cost +
-      phaseData.delivery.cost +
-      phaseData.done.cost;
+    // Override pitch count with separate query result for accuracy
+    const pitchCost = pitchData.reduce((sum, project) => {
+      return (
+        sum + (parseFloat((project.project_cost || "0").replace(/,/g, "")) || 0)
+      );
+    }, 0);
 
-    const usedEffort =
-      phaseData.planning.ph +
-      phaseData.discovery.ph +
-      phaseData.delivery.ph +
-      phaseData.done.ph;
+    const pitchEffort = pitchData.reduce((sum, project) => {
+      return sum + (parseFloat((project.effort || "0").replace(/,/g, "")) || 0);
+    }, 0);
 
-    const totalAvailPH = portfolio_effort - usedEffort;
-    const availableCost = portfolio_budget - usedCost;
+    phaseData.pitch.count = pitchData.length;
+    phaseData.pitch.cost = pitchCost;
+    phaseData.pitch.ph = pitchEffort;
+
+    // Log final pitch project count for debugging
+    console.log(
+      `Dashboard: Final pitch count = ${phaseData.pitch.count}, projects:`,
+      pitchProjects,
+    );
+
+    // --- Proportional cost calculation for dashboard totals ---
+    // Only for non-pitch, non-archived projects (phases: planning, discovery, delivery, done)
+    function parseCost(val) {
+      if (!val) return 0;
+      if (typeof val === "number") return val;
+      return parseFloat(String(val).replace(/[^0-9.\-]/g, "")) || 0;
+    }
+    const filterStart = fromDate ? new Date(fromDate) : null;
+    const filterEnd = toDate ? new Date(toDate) : new Date();
+    let proportionalTotalCost = 0;
+    let proportionalUsedCost = 0;
+    let proportionalAvailableCost = 0;
+    let proportionalTotalEffort = 0;
+    let proportionalUsedEffort = 0;
+    let proportionalAvailableEffort = 0;
+
+    // Only sum for planning, discovery, delivery, done
+    const relevantPhases = ["planning", "discovery", "delivery", "done"];
+    let allTimeCost = 0;
+    let allTimeEffort = 0;
+    data.forEach((project) => {
+      const phase = mapPhaseToKey(project.phase_name);
+      if (!relevantPhases.includes(phase)) return;
+      const cost = parseCost(project.project_cost);
+      const effort = parseCost(project.effort);
+      const start = project.start_date ? new Date(project.start_date) : null;
+      const end = project.end_date ? new Date(project.end_date) : null;
+      if (!start || !end) return;
+      // Calculate overlap between project and filter
+      const projectStart = start;
+      const projectEnd = end;
+      const overlapStart =
+        filterStart && filterStart > projectStart ? filterStart : projectStart;
+      const overlapEnd =
+        filterEnd && filterEnd < projectEnd ? filterEnd : projectEnd;
+      const projectDays = Math.max(
+        1,
+        Math.ceil((projectEnd - projectStart) / (1000 * 60 * 60 * 24)) + 1,
+      );
+      const daysInFilter =
+        overlapEnd >= overlapStart
+          ? Math.max(
+              0,
+              Math.ceil((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) +
+                1,
+            )
+          : 0;
+
+      // Calculate estimated daily cost
+      const dailyCost = projectDays > 0 ? cost / projectDays : 0;
+      // For totalCost: sum all project costs (full duration)
+      proportionalTotalCost += cost;
+      // For usedCost: sum daily cost * days in filter (overlap)
+      const costUsed = dailyCost * daysInFilter;
+      proportionalUsedCost += costUsed;
+
+      // Effort logic (same as before)
+      const dailyEffort = projectDays > 0 ? effort / projectDays : 0;
+      proportionalTotalEffort += effort;
+      const effortUsed = dailyEffort * daysInFilter;
+      proportionalUsedEffort += effortUsed;
+
+      // All time (entire project, not just filter)
+      allTimeCost += cost;
+      allTimeEffort += effort;
+    });
+    proportionalAvailableCost = proportionalTotalCost - proportionalUsedCost;
+    proportionalAvailableEffort =
+      proportionalTotalEffort - proportionalUsedEffort;
 
     // Determine colors based on availability
-    // Use Bootstrap text classes so views can style consistently
     const availablePHColor =
-      isNaN(totalAvailPH) || totalAvailPH < 0 ? "text-danger" : "text-success";
+      proportionalAvailableEffort > 0
+        ? "#28a745"
+        : proportionalAvailableEffort < 0
+          ? "#dc3545"
+          : "#000";
     const availableCostColor =
-      isNaN(availableCost) || availableCost < 0
-        ? "text-danger"
-        : "text-success";
+      proportionalAvailableCost > 0
+        ? "#28a745"
+        : proportionalAvailableCost < 0
+          ? "#dc3545"
+          : "#000";
 
-    const formattedData = {
-      totalPH: formatToKMB(portfolio_effort),
-      totalUsedPH: formatToKMB(usedEffort),
-      totalAvailPH: formatToKMB(totalAvailPH),
-      pitch: {
-        count: formatCount(phaseData.pitch.count),
-        cost: "0", // Force cost to 0 as requested
-        ph: formatToKMB(phaseData.pitch.ph),
-      },
-      planning: {
-        count: formatCount(phaseData.planning.count),
-        cost: formatToKMB(phaseData.planning.cost),
-        ph: formatToKMB(phaseData.planning.ph),
-      },
-      discovery: {
-        count: formatCount(phaseData.discovery.count),
-        cost: formatToKMB(phaseData.discovery.cost),
-        ph: formatToKMB(phaseData.discovery.ph),
-      },
-      delivery: {
-        count: formatCount(phaseData.delivery.count),
-        cost: formatToKMB(phaseData.delivery.cost),
-        ph: formatToKMB(phaseData.delivery.ph),
-      },
-      operations: {
-        count: formatCount(phaseData.done.count),
-        cost: formatToKMB(phaseData.done.cost),
-        ph: formatToKMB(phaseData.done.ph),
-      },
-      archived: {
-        count: formatCount(phaseData.archived.count),
-        cost: formatToKMB(phaseData.archived.cost),
-        ph: formatToKMB(phaseData.archived.ph),
-      },
+    // Format all totals as whole numbers (no decimals)
+    function formatWholeNumber(val) {
+      return Math.round(val || 0).toLocaleString();
+    }
 
-      totalCost: formatToKMB(portfolio_budget),
-      usedCost: formatToKMB(usedCost),
-      availableCost: formatToKMB(availableCost),
-      totalCostPercent:
-        portfolio_budget && !isNaN(portfolio_budget) ? "100%" : "0%",
-      usedCostPercent:
-        portfolio_budget && !isNaN(portfolio_budget)
-          ? ((usedCost / portfolio_budget) * 100).toFixed(1) + "%"
-          : "0%",
-      availableCostPercent:
-        portfolio_budget && !isNaN(portfolio_budget)
-          ? ((availableCost / portfolio_budget) * 100).toFixed(1) + "%"
-          : "0%",
-      // Effort percent fields (mirror cost percent behavior)
-      totalEffortPercent:
-        portfolio_effort && !isNaN(portfolio_effort) ? "100%" : "0%",
-      usedEffortPercent:
-        portfolio_effort && !isNaN(portfolio_effort)
-          ? ((usedEffort / portfolio_effort) * 100).toFixed(1) + "%"
-          : "0%",
-      availableEffortPercent:
-        portfolio_effort && !isNaN(portfolio_effort)
-          ? ((totalAvailPH / portfolio_effort) * 100).toFixed(1) + "%"
-          : "0%",
-      usedEffort: formatToKMB(usedEffort),
-      availableEffort: formatToKMB(totalAvailPH),
-      totalEffort: formatToKMB(portfolio_effort),
-    };
+    // Calculate budget and effort for filter range based on annual defaults
+    let budgetForFilter = 0;
+    let effortForFilter = 0;
+    if (portfolio_budget && req.session.filtered_days) {
+      budgetForFilter = (req.session.filtered_days / 365) * portfolio_budget;
+    }
+    if (portfolio_effort && req.session.filtered_days) {
+      effortForFilter = (req.session.filtered_days / 365) * portfolio_effort;
+    }
+    // Format for display
+    const budgetForFilterDisplay = formatWholeNumber(budgetForFilter);
+    const effortForFilterDisplay = formatWholeNumber(effortForFilter);
 
     //get all phases for add project modal (ordered by id)
     const phases = await db.phases.findAll({ order: [["id", "ASC"]] });
@@ -480,47 +542,67 @@ ORDER BY
     //get all persons for primes and sponsors add project modal
     const persons = await db.persons.findAll({ where: { company_id_fk } });
     // Fetch tags
-
     let tagsData = await Tag.findAll({
       where: { company_id_fk: company_id_fk },
       order: [["id", "ASC"]],
     });
-
     // Add "None" option at the top of the tags list
     tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
-    // Deduplicate projects by ID and ensure admin flags
-    const uniqueProjects = [];
-    const seenIds = new Set();
-    const currentPerson =
-      req.session && req.session.person ? req.session.person : null;
-    for (const project of data) {
-      if (!seenIds.has(project.id)) {
-        const canModify = currentPerson ? !!currentPerson.isAdmin : false;
-        uniqueProjects.push({
-          ...project,
-          can_update_status: canModify,
-          can_view: true,
-        });
-        seenIds.add(project.id);
-      }
-    }
-
     const portfolioName = req.session.company.company_headline;
+
     res.render("Dashboard/dashboard1", {
       pageTitle: "Dashboard",
-      company_id: company_id_fk,
-      projects: uniqueProjects,
-      ...formattedData,
+      ...phaseData,
+      operations: phaseData.done,
+      projects: data,
+      totalCost: formatWholeNumber(proportionalTotalCost),
+      usedCost: formatWholeNumber(proportionalUsedCost),
+      availableCost: formatWholeNumber(proportionalAvailableCost),
+      totalPH: formatWholeNumber(proportionalTotalEffort),
+      totalUsedPH: formatWholeNumber(proportionalUsedEffort),
+      totalAvailPH: formatWholeNumber(proportionalAvailableEffort),
+      totalCostPercent:
+        proportionalTotalCost && !isNaN(proportionalTotalCost) ? "100%" : "0%",
+      usedCostPercent:
+        proportionalTotalCost && !isNaN(proportionalTotalCost)
+          ? ((proportionalUsedCost / proportionalTotalCost) * 100).toFixed(1) +
+            "%"
+          : "0%",
+      availableCostPercent:
+        proportionalTotalCost && !isNaN(proportionalTotalCost)
+          ? ((proportionalAvailableCost / proportionalTotalCost) * 100).toFixed(
+              1,
+            ) + "%"
+          : "0%",
+      // Effort percent fields (mirror cost percent behavior)
+      totalEffortPercent:
+        proportionalTotalEffort && !isNaN(proportionalTotalEffort)
+          ? "100%"
+          : "0%",
+      usedEffortPercent:
+        proportionalTotalEffort && !isNaN(proportionalTotalEffort)
+          ? ((proportionalUsedEffort / proportionalTotalEffort) * 100).toFixed(
+              1,
+            ) + "%"
+          : "0%",
+      availableEffortPercent:
+        proportionalTotalEffort && !isNaN(proportionalTotalEffort)
+          ? (
+              (proportionalAvailableEffort / proportionalTotalEffort) *
+              100
+            ).toFixed(1) + "%"
+          : "0%",
       availableCostColor,
       availablePHColor,
-      portfolioName,
+      allTimeCost: formatWholeNumber(allTimeCost),
+      allTimeEffort: formatWholeNumber(allTimeEffort),
+      budgetForFilter: budgetForFilterDisplay,
+      effortForFilter: effortForFilterDisplay,
       phases,
       priorities,
       sponsors: persons,
       primes: persons,
       tags: tagsData,
-      totalCostPercent: formattedData.totalCostPercent,
-      // Pass current filter values back to template
       currentFromDate: fromDate || "",
       currentToDate: toDate || "",
       filteredDays: req.session.filtered_days || null,

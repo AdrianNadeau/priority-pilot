@@ -395,6 +395,49 @@ exports.findAll = async (req, res) => {
         const currentPerson =
           req.session && req.session.person ? req.session.person : null;
         const enriched = uniqueProjects.map((p) => {
+          // Calculate cost used in filter range
+          let costUsed = 0;
+          let percentInFilter = 0;
+          let daysInFilter = 0;
+          let projectDays = 0;
+          try {
+            const projStart = p.start_date ? new Date(p.start_date) : null;
+            const projEnd = p.end_date ? new Date(p.end_date) : null;
+            const filterStart = fromDate ? new Date(fromDate) : null;
+            const filterEnd = toDate ? new Date(toDate) : null;
+            if (projStart && projEnd && !isNaN(projStart) && !isNaN(projEnd)) {
+              // Calculate overlap
+              const overlapStart =
+                filterStart && projStart > filterStart
+                  ? projStart
+                  : filterStart || projStart;
+              const overlapEnd =
+                filterEnd && projEnd < filterEnd
+                  ? projEnd
+                  : filterEnd || projEnd;
+              // Only if overlap
+              if (overlapEnd >= overlapStart) {
+                daysInFilter =
+                  Math.floor(
+                    (overlapEnd - overlapStart) / (1000 * 60 * 60 * 24),
+                  ) + 1;
+                projectDays =
+                  Math.floor((projEnd - projStart) / (1000 * 60 * 60 * 24)) + 1;
+                if (projectDays > 0) {
+                  percentInFilter = daysInFilter / projectDays;
+                  const cost =
+                    parseFloat(
+                      (p.project_cost || "0").toString().replace(/,/g, ""),
+                    ) || 0;
+                  costUsed = percentInFilter * cost;
+                }
+              }
+            }
+          } catch (e) {
+            costUsed = 0;
+            percentInFilter = 0;
+          }
+
           // For admins: can update only if they are prime or sponsor, can view all
           // For non-admins: can update only if they are prime, can view if they are prime or sponsor
           const canModify = currentPerson
@@ -413,6 +456,10 @@ exports.findAll = async (req, res) => {
             ...p,
             can_update_status: canModify,
             can_view: canView,
+            costUsed: Math.round(costUsed * 100) / 100, // rounded to 2 decimals
+            percentInFilter: Math.round(percentInFilter * 10000) / 100, // percent as 0-100
+            daysInFilter,
+            projectDays,
           };
         });
 
@@ -1186,27 +1233,95 @@ exports.radar = async (req, res) => {
       };
     });
 
-    // Render just three variables
+    // Calculate dynamic cost values for all projects in radar view
+    // Fetch all relevant projects (excluding Pitch and Planning phases, with filter)
+    const projectWhere = {
+      company_id_fk: companyId,
+      phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 3] },
+    };
+    if (fromDate && toDate) {
+      projectWhere.start_date = { [db.Sequelize.Op.lte]: toDate };
+      projectWhere.end_date = { [db.Sequelize.Op.gte]: fromDate };
+    } else if (fromDate) {
+      projectWhere.end_date = { [db.Sequelize.Op.gte]: fromDate };
+    } else if (toDate) {
+      projectWhere.start_date = { [db.Sequelize.Op.lte]: toDate };
+    }
+    const allProjects = await db.projects.findAll({
+      where: projectWhere,
+      raw: true,
+    });
+    // Helper to parse cost
+    function parseCost(val) {
+      if (!val) return 0;
+      if (typeof val === "number") return val;
+      return parseFloat(String(val).replace(/[^0-9.\-]/g, "")) || 0;
+    }
+    // Calculate filter range
+    const today = new Date();
+    const filterStart = fromDate ? new Date(fromDate) : null;
+    const filterEnd = toDate ? new Date(toDate) : today;
+
+    // For each project, calculate percentInFilter, daysInFilter, projectDays, costUsed
+    allProjects.forEach((p) => {
+      const cost = parseCost(p.project_cost);
+      const start = p.start_date ? new Date(p.start_date) : null;
+      const end = p.end_date ? new Date(p.end_date) : null;
+      if (!start || !end || cost === 0) {
+        p.percentInFilter = 0;
+        p.daysInFilter = 0;
+        p.projectDays = 0;
+        p.costUsed = 0;
+        return;
+      }
+      // Calculate overlap between project and filter
+      const projectStart = start;
+      const projectEnd = end;
+      const overlapStart =
+        filterStart && filterStart > projectStart ? filterStart : projectStart;
+      const overlapEnd =
+        filterEnd && filterEnd < projectEnd ? filterEnd : projectEnd;
+      const projectDays = Math.max(
+        1,
+        Math.ceil((projectEnd - projectStart) / (1000 * 60 * 60 * 24)) + 1,
+      );
+      const daysInFilter =
+        overlapEnd >= overlapStart
+          ? Math.max(
+              0,
+              Math.ceil((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) +
+                1,
+            )
+          : 0;
+      const percentInFilter = daysInFilter > 0 ? daysInFilter / projectDays : 0;
+      const costUsed = cost * percentInFilter;
+      p.percentInFilter = percentInFilter;
+      p.daysInFilter = daysInFilter;
+      p.projectDays = projectDays;
+      p.costUsed = costUsed;
+    });
+
+    // Total = sum of project_cost for all projects
+    const totalCost = allProjects.reduce(
+      (sum, p) => sum + parseCost(p.project_cost),
+      0,
+    );
+    // Used = sum of costUsed for all projects
+    const usedCost = allProjects.reduce((sum, p) => sum + (p.costUsed || 0), 0);
+    // Avail = Total - Used
+    const availableCost = totalCost - usedCost;
+    // Render with dynamic cost values
     res.render("Pages/pages-radar", {
       pageTitle: "Radar",
       portfolioName: company.company_headline,
       currentDate: new Date().toLocaleDateString(),
       phaseStats,
+      totalCost: Math.round(totalCost),
+      usedCost: Math.round(usedCost),
+      availableCost: Math.round(availableCost),
       // Pass current filter values back to template using session values
-      currentFromDate: req.session.filtered_start
-        ? new Date(req.session.filtered_start).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })
-        : null,
-      currentToDate: req.session.filtered_end
-        ? new Date(req.session.filtered_end).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })
-        : null,
+      currentFromDate: req.session.filtered_start || "",
+      currentToDate: req.session.filtered_end || "",
     });
   } catch (err) {
     console.error(err);
@@ -1819,7 +1934,7 @@ exports.countCostsByTag1 = async (req, res) => {
     const tag1Costs = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
         tag_1: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -1921,7 +2036,7 @@ exports.countEffortByTag1 = async (req, res) => {
     const tag1Efforts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
         tag_1: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2086,7 +2201,7 @@ exports.countCostsByTag2 = async (req, res) => {
     const tag2Costs = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
         tag_2: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2188,7 +2303,7 @@ exports.countEffortByTag2 = async (req, res) => {
     const tag2Efforts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
         tag_2: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2353,7 +2468,7 @@ exports.countCostsByTag3 = async (req, res) => {
     const tag3Costs = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
         tag_3: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2455,7 +2570,7 @@ exports.countEffortByTag3 = async (req, res) => {
     const tag3Efforts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
         tag_3: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2657,6 +2772,12 @@ exports.findFunnel = async (req, res) => {
     const data = await db.sequelize.query(query, {
       replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    // Log funnel projects for debugging
+    console.log(`Funnel: Found ${data.length} pitch projects:`);
+    data.forEach((project) => {
+      console.log(`Funnel: Project ID ${project.id}: ${project.project_name}`);
     });
 
     // Calculate pitch count, total cost, and total effort
