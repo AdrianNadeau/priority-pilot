@@ -83,7 +83,7 @@
             <div class="mini-stat bg-white clearfix" >
               <div class="mini-stat-info">
                 <% function formatNumberWithCommas(x) { if (x == null) return '0'; var parts = x.toString().split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); return parts.join('.'); } %>
-                <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %> / $<%= formatNumberWithCommas(pitch.cost) %> / <%= formatNumberWithCommas(pitch.ph) %> PH)</span></a>
+                <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %> / $0 / <%= formatNumberWithCommas(pitch.ph) %> PH)</span></a>
               </div>
             </div>
             </div>
