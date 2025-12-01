@@ -1,10 +1,6 @@
 <%- contentFor('HeaderCss') %>
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-/>
-<link
-  rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
 />
 <style>
@@ -70,6 +66,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
 <%- contentFor('breadcrumb') %>
 <div class="row">
   <div class="col-md-4">
@@ -94,59 +91,35 @@
   <div class="container-fluid" style="margin-left: 0.5em">
     
     <!-- Filter Display Section -->
-    <!-- Dynamic Cost Summary Row -->
     <div class="row">
-      <div class="col-md-12">
-        <div class="alert alert-info" style="margin-bottom: 10px; padding: 12px; background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px;">
-          <div style="display: flex; align-items: center;">
-            <i class="bi bi-cash-stack" style="margin-right: 8px; font-size: 20px; color: #1565c0;"></i>
-            <strong style="color: #1565c0; font-size: 16px; padding-right: 5px;">Portfolio Cost:</strong>
-            <span style="color: #1565c0; font-weight: bold; padding-right: 10px;">Total: $<%= totalCost ? totalCost.toLocaleString() : '0' %></span>
-            <span style="color: #1565c0; font-weight: bold; padding-right: 10px;">Used: $<%= usedCost ? usedCost.toLocaleString() : '0' %></span>
-            <span style="color: #1565c0; font-weight: bold;">Avail: $<%= availableCost ? availableCost.toLocaleString() : '0' %></span>
+      <div class="col-md-12" style="min-height: 50px; padding-bottom: 15px;">
+        <div class="mini-stat clearfix" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 10px;">
+          <div class="mini-stat-info d-flex align-items-center">
+            <div class="d-flex align-items-center">
+              <span class="counter" style="color: black; margin-right: 20px;"><strong>Filter:</strong></span>
+              <div class="d-flex align-items-center" style="margin-right: 15px;">
+                <strong style="margin-right: 10px;">From:</strong>
+                <input type="text" class="form-control datepicker" id="from_date" name="from_date"
+                  placeholder="From" style="width: 150px;"
+                  value="<%= currentFromDate ? currentFromDate : '' %>"
+                  <%= currentFromDate ? '' : 'placeholder="From"' %>>
+              </div>
+              <div class="d-flex align-items-center" style="margin-right: 15px;">
+                <strong style="margin-right: 10px;">To:</strong>
+                <input type="text" class="form-control datepicker" id="to_date" name="to_date"
+                  placeholder="To" style="width: 150px;"
+                  value="<%= currentToDate ? currentToDate : '' %>"
+                  <%= currentToDate ? '' : 'placeholder="To"' %>>
+              </div>
+              <div class="d-flex">
+                <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterDashboard()">Filter</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="row">
-        <div class="col-md-12" style="min-height: 50px; padding-bottom: 15px;">
-            <div class="mini-stat clearfix" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 10px;">
-                <div class="mini-stat-info d-flex align-items-center">
-                    <div class="d-flex align-items-center">
-                        <span class="counter" style="color: black; margin-right: 20px;"><strong>Filter:</strong></span>
-                        
-                        <div class="d-flex align-items-center" style="margin-right: 15px;">
-                            <strong style="margin-right: 10px;">From:</strong>
-                            <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px;" value="<%= currentFromDate || '' %>">
-                        </div>
-                        
-                        <div class="d-flex align-items-center" style="margin-right: 15px;">
-                            <strong style="margin-right: 10px;">To:</strong>
-                            <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px;" value="<%= currentToDate || '' %>">
-                        </div>
-                        
-                        <div class="d-flex">
-                            <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterRadar()">Filter</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-  
-    
-    <!-- Filter Section -->
-    <div
-      class="row"
-      style="
-        margin-bottom: 15px;
-
-        background-color: #f8f9fa;
-        padding: 10px;
-      "
-    ></div>
 
     <!-- Top row: Projects by Phase & Investment by Phase -->
     <div class="row mt-5">
@@ -243,10 +216,6 @@
 
 <%- contentFor('FooterJs') %>
 
-<!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
   // Filter functions
@@ -295,37 +264,13 @@
   }
   
   function clearFilters() {
-    // Clear the input fields first
     document.getElementById('from_date').value = '';
     document.getElementById('to_date').value = '';
-    
-    // Send clear filter data to server to update persons table
-    fetch('/update-filter', {
+    fetch('/filter/clear', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from_date: null,
-        to_date: null
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        console.log('Filter preferences cleared successfully');
-        // Redirect to current page without filters
-        window.location.href = window.location.pathname;
-      } else {
-        console.error('Error clearing filter preferences:', data.message);
-        // Still redirect even if there's an error to reset the page
-        window.location.href = window.location.pathname;
-      }
-    })
-    .catch(error => {
-      console.error('Error clearing filters:', error);
-      // Still redirect even if there's an error to reset the page
-      window.location.href = window.location.pathname;
+      headers: { 'Content-Type': 'application/json' }
+    }).then(() => {
+      window.location.reload();
     });
   }
 
@@ -553,9 +498,7 @@
         }
 
         // Make phaseStats a global variable and filter out Planning phases
-        window.phaseStats = (<%= JSON.stringify(phaseStats) %>).filter(p => 
-          p.phaseName !== 'Planning' && !p.phaseName.toLowerCase().includes('planning')
-        );
+        window.phaseStats = <%- JSON.stringify(Array.isArray(phaseStats) ? phaseStats.filter(function(p) { return p.phaseName !== 'Planning' && !p.phaseName.toLowerCase().includes('planning'); }) : []) %>;
 
         function drawProjectsByPhaseChart() {
           // Filter out any Planning phases that might have made it through
@@ -1283,5 +1226,34 @@
       // Remove the added style element
       document.head.removeChild(style);
     }, 1000);
+  });
+</script>
+<script src="https://unpkg.com/js-datepicker"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.datepicker) {
+      datepicker('#from_date', {
+        formatter: (input, date, instance) => {
+          if (date) input.value = date.toISOString().slice(0, 10);
+        },
+        startDay: 1,
+        customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+        customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        overlayButton: 'Go',
+        overlayPlaceholder: 'Enter a year',
+        alwaysShow: false
+      });
+      datepicker('#to_date', {
+        formatter: (input, date, instance) => {
+          if (date) input.value = date.toISOString().slice(0, 10);
+        },
+        startDay: 1,
+        customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+        customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        overlayButton: 'Go',
+        overlayPlaceholder: 'Enter a year',
+        alwaysShow: false
+      });
+    }
   });
 </script>

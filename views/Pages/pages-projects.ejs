@@ -13,29 +13,39 @@
     cursor: pointer;
   }
   .sortable {
-    cursor: pointer;
-    position: relative;
-    user-select: none;
-    padding: 12px 8px !important;
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #dee2e6 !important;
-  }
-  .sortable:hover {
-    background-color: #e9ecef !important;
-    cursor: pointer;
-  }
-  .sort-arrow {
-    display: inline-block;
-    margin-left: 8px;
-    font-size: 16px;
+    <script src="https://unpkg.com/js-datepicker"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.datepicker) {
+          datepicker('#from_date', {
+            formatter: (input, date, instance) => {
+              if (date) input.value = date.toISOString().slice(0, 10);
+            },
+            startDay: 1,
+            customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+            customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            overlayButton: 'Go',
+            overlayPlaceholder: 'Enter a year',
+            alwaysShow: false
+          });
+          datepicker('#to_date', {
+            formatter: (input, date, instance) => {
+              if (date) input.value = date.toISOString().slice(0, 10);
+            },
+            startDay: 1,
+            customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+            customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            overlayButton: 'Go',
+            overlayPlaceholder: 'Enter a year',
+            alwaysShow: false
+          });
+        }
+      });
+    </script>
     font-weight: bold;
     color: #6c757d;
     vertical-align: middle;
     min-width: 12px;
-    text-align: center;
-    transition: color 0.2s ease, transform 0.1s ease;
-  }
-  .sort-arrow:hover {
     color: #007bff !important;
     transform: scale(1.1);
     cursor: pointer;
@@ -356,37 +366,13 @@
   });
   
   function clearFilters() {
-    // Clear the input fields first
     document.getElementById('from_date').value = '';
     document.getElementById('to_date').value = '';
-    
-    // Send clear filter data to server to update persons table
-    fetch('/update-filter', {
+    fetch('/filter/clear', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from_date: null,
-        to_date: null
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        console.log('Filter preferences cleared successfully');
-        // Redirect to current page without filters
-        window.location.href = window.location.pathname;
-      } else {
-        console.error('Error clearing filter preferences:', data.message);
-        // Still redirect even if there's an error to reset the page
-        window.location.href = window.location.pathname;
-      }
-    })
-    .catch(error => {
-      console.error('Error clearing filters:', error);
-      // Still redirect even if there's an error to reset the page
-      window.location.href = window.location.pathname;
+      headers: { 'Content-Type': 'application/json' }
+    }).then(() => {
+      window.location.reload();
     });
   }
 

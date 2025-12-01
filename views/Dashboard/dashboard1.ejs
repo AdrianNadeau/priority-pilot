@@ -70,6 +70,19 @@
                         </div>
                     </div>
                 </div>
+
+                <% // Calculate total filtered cost/effort and used cost/effort for all projects %>
+                <% let totalFilteredCost = 0, totalFilteredEffort = 0, usedFilteredCost = 0, usedFilteredEffort = 0;
+                   projects.forEach(function(project) {
+                     var filteredCost = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'project_cost') : 0;
+                     var filteredEffort = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'effort') : 0;
+                     totalFilteredCost += filteredCost;
+                     totalFilteredEffort += filteredEffort;
+                     if (filteredCost > 0) usedFilteredCost += filteredCost;
+                     if (filteredEffort > 0) usedFilteredEffort += filteredEffort;
+                   });
+                %>
+               
             </div>
         </div>
         
@@ -81,7 +94,7 @@
                     
            <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
             <div class="mini-stat bg-white clearfix" >
-              <div class="mini-stat-info">
+              <div class="mini-stat-info" style="background-color:#ffea99">
                 <% function formatNumberWithCommas(x) { if (x == null) return '0'; var parts = x.toString().split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); return parts.join('.'); } %>
                 <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %> / $0 / <%= formatNumberWithCommas(pitch.ph) %> PH)</span></a>
               </div>
@@ -89,7 +102,7 @@
             </div>
                       <div class="col-md-6 phase-column">
                         <div class="mini-stat bg-white clearfix" style="min-height: 50px;">
-                            <div class="mini-stat-info" data-phase="Archive">
+                            <div class="mini-stat-info" style="background-color: #FFEA99;" data-phase="Archive">
                                 <a href="/projects/freezer/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Archive</strong> (<%= archived.count %> / $<%= formatNumberWithCommas(archived.cost) %> / <%= formatNumberWithCommas(archived.ph) %> PH)</span></a>
                             </div>
                         </div>
@@ -101,17 +114,35 @@
                             </div>
                             <div class="phase-buttons" style="padding-left: 10px;">
 
-                            <% projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim() === 'Planning') { 
+                            <% 
+                            function getFilteredValue(project, fromDate, toDate, field) {
+                              if (!project.start_date || !project.end_date) return 0;
+                              var projectStart = new Date(project.start_date);
+                              var projectEnd = new Date(project.end_date);
+                              var filterStart = fromDate ? new Date(fromDate) : projectStart;
+                              var filterEnd = toDate ? new Date(toDate) : projectEnd;
+                              var overlapStart = projectStart > filterStart ? projectStart : filterStart;
+                              var overlapEnd = projectEnd < filterEnd ? projectEnd : filterEnd;
+                              var msInDay = 1000 * 60 * 60 * 24;
+                              var overlapDays = Math.max(0, Math.ceil((overlapEnd - overlapStart) / msInDay) + 1);
+                              var totalDays = Math.max(1, Math.ceil((projectEnd - projectStart) / msInDay) + 1);
+                              var percent = overlapDays / totalDays;
+                              var value = Number(project[field]) || 0;
+                              return Math.round(value * percent);
+                            }
+                            projects.forEach(function(project) { 
+                                if (project.phase_name && project.phase_name.trim().toLowerCase() === 'planning') { 
                                   let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
                                   let borderColor = '';
                                   if (health === 'green') borderColor = 'green';
                                   else if (health === 'yellow') borderColor = 'yellow';
                                   else if (health === 'red') borderColor = 'red';
                                   else borderColor = 'black'; // default
-                              %>
-                                <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
+                                  const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;';
+                                  var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
+                                  var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
+                            %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -135,17 +166,19 @@
                                 <span class="counter"><strong>Discovery</strong> (<%= discovery.count %> / $<%= formatNumberWithCommas(discovery.cost) %> / <%= formatNumberWithCommas(discovery.ph) %> PH)</span>
                             </div>
                             <div class="phase-buttons" style="padding-left: 10px;">
-                                 <% projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim() === 'Discovery') { 
+                            <% projects.forEach(function(project) { 
+                                if (project.phase_name && project.phase_name.trim().toLowerCase() === 'discovery') { 
                                   let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
                                   let borderColor = '';
                                   if (health === 'green') borderColor = 'green';
                                   else if (health === 'yellow') borderColor = 'yellow';
                                   else if (health === 'red') borderColor = 'red';
                                   else borderColor = 'black'; // default
-                              %>
-                                <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
+                                  const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;';
+                                  var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
+                                  var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
+                            %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -164,16 +197,18 @@
                             </div>
                             <div class="phase-buttons" style="padding-left: 10px;">
                             <% projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim() === 'Delivery') { 
+                                if (project.phase_name && project.phase_name.trim().toLowerCase() === 'delivery') { 
                                   let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
                                   let borderColor = '';
                                   if (health === 'green') borderColor = 'green';
                                   else if (health === 'yellow') borderColor = 'yellow';
                                   else if (health === 'red') borderColor = 'red';
                                   else borderColor = 'black'; // default
-                              %>
-                                <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
+                                  const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;';
+                                  var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
+                                  var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
+                            %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -188,8 +223,8 @@
                               <span class="counter"><strong>Done</strong> (<%= operations.count %> / $<%= formatNumberWithCommas(operations.cost) %> / <%= formatNumberWithCommas(operations.ph) %> PH)</span>
                             </div>
                             <div class="phase-buttons" style="padding-left: 10px;">
-                                 <% projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim() === 'Done') { 
+                            <% projects.forEach(function(project) { 
+                                if (project.phase_name && project.phase_name.trim().toLowerCase() === 'done') { 
                                   let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
                                   let borderColor = '';
                                   if (health === 'green') borderColor = 'green';
@@ -197,8 +232,10 @@
                                   else if (health === 'red') borderColor = 'red';
                                   else borderColor = 'black'; // default
                                   const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;';
-                              %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
+                                  var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
+                                  var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
+                            %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -219,17 +256,32 @@
                   <div style="display: flex; align-items: center;">
                     <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
                       <div style="display: flex; align-items: center;">
-                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
-                        <strong style="color: #155724; font-size: 16px;padding-right:5px;">Cost:</strong>
-                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: $<%= totalCost %></span>
-                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: $<%= usedCost %></span>
-                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: $<%= availableCost %></span>
+                        <i class="mdi mdi-currency-usd" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
+                       <div class="col-md-12">
+  <div class="alert alert-info" style="margin-bottom: 10px; padding: 10px; background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+    <% if (!currentFromDate && !currentToDate) { %>
+      <div style="flex: 1; text-align: center;"><strong>Total Budget:</strong><br>$<%= (typeof totalCost !== 'undefined' ? parseInt(totalCost).toLocaleString() : totalFilteredCost.toLocaleString()) %></div>
+      <div style="flex: 1; text-align: center;"><strong>Total Effort:</strong><br><%= (typeof totalPH !== 'undefined' ? parseInt(totalPH).toLocaleString() : totalFilteredEffort.toLocaleString()) %> PH</div>
+      <div style="flex: 1; text-align: center;"><strong>Used Cost:</strong><br>$<%= (typeof usedCost !== 'undefined' ? parseInt(usedCost).toLocaleString() : usedFilteredCost.toLocaleString()) %></div>
+      <div style="flex: 1; text-align: center;"><strong>Used Effort:</strong><br><%= (typeof totalUsedPH !== 'undefined' ? parseInt(totalUsedPH).toLocaleString() : usedFilteredEffort.toLocaleString()) %> PH</div>
+    <% } else { %>
+      <div style="flex: 1; text-align: center;"><strong>Total Budget (Filtered):</strong><br>$<%= totalFilteredCost.toLocaleString() %></div>
+      <div style="flex: 1; text-align: center;"><strong>Total Effort (Filtered):</strong><br><%= totalFilteredEffort.toLocaleString() %> PH</div>
+      <div style="flex: 1; text-align: center;"><strong>Used Cost (Filtered):</strong><br>$<%= usedFilteredCost.toLocaleString() %></div>
+      <div style="flex: 1; text-align: center;"><strong>Used Effort (Filtered):</strong><br><%= usedFilteredEffort.toLocaleString() %> PH</div>
+    <% } %>
+  </div>
+</div>
+                        <strong style="color: #155724; font-size: 16px;padding-right:5px;">Budget:</strong>
+                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: $<%= totalFilteredCost.toLocaleString() %></span>
+                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: $<%= usedCost ? parseInt(usedCost).toLocaleString() : '0' %></span>
+                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: $<%= availableCost ? parseInt(availableCost).toLocaleString() : '0' %></span>
                       </div>
                      
                     </div>
                     <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
                       <div style="display: flex; align-items: center;">
-                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
+                        <i class="mdi mdi-firework" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
                         <strong style="color: #155724; font-size: 16px;padding-right:5px;">Effort:</strong>
                         <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: <%= totalPH %> PH</span>
                         <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: <%= totalUsedPH %> PH</span>
@@ -673,8 +725,8 @@
     // Clear the input fields first
     document.getElementById('from_date').value = '';
     document.getElementById('to_date').value = '';
-    
-    // Send clear filter data to server to update persons table
+
+    // Send clear filter data to server to update persons table and session, and show all projects
     fetch('/update-filter', {
       method: 'POST',
       headers: {
@@ -682,24 +734,17 @@
       },
       body: JSON.stringify({
         from_date: null,
-        to_date: null
+        to_date: null,
+        clear_all: true // instruct backend to clear all filter/session/db values
       })
     })
     .then(response => response.json())
     .then(data => {
-      if (data.success) {
-        console.log('Filter preferences cleared successfully from persons table');
-        // Redirect to refresh the page without any filters
-        window.location.href = '/';
-      } else {
-        console.error('Error clearing filter preferences:', data.message);
-        // Still redirect even if there's an error to reset the page
-        window.location.href = '/';
-      }
+      // Always reload to show all projects regardless of backend response
+      window.location.href = '/';
     })
     .catch(error => {
-      console.error('Error clearing filters:', error);
-      // Still redirect even if there's an error to reset the page
+      // Fallback: reload to show all projects
       window.location.href = '/';
     });
   }  // Global function to get current filter values for other pages
