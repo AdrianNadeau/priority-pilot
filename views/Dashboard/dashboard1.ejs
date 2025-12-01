@@ -109,11 +109,53 @@
                                   else if (health === 'yellow') borderColor = 'yellow';
                                   else if (health === 'red') borderColor = 'red';
                                   else borderColor = 'black'; // default
-                              %>
-                                <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
+                                  const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; 
+                            %>
                                 <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
+                                <% 
+                                  let projBudget = Number(project.project_cost) || 0;
+                                  let projEffort = Number(project.effort) || 0;
+                                  let projUsedCost = 0, projUsedEffort = 0, projTotalCost = 0, projTotalEffort = 0, projAvailCost = 0, projAvailEffort = 0;
+                                  if (currentFromDate && currentToDate && filteredDays) {
+                                    projUsedCost = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'project_cost') : 0;
+                                    projUsedEffort = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'effort') : 0;
+                                    projTotalCost = Math.round((projBudget / 365) * filteredDays);
+                                    projTotalEffort = Math.round((projEffort / 365) * filteredDays);
+                                    projAvailCost = projTotalCost - projUsedCost;
+                                    projAvailEffort = projTotalEffort - projUsedEffort;
+                                  } else {
+                                    projUsedCost = Number(project.used_cost) || 0;
+                                    projUsedEffort = Number(project.used_effort) || 0;
+                                    projTotalCost = projBudget;
+                                    projTotalEffort = projEffort;
+                                    projAvailCost = projTotalCost - projUsedCost;
+                                    projAvailEffort = projTotalEffort - projUsedEffort;
+                                  }
+                                %>
+                                <div class="alert alert-success" style="margin: 10px 0 10px 0; padding: 10px; background-color: #eafbe7; border: 1px solid #28a745; border-radius: 4px;">
+                                  <div style="display: flex; align-items: center;">
+                                    <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
+                                      <div style="display: flex; align-items: center;">
+                                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 16px; color: #155724;"></i>
+                                        <strong style="color: #155724; font-size: 14px;padding-right:5px;">Cost<% if (currentFromDate && currentToDate && filteredDays) { %> (Filtered)<% } %>:</strong>
+                                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: $<%= formatNumberWithCommas(projTotalCost) %></span>
+                                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: $<%= formatNumberWithCommas(projUsedCost) %></span>
+                                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: $<%= formatNumberWithCommas(projAvailCost) %></span>
+                                      </div>
+                                    </div>
+                                    <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
+                                      <div style="display: flex; align-items: center;">
+                                        <i class="mdi mdi-rocket" style="margin-right: 8px; font-size: 16px; color: #155724;"></i>
+                                        <strong style="color: #155724; font-size: 14px;padding-right:5px;">Effort<% if (currentFromDate && currentToDate && filteredDays) { %> (Filtered)<% } %>:</strong>
+                                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: <%= formatNumberWithCommas(projTotalEffort) %> PH</span>
+                                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: <%= formatNumberWithCommas(projUsedEffort) %> PH</span>
+                                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: <%= formatNumberWithCommas(projAvailEffort) %> PH</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
                               <%  } 
                             }); %>
                             </div>
@@ -212,36 +254,68 @@
 
             <!-- Budget and Effort Summary Section -->
             <!-- Filtered Date Range Totals Section -->
-            <% if (currentFromDate || currentToDate) { %>
+            <% 
+              let totalBudget = 0, totalEffort = 0, usedCost = 0, usedEffort = 0;
+              projects.forEach(function(project) {
+                totalBudget += Number(project.project_cost) || 0;
+                totalEffort += Number(project.effort) || 0;
+              });
+              let showFiltered = currentFromDate && currentToDate && filteredDays;
+              let mainTotalCost, mainUsedCost, mainAvailCost, mainTotalEffort, mainUsedEffort, mainAvailEffort;
+              if (showFiltered) {
+                usedCost = 0; usedEffort = 0;
+                projects.forEach(function(project) {
+                  if (typeof getFilteredValue === 'function') {
+                    usedCost += getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
+                    usedEffort += getFilteredValue(project, currentFromDate, currentToDate, 'effort');
+                  }
+                });
+                mainTotalCost = Math.round((totalBudget / 365) * filteredDays);
+                mainTotalEffort = Math.round((totalEffort / 365) * filteredDays);
+                mainUsedCost = usedCost;
+                mainUsedEffort = usedEffort;
+                mainAvailCost = mainTotalCost - mainUsedCost;
+                mainAvailEffort = mainTotalEffort - mainUsedEffort;
+              } else {
+                // No filter: show all-time totals
+                mainTotalCost = totalBudget;
+                mainTotalEffort = totalEffort;
+                mainUsedCost = 0;
+                mainUsedEffort = 0;
+                projects.forEach(function(project) {
+                  mainUsedCost += Number(project.used_cost) || 0;
+                  mainUsedEffort += Number(project.used_effort) || 0;
+                });
+                mainAvailCost = mainTotalCost - mainUsedCost;
+                mainAvailEffort = mainTotalEffort - mainUsedEffort;
+              }
+            %>
             <div class="row" style="margin-top: 15px;">
               <div class="col-md-12">
                 <div class="alert alert-success" style="margin-bottom: 15px; padding: 15px; background-color: #d4edda; border: 1px solid #28a745; border-radius: 4px;">
                   <div style="display: flex; align-items: center;">
                     <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
                       <div style="display: flex; align-items: center;">
-                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
-                        <strong style="color: #155724; font-size: 16px;padding-right:5px;">Cost:</strong>
-                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: $<%= totalCost %></span>
-                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: $<%= usedCost %></span>
-                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: $<%= availableCost %></span>
+                        <i class="mdi mdi-currency-usd" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
+                        <strong style="color: #155724; font-size: 16px;padding-right:5px;">Budget<% if (showFiltered) { %> <% } %>:</strong>
+                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: $<%= formatNumberWithCommas(mainTotalCost) %></span>
+                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: $<%= formatNumberWithCommas(mainUsedCost) %></span>
+                        
                       </div>
-                     
                     </div>
                     <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
                       <div style="display: flex; align-items: center;">
-                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
-                        <strong style="color: #155724; font-size: 16px;padding-right:5px;">Effort:</strong>
-                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: <%= totalPH %> PH</span>
-                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: <%= totalUsedPH %> PH</span>
-                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: <%= totalAvailPH %> PH</span>
+                        <i class="mdi mdi-rocket" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
+                        <strong style="color: #155724; font-size: 16px;padding-right:5px;">Effort<% if (showFiltered) { %><% } %>:</strong>
+                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: <%= formatNumberWithCommas(mainTotalEffort) %> PH</span>
+                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: <%= formatNumberWithCommas(mainUsedEffort) %> PH</span>
+                       
                       </div>
-                      
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <% } %>
             
                      </div>
 

@@ -44,16 +44,39 @@ exports.create = async (req, res, next) => {
       password,
       register_yn,
       isAdmin,
+      company_name,
+      company_headline,
+      portfolio_budget,
+      effort,
     } = req.body;
-    const company_id_fk = req.session.company?.id;
-
-    const company = await Company.findByPk(company_id_fk);
-    if (!company) throw new Error("Company not found.");
-
+    console.log("Registering user with email:", email);
+    console.log("Registering user with password:", password);
     if (!email || !password) {
-      const error = new Error("Email and password are required.");
+      const error = new Error(
+        "Email, password, and company name are required.",
+      );
       error.statusCode = 400;
       throw error;
+    }
+
+    // Always use the current session's company for new users (admin add)
+    let company_id_fk = null;
+    if (req.session.company && req.session.company.id) {
+      company_id_fk = req.session.company.id;
+    } else {
+      // For initial registration only, create company
+      if (register_yn === "y") {
+        const company = await Company.create({
+          company_name,
+          company_headline,
+        });
+        req.session.company = company;
+        company_id_fk = company.id;
+      } else {
+        const error = new Error("No company context found for new user.");
+        error.statusCode = 400;
+        throw error;
+      }
     }
 
     const existingPerson = await Person.findOne({ where: { email } });
@@ -70,7 +93,7 @@ exports.create = async (req, res, next) => {
       error.statusCode = 500;
       throw error;
     }
-    await Person.create({
+    const person = await Person.create({
       email,
       first_name,
       last_name,
@@ -79,8 +102,17 @@ exports.create = async (req, res, next) => {
       company_id_fk,
       isAdmin: isAdminStatus,
     });
-
-    res.redirect(register_yn === "y" ? "/" : "/persons");
+    req.session.person = {
+      id: person.id,
+      firstName: person.first_name,
+      lastName: person.last_name,
+      email: person.email,
+      company_id_fk: person.company_id_fk,
+      isAdmin: person.isAdmin,
+    };
+    req.session.save(() => {
+      res.redirect(register_yn === "y" ? "/" : "/persons");
+    });
   } catch (error) {
     next(error);
   }

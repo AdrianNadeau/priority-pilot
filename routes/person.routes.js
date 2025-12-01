@@ -7,7 +7,7 @@ module.exports = (app) => {
 
   var router = require("express").Router();
   // Define routes using controller functions
-  router.post("/", companyPortfolioName, persons.create);
+  router.post("/", persons.create);
   // Route to send reset email
   router.post("/send-reset-email", persons.sendResetPasswordEmail);
 

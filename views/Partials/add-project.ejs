@@ -1,49 +1,61 @@
 ﻿<form action="/projects" class="needs-validation" novalidate method="POST">
   <input type="hidden" name="funnelPage" id="funnelPage" value="n">
+  
+  <!-- Display validation errors if they exist -->
+  <% if (typeof validationErrors !== 'undefined' && validationErrors && validationErrors.length > 0) { %>
+    <div class="alert alert-danger" role="alert">
+      <h6><i class="fas fa-exclamation-triangle"></i> Please fix the following errors:</h6>
+      <ul class="mb-0">
+        <% validationErrors.forEach(function(error) { %>
+          <li><%= error %></li>
+        <% }); %>
+      </ul>
+    </div>
+  <% } %>
+
   <div class="container">
     <div class="row">
       <div class="col-md-6">
         <!-- Left Column -->
         <div class="form-group">
           <label for="project_name">Project Name:</label> <span class="required_star">*</span>
-          <input type="text" class="form-control" id="project_name" maxlength="25" name="project_name" required>
+          <input type="text" class="form-control" id="project_name" maxlength="255" name="project_name" required 
+                
+                 title="Project name is required"
+                 value="<%= (typeof formData !== 'undefined' && formData && formData.project_name) ? formData.project_name : '' %>">
           <div class="invalid-feedback">
-            Please enter project name.
+            Project name is required.
           </div>
         </div>
         <div class="form-group">
           <label for="project_headline">Headline:</label>
-          <input type="text" class="form-control" id="project_headline" name="project_headline" maxlength="250">
+          <input type="text" class="form-control" id="project_headline" name="project_headline" maxlength="250" value="<%= (typeof formData !== 'undefined' && formData && formData.project_headline) ? formData.project_headline : '' %>">
         </div>
         <div class="form-group">
           <label for="project_why">Why:</label>
-          <textarea class="form-control" id="project_why" name="project_why"></textarea>
+          <textarea class="form-control" id="project_why" name="project_why" maxlength="1000" placeholder="Explain why this project is important and the problem it solves..."><%= (typeof formData !== 'undefined' && formData && formData.project_why) ? formData.project_why : '' %></textarea>
+         
         </div>
         <div class="form-group">
-          <label for="project_what">What:</label>
-          <textarea class="form-control" id="project_what" name="project_what"></textarea>
+          <label for="project_what">What:</label> 
+          <textarea class="form-control" id="project_what" name="project_what" maxlength="500" placeholder="Describe what will be delivered and the scope of work..."><%= (typeof formData !== 'undefined' && formData && formData.project_what) ? formData.project_what : '' %></textarea>
+         
         </div>
 
         <div class="form-group" id="date_section">
-          <label for="dates">Start Date and End Date: <span class="required_star">*</span></label>
+          <label for="dates">Start Date and End Date: </label>
           <div class="form-row">
             <div class="col">
               <label for="start_date">Start Date:</label>
-              <input type="text" class="form-control datepicker" id="start_date" name="start_date">
-              <div class="invalid-feedback">
-                Start Date is required.
-              </div>
+              <input type="date" class="form-control" id="start_date" name="start_date" value="<%= (typeof formData !== 'undefined' && formData && formData.start_date) ? formData.start_date : '' %>">
             </div>
             <div class="col">
               <label for="end_date">End Date:</label>
-              <input type="text" required class="form-control datepicker" id="end_date" name="end_date">
-              <div class="invalid-feedback">
-                End Date is required.   
-              </div>
+              <input type="date" class="form-control" id="end_date" name="end_date" value="<%= (typeof formData !== 'undefined' && formData && formData.end_date) ? formData.end_date : '' %>">
             </div>
             <div class="col">
               <label for="next_milestone_date">NMD:</label>
-              <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date">
+              <input type="date" class="form-control" id="next_milestone_date" name="next_milestone_date" value="<%= (typeof formData !== 'undefined' && formData && formData.next_milestone_date) ? formData.next_milestone_date : '' %>">
             </div>
           </div>
           <div class="form-row" id="milestone_details_row" style="padding-top:5px;">
@@ -309,5 +321,71 @@ document.addEventListener('DOMContentLoaded', function() {
     if (phaseSelect) {
         toggleDateSectionVisibility();
     }
+
+    // Enhanced form validation
+    const form = document.querySelector('.needs-validation');
+    const projectNameInput = document.getElementById('project_name');
+
+    // Custom validation function
+    function validateForm() {
+        let isValid = true;
+
+        // Validate project name only
+        const projectNameValue = projectNameInput.value.trim();
+        
+        if (!projectNameValue) {
+            projectNameInput.setCustomValidity('Project name is required.');
+            isValid = false;
+        } else if (projectNameValue.length < 3) {
+            projectNameInput.setCustomValidity('Project name must be at least 3 characters long.');
+            isValid = false;
+        } else if (projectNameValue.length > 25) {
+            projectNameInput.setCustomValidity('Project name cannot exceed 25 characters.');
+            isValid = false;
+        } else if (!/^[a-zA-Z0-9\s\-_\.\(\)]+$/.test(projectNameValue)) {
+            projectNameInput.setCustomValidity('Project name can only contain letters, numbers, spaces, hyphens, underscores, dots, and parentheses.');
+            isValid = false;
+        } else if (/^[\s\-_\.\(\)]+$/.test(projectNameValue)) {
+            projectNameInput.setCustomValidity('Project name must contain meaningful text, not just spaces or symbols.');
+            isValid = false;
+        } else if (projectNameValue.toLowerCase() === 'test' || projectNameValue.toLowerCase() === 'temp' || 
+                   projectNameValue.toLowerCase() === 'example' || projectNameValue.toLowerCase() === 'sample') {
+            projectNameInput.setCustomValidity('Please use a more descriptive project name.');
+            isValid = false;
+        } else {
+            projectNameInput.setCustomValidity('');
+        }
+
+        return isValid;
+    }
+
+    // Add real-time validation listener only for project_name
+    projectNameInput.addEventListener('input', validateForm);
+    endDateInput.addEventListener('change', validateForm);
+
+    // Form submission validation
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!validateForm() || !form.checkValidity()) {
+            // Show validation errors
+            form.classList.add('was-validated');
+            
+            // Focus on first invalid field
+            const firstInvalid = form.querySelector(':invalid');
+            if (firstInvalid) {
+                firstInvalid.focus();
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        } else {
+            // Form is valid, submit it
+            form.classList.add('was-validated');
+            form.submit();
+        }
+    });
+
+    // Initialize validation on page load
+    validateForm();
 });
 </script>

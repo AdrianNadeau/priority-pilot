@@ -226,14 +226,11 @@ ORDER BY
       type: db.sequelize.QueryTypes.SELECT,
     });
 
-    console.log(
-      `Dashboard separate pitch query: Found ${pitchData.length} pitch projects:`,
-    );
-    pitchData.forEach((project) => {
-      console.log(
-        `Dashboard separate: Project ID ${project.id}: ${project.project_name}`,
-      );
-    });
+    // pitchData.forEach((project) => {
+    //   console.log(
+    //     `Dashboard separate: Project ID ${project.id}: ${project.project_name}`,
+    //   );
+    // });
 
     const uniquePhases = [
       ...new Set(data.map((p) => p.phase_name).filter(Boolean)),
@@ -256,11 +253,18 @@ ORDER BY
       });
       const priorities = await db.priorities.findAll({});
       const persons = await db.persons.findAll({ where: { company_id_fk } });
-      let tagsData = await Tag.findAll({
-        where: { company_id_fk: company_id_fk },
-        order: [["id", "ASC"]],
-      });
-      tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
+      // Fetch tags with error handling
+      let tagsData = [];
+      try {
+        tagsData = await Tag.findAll({
+          where: { company_id_fk: company_id_fk },
+          order: [["id", "ASC"]],
+        });
+        tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
+      } catch (err) {
+        console.error("Error fetching tags for dashboard (empty state):", err);
+        tagsData = [{ id: 0, tag_name: "None" }];
+      }
 
       // Get company info for empty state
       const company = await Company.findByPk(company_id_fk);
@@ -426,13 +430,6 @@ ORDER BY
     phaseData.pitch.count = pitchData.length;
     phaseData.pitch.cost = pitchCost;
     phaseData.pitch.ph = pitchEffort;
-
-    // Log final pitch project count for debugging
-    console.log(
-      `Dashboard: Final pitch count = ${phaseData.pitch.count}, projects:`,
-      pitchProjects,
-    );
-
     // --- Proportional cost calculation for dashboard totals ---
     // Only for non-pitch, non-archived projects (phases: planning, discovery, delivery, done)
     function parseCost(val) {
@@ -542,12 +539,18 @@ ORDER BY
     //get all persons for primes and sponsors add project modal
     const persons = await db.persons.findAll({ where: { company_id_fk } });
     // Fetch tags
-    let tagsData = await Tag.findAll({
-      where: { company_id_fk: company_id_fk },
-      order: [["id", "ASC"]],
-    });
-    // Add "None" option at the top of the tags list
-    tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
+    // Fetch tags with error handling
+    let tagsData = [];
+    try {
+      tagsData = await Tag.findAll({
+        where: { company_id_fk: company_id_fk },
+        order: [["id", "ASC"]],
+      });
+      tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
+    } catch (err) {
+      console.error("Error fetching tags for dashboard:", err);
+      tagsData = [{ id: 0, tag_name: "None" }];
+    }
     const portfolioName = req.session.company.company_headline;
 
     res.render("Dashboard/dashboard1", {
