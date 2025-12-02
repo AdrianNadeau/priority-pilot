@@ -166,8 +166,8 @@
                                   <div style="display: flex; align-items: center;">
                                     <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
                                       <div style="display: flex; align-items: center;">
-                                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 16px; color: #155724;"></i>
-                                        <strong style="color: #155724; font-size: 14px;padding-right:5px;">Cost<% if (currentFromDate && currentToDate && filteredDays) { %> (Filtered)<% } %>:</strong>
+                                        <i class="mdi mdi-currency-usd" style="margin-right: 8px; font-size: 16px; color: #155724;"></i>
+                                        <strong style="color: #155724; font-size: 14px;padding-right:5px;">Budget:<% if (currentFromDate && currentToDate && filteredDays) { %> (Filtered)<% } %>:</strong>
                                         <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: $<%= formatNumberWithCommas(projTotalCost) %></span>
                                         <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: $<%= formatNumberWithCommas(projUsedCost) %></span>
                                         <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: $<%= formatNumberWithCommas(projAvailCost) %></span>
@@ -175,7 +175,7 @@
                                     </div>
                                     <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
                                       <div style="display: flex; align-items: center;">
-                                        <i class="mdi mdi-rocket" style="margin-right: 8px; font-size: 16px; color: #155724;"></i>
+                                        <i class="mdi mdi-firework" style="margin-right: 8px; font-size: 16px; color: #155724;"></i>
                                         <strong style="color: #155724; font-size: 14px;padding-right:5px;">Effort<% if (currentFromDate && currentToDate && filteredDays) { %> (Filtered)<% } %>:</strong>
                                         <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: <%= formatNumberWithCommas(projTotalEffort) %> PH</span>
                                         <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: <%= formatNumberWithCommas(projUsedEffort) %> PH</span>
