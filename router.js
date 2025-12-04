@@ -552,6 +552,15 @@ ORDER BY
       tagsData = [{ id: 0, tag_name: "None" }];
     }
     const portfolioName = req.session.company.company_headline;
+    console.log("**************************** portfolioName:", portfolioName);
+    console.log(
+      "**************************** budget:",
+      req.session.company.portfolio_budget,
+    );
+    console.log(
+      "**************************** budget:",
+      req.session.company.effort,
+    );
 
     res.render("Dashboard/dashboard1", {
       pageTitle: "Dashboard",
@@ -611,6 +620,7 @@ ORDER BY
       filteredDays: req.session.filtered_days || null,
       currentMilestoneDetails: currentMilestoneDetails,
     });
+    console.log("totalCostPercent:", proportionalTotalCost);
   } catch (error) {
     console.error("Error executing query:", error);
     res.status(500).send("Internal Server Error");

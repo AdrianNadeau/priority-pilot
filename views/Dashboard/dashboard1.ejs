@@ -32,9 +32,13 @@
 <div class="page-content-wrapper">
   <% 
   // Ensure these are defined before including the partial
+  // Ensure companies is always defined to avoid EJS errors
+  if (typeof companies === 'undefined') {
+    companies = [];
+  }
   // Calculate default budget using portfolio_budget from companies table
   let defaultBudget = 0;
-  if (typeof companies !== 'undefined' && companies && companies.length > 0 && companies[0].portfolio_budget) {
+  if (companies && companies.length > 0 && companies[0].portfolio_budget) {
     const portfolioBudget = Number(companies[0].portfolio_budget) || 0;
     if (typeof filteredDays !== 'undefined' && filteredDays) {
       defaultBudget = Math.round((portfolioBudget / 365) * filteredDays);
@@ -91,9 +95,16 @@
   // Calculate deliveryTotalCost as (portfolio_budget / 365) * filteredDays
   let deliveryTotalCost = 0, deliveryUsedCost = 0, deliveryAvailCost = 0;
   let deliveryTotalEffort = 0, deliveryUsedEffort = 0, deliveryAvailEffort = 0;
-  if (typeof companies !== 'undefined' && companies && companies.length > 0) {
-    const portfolioBudget = Number(companies[0].portfolio_budget) || 0;
-    const portfolioEffort = Number(companies[0].portfolio_effort) || 0;
+    let portfolioBudget = 500000;
+    let portfolioEffort = 20000;
+    if (typeof companies !== 'undefined' && companies && companies.length > 0) {
+      if (typeof companies[0].portfolio_budget !== 'undefined') {
+        portfolioBudget = Number(companies[0].portfolio_budget) || 500000;
+      }
+      if (typeof companies[0].effort !== 'undefined') {
+        portfolioEffort = Number(companies[0].effort) || 20000;
+      }
+    }
     if (typeof filteredDays !== 'undefined' && filteredDays) {
       deliveryTotalCost = Math.round((portfolioBudget / 365) * filteredDays);
       deliveryTotalEffort = Math.round((portfolioEffort / 365) * filteredDays);
@@ -101,7 +112,6 @@
       deliveryTotalCost = Math.round(portfolioBudget);
       deliveryTotalEffort = Math.round(portfolioEffort);
     }
-  }
   // Optionally, you can still sum up used/available as before if needed
   projects.forEach(function(project) {
     if (project.phase_name) {
@@ -110,11 +120,20 @@
             let usedCost = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'project_cost') : 0;
             let usedEffort = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'effort') : 0;
             deliveryUsedCost += usedCost;
-            deliveryAvailCost += (deliveryTotalCost - usedCost);
             deliveryUsedEffort += usedEffort;
-            deliveryAvailEffort += (deliveryTotalEffort - usedEffort);
         }
       }
+  });
+  deliveryAvailCost = deliveryTotalCost - deliveryUsedCost;
+  deliveryAvailEffort = deliveryTotalEffort - deliveryUsedEffort;
+
+  // Debug: Output totals to server console
+  console.log('Dashboard totals:', {
+    deliveryTotalCost,
+    deliveryTotalEffort,
+    filteredDays,
+    portfolioBudget: (companies && companies[0] && companies[0].company_budget) ? companies[0].company_budget : 500000,
+    portfolioEffort: (companies && companies[0] && companies[0].effort) ? companies[0].effort : 20000
   });
   %>
                  
@@ -282,28 +301,34 @@
             </div> <!-- close inner delivery/done row -->
 
               <!-- Budget/Effort Summary Row (under Delivery and Done) -->
-              <div class="row mt-3 mb-2 align-items-center" style="heidht:50px;background: #e2fbef; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+              <div class="row mt-3 mb-2 align-items-center" style="height:50px;background: #e2fbef; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
                 <div class="col-md-6 d-flex align-items-center">
                   <span class="mdi mdi-cash" style="font-size: 1.5rem; margin-right: 8px;"></span>
                   <span style="font-weight: 500; margin-right: 12px;">Budget</span>
                   <span class="text-muted" style="margin-right: 8px;">Total:</span>
-                      <span style="font-weight: 500; margin-right: 16px;">
-                        $<%= deliveryTotalCost && deliveryTotalCost > 0 ? deliveryTotalCost : defaultBudget %>
-                      </span>
+                  <span style="font-weight: 500; margin-right: 16px;">
+                    $<%= formatNumberWithCommas(deliveryTotalCost) %>
+                  </span>
                   <span class="text-muted" style="margin-right: 8px;">Used:</span>
-                  <span style="font-weight: 500; margin-right: 16px;">$<%= deliveryUsedCost %></span>
+                  <span style="font-weight: 500; margin-right: 16px;">$<%= formatNumberWithCommas(deliveryUsedCost) %></span>
                   <span class="text-muted" style="margin-right: 8px;">Available:</span>
-                  <span style="font-weight: 500;">$<%= deliveryAvailCost %></span>
+                  <span style="font-weight: 500;">$<%= formatNumberWithCommas(deliveryAvailCost) %></span>
                 </div>
                 <div class="col-md-6 d-flex align-items-center">
                   <span class="mdi mdi-rocket" style="font-size: 1.5rem; margin-right: 8px;"></span>
                   <span style="font-weight: 500; margin-right: 12px;">Effort</span>
                   <span class="text-muted" style="margin-right: 8px;">Total:</span>
-                  <span style="font-weight: 500; margin-right: 16px;"><%= deliveryTotalEffort %>h</span>
+                  <span style="font-weight: 500; margin-right: 16px;">
+                    <%= formatNumberWithCommas(deliveryTotalEffort) %>h
+                  </span>
                   <span class="text-muted" style="margin-right: 8px;">Used:</span>
-                  <span style="font-weight: 500; margin-right: 16px;"><%= deliveryUsedEffort %>h</span>
+                  <span style="font-weight: 500; margin-right: 16px;">
+                    <%= formatNumberWithCommas(deliveryUsedEffort) %>h
+                  </span>
                   <span class="text-muted" style="margin-right: 8px;">Available:</span>
-                  <span style="font-weight: 500;"><%= deliveryAvailEffort %>h</span>
+                  <span style="font-weight: 500;">
+                    <%= formatNumberWithCommas(deliveryAvailEffort) %>h
+                  </span>
                 </div>
               </div>
 
