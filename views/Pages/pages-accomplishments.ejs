@@ -214,35 +214,7 @@
 
 <%- contentFor('FooterJs') %>
 
-<script src="https://unpkg.com/js-datepicker"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    if (window.datepicker) {
-      datepicker('#from_date', {
-        formatter: (input, date, instance) => {
-          if (date) input.value = date.toISOString().slice(0, 10);
-        },
-        startDay: 1,
-        customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-        customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        overlayButton: 'Go',
-        overlayPlaceholder: 'Enter a year',
-        alwaysShow: false
-      });
-      datepicker('#to_date', {
-        formatter: (input, date, instance) => {
-          if (date) input.value = date.toISOString().slice(0, 10);
-        },
-        startDay: 1,
-        customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-        customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        overlayButton: 'Go',
-        overlayPlaceholder: 'Enter a year',
-        alwaysShow: false
-      });
-    }
-  });
-</script>
+<!-- Removed js-datepicker (qs-datepicker) code; only Flatpickr is used for date inputs. -->
 
 <script>
   // Filter functions

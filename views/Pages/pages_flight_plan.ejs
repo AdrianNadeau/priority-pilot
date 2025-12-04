@@ -36,6 +36,30 @@
     background-color: #6c757d !important;
     color: white;
   }
+
+  /* Flatpickr calendar header and weekday styling (identical to Radar) */
+  .flatpickr-calendar .flatpickr-months {
+    background: #2196f3 !important;
+    color: #fff !important;
+    border-bottom: 1px solid #1976d2 !important;
+    border-radius: 4px 4px 0 0 !important;
+  }
+  .flatpickr-calendar .flatpickr-month {
+    color: #fff !important;
+  }
+  .flatpickr-calendar .flatpickr-current-month {
+    color: #fff !important;
+  }
+  .flatpickr-calendar .flatpickr-weekdays {
+    background: #e3f2fd !important;
+    color: #1976d2 !important;
+    border-bottom: 1px solid #2196f3 !important;
+    font-weight: 600 !important;
+  }
+  .flatpickr-calendar .flatpickr-weekday {
+    color: #1976d2 !important;
+    font-weight: 600 !important;
+  }
 </style>
 
 <%- contentFor('breadcrumb') %> <%- contentFor('body') %>
@@ -63,7 +87,7 @@
                 <strong style="margin-right: 10px">Start:</strong>
                 <input
                   type="text"
-                  class="form-control datepicker"
+                  class="form-control"
                   id="from_date"
                   name="from_date"
                   placeholder="From"
@@ -200,30 +224,33 @@
       });
   }
 
-  // Robust Flatpickr initialization to always show session values
+  // Flatpickr initialization to match Radar format
   document.addEventListener("DOMContentLoaded", function () {
-    var fromDateValue = document.getElementById("from_date").value;
-    var toDateValue = document.getElementById("to_date").value;
+    var currentFromDate = '<%= currentFromDate || "" %>';
+    var currentToDate = '<%= currentToDate || "" %>';
+
+    function isValidDateString(dateStr) {
+      // Accepts YYYY-MM-DD only
+      return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+    }
+
     var fromPicker = flatpickr("#from_date", {
       dateFormat: "Y-m-d",
       allowInput: true,
       allowInvalidPreload: true,
-      defaultDate: fromDateValue || undefined,
     });
     var toPicker = flatpickr("#to_date", {
       dateFormat: "Y-m-d",
       allowInput: true,
       allowInvalidPreload: true,
-      defaultDate: toDateValue || undefined,
     });
+
     // Force Flatpickr and input to session value after initialization
-    if (fromDateValue) {
-      fromPicker.setDate(fromDateValue, true, "Y-m-d");
-      document.getElementById("from_date").value = fromDateValue;
+    if (isValidDateString(currentFromDate)) {
+      fromPicker.setDate(currentFromDate, true);
     }
-    if (toDateValue) {
-      toPicker.setDate(toDateValue, true, "Y-m-d");
-      document.getElementById("to_date").value = toDateValue;
+    if (isValidDateString(currentToDate)) {
+      toPicker.setDate(currentToDate, true);
     }
   });
 </script>

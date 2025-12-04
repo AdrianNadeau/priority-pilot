@@ -1,0 +1,54 @@
+<% /* Date Range Page - Standalone */ %>
+<% /* Ensure all required values are passed in: currentFromDate, currentToDate, filteredDays, projects, getFilteredValue, formatNumberWithCommas */ %>
+
+
+<div class="row" style="margin-top: 10px;">
+  <div class="col-md-12">
+    <div class="row" style="background-color: #e0f7fa; border: 1px solid #6c757d; border-radius: 4px; padding: 10px;">
+      <div class="col-md-auto d-flex align-items-center" style="margin-right: 20px;">
+        <span class="counter" style="color: black;"><strong>Date Range:</strong></span>
+      </div>
+      <div class="col-md-auto d-flex align-items-center" style="margin-right: 15px;">
+        <strong style="margin-right: 10px;">Start:</strong>
+        <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px;" value="<%= currentFromDate %>">
+      </div>
+      <div class="col-md-auto d-flex align-items-center" style="margin-right: 15px;">
+        <strong style="margin-right: 10px;">End:</strong>
+        <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px;" value="<%= currentToDate %>">
+      </div>
+      <div class="col-md-auto d-flex align-items-center" style="margin-right: 10px;">
+        <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterDashboard()">Update</button>
+      </div>
+      <% if (currentFromDate && currentToDate && filteredDays) { %>
+        <div class="col-md-auto d-flex align-items-center" style="margin-left: 20px;">
+          <span class="counter" style="color: #2196f3; font-size: 14px;">
+            <strong>(<%= filteredDays %> days)</strong>
+          </span>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+<div class="container-fluid" style="margin-bottom: 0; padding-bottom: 0;">
+  <div class="row" style="margin-bottom: 0; padding-bottom: 0;">
+    <div class="col-md-6 text-center">
+      <span style="color: #333; font-size: 16px;">
+        <strong>Budget</strong>: $<%= formatNumberWithCommas(typeof getFilteredValue === 'function' && Array.isArray(projects) ? getFilteredValue(projects, 'budget') : 0) %>
+      </span>
+    </div>
+    <div class="col-md-6 text-center">
+      <span style="color: #333; font-size: 16px;">
+        <strong>Effort</strong>: <%= formatNumberWithCommas(typeof getFilteredValue === 'function' && Array.isArray(projects) ? getFilteredValue(projects, 'effort') : 0) %> PH
+      </span>
+    </div>
+  </div>
+</div>
+
+<script>
+// Initialize Flatpickr for date inputs
+flatpickr(".datepicker", {
+      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
+      allowInput: true, // Allow manual input if needed
+      allowInvalidPreload: true, // Allow invalid dates to be preloaded
+});
+</script>

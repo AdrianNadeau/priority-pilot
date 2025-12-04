@@ -1,3 +1,6 @@
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Removed js-datepicker (qs-datepicker) code; only Flatpickr is used for date inputs. -->
 <%- contentFor('HeaderCss') %>
 <link
   rel="stylesheet"
@@ -486,8 +489,13 @@
           return parseFloat(cost);
         }
 
+        // Diagnostic logging for chart rendering
+        console.log('Radar page: phaseStats from server: ' + '<%= JSON.stringify(Array.isArray(phaseStats) ? phaseStats : []) %>');
         google.charts.load('current', { packages: ['corechart'] });
-        google.charts.setOnLoadCallback(drawCharts);
+        google.charts.setOnLoadCallback(function() {
+          console.log('Google Charts loaded, drawing charts...');
+          drawCharts();
+        });
 
         function drawCharts() {
           // Draw all charts
@@ -497,20 +505,18 @@
           drawTagCharts();
         }
 
-        // Make phaseStats a global variable and filter out Planning phases
-        window.phaseStats = <%- JSON.stringify(Array.isArray(phaseStats) ? phaseStats.filter(function(p) { return p.phaseName !== 'Planning' && !p.phaseName.toLowerCase().includes('planning'); }) : []) %>;
+        // Make phaseStats a global variable and include Planning phases
+        // Make phaseStats a global variable (no filter)
+        window.phaseStats = JSON.parse('<%= JSON.stringify(Array.isArray(phaseStats) ? phaseStats : []) %>');
 
         function drawProjectsByPhaseChart() {
-          // Filter out any Planning phases that might have made it through
-          const filteredPhaseStats = window.phaseStats.filter(p => 
-            p.phaseName !== 'Planning' && !p.phaseName.toLowerCase().includes('planning')
-          );
-          
-          const phases          = filteredPhaseStats.map(p => p.phaseName);
-          const troubleCounts   = filteredPhaseStats.map(p => p.troubleCount);
-          const cautionCounts   = filteredPhaseStats.map(p => p.cautionCount);
-          const healthyCounts   = filteredPhaseStats.map(p => p.healthyCount);
-          const noStatusCounts  = filteredPhaseStats.map(p => p.noStatusCount);
+          // Defensive: ensure window.phaseStats is an array
+          const stats = Array.isArray(window.phaseStats) ? window.phaseStats : [];
+          const phases          = stats.map(p => p.phaseName);
+          const troubleCounts   = stats.map(p => p.troubleCount);
+          const cautionCounts   = stats.map(p => p.cautionCount);
+          const healthyCounts   = stats.map(p => p.healthyCount);
+          const noStatusCounts  = stats.map(p => p.noStatusCount);
 
           // Build annotations only for non‐zero values
           const ann = arr => arr.map(c => c > 0 ? String(c) : '');
@@ -519,19 +525,19 @@
           const dataArray = [
             [
               'Phase',
-              'Trouble',   { type:'string', role:'annotation' },
-              'Caution',   { type:'string', role:'annotation' },
-              'Healthy',   { type:'string', role:'annotation' },
-              'No Status', { type:'string', role:'annotation' }
+              'Trouble',
+              'Caution',
+              'Healthy',
+              'No Status'
             ]
           ];
           phases.forEach((phase, i) => {
             dataArray.push([
               phase,
-              troubleCounts[i],  ann(troubleCounts)[i],
-              cautionCounts[i],  ann(cautionCounts)[i],
-              healthyCounts[i],  ann(healthyCounts)[i],
-              noStatusCounts[i], ann(noStatusCounts)[i]
+              Number(troubleCounts[i]),
+              Number(cautionCounts[i]),
+              Number(healthyCounts[i]),
+              Number(noStatusCounts[i])
             ]);
           });
 
@@ -566,24 +572,23 @@
             },
             backgroundColor: 'transparent'
           };
-          const chart = new google.visualization.ColumnChart(
-            document.getElementById('columnchart_values')
-          );
+          const chartContainer = document.getElementById('columnchart_values');
+          if (phases.length === 0 || (troubleCounts.every(c => c === 0) && cautionCounts.every(c => c === 0) && healthyCounts.every(c => c === 0) && noStatusCounts.every(c => c === 0))) {
+            chartContainer.innerHTML = '<p style="color:#dc3545;font-weight:bold;">No data available for Initiatives by Phase</p>';
+            return;
+          }
+          const chart = new google.visualization.ColumnChart(chartContainer);
           chart.draw(data, options);
         }
 
         function drawCostByPhaseChart() {
-          // Filter out any Planning phases that might have made it through
-          const filteredPhaseStats = window.phaseStats.filter(p => 
-            p.phaseName !== 'Planning' && !p.phaseName.toLowerCase().includes('planning')
-          );
-          
-          // Extract names & per‐status cost arrays from phaseStats
-          const phases         = filteredPhaseStats.map(p => p.phaseName);
-          const troubleCosts   = filteredPhaseStats.map(p => p.troubleCost);
-          const cautionCosts   = filteredPhaseStats.map(p => p.cautionCost);
-          const healthyCosts   = filteredPhaseStats.map(p => p.healthyCost);
-          const noStatusCosts  = filteredPhaseStats.map(p => p.noStatusCost);
+          // Defensive: ensure window.phaseStats is an array
+          const stats = Array.isArray(window.phaseStats) ? window.phaseStats : [];
+          const phases         = stats.map(p => p.phaseName);
+          const troubleCosts   = stats.map(p => p.troubleCost);
+          const cautionCosts   = stats.map(p => p.cautionCost);
+          const healthyCosts   = stats.map(p => p.healthyCost);
+          const noStatusCosts  = stats.map(p => p.noStatusCost);
 
           // Formatter: only show annotation if cost > 0, add commas & dollar sign
           const fmt = n => {
@@ -1228,32 +1233,4 @@
     }, 1000);
   });
 </script>
-<script src="https://unpkg.com/js-datepicker"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    if (window.datepicker) {
-      datepicker('#from_date', {
-        formatter: (input, date, instance) => {
-          if (date) input.value = date.toISOString().slice(0, 10);
-        },
-        startDay: 1,
-        customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-        customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        overlayButton: 'Go',
-        overlayPlaceholder: 'Enter a year',
-        alwaysShow: false
-      });
-      datepicker('#to_date', {
-        formatter: (input, date, instance) => {
-          if (date) input.value = date.toISOString().slice(0, 10);
-        },
-        startDay: 1,
-        customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-        customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        overlayButton: 'Go',
-        overlayPlaceholder: 'Enter a year',
-        alwaysShow: false
-      });
-    }
-  });
-</script>
+<!-- Removed js-datepicker (qs-datepicker) code; only Flatpickr is used for date inputs. -->

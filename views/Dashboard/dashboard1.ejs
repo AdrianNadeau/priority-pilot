@@ -30,60 +30,94 @@
 <%- contentFor('body') %>
 
 <div class="page-content-wrapper">
+  <% 
+  // Ensure these are defined before including the partial
+  // Calculate default budget using portfolio_budget from companies table
+  let defaultBudget = 0;
+  if (typeof companies !== 'undefined' && companies && companies.length > 0 && companies[0].portfolio_budget) {
+    const portfolioBudget = Number(companies[0].portfolio_budget) || 0;
+    if (typeof filteredDays !== 'undefined' && filteredDays) {
+      defaultBudget = Math.round((portfolioBudget / 365) * filteredDays);
+    } else {
+      defaultBudget = Math.round(portfolioBudget);
+    }
+  }
+  const totalFilteredCost = typeof getFilteredValue === 'function' && Array.isArray(projects) ? getFilteredValue(projects, 'budget') : 0;
+  const totalFilteredEffort = typeof getFilteredValue === 'function' && Array.isArray(projects) ? getFilteredValue(projects, 'effort') : 0;
+  function formatNumberWithCommas(x) {
+    if (x == null) return '0';
+    var parts = x.toString().split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join('.');
+  }
+%>
+
+
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-12">
+            <div class="mini-stat clearfix" style="background-color: lightskyblue; border-radius: 4px;">
+              <div class="row">
+                <div class="col-md-6 d-flex align-items-center">
+                  <span style="color: #333; font-size: 16px; margin-right: 15px;">
+                    <strong>Date Range:</strong>
+                  </span>
+                  <strong style="margin-right: 10px;">Start:</strong>
+                  <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+                  <strong style="margin-right: 10px;">End:</strong>
+                  <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+                  <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterDashboard()">Update</button>
+                  <% if (currentFromDate && currentToDate && filteredDays) { %>
+                    <span class="counter" style="color: #2196f3; font-size: 14px; margin-left: 10px;">
+                      <strong>(<%= filteredDays %> days)</strong>
+                    </span>
+                  <% } %>
+                </div>
+               
+              </div>
+            </div>
+          </div>
+        </div>
     <div class="container-fluid">
         
 
         
 
-        
-        <!-- Filter Row with Date Range Display -->
-        <div class="row">
-            <div class="col-md-12" style="min-height: 50px; padding-bottom: 15px;">
-                <div class="mini-stat clearfix" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 10px;">
-                    <div class="mini-stat-info d-flex align-items-center">
-                        <div class="d-flex align-items-center">
-                            <span class="counter" style="color: black; margin-right: 20px;"><strong>Date Range:</strong></span>
-                            
-                            <div class="d-flex align-items-center" style="margin-right: 15px;">
-                                <strong style="margin-right: 10px;">Start:</strong>
-                                <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px;" value="<%= currentFromDate %>">
-                            </div>
-                            
-                            <div class="d-flex align-items-center" style="margin-right: 15px;">
-                                <strong style="margin-right: 10px;">End:</strong>
-                                <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px;" value="<%= currentToDate %>">
-                            </div>
-                            
-                            <div class="d-flex">
-                                <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterDashboard()">Update</button>
-                            </div>
-                            
-                            <!-- Display number of days in date range -->
-                            <% if (currentFromDate && currentToDate && filteredDays) { %>
-                                <div class="d-flex align-items-center" style="margin-left: 20px;">
-                                    <span class="counter" style="color: #2196f3; font-size: 14px;">
-                                        <strong>(<%= filteredDays %> days)</strong>
-                                    </span>
-                                </div>
-                            <% } %>
-                        </div>
-                    </div>
-                </div>
 
-                <% // Calculate total filtered cost/effort and used cost/effort for all projects %>
-                <% let totalFilteredCost = 0, totalFilteredEffort = 0, usedFilteredCost = 0, usedFilteredEffort = 0;
-                   projects.forEach(function(project) {
-                     var filteredCost = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'project_cost') : 0;
-                     var filteredEffort = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'effort') : 0;
-                     totalFilteredCost += filteredCost;
-                     totalFilteredEffort += filteredEffort;
-                     if (filteredCost > 0) usedFilteredCost += filteredCost;
-                     if (filteredEffort > 0) usedFilteredEffort += filteredEffort;
-                   });
-                %>
-               
-            </div>
-        </div>
+
+
+
+        
+        <% 
+  // Calculate deliveryTotalCost as (portfolio_budget / 365) * filteredDays
+  let deliveryTotalCost = 0, deliveryUsedCost = 0, deliveryAvailCost = 0;
+  let deliveryTotalEffort = 0, deliveryUsedEffort = 0, deliveryAvailEffort = 0;
+  if (typeof companies !== 'undefined' && companies && companies.length > 0) {
+    const portfolioBudget = Number(companies[0].portfolio_budget) || 0;
+    const portfolioEffort = Number(companies[0].portfolio_effort) || 0;
+    if (typeof filteredDays !== 'undefined' && filteredDays) {
+      deliveryTotalCost = Math.round((portfolioBudget / 365) * filteredDays);
+      deliveryTotalEffort = Math.round((portfolioEffort / 365) * filteredDays);
+    } else {
+      deliveryTotalCost = Math.round(portfolioBudget);
+      deliveryTotalEffort = Math.round(portfolioEffort);
+    }
+  }
+  // Optionally, you can still sum up used/available as before if needed
+  projects.forEach(function(project) {
+    if (project.phase_name) {
+        const phase = project.phase_name.trim().toLowerCase();
+        if (phase === 'delivery') {
+            let usedCost = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'project_cost') : 0;
+            let usedEffort = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'effort') : 0;
+            deliveryUsedCost += usedCost;
+            deliveryAvailCost += (deliveryTotalCost - usedCost);
+            deliveryUsedEffort += usedEffort;
+            deliveryAvailEffort += (deliveryTotalEffort - usedEffort);
+        }
+      }
+  });
+  %>
+                 
         
         <div class="row">
             <!-- Main content -->
@@ -100,7 +134,7 @@
             </div>
             </div>
                       <div class="col-md-6 phase-column">
-                        <div class="mini-stat bg-white clearfix" style="min-height: 50px;">
+                        <div class="mini-stat bg-white clearfix" style="min-height: 50px; background-color:#ffea99;">
                             <div class="mini-stat-info" style="background-color: #FFEA99;" data-phase="Archive">
                                 <a href="/projects/freezer/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Archive</strong> (<%= archived.count %> / $<%= formatNumberWithCommas(archived.cost) %> / <%= formatNumberWithCommas(archived.ph) %> PH)</span></a>
                             </div>
@@ -130,62 +164,21 @@
                               return Math.round(value * percent);
                             }
                             projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim().toLowerCase() === 'planning') { 
-                                  let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
-                                  let borderColor = '';
-                                  if (health === 'green') borderColor = 'green';
-                                  else if (health === 'yellow') borderColor = 'yellow';
-                                  else if (health === 'red') borderColor = 'red';
-                                  else borderColor = 'black'; // default
-                              %>
-                                <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
-                                  <%= project.project_name %>
-                                </button>&nbsp;&nbsp;&nbsp;
-                                <% 
-                                  let projBudget = Number(project.project_cost) || 0;
-                                  let projEffort = Number(project.effort) || 0;
-                                  let projUsedCost = 0, projUsedEffort = 0, projTotalCost = 0, projTotalEffort = 0, projAvailCost = 0, projAvailEffort = 0;
-                                  if (currentFromDate && currentToDate && filteredDays) {
-                                    projUsedCost = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'project_cost') : 0;
-                                    projUsedEffort = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'effort') : 0;
-                                    projTotalCost = Math.round((projBudget / 365) * filteredDays);
-                                    projTotalEffort = Math.round((projEffort / 365) * filteredDays);
-                                    projAvailCost = projTotalCost - projUsedCost;
-                                    projAvailEffort = projTotalEffort - projUsedEffort;
-                                  } else {
-                                    projUsedCost = Number(project.used_cost) || 0;
-                                    projUsedEffort = Number(project.used_effort) || 0;
-                                    projTotalCost = projBudget;
-                                    projTotalEffort = projEffort;
-                                    projAvailCost = projTotalCost - projUsedCost;
-                                    projAvailEffort = projTotalEffort - projUsedEffort;
-                                  }
-                                %>
-                                <div class="alert alert-success" style="margin: 10px 0 10px 0; padding: 10px; background-color: #eafbe7; border: 1px solid #28a745; border-radius: 4px;">
-                                  <div style="display: flex; align-items: center;">
-                                    <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
-                                      <div style="display: flex; align-items: center;">
-                                        <i class="mdi mdi-currency-usd" style="margin-right: 8px; font-size: 16px; color: #155724;"></i>
-                                        <strong style="color: #155724; font-size: 14px;padding-right:5px;">Budget:<% if (currentFromDate && currentToDate && filteredDays) { %> (Filtered)<% } %>:</strong>
-                                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: $<%= formatNumberWithCommas(projTotalCost) %></span>
-                                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: $<%= formatNumberWithCommas(projUsedCost) %></span>
-                                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: $<%= formatNumberWithCommas(projAvailCost) %></span>
-                                      </div>
-                                    </div>
-                                    <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
-                                      <div style="display: flex; align-items: center;">
-                                        <i class="mdi mdi-firework" style="margin-right: 8px; font-size: 16px; color: #155724;"></i>
-                                        <strong style="color: #155724; font-size: 14px;padding-right:5px;">Effort<% if (currentFromDate && currentToDate && filteredDays) { %> (Filtered)<% } %>:</strong>
-                                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: <%= formatNumberWithCommas(projTotalEffort) %> PH</span>
-                                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: <%= formatNumberWithCommas(projUsedEffort) %> PH</span>
-                                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: <%= formatNumberWithCommas(projAvailEffort) %> PH</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              <%  } 
-                            }); %>
+                              if (project.phase_name && project.phase_name.trim().toLowerCase() === 'planning') { 
+                                let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
+                                let borderColor = '';
+                                if (health === 'green') borderColor = 'green';
+                                else if (health === 'yellow') borderColor = 'yellow';
+                                else if (health === 'red') borderColor = 'red';
+                                else borderColor = 'black'; // default
+                            %>
+                              <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
+                              <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
+                                <%= project.project_name %>
+                              </button>&nbsp;&nbsp;&nbsp;
+                            <% } 
+                            }); 
+                            %>
                             </div>
                           </div>
                       </div>
@@ -227,7 +220,8 @@
                     </div>
                 </div>
                 
-        <div class="row">
+    
+             <div class="row">
           <!-- Delivery (left), Done (center), Dates (right) -->
       <div class="col-md-6 phase-column">
             <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
@@ -253,6 +247,7 @@
                               <%  } 
                             }); %>
                             </div>
+                           
                         </div>
                     </div>
 
@@ -286,71 +281,34 @@
           
             </div> <!-- close inner delivery/done row -->
 
-            <!-- Budget and Effort Summary Section -->
-            <!-- Filtered Date Range Totals Section -->
-            <% 
-              let totalBudget = 0, totalEffort = 0, usedCost = 0, usedEffort = 0;
-              projects.forEach(function(project) {
-                totalBudget += Number(project.project_cost) || 0;
-                totalEffort += Number(project.effort) || 0;
-              });
-              let showFiltered = currentFromDate && currentToDate && filteredDays;
-              let mainTotalCost, mainUsedCost, mainAvailCost, mainTotalEffort, mainUsedEffort, mainAvailEffort;
-              if (showFiltered) {
-                usedCost = 0; usedEffort = 0;
-                projects.forEach(function(project) {
-                  if (typeof getFilteredValue === 'function') {
-                    usedCost += getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
-                    usedEffort += getFilteredValue(project, currentFromDate, currentToDate, 'effort');
-                  }
-                });
-                mainTotalCost = Math.round((totalBudget / 365) * filteredDays);
-                mainTotalEffort = Math.round((totalEffort / 365) * filteredDays);
-                mainUsedCost = usedCost;
-                mainUsedEffort = usedEffort;
-                mainAvailCost = mainTotalCost - mainUsedCost;
-                mainAvailEffort = mainTotalEffort - mainUsedEffort;
-              } else {
-                // No filter: show all-time totals
-                mainTotalCost = totalBudget;
-                mainTotalEffort = totalEffort;
-                mainUsedCost = 0;
-                mainUsedEffort = 0;
-                projects.forEach(function(project) {
-                  mainUsedCost += Number(project.used_cost) || 0;
-                  mainUsedEffort += Number(project.used_effort) || 0;
-                });
-                mainAvailCost = mainTotalCost - mainUsedCost;
-                mainAvailEffort = mainTotalEffort - mainUsedEffort;
-              }
-            %>
-            <div class="row" style="margin-top: 15px;">
-              <div class="col-md-12">
-                <div class="alert alert-success" style="margin-bottom: 15px; padding: 15px; background-color: #d4edda; border: 1px solid #28a745; border-radius: 4px;">
-                  <div style="display: flex; align-items: center;">
-                    <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
-                      <div style="display: flex; align-items: center;">
-                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
-                        <strong style="color: #155724; font-size: 16px;padding-right:5px;">Cost:</strong>
-                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: $<%= totalCost %></span>
-                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: $<%= usedCost %></span>
-                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: $<%= availableCost %></span>
-                      </div>
-                    </div>
-                    <div style="width: 50%; display: flex; align-items: flex-start; flex-direction: column;">
-                      <div style="display: flex; align-items: center;">
-                        <i class="mdi mdi-calculator" style="margin-right: 8px; font-size: 20px; color: #155724;"></i>
-                        <strong style="color: #155724; font-size: 16px;padding-right:5px;">Effort:</strong>
-                        <span style="color: #155724; font-weight: bold;padding-right:5px;">Total: <%= totalPH %> PH</span>
-                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Used: <%= totalUsedPH %> PH</span>
-                        <span style="color: #155724; font-weight: bold; margin-left:5px;">Avail: <%= totalAvailPH %> PH</span>
-                      </div>
-                    </div>
-                  </div>
+              <!-- Budget/Effort Summary Row (under Delivery and Done) -->
+              <div class="row mt-3 mb-2 align-items-center" style="heidht:50px;background: #e2fbef; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                <div class="col-md-6 d-flex align-items-center">
+                  <span class="mdi mdi-cash" style="font-size: 1.5rem; margin-right: 8px;"></span>
+                  <span style="font-weight: 500; margin-right: 12px;">Budget</span>
+                  <span class="text-muted" style="margin-right: 8px;">Total:</span>
+                      <span style="font-weight: 500; margin-right: 16px;">
+                        $<%= deliveryTotalCost && deliveryTotalCost > 0 ? deliveryTotalCost : defaultBudget %>
+                      </span>
+                  <span class="text-muted" style="margin-right: 8px;">Used:</span>
+                  <span style="font-weight: 500; margin-right: 16px;">$<%= deliveryUsedCost %></span>
+                  <span class="text-muted" style="margin-right: 8px;">Available:</span>
+                  <span style="font-weight: 500;">$<%= deliveryAvailCost %></span>
+                </div>
+                <div class="col-md-6 d-flex align-items-center">
+                  <span class="mdi mdi-rocket" style="font-size: 1.5rem; margin-right: 8px;"></span>
+                  <span style="font-weight: 500; margin-right: 12px;">Effort</span>
+                  <span class="text-muted" style="margin-right: 8px;">Total:</span>
+                  <span style="font-weight: 500; margin-right: 16px;"><%= deliveryTotalEffort %>h</span>
+                  <span class="text-muted" style="margin-right: 8px;">Used:</span>
+                  <span style="font-weight: 500; margin-right: 16px;"><%= deliveryUsedEffort %>h</span>
+                  <span class="text-muted" style="margin-right: 8px;">Available:</span>
+                  <span style="font-weight: 500;"><%= deliveryAvailEffort %>h</span>
                 </div>
               </div>
-            </div>
-            
+
+            <!-- Combined Budget & Effort summary row spanning both columns -->
+           
                      </div>
 
             <div class="col-md-2">

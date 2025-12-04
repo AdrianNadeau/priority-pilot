@@ -23,9 +23,9 @@
                         <span class="counter" style="color: black; margin-right: 20px;"><strong>Filter:</strong></span>
                         
                         <div class="d-flex align-items-center" style="margin-right: 15px;">
-                            <strong style="margin-right: 10px;">Start:</strong>
-                            <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px;" value="<%= locals.currentFromDate || '' %>">
-                        </div>
+                                <strong style="margin-right: 10px;">Start:</strong>
+                                <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px;" value="<%= currentFromDate %>">
+                            </div>
                         
                         <div class="d-flex align-items-center" style="margin-right: 15px;">
                             <strong style="margin-right: 10px;">End:</strong>
@@ -142,35 +142,6 @@
 
 <%- contentFor('FooterJs') %>
 
-<script src="https://unpkg.com/js-datepicker"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    if (window.datepicker) {
-      datepicker('#from_date', {
-        formatter: (input, date, instance) => {
-          if (date) input.value = date.toISOString().slice(0, 10);
-        },
-        startDay: 1,
-        customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-        customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        overlayButton: 'Go',
-        overlayPlaceholder: 'Enter a year',
-        alwaysShow: false
-      });
-      datepicker('#to_date', {
-        formatter: (input, date, instance) => {
-          if (date) input.value = date.toISOString().slice(0, 10);
-        },
-        startDay: 1,
-        customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-        customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        overlayButton: 'Go',
-        overlayPlaceholder: 'Enter a year',
-        alwaysShow: false
-      });
-    }
-  });
-</script>
 
 <script>
   // Filter functions
@@ -229,30 +200,33 @@
     });
   }
 
-  // Robust Flatpickr initialization to always show session values
+  // Robust Flatpickr initialization for Health Check datepickers (matches dashboard)
   document.addEventListener("DOMContentLoaded", function () {
-    var fromDateValue = document.getElementById("from_date").value;
-    var toDateValue = document.getElementById("to_date").value;
+    var currentFromDate = '<%= currentFromDate || "" %>';
+    var currentToDate = '<%= locals.currentToDate || "" %>';
+
+    function isValidDateString(dateStr) {
+      // Accepts YYYY-MM-DD only
+      return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+    }
+
     var fromPicker = flatpickr("#from_date", {
       dateFormat: "Y-m-d",
       allowInput: true,
-      allowInvalidPreload: true,
-      defaultDate: fromDateValue || undefined,
+      allowInvalidPreload: true
     });
     var toPicker = flatpickr("#to_date", {
       dateFormat: "Y-m-d",
       allowInput: true,
-      allowInvalidPreload: true,
-      defaultDate: toDateValue || undefined,
+      allowInvalidPreload: true
     });
+
     // Force Flatpickr and input to session value after initialization
-    if (fromDateValue) {
-      fromPicker.setDate(fromDateValue, true, "Y-m-d");
-      document.getElementById("from_date").value = fromDateValue;
+    if (isValidDateString(currentFromDate)) {
+      fromPicker.setDate(currentFromDate, true);
     }
-    if (toDateValue) {
-      toPicker.setDate(toDateValue, true, "Y-m-d");
-      document.getElementById("to_date").value = toDateValue;
+    if (isValidDateString(currentToDate)) {
+      toPicker.setDate(currentToDate, true);
     }
   });
 </script>
@@ -260,15 +234,7 @@
 
 <!-- Flatpickr JS -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
 <script>
-// Initialize Flatpickr for date inputs
-flatpickr(".datepicker", {
- dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true, // Allow manual input if needed
-      allowInvalidPreload: true, // Allow invalid dates to be preloaded
-});
-
 // Filter functionality
 function filterHealth() {
     const startDate = document.getElementById('from_date').value;
