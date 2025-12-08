@@ -10,118 +10,113 @@
   /* Ensure filter section is visible */
   .page-content-wrapper .row:first-child {
     display: block !important;
-    visibility: visible !important;
-  }
 
-  .mini-stat.bg-white.clearfix {
-    background-color: #ffffff !important;
-    border: 1px solid #dee2e6 !important;
-    padding: 15px !important;
-    margin-bottom: 15px !important;
-  }
 
-  .dashboard-container {
-    width: 75%;
-    margin: 0 auto; /* Center the container */
-  }
-  .chart-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-  .chart {
-    flex: 1;
-    margin: 10px;
-  }
-  /* Add hover-over pointer effect for pie charts */
-  #pieChart,
-  #tag1Chart,
-  #tag2Chart,
-  #tag3Chart {
-    cursor: pointer;
-  }
-  @media print {
-    /* Hide buttons and other unnecessary elements */
-    #btnPrintPage,
-    #btnExportHealth,
-    .page-title,
-    .portfolio-title,
-    .button-menu-mobile {
-      display: none;
-    }
+    <!-- Top row: Projects by Phase & Investment by Phase -->
+    <div class="row mt-5">
+      <div class="col-lg-9">
+        <div class="text-center" style="font-weight: 700;">
+          Initiatives by Phase
+          <div class="text-center;" style="align-items:center;" id="columnchart_values"></div>
+        </div>
+        <div class="text-center" style="font-weight: 700;">
+          Investments by Phase
+          <div id="columnChartCost_values"></div>
+        </div>
+      </div>
+    </div>
 
-    /* Ensure the table and charts fit within the page */
-    .table-responsive {
-      overflow: visible !important;
-    }
+    <!-- Second row: Portfolio Health -->
+    <div class="row mt-5">
+      <div class="col-lg-9">
+        <div id="pieChart"></div>
+      </div>
+    </div>
 
-    .page-content-wrapper {
-      margin: 0;
-      padding: 0;
-    }
+    <!-- Third row: Individual Project Progress and Health -->
+    <div class="row mt-5">
+      <div class="col-lg-9" style="font-weight: 700;">
+        Project Progress
+        <div id="progressChart"></div>
+        Project Health
+        <div id="healthStatusChart"></div>
+      </div>
+    </div>
 
-    /* Adjust font sizes for better readability */
-    body {
-      font-size: 12px;
-    }
-  }
-</style>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-<script src="https://www.gstatic.com/charts/loader.js"></script>
-<%- contentFor('breadcrumb') %>
-<div class="row">
-  <div class="col-md-4">
-    <button type="button" class="button-menu-mobile open-left waves-effect">
-      <i class="ion-navicon"></i>
-    </button>
-
-    <button
-      type="button"
-      class="btn btn-primary waves-effect waves-light"
-      id="btnPrintPage"
-      name="btnPrintPage"
-    >
-      Download Report
-    </button>
-  </div>
-</div>
-
-<%- contentFor('body') %>
-
-<div class="page-content-wrapper" style="margin-top: 60px">
-  <div class="container-fluid" style="margin-left: 0.5em">
-    
-    <!-- Filter Display Section -->
-    <div class="row">
-      <div class="col-md-12" style="min-height: 50px; padding-bottom: 15px;">
-        <div class="mini-stat clearfix" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 10px;">
-          <div class="mini-stat-info d-flex align-items-center">
-            <div class="d-flex align-items-center">
-              <span class="counter" style="color: black; margin-right: 20px;"><strong>Date Range:</strong></span>
-              <div class="d-flex align-items-center" style="margin-right: 15px;">
-                <strong style="margin-right: 10px;">Start:</strong>
-                <input type="text" class="form-control datepicker" id="from_date" name="from_date"
-                  placeholder="From" style="width: 150px;"
-                  value="<%= currentFromDate ? currentFromDate : '' %>"
-                  <%= currentFromDate ? '' : 'placeholder="From"' %>>
-              </div>
-              <div class="d-flex align-items-center" style="margin-right: 15px;">
-                <strong style="margin-right: 10px;">End:</strong>
-                <input type="text" class="form-control datepicker" id="to_date" name="to_date"
-                  placeholder="To" style="width: 150px;"
-                  value="<%= currentToDate ? currentToDate : '' %>"
-                  <%= currentToDate ? '' : 'placeholder="To"' %>>
-              </div>
-              <div class="d-flex">
-                <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterDashboard()">Update</button>
-                
-              </div>
-            </div>
+    <!-- Tag charts: three per row -->
+    <div class="row mt-5">
+      <div class="col-lg-9">
+        <p><strong>Tag 1</strong></p>
+        <div class="row">
+          <div class="col-lg-4 mb-4" style="font-weight: 700;">
+            <span>Initiatives</span>
+            <div id="tag1Chart"></div>
+            <span id="tag1NoTags" class="d-block"></span>
+          </div>
+          <div class="col-lg-4 mb-4" style="font-weight: 700;">
+            <span>Cost</span>
+            <div id="tag1CostChart"></div>
+            <span id="tag1NoCostTags" class="d-block"></span>
+          </div>
+          <div class="col-lg-4 mb-4" style="font-weight: 700;">
+            <span>Effort</span>
+            <div id="tag1EffortChart"></div>
+            <span id="tag1NoEffortTags" class="d-block"></span>
           </div>
         </div>
       </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-lg-9">
+        <p><strong>Tag 2</strong></p>
+        <div class="row">
+          <div class="col-lg-4 mb-4" style="font-weight: 700;">
+            <span>Initiatives</span>
+            <div id="tag2Chart"></div>
+            <span id="tag2NoTags" class="d-block"></span>
+          </div>
+          <div class="col-lg-4 mb-4" style="font-weight: 700;">
+            <span>Cost</span>
+            <div id="tag2CostChart"></div>
+            <span id="tag2NoCostTags" class="d-block"></span>
+          </div>
+          <div class="col-lg-4 mb-4" style="font-weight: 700;">
+            <span>Effort</span>
+            <div id="tag2EffortChart"></div>
+            <span id="tag2NoEffortTags" class="d-block"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-lg-9">
+        <p><strong>Tag 3</strong></p>
+        <div class="row">
+          <div class="col-lg-4 mb-4" style="font-weight: 700;">
+            <span>Initiatives</span>
+            <div id="tag3Chart"></div>
+            <span id="tag3NoTags" class="d-block"></span>
+          </div>
+          <div class="col-lg-4 mb-4" style="font-weight: 700;">
+            <span>Cost</span>
+            <div id="tag3CostChart"></div>
+            <span id="tag3NoCostTags" class="d-block"></span>
+          </div>
+          <div class="col-lg-4 mb-4" style="font-weight: 700;">
+            <span>Effort</span>
+            <div id="tag3EffortChart"></div>
+            <span id="tag3NoEffortTags" class="d-block"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+        <span class="text-muted" style="margin-right: 8px;">Start:</span>
+        <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+        <span style="font-weight: 500; margin-right: 16px;">End:</span>
+        <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+        <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" onclick="filterDashboard()">Update</button>
+      </div>
+    </div>
     </div>
 
     <!-- Top row: Projects by Phase & Investment by Phase -->
@@ -136,6 +131,8 @@
       </div>
     </div>
 
+
+
     <!-- Second row: Portfolio Health -->
     <div class="row mt-5">
       <div class="col-lg-12 text-center">
@@ -143,73 +140,77 @@
       </div>
     </div>
 
+
+
     <!-- Third row: Individual Project Progress and Health -->
     <div class="row mt-5">
-      <div class="text-center" style="font-weight: 700;">
+      <div class="col-lg-6 text-center" style="font-weight: 700;">
         Project Progress
         <div id="progressChart"></div>
       </div>
-      <div class="text-center"style="font-weight: 700;">
+      <div class="col-lg-6 text-center" style="font-weight: 700;">
         Project Health
         <div id="healthStatusChart"></div>
       </div>
     </div>
 
+
+
     <!-- Tag charts: three per row -->
     <div class="row mt-5">
       <p><strong>Tag 1</strong></p>
-      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        <span style="padding-left: 126px;">Initiatives</span>
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Initiatives</span>
         <div id="tag1Chart"></div>
         <span id="tag1NoTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        <span style="padding-left: 126px;">Cost</span>
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Cost</span>
         <div id="tag1CostChart"></div>
         <span id="tag1NoCostTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        <span style="padding-left: 126px;"></span>Effort</span>
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Effort</span>
         <div id="tag1EffortChart"></div>
         <span id="tag1NoEffortTags" class="d-block"></span>
       </div>
     </div>
+
+
     <div class="row mt-3">
       <p><strong>Tag 2</strong></p>
-      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        <span style="padding-left: 126px;"></span>Initiatives</span>
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Initiatives</span>
         <div id="tag2Chart"></div>
         <span id="tag2NoTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-         <span style="padding-left: 126px;"></span>Cost</span>
-        
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Cost</span>
         <div id="tag2CostChart"></div>
         <span id="tag2NoCostTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        <span style="padding-left: 126px;"></span>Effort</span>
-        
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Effort</span>
         <div id="tag2EffortChart"></div>
         <span id="tag2NoEffortTags" class="d-block"></span>
       </div>
     </div>
+
+
     <div class="row mt-3">
       <p><strong>Tag 3</strong></p>
-      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-         <span style="padding-left: 126px;"></span>Initiatives</span>
-        
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Initiatives</span>
         <div id="tag3Chart"></div>
         <span id="tag3NoTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        <span style="padding-left: 126px;"></span>Cost</span>
-        
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Cost</span>
         <div id="tag3CostChart"></div>
         <span id="tag3NoCostTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4 text-center" style="font-weight: 700;">
-        <span style="padding-left: 126px;"></span>Effort</span>
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Effort</span>
         <div id="tag3EffortChart"></div>
         <span id="tag3NoEffortTags" class="d-block"></span>
       </div>

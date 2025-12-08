@@ -57,30 +57,24 @@
 %>
 
 
-        <div class="row" style="margin-top: 10px;">
-          <div class="col-md-12">
-            <div class="mini-stat clearfix" style="background-color: lightskyblue; border-radius: 4px;">
-              <div class="row">
+<!-- Budget/Effort Summary Row (under Delivery and Done) -->
+ 
+
+
+              <div class="row mt-3 mb-2 align-items-center" style="min-height: 50px;height:50px;background:hsl(197, 70%, 91%); border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);margin-left:4px !important;">
                 <div class="col-md-6 d-flex align-items-center">
-                  <span style="color: #333; font-size: 16px; margin-right: 15px;">
-                    <strong>Date Range:</strong>
-                  </span>
-                  <strong style="margin-right: 10px;">Start:</strong>
+                  <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
+                  <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
+                  <span class="text-muted" style="margin-right: 8px;">Start:</span>
                   <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
-                  <strong style="margin-right: 10px;">End:</strong>
+                  <span style="font-weight: 500; margin-right: 16px;">End:</span>
                   <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
-                  <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterDashboard()">Update</button>
-                  <% if (currentFromDate && currentToDate && filteredDays) { %>
-                    <span class="counter" style="color: #2196f3; font-size: 14px; margin-left: 10px;">
-                      <strong>(<%= filteredDays %> days)</strong>
-                    </span>
-                  <% } %>
+                  <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" onclick="filterDashboard()">Update</button>
                 </div>
-               
+                <div class="col-md-6"></div>
               </div>
-            </div>
-          </div>
-        </div>
+        
+
     <div class="container-fluid">
         
 
@@ -95,11 +89,11 @@
   // Calculate deliveryTotalCost as (portfolio_budget / 365) * filteredDays
   let deliveryTotalCost = 0, deliveryUsedCost = 0, deliveryAvailCost = 0;
   let deliveryTotalEffort = 0, deliveryUsedEffort = 0, deliveryAvailEffort = 0;
-    let portfolioBudget = 500000;
-    let portfolioEffort = 20000;
+    let portfolioBudge = 0, portfolioEffort  = 0;
     if (typeof companies !== 'undefined' && companies && companies.length > 0) {
       if (typeof companies[0].portfolio_budget !== 'undefined') {
-        portfolioBudget = Number(companies[0].portfolio_budget) || 500000;
+        // Remove commas before converting to number
+        portfolioBudget = Number(String(companies[0].portfolio_budget).replace(/,/g, ''));
       }
       if (typeof companies[0].effort !== 'undefined') {
         portfolioEffort = Number(companies[0].effort) || 20000;
@@ -126,7 +120,7 @@
   });
   deliveryAvailCost = deliveryTotalCost - deliveryUsedCost;
   deliveryAvailEffort = deliveryTotalEffort - deliveryUsedEffort;
-
+  console.log("----------------- COMPANY :------------------------", companies[0].portfolio_budget);
   // Debug: Output totals to server console
   console.log('Dashboard totals:', {
     deliveryTotalCost,
@@ -138,27 +132,30 @@
   %>
                  
         
+
+
+       
+
         <div class="row">
-            <!-- Main content -->
-            <div class="col-md-10">
-                <div class="row">
- 
+          <!-- Main content -->
+          <div class="col-md-10">
+            <div class="row">
                     
            <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
-            <div class="mini-stat bg-white clearfix" >
-              <div class="mini-stat-info" style="background-color:#ffea99">
-                <% function formatNumberWithCommas(x) { if (x == null) return '0'; var parts = x.toString().split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); return parts.join('.'); } %>
-                <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %> / $0 / <%= formatNumberWithCommas(pitch.ph) %> PH)</span></a>
-              </div>
+          <div class="mini-stat bg-white clearfix" >
+            <div class="mini-stat-info" style="background-color:#ffea99">
+            <% function formatNumberWithCommas(x) { if (x == null) return '0'; var parts = x.toString().split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); return parts.join('.'); } %>
+            <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %> / $0 / <%= formatNumberWithCommas(pitch.ph) %> PH)</span></a>
             </div>
-            </div>
-                      <div class="col-md-6 phase-column">
-                        <div class="mini-stat bg-white clearfix" style="min-height: 50px; background-color:#ffea99;">
-                            <div class="mini-stat-info" style="background-color: #FFEA99;" data-phase="Archive">
-                                <a href="/projects/freezer/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Archive</strong> (<%= archived.count %> / $<%= formatNumberWithCommas(archived.cost) %> / <%= formatNumberWithCommas(archived.ph) %> PH)</span></a>
-                            </div>
-                        </div>
-                      </div>
+          </div>
+          </div>
+                <div class="col-md-6 phase-column">
+                <div class="mini-stat bg-white clearfix" style="min-height: 50px; background-color:#ffea99;">
+                  <div class="mini-stat-info" style="background-color: #FFEA99;" data-phase="Archive">
+                    <a href="/projects/freezer/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Archive</strong> (<%= archived.count %> / $<%= formatNumberWithCommas(archived.cost) %> / <%= formatNumberWithCommas(archived.ph) %> PH)</span></a>
+                  </div>
+                </div>
+                </div>
                     <div class="col-md-6 phase-column">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
@@ -301,9 +298,9 @@
             </div> <!-- close inner delivery/done row -->
 
               <!-- Budget/Effort Summary Row (under Delivery and Done) -->
-              <div class="row mt-3 mb-2 align-items-center" style="height:50px;background: #e2fbef; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+              <div class="row mt-3 mb-2 align-items-center" style="min-height: 50px;height:50px;background: #e2fbef; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
                 <div class="col-md-6 d-flex align-items-center">
-                  <span class="mdi mdi-cash" style="font-size: 1.5rem; margin-right: 8px;"></span>
+                  <span class="mdi mdi-currency-usd" style="font-size: 1.5rem; margin-right: 8px;"></span>
                   <span style="font-weight: 500; margin-right: 12px;">Budget</span>
                   <span class="text-muted" style="margin-right: 8px;">Total:</span>
                   <span style="font-weight: 500; margin-right: 16px;">
@@ -343,6 +340,7 @@
                 <div class="mini-stat bg-white text-center clearfix" style="padding-top:15px;">
                    <div><button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject" style="width: 150px;">Add Project</button></div>
                     <hr/>
+
                     <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;width: 150px" onClick="loadRadar();">Radar</button></div>
                    
                     <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onClick="loadHealth();" >Health Check</button></div>
@@ -549,29 +547,23 @@
       elements.forEach(function(el, index) {
         var txt = el.textContent || el.innerText || '';
         // Remove commas, K/M/B suffixes and percent signs before parsing
-        var cleaned = String(txt).replace(/[,\s]/g, '').replace(/K|M|B|%/gi, '');
+        var cleaned = String(txt).replace(/[, a0\s]/g, '').replace(/K|M|B|%/gi, '');
         var num = parseFloat(cleaned) || 0;
         
-        console.log('Element', index, ':', el, 'Text:', txt, 'Cleaned:', cleaned, 'Number:', num);
-        
         // Remove any previous text color classes and inline styles
-        el.classList.remove('text-danger', 'text-success');
-        el.style.color = ''; // Clear any inline color styles
-        el.removeAttribute('data-color'); // Remove data-color attribute
+        el.classList.remove('text-danger', 'text-success', 'text-warning');
+        el.style.color = '';
+        el.removeAttribute('data-color');
         
-        // Apply color based on percentage value with !important to override any CSS
-        if (num < 0) {
-          // Negative values = red
-          el.style.cssText = 'color: #dc3545 !important;';
-          console.log('Applied red color for negative value:', num);
-        } else if (num > 0) {
-          // Positive values = green
-          el.style.cssText = 'color: #28a745 !important;';
-          console.log('Applied green color for positive value:', num);
+        // Color logic: Green for 5-90%, Yellow for 90-110%, Red for >110%
+        if (num >= 5 && num < 90) {
+          el.style.cssText = 'color: #30c34b !important;'; // Green
+        } else if (num >= 90 && num <= 110) {
+          el.style.cssText = 'color: #ffc107 !important;'; // Yellow
+        } else if (num > 110) {
+          el.style.cssText = 'color: #dc3545 !important;'; // Red
         } else {
-          // Zero values = default black
-          el.style.cssText = 'color: #000 !important;';
-          console.log('Applied default color for zero value:', num);
+          el.style.cssText = 'color: #000 !important;'; // Black/default
         }
       });
     }
@@ -640,22 +632,18 @@
         const text = element.textContent || element.innerText || '';
         console.log(elementName + ' text content:', text);
         
-        // Extract number from text (handle negative signs)
+        // Extract number from text
         const match = text.match(/-?\d+\.?\d*/);
         const number = match ? parseFloat(match[0]) : 0;
-        
-        console.log(elementName + ' extracted number:', number);
-        
-        // Apply color based on value
-        if (number > 0) {
+        // Color logic: Green for 5-90%, Yellow for 90-110%, Red for >110%
+        if (number >= 5 && number < 90) {
           element.style.setProperty('color', '#28a745', 'important'); // Green
-          console.log(elementName + ' set to GREEN for positive value');
-        } else if (number < 0) {
+        } else if (number >= 90 && number <= 110) {
+          element.style.setProperty('color', '#ffc107', 'important'); // Yellow
+        } else if (number > 110) {
           element.style.setProperty('color', '#dc3545', 'important'); // Red
-          console.log(elementName + ' set to RED for negative value');
         } else {
-          element.style.setProperty('color', '#000000', 'important'); // Black
-          console.log(elementName + ' set to BLACK for zero value');
+          element.style.setProperty('color', '#000000', 'important'); // Black/default
         }
       }
       

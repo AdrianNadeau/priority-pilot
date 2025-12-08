@@ -562,6 +562,8 @@ ORDER BY
       req.session.company.effort,
     );
 
+    // Always fetch and pass the company as companies: [company] for EJS logic
+    const company = await Company.findByPk(company_id_fk);
     res.render("Dashboard/dashboard1", {
       pageTitle: "Dashboard",
       ...phaseData,
@@ -619,6 +621,7 @@ ORDER BY
       currentToDate: toDate || "",
       filteredDays: req.session.filtered_days || null,
       currentMilestoneDetails: currentMilestoneDetails,
+      companies: company ? [company] : [],
     });
     console.log("totalCostPercent:", proportionalTotalCost);
   } catch (error) {
