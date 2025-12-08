@@ -1,800 +1,143 @@
-<%- contentFor('HeaderCss') %>
-<!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<style>
-  /* Add small internal gap to all mini-stat white boxes */
-  .mini-stat.bg-white.clearfix { padding: 5px !important; }
-  .phase-buttons { padding-left: 5px; margin-left: 0; padding-top: 6px; }
-  
-  /* Add 15px spacing between phase columns */
-  .phase-column {
-    padding-left: 7.5px !important;
-    padding-right: 7.5px !important;
-  }
-  
-  /* First column - only right padding */
-  .phase-column:first-child {
-    padding-left: 0 !important;
-    padding-right: 7.5px !important;
-  }
-  
-  /* Last column - only left padding */
-  .phase-column:last-child {
-    padding-left: 7.5px !important;
-    padding-right: 0 !important;
-  }
-</style>
+<%
+/* -----------------------------------------
+   Helper: sanitize percent / numeric values
+----------------------------------------- */
+function sanitizeNumber(val) {
+  if (typeof val === 'number') return val;
+  if (typeof val !== 'string') return NaN;
+  const cleaned = val.replace(/[^0-9.\-]/g, '');
+  const parsed = parseFloat(cleaned);
+  return isNaN(parsed) ? NaN : parsed;
+}
 
-<%- contentFor('breadcrumb') %>
+/* -----------------------------------------
+   Helper: Pad + Normalize Numbers
+----------------------------------------- */
+function padFormatNumber(val) {
+  const numRaw = (typeof val === 'number')
+    ? val
+    : parseFloat(String(val).replace(/[^0-9.\-]/g, ''));
 
-<%- contentFor('body') %>
+  if (isNaN(numRaw)) return '00.00';
 
-<div class="page-content-wrapper">
-  <% 
-  // Ensure these are defined before including the partial
-  // Ensure companies is always defined to avoid EJS errors
-  if (typeof companies === 'undefined') {
-    companies = [];
+  let num = numRaw;
+
+  // Business rule: Huge numbers interpreted as percentages
+  if (Math.abs(numRaw) >= 1000) {
+    num = Math.round(numRaw / 100);
   }
-  // Calculate default budget using portfolio_budget from companies table
-  let defaultBudget = 0;
-  if (companies && companies.length > 0 && companies[0].portfolio_budget) {
-    const portfolioBudget = Number(companies[0].portfolio_budget) || 0;
-    if (typeof filteredDays !== 'undefined' && filteredDays) {
-      defaultBudget = Math.round((portfolioBudget / 365) * filteredDays);
-    } else {
-      defaultBudget = Math.round(portfolioBudget);
+
+  const fixed = num.toFixed(2);
+  const parts = fixed.split('.');
+  let intPart = parts[0];
+  const decPart = parts[1] || '00';
+
+  const sign = intPart.startsWith('-') ? '-' : '';
+  if (sign) intPart = intPart.slice(1);
+
+  if (intPart.length < 2) {
+    intPart = intPart.padStart(2, '0');
+  }
+
+  return `${sign}${intPart}.${decPart}`;
+}
+
+/* -----------------------------------------
+   Helper: Render project buttons by phase
+----------------------------------------- */
+function renderPhaseButtons(phaseName) {
+  let html = '';
+  projects.forEach(project => {
+    if (project.phase_name &&
+        project.phase_name.trim().toLowerCase() === phaseName) {
+
+      let health = (project.latest_status_health || '').trim().toLowerCase();
+      let borderColor =
+        (health === 'green') ? 'green' :
+        (health === 'yellow') ? 'yellow' :
+        (health === 'red') ? 'red' :
+        'black';
+
+      const btnStyle =
+        `margin-bottom:10px; border-color:${borderColor}; ` +
+        `border-width:2px; border-radius:10px;`;
+
+      html += `
+        <button type="button"
+          onclick="loadProject('${project.id}')"
+          class="btn btn-light project-btn"
+          data-style="${btnStyle}">
+          ${project.project_name}
+        </button>&nbsp;&nbsp;&nbsp;`;
     }
-  }
-  const totalFilteredCost = typeof getFilteredValue === 'function' && Array.isArray(projects) ? getFilteredValue(projects, 'budget') : 0;
-  const totalFilteredEffort = typeof getFilteredValue === 'function' && Array.isArray(projects) ? getFilteredValue(projects, 'effort') : 0;
-  function formatNumberWithCommas(x) {
-    if (x == null) return '0';
-    var parts = x.toString().split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return parts.join('.');
-  }
-%>
-
-
-<!-- Budget/Effort Summary Row (under Delivery and Done) -->
- 
-
-
-              <div class="row mt-3 mb-2 align-items-center" style="min-height: 50px;height:50px;background:hsl(197, 70%, 91%); border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);margin-left:4px !important;">
-                <div class="col-md-6 d-flex align-items-center">
-                  <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
-                  <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
-                  <span class="text-muted" style="margin-right: 8px;">Start:</span>
-                  <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
-                  <span style="font-weight: 500; margin-right: 16px;">End:</span>
-                  <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
-                  <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" onclick="filterDashboard()">Update</button>
-                </div>
-                <div class="col-md-6"></div>
-              </div>
-        
-
-    <div class="container-fluid">
-        
-
-        
-
-
-
-
-
-        
-        <% 
-  // Calculate deliveryTotalCost as (portfolio_budget / 365) * filteredDays
-  let deliveryTotalCost = 0, deliveryUsedCost = 0, deliveryAvailCost = 0;
-  let deliveryTotalEffort = 0, deliveryUsedEffort = 0, deliveryAvailEffort = 0;
-    let portfolioBudge = 0, portfolioEffort  = 0;
-    if (typeof companies !== 'undefined' && companies && companies.length > 0) {
-      if (typeof companies[0].portfolio_budget !== 'undefined') {
-        // Remove commas before converting to number
-        portfolioBudget = Number(String(companies[0].portfolio_budget).replace(/,/g, ''));
-      }
-      if (typeof companies[0].effort !== 'undefined') {
-        portfolioEffort = Number(companies[0].effort) || 20000;
-      }
-    }
-    if (typeof filteredDays !== 'undefined' && filteredDays) {
-      deliveryTotalCost = Math.round((portfolioBudget / 365) * filteredDays);
-      deliveryTotalEffort = Math.round((portfolioEffort / 365) * filteredDays);
-    } else {
-      deliveryTotalCost = Math.round(portfolioBudget);
-      deliveryTotalEffort = Math.round(portfolioEffort);
-    }
-  // Optionally, you can still sum up used/available as before if needed
-  projects.forEach(function(project) {
-    if (project.phase_name) {
-        const phase = project.phase_name.trim().toLowerCase();
-        if (phase === 'delivery') {
-            let usedCost = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'project_cost') : 0;
-            let usedEffort = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'effort') : 0;
-            deliveryUsedCost += usedCost;
-            deliveryUsedEffort += usedEffort;
-        }
-      }
   });
-  deliveryAvailCost = deliveryTotalCost - deliveryUsedCost;
-  deliveryAvailEffort = deliveryTotalEffort - deliveryUsedEffort;
-  console.log("----------------- COMPANY :------------------------", companies[0].portfolio_budget);
-  // Debug: Output totals to server console
-  console.log('Dashboard totals:', {
-    deliveryTotalCost,
-    deliveryTotalEffort,
-    filteredDays,
-    portfolioBudget: (companies && companies[0] && companies[0].company_budget) ? companies[0].company_budget : 500000,
-    portfolioEffort: (companies && companies[0] && companies[0].effort) ? companies[0].effort : 20000
-  });
-  %>
-                 
-        
+  return html;
+}
 
+/* -----------------------------------------
+   Helper: Format number with commas
+----------------------------------------- */
+function formatNumberWithCommas(x) {
+  if (x == null) return '0';
+  let parts = x.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join('.');
+}
 
-       
+/* -----------------------------------------
+   Portfolio Budget / Effort + Delivery Totals
+----------------------------------------- */
+let deliveryTotalCost = 0,
+    deliveryUsedCost = 0,
+    deliveryAvailCost = 0;
 
-        <div class="row">
-          <!-- Main content -->
-          <div class="col-md-10">
-            <div class="row">
-                    
-           <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
-          <div class="mini-stat bg-white clearfix" >
-            <div class="mini-stat-info" style="background-color:#ffea99">
-            <% function formatNumberWithCommas(x) { if (x == null) return '0'; var parts = x.toString().split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); return parts.join('.'); } %>
-            <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %> / $0 / <%= formatNumberWithCommas(pitch.ph) %> PH)</span></a>
-            </div>
-          </div>
-          </div>
-                <div class="col-md-6 phase-column">
-                <div class="mini-stat bg-white clearfix" style="min-height: 50px; background-color:#ffea99;">
-                  <div class="mini-stat-info" style="background-color: #FFEA99;" data-phase="Archive">
-                    <a href="/projects/freezer/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Archive</strong> (<%= archived.count %> / $<%= formatNumberWithCommas(archived.cost) %> / <%= formatNumberWithCommas(archived.ph) %> PH)</span></a>
-                  </div>
-                </div>
-                </div>
-                    <div class="col-md-6 phase-column">
-                        <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
-                            <div class="mini-stat-info">
-                                <span class="counter"><strong>Planning</strong> (<%= planning.count %> / $<%= formatNumberWithCommas(planning.cost) %> / <%= formatNumberWithCommas(planning.ph) %> PH)</span>
-                            </div>
-                            <div class="phase-buttons" style="padding-left: 10px;">
+let deliveryTotalEffort = 0,
+    deliveryUsedEffort = 0,
+    deliveryAvailEffort = 0;
 
-                            <% 
-                            function getFilteredValue(project, fromDate, toDate, field) {
-                              if (!project.start_date || !project.end_date) return 0;
-                              var projectStart = new Date(project.start_date);
-                              var projectEnd = new Date(project.end_date);
-                              var filterStart = fromDate ? new Date(fromDate) : projectStart;
-                              var filterEnd = toDate ? new Date(toDate) : projectEnd;
-                              var overlapStart = projectStart > filterStart ? projectStart : filterStart;
-                              var overlapEnd = projectEnd < filterEnd ? projectEnd : filterEnd;
-                              var msInDay = 1000 * 60 * 60 * 24;
-                              var overlapDays = Math.max(0, Math.ceil((overlapEnd - overlapStart) / msInDay) + 1);
-                              var totalDays = Math.max(1, Math.ceil((projectEnd - projectStart) / msInDay) + 1);
-                              var percent = overlapDays / totalDays;
-                              var value = Number(project[field]) || 0;
-                              return Math.round(value * percent);
-                            }
-                            projects.forEach(function(project) { 
-                              if (project.phase_name && project.phase_name.trim().toLowerCase() === 'planning') { 
-                                let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
-                                let borderColor = '';
-                                if (health === 'green') borderColor = 'green';
-                                else if (health === 'yellow') borderColor = 'yellow';
-                                else if (health === 'red') borderColor = 'red';
-                                else borderColor = 'black'; // default
-                            %>
-                              <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
-                              <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
-                                <%= project.project_name %>
-                              </button>&nbsp;&nbsp;&nbsp;
-                            <% } 
-                            }); 
-                            %>
-                            </div>
-                          </div>
-                      </div>
-                      
-                        <script>
-                          // Apply inline styles stored in data-style to elements to avoid embedding EJS in CSS attributes
-                          document.addEventListener('DOMContentLoaded', function () {
-                            document.querySelectorAll('.project-btn').forEach(function (el) {
-                            var s = el.getAttribute('data-style');
-                            if (s) el.style.cssText = s;
-                          });
-                        });
-                      </script>
-           <div class="col-md-6 phase-column" style="padding-bottom: 15px;">
-            <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
-              <div class="mini-stat-info">
-                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %> / $<%= formatNumberWithCommas(discovery.cost) %> / <%= formatNumberWithCommas(discovery.ph) %> PH)</span>
-                            </div>
-                            <div class="phase-buttons" style="padding-left: 10px;">
-                            <% projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim().toLowerCase() === 'discovery') { 
-                                  let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
-                                  let borderColor = '';
-                                  if (health === 'green') borderColor = 'green';
-                                  else if (health === 'yellow') borderColor = 'yellow';
-                                  else if (health === 'red') borderColor = 'red';
-                                  else borderColor = 'black'; // default
-                                  const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;';
-                                  var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
-                                  var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
-                            %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
-                                  <%= project.project_name %>
-                                </button>&nbsp;&nbsp;&nbsp;
-                              <%  } 
-                            }); %>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-    
-             <div class="row">
-          <!-- Delivery (left), Done (center), Dates (right) -->
-      <div class="col-md-6 phase-column">
-            <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
-                            <div class="mini-stat-info">
-                                <span class="counter"><strong>Delivery</strong> (<%= delivery.count %> / $<%= formatNumberWithCommas(delivery.cost) %> / <%= formatNumberWithCommas(delivery.ph) %> PH)</span>
-                            </div>
-                            <div class="phase-buttons" style="padding-left: 10px;">
-                            <% projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim().toLowerCase() === 'delivery') { 
-                                  let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
-                                  let borderColor = '';
-                                  if (health === 'green') borderColor = 'green';
-                                  else if (health === 'yellow') borderColor = 'yellow';
-                                  else if (health === 'red') borderColor = 'red';
-                                  else borderColor = 'black'; // default
-                                  const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;';
-                                  var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
-                                  var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
-                            %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
-                                  <%= project.project_name %>
-                                </button>&nbsp;&nbsp;&nbsp;
-                              <%  } 
-                            }); %>
-                            </div>
-                           
-                        </div>
-                    </div>
+let portfolioBudget = 0,
+    portfolioEffort = 0;
 
-          <div class="col-md-6 phase-column">
-            <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
-                            <div class="mini-stat-info">
-                              <span class="counter"><strong>Done</strong> (<%= operations.count %> / $<%= formatNumberWithCommas(operations.cost) %> / <%= formatNumberWithCommas(operations.ph) %> PH)</span>
-                            </div>
-                            <div class="phase-buttons" style="padding-left: 10px;">
-                            <% projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim().toLowerCase() === 'done') { 
-                                  let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
-                                  let borderColor = '';
-                                  if (health === 'green') borderColor = 'green';
-                                  else if (health === 'yellow') borderColor = 'yellow';
-                                  else if (health === 'red') borderColor = 'red';
-                                  else borderColor = 'black'; // default
-                                  const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;';
-                                  var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
-                                  var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
-                            %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
-                                  <%= project.project_name %>
-                                </button>&nbsp;&nbsp;&nbsp;
-                              <%  } 
-                            }); %>
-                            </div>
-                        </div>
-                    </div>
+// Load portfolio budget
+if (companies && companies.length > 0) {
+  portfolioBudget = Number(String(companies[0].portfolio_budget || 0).replace(/,/g, ''));
+  portfolioEffort = Number(companies[0].effort || 20000);
+}
 
-          
-            </div> <!-- close inner delivery/done row -->
+// Calculate totals based on filteredDays
+if (filteredDays) {
+  deliveryTotalCost = Math.round((portfolioBudget / 365) * filteredDays);
+  deliveryTotalEffort = Math.round((portfolioEffort / 365) * filteredDays);
+} else {
+  deliveryTotalCost = Math.round(portfolioBudget);
+  deliveryTotalEffort = Math.round(portfolioEffort);
+}
 
-              <!-- Budget/Effort Summary Row (under Delivery and Done) -->
-              <div class="row mt-3 mb-2 align-items-center" style="min-height: 50px;height:50px;background: #e2fbef; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
-                <div class="col-md-6 d-flex align-items-center">
-                  <span class="mdi mdi-currency-usd" style="font-size: 1.5rem; margin-right: 8px;"></span>
-                  <span style="font-weight: 500; margin-right: 12px;">Budget</span>
-                  <span class="text-muted" style="margin-right: 8px;">Total:</span>
-                  <span style="font-weight: 500; margin-right: 16px;">
-                    $<%= formatNumberWithCommas(deliveryTotalCost) %>
-                  </span>
-                  <span class="text-muted" style="margin-right: 8px;">Used:</span>
-                  <span style="font-weight: 500; margin-right: 16px;">$<%= formatNumberWithCommas(deliveryUsedCost) %></span>
-                  <span class="text-muted" style="margin-right: 8px;">Available:</span>
-                  <span style="font-weight: 500;">$<%= formatNumberWithCommas(deliveryAvailCost) %></span>
-                </div>
-                <div class="col-md-6 d-flex align-items-center">
-                  <span class="mdi mdi-rocket" style="font-size: 1.5rem; margin-right: 8px;"></span>
-                  <span style="font-weight: 500; margin-right: 12px;">Effort</span>
-                  <span class="text-muted" style="margin-right: 8px;">Total:</span>
-                  <span style="font-weight: 500; margin-right: 16px;">
-                    <%= formatNumberWithCommas(deliveryTotalEffort) %>h
-                  </span>
-                  <span class="text-muted" style="margin-right: 8px;">Used:</span>
-                  <span style="font-weight: 500; margin-right: 16px;">
-                    <%= formatNumberWithCommas(deliveryUsedEffort) %>h
-                  </span>
-                  <span class="text-muted" style="margin-right: 8px;">Available:</span>
-                  <span style="font-weight: 500;">
-                    <%= formatNumberWithCommas(deliveryAvailEffort) %>h
-                  </span>
-                </div>
-              </div>
+// Sum used cost/effort for Delivery
+projects.forEach(project => {
+  if (project.phase_name &&
+      project.phase_name.trim().toLowerCase() === 'delivery') {
 
-            <!-- Combined Budget & Effort summary row spanning both columns -->
-           
-                     </div>
+    const usedCost = (typeof getFilteredValue === 'function')
+      ? getFilteredValue(project, currentFromDate, currentToDate, 'project_cost')
+      : 0;
 
-            <div class="col-md-2">
-              <div>
-                      
-                    </div>
-                <div class="mini-stat bg-white text-center clearfix" style="padding-top:15px;">
-                   <div><button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject" style="width: 150px;">Add Project</button></div>
-                    <hr/>
+    const usedEffort = (typeof getFilteredValue === 'function')
+      ? getFilteredValue(project, currentFromDate, currentToDate, 'effort')
+      : 0;
 
-                    <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;width: 150px" onClick="loadRadar();">Radar</button></div>
-                   
-                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onClick="loadHealth();" >Health Check</button></div>
-                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onClick="loadFlightFull();" >Flight Plan</button></div>
-                      <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onClick="loadAccomplishments();" >Accomplishments</button></div>
-                    
-                    <% 
-                      const costColor = typeof availableCostColor !== 'undefined' && availableCostColor !== null ? availableCostColor : '#000';
-                      // sanitize percent values: strip commas, dollar signs, percent signs, and whitespace
-                      function sanitizeNumber(val) {
-                        if (typeof val === 'number') return val;
-                        if (typeof val !== 'string') return NaN;
-                        const cleaned = val.replace(/[^0-9.\-]/g, '');
-                        const parsed = parseFloat(cleaned);
-                        return isNaN(parsed) ? NaN : parsed;
-                      }
-
-                      function padFormatNumber(val) {
-                        // val expected numeric or numeric-string
-                        const numRaw = (typeof val === 'number') ? val : parseFloat(String(val).replace(/[^0-9.\-]/g, ''));
-                        if (isNaN(numRaw)) return '00.00';
-                        let num = numRaw;
-                        // Special business rule: if magnitude is very large (>= 1000),
-                        // treat as percentage scaled by 100 (divide by 100) and round to nearest integer
-                        // so -15189.60 -> -152.00
-                        if (Math.abs(numRaw) >= 1000) {
-                          // divide by 100 then round to nearest integer
-                          const scaled = Math.round(numRaw / 100);
-                          num = scaled; // treat as integer percent value
-                        }
-                        const fixed = num.toFixed(2); // ensure two decimals
-                        const parts = fixed.split('.');
-                        let intPart = parts[0];
-                        const decPart = parts[1] || '00';
-                        const sign = intPart.startsWith('-') ? '-' : '';
-                        if (sign) intPart = intPart.slice(1);
-                        if (intPart.length < 2) intPart = intPart.padStart(2, '0');
-                        return `${sign}${intPart}.${decPart}`;
-                      }
-
-                      const rawCost = (typeof availableCostPercent !== 'undefined' && availableCostPercent !== null) ? sanitizeNumber(availableCostPercent) : NaN;
-                      const costPercent = !isNaN(rawCost) ? padFormatNumber(rawCost) : '00.00';
-                      const effColor = typeof availablePHColor !== 'undefined' && availablePHColor !== null ? availablePHColor : '#000';
-                      const rawEff = (typeof availableEffortPercent !== 'undefined' && availableEffortPercent !== null) ? sanitizeNumber(availableEffortPercent) : NaN;
-                      const effPercent = !isNaN(rawEff) ? padFormatNumber(rawEff) : '00.00';
-                    %>
-                    <div class="row text-center" style="padding-top: 20px;padding-bottom: 20px;">
-                        <div class="col-md-12">
-                          
-                          <% 
-                            // Always show percent block, using same logic for all-time and filtered
-                            let costPercentVal = (typeof usedCost !== 'undefined' && typeof totalCost !== 'undefined' && sanitizeNumber(totalCost) && !isNaN(sanitizeNumber(totalCost)))
-                              ? ((sanitizeNumber(usedCost) / sanitizeNumber(totalCost)) * 100).toFixed(1) + '%'
-                              : '0%';
-                            let effortPercentVal = (typeof totalUsedPH !== 'undefined' && typeof totalPH !== 'undefined' && sanitizeNumber(totalPH) && !isNaN(sanitizeNumber(totalPH)))
-                              ? ((sanitizeNumber(totalUsedPH) / sanitizeNumber(totalPH)) * 100).toFixed(1) + '%'
-                              : '0%';
-                          %>
-                          <strong class="list-percent">COST</strong><br/>
-                          <span id="cost-percentage" class="list-percent percent-cost" data-color="<%= costColor %>"><%= costPercentVal %></span><br/>
-                          <strong class="list-percent">EFFORT</strong><br/>
-                          <span id="effort-percentage" class="list-percent percent-effort" data-color="<%= effColor %>"><%= effortPercentVal %></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-   <div id="addProject" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content" style="width: 900px;">
-            <div class="modal-header">
-              <h5 class="modal-title mt-0">Add Project</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            </div>
-            <div class="modal-body">
-              <%- include('../Partials/add-project', {phases: phases, priorities: priorities, sponsors: sponsors, primes: primes, tags: tags}) %>
-            </div>
-          </div>
-        </div>
-      </div>
-
-  <%- contentFor('FooterJs') %>
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
-<script src="public/assets/plugins/d3/d3.min.js"></script>
-<script src="public/assets/plugins/c3/c3.min.js"></script>
-<script src="public/assets/plugins/jquery-knob/excanvas.js"></script>
-<script src="public/assets/plugins/jquery-knob/jquery.knob.js"></script>
-
-<%- contentFor('BottomJs') %>
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    'use strict';
-    
-   // Fetch all the forms we want to apply custom Bootstrap validation styles to
-   var forms = document.querySelectorAll(".needs-validation");
-
-    // Loop over them and prevent submission
-    Array.prototype.slice.call(forms).forEach(function (form) {
-      form.addEventListener(
-        "submit",
-        function (event) {
-          if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-
-          form.classList.add("was-validated");
-        },
-        false,
-      );
-    });
-
-    
-    // Numeric input validation for specific fields
-    const numericFields = ['project_cost', 'effort', 'benefit'];
-    numericFields.forEach(function(fieldId) {
-        document.getElementById(fieldId).addEventListener('keydown', function(event) {
-            if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
-                !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
-                !(event.ctrlKey || event.metaKey)) {
-                alert("Only numbers are allowed.")
-                event.preventDefault();
-            }
-        });
-    });
-
-   
-
-    // Input formatting with commas for project cost and benefit
-    ['project_cost', 'benefit'].forEach(function(fieldId) {
-        document.getElementById(fieldId).addEventListener('input', function () {
-            let input = this.value.replace(/[^0-9.]/g, '');
-            if (input.includes('.')) {
-                const parts = input.split('.');
-                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                input = parts.join('.');
-            } else {
-                input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            }
-            this.value = input;
-        });
-    });
-    
-    // Basic form validation without complex date picker manipulation
-    console.log("Basic form setup complete");
-
-    // Show or hide date_section based on phase selection
-    const phaseSelect = document.getElementById("phase_id_fk");
-    const dateSection = document.getElementById("date_section");
-    const startDateInput = document.getElementById('start_date');
-    const endDateInput = document.getElementById('end_date');
-    const nextMilestoneDateInput = document.getElementById('next_milestone_date');
-    const dateRequired = document.getElementById('dates_required');
-
-    function toggleDateSection() {
-      if (phaseSelect.value == "1" || phaseSelect.value == "6") {
-        // Phase is pitch, hide dates and clear validation messages
-        dateSection.style.display = 'none';
-        startDateInput.required = false;
-        endDateInput.required = false;
-        dateRequired.style.display = 'none';
-        startDateInput.value = "";
-        endDateInput.value = "";
-        nextMilestoneDateInput.value = "";
-      } else {
-        // Phase is not pitch, show dates and set required
-        dateSection.style.display = 'block';
-        startDateInput.required = true;
-        endDateInput.required = true;
-        if (!startDateInput.value) {
-          // Set the placeholder
-          startDateInput.placeholder = "Start Date";
-        }
-        if (!endDateInput.value) {
-          endDateInput.placeholder = "End Date";
-        }
-        if (!nextMilestoneDateInput.value) {
-          nextMilestoneDateInput.placeholder = "Milestone Date";
-        }
-      }
-    }
-
-    // Initial check
-    toggleDateSection();
-
-    // Add event listener to phase selection change
-    phaseSelect.addEventListener("change", toggleDateSection);
-    
-
- 
-    // avail-effort elements
-    document.querySelectorAll('.avail-effort').forEach(function(el) {
-      var color = el.getAttribute('data-color');
-      if (color) el.style.color = color;
-    });
-
-    // percent-cost and percent-effort elements: apply Bootstrap color classes
-    function applyPercentColors(selector) {
-      const elements = document.querySelectorAll(selector);
-      console.log('Found elements for selector "' + selector + '":', elements.length);
-      
-      elements.forEach(function(el, index) {
-        var txt = el.textContent || el.innerText || '';
-        // Remove commas, K/M/B suffixes and percent signs before parsing
-        var cleaned = String(txt).replace(/[, a0\s]/g, '').replace(/K|M|B|%/gi, '');
-        var num = parseFloat(cleaned) || 0;
-        
-        // Remove any previous text color classes and inline styles
-        el.classList.remove('text-danger', 'text-success', 'text-warning');
-        el.style.color = '';
-        el.removeAttribute('data-color');
-        
-        // Color logic: Green for 5-90%, Yellow for 90-110%, Red for >110%
-        if (num >= 5 && num < 90) {
-          el.style.cssText = 'color: #30c34b !important;'; // Green
-        } else if (num >= 90 && num <= 110) {
-          el.style.cssText = 'color: #ffc107 !important;'; // Yellow
-        } else if (num > 110) {
-          el.style.cssText = 'color: #dc3545 !important;'; // Red
-        } else {
-          el.style.cssText = 'color: #000 !important;'; // Black/default
-        }
-      });
-    }
-    
-    // Wait for DOM to be fully loaded and try multiple times
-    function applyColorsWithRetry() {
-      console.log('Attempting to apply percent colors...');
-      applyPercentColors('.percent-cost');
-      applyPercentColors('.percent-effort');
-      
-      // Direct approach using IDs as backup
-      const costEl = document.getElementById('cost-percentage');
-      const effortEl = document.getElementById('effort-percentage');
-      
-      if (costEl) {
-        const costText = costEl.textContent || '';
-        const costNum = parseFloat(costText.replace(/[^-0-9.]/g, '')) || 0;
-        console.log('Direct cost element found:', costText, 'Number:', costNum);
-        if (costNum < 0) {
-          costEl.style.cssText = 'color: #dc3545 !important;';
-        } else if (costNum > 0) {
-          costEl.style.cssText = 'color: #28a745 !important;';
-        } else {
-          costEl.style.cssText = 'color: #000 !important;';
-        }
-      }
-      
-      if (effortEl) {
-        const effortText = effortEl.textContent || '';
-        const effortNum = parseFloat(effortText.replace(/[^-0-9.]/g, '')) || 0;
-        console.log('Direct effort element found:', effortText, 'Number:', effortNum);
-        if (effortNum < 0) {
-          effortEl.style.cssText = 'color: #dc3545 !important;';
-        } else if (effortNum > 0) {
-          effortEl.style.cssText = 'color: #28a745 !important;';
-        } else {
-          effortEl.style.cssText = 'color: #000 !important;';
-        }
-      }
-      
-      // If no elements found, try again after a delay
-      if (document.querySelectorAll('.percent-cost, .percent-effort').length === 0) {
-        console.log('No percentage elements found, retrying in 500ms...');
-        setTimeout(applyColorsWithRetry, 500);
-      }
-    }
-    
-    applyColorsWithRetry();
-  });
-
-  // Additional function to ensure colors are applied after page is fully loaded
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      console.log('Window loaded - applying colors...');
-      
-      // Direct approach with specific targeting
-      const costElement = document.querySelector('#cost-percentage');
-      const effortElement = document.querySelector('#effort-percentage');
-      
-      function setColor(element, elementName) {
-        if (!element) {
-          console.log(elementName + ' element not found');
-          return;
-        }
-        
-        const text = element.textContent || element.innerText || '';
-        console.log(elementName + ' text content:', text);
-        
-        // Extract number from text
-        const match = text.match(/-?\d+\.?\d*/);
-        const number = match ? parseFloat(match[0]) : 0;
-        // Color logic: Green for 5-90%, Yellow for 90-110%, Red for >110%
-        if (number >= 5 && number < 90) {
-          element.style.setProperty('color', '#28a745', 'important'); // Green
-        } else if (number >= 90 && number <= 110) {
-          element.style.setProperty('color', '#ffc107', 'important'); // Yellow
-        } else if (number > 110) {
-          element.style.setProperty('color', '#dc3545', 'important'); // Red
-        } else {
-          element.style.setProperty('color', '#000000', 'important'); // Black/default
-        }
-      }
-      
-      setColor(costElement, 'Cost percentage');
-      setColor(effortElement, 'Effort percentage');
-      
-    }, 1000); // Wait 1 second to ensure everything is rendered
-  });
-
-  function submitForm() {
-    document.getElementById('editProjectForm').submit();
+    deliveryUsedCost += usedCost;
+    deliveryUsedEffort += usedEffort;
   }
-
-  function cancelForm(){
-    window.location.replace("/projects");
-  }
-</script>
-<script>
-  // Document ready initialization
-  document.addEventListener('DOMContentLoaded', function() {
-    // No special initialization needed for text inputs
-  });
-
-  function loadProject(project_id) {
-    window.location.replace('/projects/cockpit/' + project_id);
-  }
-  function loadFunnel() {
-    window.location.replace('/projects/funnel/view/');
-  }
-  function loadFreezer() {
-    window.location.replace('/projects/freezer/view/');
-  }
-  function loadFreezer() {
-    window.location.replace('/projects/freezer/view/');
-  }
-  function loadRadar() {
-   
-    window.location.replace('/projects/radar/view/');
-  }
-  function loadHealth() {
-   
-    window.location.replace('/projects/health/view/');
-  }
-  function loadFlightPlan() {
-    window.location.replace('/projects/flight/view/');
-  }
-  function loadFlightFull() {
-    
-    window.location.replace('/projects/flightview/view/');
-  }
-    function loadAccomplishments() {
-    
-    window.location.replace('/projects/accomplishments/view/');
-  }
- 
-  function getProjects() {
-    window.location.replace('/projects/');
-  }
-
-  // Centralized date filtering functions
-  function filterDashboard() {
-    const fromDate = document.getElementById('from_date').value;
-    const toDate = document.getElementById('to_date').value;
-    
-    // Send filter data to server to save in persons table
-    fetch('/update-filter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from_date: fromDate,
-        to_date: toDate
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        console.log('Filter preferences saved successfully to persons table');
-        // Redirect to refresh the page with updated filter values from database
-        window.location.href = '/';
-      } else {
-        console.error('Error saving filter preferences:', data.message);
-        // Still redirect to try to apply filters
-        const params = new URLSearchParams();
-        if (fromDate) params.append('from_date', fromDate);
-        if (toDate) params.append('to_date', toDate);
-        const queryString = params.toString();
-        const url = queryString ? `/?${queryString}` : '/';
-        window.location.href = url;
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      // Fallback: redirect with query parameters
-      const params = new URLSearchParams();
-      if (fromDate) params.append('from_date', fromDate);
-      if (toDate) params.append('to_date', toDate);
-      const queryString = params.toString();
-      const url = queryString ? `/?${queryString}` : '/';
-      window.location.href = url;
-    });
-  }
-  
-  function clearFilters() {
-    // Clear the input fields first
-    document.getElementById('from_date').value = '';
-    document.getElementById('to_date').value = '';
-
-    // Send clear filter data to server to update persons table and session, and show all projects
-    fetch('/update-filter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from_date: null,
-        to_date: null,
-        clear_all: true // instruct backend to clear all filter/session/db values
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      // Always reload to show all projects regardless of backend response
-      window.location.href = '/';
-    })
-    .catch(error => {
-      // Fallback: reload to show all projects
-      window.location.href = '/';
-    });
-  }  // Global function to get current filter values for other pages
-  function getGlobalFilterValues() {
-    return {
-      fromDate: '<%= currentFromDate %>',
-      toDate: '<%= currentToDate %>'
-    };
-  }
-
-  // Make the function globally available
-  window.getGlobalFilterValues = getGlobalFilterValues;
-
-</script>
-
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-<script>
-// Initialize Flatpickr for date inputs
-flatpickr(".datepicker", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true, // Allow manual input if needed
-      allowInvalidPreload: true, // Allow invalid dates to be preloaded
 });
-</script>
+
+deliveryAvailCost = deliveryTotalCost - deliveryUsedCost;
+deliveryAvailEffort = deliveryTotalEffort - deliveryUsedEffort;
+
+// Debug
+console.log("COMPANY:", companies[0]);
+console.log("Dashboard totals:", {
+  deliveryTotalCost,
+  deliveryTotalEffort
+});
+%>
