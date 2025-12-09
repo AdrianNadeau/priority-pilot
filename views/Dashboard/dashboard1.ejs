@@ -70,6 +70,7 @@
                   <span style="font-weight: 500; margin-right: 16px;">End:</span>
                   <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
                   <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" onclick="filterDashboard()">Update</button>
+                  <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
                 </div>
                 <div class="col-md-6"></div>
               </div>
@@ -704,7 +705,7 @@
   }
 
   // Centralized date filtering functions
-  function filterDashboard() {
+  window.filterDashboard = function() {
     const fromDate = document.getElementById('from_date').value;
     const toDate = document.getElementById('to_date').value;
     
@@ -746,7 +747,7 @@
       const url = queryString ? `/?${queryString}` : '/';
       window.location.href = url;
     });
-  }
+  };
   
   function clearFilters() {
     // Clear the input fields first
@@ -791,10 +792,75 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
-// Initialize Flatpickr for date inputs
-flatpickr(".datepicker", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true, // Allow manual input if needed
-      allowInvalidPreload: true, // Allow invalid dates to be preloaded
+// Calculate and display day count for date range
+function updateDayCount() {
+  const fromDateInput = document.getElementById('from_date');
+  const toDateInput = document.getElementById('to_date');
+  const dayCountSpan = document.getElementById('dayCount');
+  
+  console.log('updateDayCount called', {
+    fromDateInput: fromDateInput ? 'found' : 'NOT FOUND',
+    toDateInput: toDateInput ? 'found' : 'NOT FOUND', 
+    dayCountSpan: dayCountSpan ? 'found' : 'NOT FOUND',
+    fromValue: fromDateInput ? fromDateInput.value : 'N/A',
+    toValue: toDateInput ? toDateInput.value : 'N/A'
+  });
+  
+  if (fromDateInput && toDateInput && dayCountSpan) {
+    const fromDate = fromDateInput.value;
+    const toDate = toDateInput.value;
+    
+    if (fromDate && toDate) {
+      const start = new Date(fromDate);
+      const end = new Date(toDate);
+      const diffTime = end - start;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      console.log('Calculated days:', diffDays);
+      
+      if (diffDays >= 0) {
+        dayCountSpan.textContent = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
+        dayCountSpan.style.color = '#495057';
+      } else {
+        dayCountSpan.textContent = '(Invalid range)';
+        dayCountSpan.style.color = '#dc3545';
+      }
+    } else {
+      dayCountSpan.textContent = '';
+      console.log('One or both dates empty');
+    }
+  } else {
+    console.log('Missing elements!');
+  }
+}
+
+// Initialize Flatpickr for date inputs with onChange callback
+flatpickr("#from_date", {
+  dateFormat: "Y-m-d",
+  allowInput: true,
+  allowInvalidPreload: true,
+  onChange: function(selectedDates, dateStr, instance) {
+    updateDayCount();
+  },
+  onReady: function(selectedDates, dateStr, instance) {
+    updateDayCount();
+  }
 });
+
+flatpickr("#to_date", {
+  dateFormat: "Y-m-d",
+  allowInput: true,
+  allowInvalidPreload: true,
+  onChange: function(selectedDates, dateStr, instance) {
+    updateDayCount();
+  },
+  onReady: function(selectedDates, dateStr, instance) {
+    updateDayCount();
+  }
+});
+
+// Calculate initial day count on page load - multiple attempts to ensure it runs
+setTimeout(updateDayCount, 100);
+setTimeout(updateDayCount, 500);
+window.addEventListener('load', updateDayCount);
 </script>
