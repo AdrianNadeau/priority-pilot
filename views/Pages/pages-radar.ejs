@@ -1,142 +1,845 @@
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-<!-- Removed js-datepicker (qs-datepicker) code; only Flatpickr is used for date inputs. -->
 <%- contentFor('HeaderCss') %>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
 />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   /* Ensure filter section is visible */
   .page-content-wrapper .row:first-child {
     display: block !important;
+  }
+</style>
 
+<%- contentFor('body') %>
 
-    <!-- Top row: Projects by Phase & Investment by Phase -->
-    <div class="row mt-5">
-      <div class="col-lg-9">
-        <div class="text-center" style="font-weight: 700;">
-          Initiatives by Phase
-          <div class="text-center;" style="align-items:center;" id="columnchart_values"></div>
-        </div>
-        <div class="text-center" style="font-weight: 700;">
-          Investments by Phase
-          <div id="columnChartCost_values"></div>
-        </div>
-      </div>
-    </div>
+<!-- Load Flatpickr JS immediately before body content -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  console.log('Flatpickr loaded in body:', typeof flatpickr);
+</script>
 
-    <!-- Second row: Portfolio Health -->
-    <div class="row mt-5">
-      <div class="col-lg-9">
-        <div id="pieChart"></div>
-      </div>
-    </div>
-
-    <!-- Third row: Individual Project Progress and Health -->
-    <div class="row mt-5">
-      <div class="col-lg-9" style="font-weight: 700;">
-        Project Progress
-        <div id="progressChart"></div>
-        Project Health
-        <div id="healthStatusChart"></div>
-      </div>
-    </div>
-
-    <!-- Tag charts: three per row -->
-    <div class="row mt-5">
-      <div class="col-lg-9">
-        <p><strong>Tag 1</strong></p>
-        <div class="row">
-          <div class="col-lg-4 mb-4" style="font-weight: 700;">
-            <span>Initiatives</span>
-            <div id="tag1Chart"></div>
-            <span id="tag1NoTags" class="d-block"></span>
-          </div>
-          <div class="col-lg-4 mb-4" style="font-weight: 700;">
-            <span>Cost</span>
-            <div id="tag1CostChart"></div>
-            <span id="tag1NoCostTags" class="d-block"></span>
-          </div>
-          <div class="col-lg-4 mb-4" style="font-weight: 700;">
-            <span>Effort</span>
-            <div id="tag1EffortChart"></div>
-            <span id="tag1NoEffortTags" class="d-block"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row mt-3">
-      <div class="col-lg-9">
-        <p><strong>Tag 2</strong></p>
-        <div class="row">
-          <div class="col-lg-4 mb-4" style="font-weight: 700;">
-            <span>Initiatives</span>
-            <div id="tag2Chart"></div>
-            <span id="tag2NoTags" class="d-block"></span>
-          </div>
-          <div class="col-lg-4 mb-4" style="font-weight: 700;">
-            <span>Cost</span>
-            <div id="tag2CostChart"></div>
-            <span id="tag2NoCostTags" class="d-block"></span>
-          </div>
-          <div class="col-lg-4 mb-4" style="font-weight: 700;">
-            <span>Effort</span>
-            <div id="tag2EffortChart"></div>
-            <span id="tag2NoEffortTags" class="d-block"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row mt-3">
-      <div class="col-lg-9">
-        <p><strong>Tag 3</strong></p>
-        <div class="row">
-          <div class="col-lg-4 mb-4" style="font-weight: 700;">
-            <span>Initiatives</span>
-            <div id="tag3Chart"></div>
-            <span id="tag3NoTags" class="d-block"></span>
-          </div>
-          <div class="col-lg-4 mb-4" style="font-weight: 700;">
-            <span>Cost</span>
-            <div id="tag3CostChart"></div>
-            <span id="tag3NoCostTags" class="d-block"></span>
-          </div>
-          <div class="col-lg-4 mb-4" style="font-weight: 700;">
-            <span>Effort</span>
-            <div id="tag3EffortChart"></div>
-            <span id="tag3NoEffortTags" class="d-block"></span>
-          </div>
-        </div>
-      </div>
-    </div>
+<div class="page-content-wrapper">
+  <div class="container-fluid">
+   
+    <!-- Date Range Row -->
+    <div class="row mb-2 align-items-center" style="margin-left: 0px;margin-right:0px;min-height: 50px;height:50px;background:hsl(197, 70%, 91%); box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+      <div class="col-md-12 d-flex align-items-center">
+        <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
+        <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
         <span class="text-muted" style="margin-right: 8px;">Start:</span>
         <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
-        <span style="font-weight: 500; margin-right: 16px;">End:</span>
+        <span style="font-weight: 500; margin-right: 8px;">End:</span>
         <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
-        <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" onclick="filterDashboard()">Update</button>
+        <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
+        <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
       </div>
     </div>
-    </div>
-
+    
+    <script>
+      console.log('=== RADAR PAGE INLINE SCRIPT ===');
+      console.log('Flatpickr available?', typeof flatpickr);
+      console.log('from_date element:', document.getElementById('from_date'));
+      console.log('to_date element:', document.getElementById('to_date'));
+      
+      function initRadarDatePickers() {
+        console.log('Attempting to initialize date pickers...', typeof flatpickr);
+        
+        if (typeof flatpickr !== 'undefined') {
+          console.log('Flatpickr is available, initializing...');
+          
+          // Destroy any existing instances first
+          var fromInput = document.getElementById('from_date');
+          var toInput = document.getElementById('to_date');
+          
+          if (fromInput._flatpickr) {
+            console.log('Destroying existing from_date picker');
+            fromInput._flatpickr.destroy();
+          }
+          if (toInput._flatpickr) {
+            console.log('Destroying existing to_date picker');
+            toInput._flatpickr.destroy();
+          }
+          
+          // Add manual click handlers to force open
+          if (fromInput) {
+            fromInput.addEventListener('click', function() {
+              console.log('From input clicked, attempting manual open...');
+              if (window.fromPickerInstance && window.fromPickerInstance.open) {
+                window.fromPickerInstance.open();
+              }
+            });
+          }
+          
+          if (toInput) {
+            toInput.addEventListener('click', function() {
+              console.log('To input clicked, attempting manual open...');
+              if (window.toPickerInstance && window.toPickerInstance.open) {
+                window.toPickerInstance.open();
+              }
+            });
+          }
+          
+          // Initialize Flatpickr
+          var fromPicker = flatpickr("#from_date", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            clickOpens: true,
+            static: false,
+            onReady: function(selectedDates, dateStr, instance) {
+              console.log('from_date picker ready');
+            },
+            onOpen: function() {
+              console.log('from_date picker opened!');
+            },
+            onChange: function(selectedDates, dateStr) {
+              console.log('from_date changed to:', dateStr);
+            }
+          });
+          
+          var toPicker = flatpickr("#to_date", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            clickOpens: true,
+            static: false,
+            onReady: function(selectedDates, dateStr, instance) {
+              console.log('to_date picker ready');
+            },
+            onOpen: function() {
+              console.log('to_date picker opened!');
+            },
+            onChange: function(selectedDates, dateStr) {
+              console.log('to_date changed to:', dateStr);
+            }
+          });
+          
+          // Store instances globally for manual open handlers
+          window.fromPickerInstance = fromPicker;
+          window.toPickerInstance = toPicker;
+          
+          console.log('Flatpickr initialized:', fromPicker, toPicker);
+          console.log('fromPicker instance:', fromInput._flatpickr);
+          console.log('toPicker instance:', toInput._flatpickr);
+          return true;
+        } else {
+          console.log('Flatpickr not available yet, retrying...');
+          return false;
+        }
+      }
+      
+      // Try immediately
+      if (!initRadarDatePickers()) {
+        // Try after a short delay
+        setTimeout(function() {
+          if (!initRadarDatePickers()) {
+            // Try one more time
+            setTimeout(initRadarDatePickers, 500);
+          }
+        }, 100);
+      }
+    </script>
+    
+    <script>
+      // Filter function - needs to be available for onclick handler
+      function filterDashboard() {
+        const fromDate = document.getElementById('from_date').value;
+        const toDate = document.getElementById('to_date').value;
+        
+        console.log('Filter clicked with dates:', fromDate, toDate);
+        
+        // Send filter data to server to save in persons table
+        fetch('/update-filter', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from_date: fromDate,
+            to_date: toDate
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('Filter preferences saved successfully');
+            // Reload the page to apply session-based filtering
+            window.location.reload();
+          } else {
+            console.error('Error saving filter preferences:', data.message);
+            // Still reload to try to apply filters
+            window.location.reload();
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // Fallback: reload page
+          window.location.reload();
+        });
+      }
+    </script>
+    
+    <script>
+      console.log('=== INLINE SCRIPT EXECUTING ===');
+      var phaseStatsData = <%- JSON.stringify(phaseStats) %>;
+      var portfolioHealthData = <%- JSON.stringify(portfolioHealth) %>;
+      console.log('phaseStats from server:', phaseStatsData);
+      console.log('portfolioHealth from server:', portfolioHealthData);
+      
+      // Make data globally available
+      window.radarPageData = {
+        phaseStats: phaseStatsData,
+        portfolioHealth: portfolioHealthData
+      };
+      
+      // Check if Google Charts is available
+      if (typeof google !== 'undefined' && typeof google.charts !== 'undefined') {
+        console.log('Google Charts already loaded, initializing...');
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(initializeRadarCharts);
+      } else {
+        console.log('Waiting for Google Charts to load...');
+        window.addEventListener('load', function() {
+          if (typeof google !== 'undefined') {
+            google.charts.load('current', { packages: ['corechart'] });
+            google.charts.setOnLoadCallback(initializeRadarCharts);
+          } else {
+            console.error('Google Charts library not found!');
+          }
+        });
+      }
+      
+      function initializeRadarCharts() {
+        console.log('Initializing radar charts...');
+        drawInitiativesByPhaseChart();
+        drawInvestmentsByPhaseChart();
+        drawProgressAndHealthChartsInline();
+        drawTagCharts();
+      }
+      
+      function drawTagCharts() {
+        console.log('Drawing tag charts...');
+        drawTag1Charts();
+        drawTag2Charts();
+        drawTag3Charts();
+      }
+      
+      function drawTag1Charts() {
+        // Tag 1 Initiatives Chart
+        fetch('/projects/radar/countProjectsByTag1')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag1NoTags').innerText = 'No data found for tag 1';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Count']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && tag.project_count > 0) {
+                chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag1Chart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 1 Chart:', err); });
+        
+        // Tag 1 Cost Chart
+        fetch('/projects/radar/countCostsByTag1')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag1NoCostTags').innerText = 'No data found for tag 1 cost';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Cost']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_cost)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag1CostChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 1 Cost Chart:', err); });
+        
+        // Tag 1 Effort Chart
+        fetch('/projects/radar/countEffortByTag1')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag1NoEffortTags').innerText = 'No data found for tag 1 effort';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Effort']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_effort)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag1EffortChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 1 Effort Chart:', err); });
+      }
+      
+      function drawTag2Charts() {
+        // Tag 2 Initiatives Chart
+        fetch('/projects/radar/countProjectsByTag2')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag2NoTags').innerText = 'No data found for tag 2';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Count']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && tag.project_count > 0) {
+                chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag2Chart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 2 Chart:', err); });
+        
+        // Tag 2 Cost Chart
+        fetch('/projects/radar/countCostsByTag2')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag2NoCostTags').innerText = 'No data found for tag 2 cost';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Cost']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_cost)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag2CostChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 2 Cost Chart:', err); });
+        
+        // Tag 2 Effort Chart
+        fetch('/projects/radar/countEffortByTag2')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag2NoEffortTags').innerText = 'No data found for tag 2 effort';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Effort']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_effort)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag2EffortChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 2 Effort Chart:', err); });
+      }
+      
+      function drawTag3Charts() {
+        // Tag 3 Initiatives Chart
+        fetch('/projects/radar/countProjectsByTag3')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag3NoTags').innerText = 'No data found for tag 3';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Count']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseInt(tag.project_count) > 0) {
+                chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              tooltip: { text: 'value' },
+              pieSliceText: 'value',
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag3Chart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 3 Chart:', err); });
+        
+        // Tag 3 Cost Chart
+        fetch('/projects/radar/countCostsByTag3')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag3NoCostTags').innerText = 'No data found for tag 3 cost';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Cost']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_cost)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag3CostChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 3 Cost Chart:', err); });
+        
+        // Tag 3 Effort Chart
+        fetch('/projects/radar/countEffortByTag3')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag3NoEffortTags').innerText = 'No data found for tag 3 effort';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Effort']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_effort)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag3EffortChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 3 Effort Chart:', err); });
+      }
+      
+      function drawPortfolioHealthChart() {
+        console.log('Drawing Portfolio Health chart...');
+        var portfolioHealth = window.radarPageData.portfolioHealth;
+        if (!portfolioHealth || !portfolioHealth.counts) {
+          document.getElementById('pieChart').innerHTML = '<p style="color:#999;">No health data available</p>';
+          return;
+        }
+        
+        var dataArray = [['Status', 'Count']];
+        var labels = ['Healthy', 'Caution', 'In Trouble'];
+        portfolioHealth.counts.forEach(function(count, i) {
+          if (count > 0) {
+            dataArray.push([labels[i], count]);
+          }
+        });
+        
+        if (dataArray.length === 1) {
+          document.getElementById('pieChart').innerHTML = '<p style="color:#999;">No health data available</p>';
+          return;
+        }
+        
+        var data = google.visualization.arrayToDataTable(dataArray);
+        var options = {
+          pieHole: 0.4,
+          backgroundColor: 'transparent',
+          width: 600,
+          height: 350,
+          colors: portfolioHealth.colors,
+          legend: { position: 'right' },
+          pieSliceText: 'value'
+        };
+        
+        var chart = new google.visualization.PieChart(document.getElementById('pieChart'));
+        chart.draw(data, options);
+        console.log('Portfolio Health chart drawn');
+      }
+      
+      function drawProgressAndHealthChartsInline() {
+        console.log('Fetching progress and health data...');
+        fetch('/projects/radar/progress/')
+          .then(function(response) { return response.json(); })
+          .then(function(data) {
+            console.log('Progress data received:', data);
+            drawProgressChartInline(data);
+            drawHealthStatusChartInline(data);
+          })
+          .catch(function(err) {
+            console.error('Error loading Progress/Health data:', err);
+          });
+      }
+      
+      function drawProgressChartInline(data) {
+        console.log('Drawing Progress chart...');
+        if (!data || !data.project_names || data.project_names.length === 0) {
+          document.getElementById('progressChart').parentElement.innerHTML = '<p style="color:#999;">No progress data available</p>';
+          return;
+        }
+        
+        var labels = [];
+        var progressValues = [];
+        var backgroundColors = [];
+        
+        data.project_names.forEach(function(projectName, index) {
+          var progress = data.progress[index] || 0;
+          var progressValue = typeof progress === 'number' ? progress :
+                             (typeof progress === 'string' && progress !== 'No status available') ?
+                             parseFloat(progress) : 0;
+          
+          var health = data.colors[index] || 'No status available';
+          
+          if (!health || health === 'No status available' || health === '' || health === null) {
+            return;
+          }
+          
+          labels.push(projectName);
+          progressValues.push(progressValue);
+          
+          if (health === 'green' || health === 'Green') {
+            backgroundColors.push('#28a745');
+          } else if (health === 'yellow' || health === 'Yellow') {
+            backgroundColors.push('#ffc107');
+          } else if (health === 'red' || health === 'Red') {
+            backgroundColors.push('#dc3545');
+          }
+        });
+        
+        if (labels.length === 0) {
+          document.getElementById('progressChart').parentElement.innerHTML = '<p style="color:#999;">No progress data available</p>';
+          return;
+        }
+        
+        var ctx = document.getElementById('progressChart').getContext('2d');
+        
+        if (window.progressChartInstance) {
+          window.progressChartInstance.destroy();
+        }
+        
+        window.progressChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Progress %',
+              data: progressValues,
+              backgroundColor: backgroundColors,
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                ticks: {
+                  font: {
+                    size: 10
+                  },
+                  maxRotation: 45,
+                  minRotation: 45
+                }
+              },
+              y: {
+                beginAtZero: true,
+                max: 100,
+                title: {
+                  display: true,
+                  text: 'Progress (%)'
+                },
+                grid: {
+                  color: '#eee'
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return context.parsed.y + '%';
+                  }
+                }
+              }
+            }
+          }
+        });
+        console.log('Progress chart drawn with Chart.js');
+      }
+      
+      function drawHealthStatusChartInline(data) {
+        console.log('Drawing Health Status chart...');
+        if (!data || !data.project_names || data.project_names.length === 0) {
+          document.getElementById('healthStatusChart').innerHTML = '<p style="color:#999;">No health data available</p>';
+          return;
+        }
+        
+        var healthCounts = { 'Green': 0, 'Yellow': 0, 'Red': 0 };
+        
+        data.colors.forEach(function(health) {
+          if (health === 'green' || health === 'Green') {
+            healthCounts['Green']++;
+          } else if (health === 'yellow' || health === 'Yellow') {
+            healthCounts['Yellow']++;
+          } else if (health === 'red' || health === 'Red') {
+            healthCounts['Red']++;
+          }
+        });
+        
+        var chartData = [['Health Status', 'Count']];
+        Object.keys(healthCounts).forEach(function(status) {
+          if (healthCounts[status] > 0) {
+            chartData.push([status, healthCounts[status]]);
+          }
+        });
+        
+        if (chartData.length === 1) {
+          document.getElementById('healthStatusChart').innerHTML = '<p style="color:#999;">No health status data available</p>';
+          return;
+        }
+        
+        var dataTable = google.visualization.arrayToDataTable(chartData);
+        var options = {
+          backgroundColor: 'transparent',
+          width: 650,
+          height: 400,
+          pieHole: 0.4,
+          colors: ['#28a745', '#ffc107', '#dc3545'],
+          legend: { position: 'right' },
+          pieSliceText: 'value'
+        };
+        
+        var chart = new google.visualization.PieChart(document.getElementById('healthStatusChart'));
+        chart.draw(dataTable, options);
+        console.log('Health Status chart drawn');
+      }
+      
+      function drawInitiativesByPhaseChart() {
+        console.log('Drawing Initiatives by Phase chart...');
+        var stats = window.radarPageData.phaseStats;
+        if (!stats || stats.length === 0) {
+          document.getElementById('columnchart_values').innerHTML = '<p style="color:#999;">No data available</p>';
+          return;
+        }
+        
+        var dataArray = [['Phase', 'Trouble', 'Caution', 'Healthy', 'No Status']];
+        stats.forEach(function(s) {
+          dataArray.push([
+            s.phaseName,
+            s.troubleCount || 0,
+            s.cautionCount || 0,
+            s.healthyCount || 0,
+            s.noStatusCount || 0
+          ]);
+        });
+        
+        console.log('Chart data:', dataArray);
+        
+        var data = google.visualization.arrayToDataTable(dataArray);
+        var options = {
+          isStacked: true,
+          width: 650,
+          height: 300,
+          colors: ['#dc3545','#ffc107','#28a745','#42a5f5'],
+          legend: { position: 'bottom' },
+          backgroundColor: 'transparent'
+        };
+        
+        var chart = new google.visualization.ColumnChart(document.getElementById('columnchart_values'));
+        chart.draw(data, options);
+        console.log('Initiatives chart drawn');
+      }
+      
+      function drawInvestmentsByPhaseChart() {
+        console.log('Drawing Investments by Phase chart...');
+        var stats = window.radarPageData.phaseStats;
+        if (!stats || stats.length === 0) {
+          document.getElementById('columnChartCost_values').innerHTML = '<p style="color:#999;">No data available</p>';
+          return;
+        }
+        
+        var dataArray = [['Phase', 'Trouble', 'Caution', 'Healthy', 'No Status']];
+        stats.forEach(function(s) {
+          dataArray.push([
+            s.phaseName,
+            s.troubleCost || 0,
+            s.cautionCost || 0,
+            s.healthyCost || 0,
+            s.noStatusCost || 0
+          ]);
+        });
+        
+        console.log('Cost chart data:', dataArray);
+        
+        var data = google.visualization.arrayToDataTable(dataArray);
+        var options = {
+          isStacked: true,
+          width: 650,
+          height: 300,
+          colors: ['#dc3545','#ffc107','#28a745','#42a5f5'],
+          legend: { position: 'bottom' },
+          vAxis: { format: '$#,###' },
+          backgroundColor: 'transparent'
+        };
+        
+        var chart = new google.visualization.ColumnChart(document.getElementById('columnChartCost_values'));
+        chart.draw(data, options);
+        console.log('Investments chart drawn');
+      }
+    </script>
+    
     <!-- Top row: Projects by Phase & Investment by Phase -->
     <div class="row mt-5">
       <div class="text-center" style="font-weight: 700;">
         Initiatives by Phase
-        <div class="text-center;" style="align-items:center;" id="columnchart_values"></div>
+        <div class="text-center;" style="align-items:center;" id="columnchart_values">
+          <p style="color: #999;">Loading chart...</p>
+        </div>
       </div>
       <div class="text-center" style="font-weight: 700;">
         Investments by Phase
-        <div id="columnChartCost_values"></div>
-      </div>
-    </div>
-
-
-
-    <!-- Second row: Portfolio Health -->
-    <div class="row mt-5">
-      <div class="col-lg-12 text-center">
-        <div id="pieChart"></div>
+        <div id="columnChartCost_values">
+          <p style="color: #999;">Loading chart...</p>
+        </div>
       </div>
     </div>
 
@@ -146,7 +849,9 @@
     <div class="row mt-5">
       <div class="col-lg-6 text-center" style="font-weight: 700;">
         Project Progress
-        <div id="progressChart"></div>
+        <div style="position: relative; height: 400px; width: 100%;">
+          <canvas id="progressChart"></canvas>
+        </div>
       </div>
       <div class="col-lg-6 text-center" style="font-weight: 700;">
         Project Health
@@ -158,7 +863,9 @@
 
     <!-- Tag charts: three per row -->
     <div class="row mt-5">
-      <p><strong>Tag 1</strong></p>
+      <div class="col-12">
+        <p><strong>Tag 1</strong></p>
+      </div>
       <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
         <span>Initiatives</span>
         <div id="tag1Chart"></div>
@@ -176,9 +883,10 @@
       </div>
     </div>
 
-
     <div class="row mt-3">
-      <p><strong>Tag 2</strong></p>
+      <div class="col-12">
+        <p><strong>Tag 2</strong></p>
+      </div>
       <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
         <span>Initiatives</span>
         <div id="tag2Chart"></div>
@@ -196,9 +904,10 @@
       </div>
     </div>
 
-
     <div class="row mt-3">
-      <p><strong>Tag 3</strong></p>
+      <div class="col-12">
+        <p><strong>Tag 3</strong></p>
+      </div>
       <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
         <span>Initiatives</span>
         <div id="tag3Chart"></div>
@@ -220,113 +929,11 @@
 
 <%- contentFor('FooterJs') %>
 
-
-<script>
-  // Filter functions
-  function filterDashboard() {
-    const fromDate = document.getElementById('from_date').value;
-    const toDate = document.getElementById('to_date').value;
-    
-    // Send filter data to server to save in persons table
-    fetch('/update-filter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from_date: fromDate,
-        to_date: toDate
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        console.log('Filter preferences saved successfully');
-        // Redirect to current page with filters
-        window.location.href = window.location.pathname;
-      } else {
-        console.error('Error saving filter preferences:', data.message);
-        // Still redirect to try to apply filters
-        const params = new URLSearchParams();
-        if (fromDate) params.append('from_date', fromDate);
-        if (toDate) params.append('to_date', toDate);
-        const queryString = params.toString();
-        const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
-        window.location.href = url;
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      // Fallback: redirect with query parameters
-      const params = new URLSearchParams();
-      if (fromDate) params.append('from_date', fromDate);
-      if (toDate) params.append('to_date', toDate);
-      const queryString = params.toString();
-      const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
-      window.location.href = url;
-    });
-  }
-  
-  function clearFilters() {
-    document.getElementById('from_date').value = '';
-    document.getElementById('to_date').value = '';
-    fetch('/filter/clear', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    }).then(() => {
-      window.location.reload();
-    });
-  }
-
-</script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
 <%- contentFor('BottomJs') %>
 <script>
-  // Date filtering functions - Updated to use global filter system
-  function filterRadar() {
-    const fromDateElement = document.getElementById("from_date");
-    const toDateElement = document.getElementById("to_date");
-    const fromDate = fromDateElement ? fromDateElement.value : "";
-    const toDate = toDateElement ? toDateElement.value : "";
-
-    // Send filter data to server to save in persons table (same as dashboard)
-    fetch('/update-filter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from_date: fromDate,
-        to_date: toDate
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        console.log('Filter preferences saved successfully to persons table');
-        // Reload the page to apply session-based filtering
-        window.location.reload();
-      } else {
-        console.error('Error saving filter preferences:', data.error);
-        alert('Error saving filter preferences. Please try again.');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Error saving filter preferences. Please try again.');
-    });
-  }
 
   function updateChartsWithFilteredData(data) {
-    // Filter out any Planning phases from the incoming data
-    if (data.phaseStats) {
-      data.phaseStats = data.phaseStats.filter(p => 
-        p.phaseName !== 'Planning' && !p.phaseName.toLowerCase().includes('planning')
-      );
-    }
-    
-    // Update global phaseStats variable
+    // Update global phaseStats variable (no filtering - include all phases)
     window.phaseStats = data.phaseStats;
 
     // Redraw all charts with new data
@@ -382,77 +989,12 @@
     );
     pieChart.draw(data, options);
   }
-
-  function clearFilters() {
-    // Clear the input fields
-    const fromDateElement = document.getElementById("from_date");
-    const toDateElement = document.getElementById("to_date");
-
-    if (fromDateElement) fromDateElement.value = "";
-    if (toDateElement) toDateElement.value = "";
-
-    // Send empty filter data to server to clear saved preferences
-    fetch('/update-filter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from_date: '',
-        to_date: ''
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        console.log('Filter preferences cleared successfully');
-        // Redirect to refresh the page without filters
-        window.location.href = '/projects/radar/view/';
-      } else {
-        console.error('Error clearing filter preferences:', data.error);
-        alert('Error clearing filter preferences. Please try again.');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Error clearing filter preferences. Please try again.');
-    });
-  }
-
-  // Initialize Flatpickr for date inputs
-  document.addEventListener("DOMContentLoaded", function () {
-    // Get session values for date pickers
-    var currentFromDate = '<%= currentFromDate || "" %>';
-    var currentToDate = '<%= currentToDate || "" %>';
-
-    function isValidDateString(dateStr) {
-      // Accepts YYYY-MM-DD only
-      return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
-    }
-
-    var fromPicker = flatpickr("#from_date", {
-      dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true
-    });
-    var toPicker = flatpickr("#to_date", {
-      dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true
-    });
-
-    // Force Flatpickr and input to session value after initialization
-    if (isValidDateString(currentFromDate)) {
-      fromPicker.setDate(currentFromDate, true);
-    }
-    if (isValidDateString(currentToDate)) {
-      toPicker.setDate(currentToDate, true);
-    }
-  });
 </script>
 
 <script type="text/javascript">
+      console.log('RADAR PAGE SCRIPT LOADED - TOP');
       document.addEventListener("DOMContentLoaded", function() {
+        console.log('RADAR PAGE - DOMContentLoaded fired');
         // const portfolioTitle = document.getElementById("portfolioTitle");
         // if (portfolioTitle) {
         //   portfolioTitle.textContent = portfolioTitle;
@@ -491,33 +1033,65 @@
         }
 
         // Diagnostic logging for chart rendering
-        console.log('Radar page: phaseStats from server: ' + '<%= JSON.stringify(Array.isArray(phaseStats) ? phaseStats : []) %>');
-        google.charts.load('current', { packages: ['corechart'] });
-        google.charts.setOnLoadCallback(function() {
-          console.log('Google Charts loaded, drawing charts...');
-          drawCharts();
-        });
-
-        function drawCharts() {
-          // Draw all charts
-          drawProjectsByPhaseChart();
-          drawCostByPhaseChart();
-          drawProgressAndHealthCharts();
-          drawTagCharts();
+        console.log('=== RADAR PAGE INITIALIZATION ===');
+        console.log('phaseStats from server:', <%- JSON.stringify(phaseStats) %>);
+        console.log('portfolioHealth from server:', <%- JSON.stringify(portfolioHealth) %>);
+        console.log('typeof google:', typeof google);
+        console.log('typeof google.charts:', typeof google !== 'undefined' ? typeof google.charts : 'N/A');
+        
+        // Make phaseStats a global variable
+        window.phaseStats = <%- JSON.stringify(phaseStats) %>;
+        console.log('window.phaseStats set to:', window.phaseStats);
+        
+        if (typeof google === 'undefined' || typeof google.charts === 'undefined') {
+          console.error('Google Charts library not loaded!');
+          document.getElementById('columnchart_values').innerHTML = '<p style="color:red;">Google Charts failed to load. Please refresh the page.</p>';
+        } else {
+          google.charts.load('current', { packages: ['corechart'] });
+          google.charts.setOnLoadCallback(function() {
+            console.log('Google Charts loaded, drawing charts...');
+            drawCharts();
+          });
         }
 
-        // Make phaseStats a global variable and include Planning phases
-        // Make phaseStats a global variable (no filter)
-        window.phaseStats = JSON.parse('<%= JSON.stringify(Array.isArray(phaseStats) ? phaseStats : []) %>');
+        function drawCharts() {
+          console.log('drawCharts() called');
+          // Draw all charts
+          try {
+            drawProjectsByPhaseChart();
+            drawCostByPhaseChart();
+            updatePortfolioHealthChart(<%- JSON.stringify(portfolioHealth) %>);
+            drawProgressAndHealthCharts();
+            drawTagCharts();
+            console.log('All charts drawn successfully');
+          } catch(err) {
+            console.error('Error drawing charts:', err);
+          }
+        }
 
         function drawProjectsByPhaseChart() {
+          console.log('drawProjectsByPhaseChart() called');
           // Defensive: ensure window.phaseStats is an array
           const stats = Array.isArray(window.phaseStats) ? window.phaseStats : [];
+          console.log('stats:', stats);
+          
+          if (!stats || stats.length === 0) {
+            console.warn('No phase stats data available');
+            document.getElementById('columnchart_values').innerHTML = '<p style="color:#999;">No data available for Initiatives by Phase</p>';
+            return;
+          }
+          
           const phases          = stats.map(p => p.phaseName);
           const troubleCounts   = stats.map(p => p.troubleCount);
           const cautionCounts   = stats.map(p => p.cautionCount);
           const healthyCounts   = stats.map(p => p.healthyCount);
           const noStatusCounts  = stats.map(p => p.noStatusCount);
+          
+          console.log('phases:', phases);
+          console.log('troubleCounts:', troubleCounts);
+          console.log('cautionCounts:', cautionCounts);
+          console.log('healthyCounts:', healthyCounts);
+          console.log('noStatusCounts:', noStatusCounts);
 
           // Build annotations only for non‐zero values
           const ann = arr => arr.map(c => c > 0 ? String(c) : '');
@@ -583,13 +1157,28 @@
         }
 
         function drawCostByPhaseChart() {
+          console.log('drawCostByPhaseChart() called');
           // Defensive: ensure window.phaseStats is an array
           const stats = Array.isArray(window.phaseStats) ? window.phaseStats : [];
+          console.log('Cost chart - stats:', stats);
+          
+          if (!stats || stats.length === 0) {
+            console.warn('No phase stats data available for cost chart');
+            document.getElementById('columnChartCost_values').innerHTML = '<p style="color:#999;">No data available for Investments by Phase</p>';
+            return;
+          }
+          
           const phases         = stats.map(p => p.phaseName);
           const troubleCosts   = stats.map(p => p.troubleCost);
           const cautionCosts   = stats.map(p => p.cautionCost);
           const healthyCosts   = stats.map(p => p.healthyCost);
           const noStatusCosts  = stats.map(p => p.noStatusCost);
+          
+          console.log('Cost chart - phases:', phases);
+          console.log('Cost chart - troubleCosts:', troubleCosts);
+          console.log('Cost chart - cautionCosts:', cautionCosts);
+          console.log('Cost chart - healthyCosts:', healthyCosts);
+          console.log('Cost chart - noStatusCosts:', noStatusCosts);
 
           // Formatter: only show annotation if cost > 0, add commas & dollar sign
           const fmt = n => {
@@ -1234,4 +1823,5 @@
     }, 1000);
   });
 </script>
-<!-- Removed js-datepicker (qs-datepicker) code; only Flatpickr is used for date inputs. -->
+  </div>
+</div>

@@ -11,36 +11,184 @@
 
 <%- contentFor('body') %>
 
+<!-- Load Flatpickr JS immediately before body content -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  console.log('Flatpickr loaded in body:', typeof flatpickr);
+</script>
+
 <div class="page-content-wrapper">
     <div class="container-fluid">
     
-    <!-- Filter Display Section -->
-    <div class="row">
-        <div class="col-md-12" style="min-height: 50px; padding-bottom: 15px;">
-            <div class="mini-stat clearfix" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 10px;">
-                <div class="mini-stat-info d-flex align-items-center">
-                    <div class="d-flex align-items-center">
-                        <span class="counter" style="color: black; margin-right: 20px;"><strong>Filter:</strong></span>
-                        
-                        <div class="d-flex align-items-center" style="margin-right: 15px;">
-                                <strong style="margin-right: 10px;">Start:</strong>
-                                <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px;" value="<%= currentFromDate %>">
-                            </div>
-                        
-                        <div class="d-flex align-items-center" style="margin-right: 15px;">
-                            <strong style="margin-right: 10px;">End:</strong>
-                            <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px;" value="<%= locals.currentToDate || '' %>">
-                        </div>
-                        
-                        <div class="d-flex">
-                            <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterDashboard()">Update</button>
-                            
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+   
+    <!-- Date Range Row -->
+    <div class="row mb-2 align-items-center" style="margin-left: 0px;margin-right:0px;min-height: 50px;height:50px;background:hsl(197, 70%, 91%); box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+      <div class="col-md-12 d-flex align-items-center">
+        <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
+        <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
+        <span class="text-muted" style="margin-right: 8px;">Start:</span>
+        <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+        <span style="font-weight: 500; margin-right: 8px;">End:</span>
+        <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+        <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
+        <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
+      </div>
     </div>
+    
+    <script>
+      console.log('=== HEALTH CHECK PAGE INLINE SCRIPT ===');
+      console.log('Flatpickr available?', typeof flatpickr);
+      console.log('from_date element:', document.getElementById('from_date'));
+      console.log('to_date element:', document.getElementById('to_date'));
+      
+      function initHealthDatePickers() {
+        console.log('Attempting to initialize date pickers...', typeof flatpickr);
+        
+        if (typeof flatpickr !== 'undefined') {
+          console.log('Flatpickr is available, initializing...');
+          
+          // Destroy any existing instances first
+          var fromInput = document.getElementById('from_date');
+          var toInput = document.getElementById('to_date');
+          
+          if (fromInput._flatpickr) {
+            console.log('Destroying existing from_date picker');
+            fromInput._flatpickr.destroy();
+          }
+          if (toInput._flatpickr) {
+            console.log('Destroying existing to_date picker');
+            toInput._flatpickr.destroy();
+          }
+          
+          // Add manual click handlers to force open
+          if (fromInput) {
+            fromInput.addEventListener('click', function() {
+              console.log('From input clicked, attempting manual open...');
+              if (window.fromPickerInstance && window.fromPickerInstance.open) {
+                window.fromPickerInstance.open();
+              }
+            });
+          }
+          
+          if (toInput) {
+            toInput.addEventListener('click', function() {
+              console.log('To input clicked, attempting manual open...');
+              if (window.toPickerInstance && window.toPickerInstance.open) {
+                window.toPickerInstance.open();
+              }
+            });
+          }
+          
+          // Initialize Flatpickr
+          var fromPicker = flatpickr("#from_date", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            clickOpens: true,
+            static: false,
+            onReady: function(selectedDates, dateStr, instance) {
+              console.log('from_date picker ready');
+              console.log('Instance config:', instance.config);
+            },
+            onOpen: function() {
+              console.log('from_date picker opened!');
+            },
+            onChange: function(selectedDates, dateStr) {
+              console.log('from_date changed to:', dateStr);
+              if (typeof updateDayCount === 'function') {
+                updateDayCount();
+              }
+            }
+          });
+          
+          var toPicker = flatpickr("#to_date", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            clickOpens: true,
+            static: false,
+            onReady: function(selectedDates, dateStr, instance) {
+              console.log('to_date picker ready');
+              console.log('Instance config:', instance.config);
+            },
+            onOpen: function() {
+              console.log('to_date picker opened!');
+            },
+            onChange: function(selectedDates, dateStr) {
+              console.log('to_date changed to:', dateStr);
+              if (typeof updateDayCount === 'function') {
+                updateDayCount();
+              }
+            }
+          });
+          
+          // Store instances globally for manual open handlers
+          window.fromPickerInstance = fromPicker;
+          window.toPickerInstance = toPicker;
+          
+          console.log('Flatpickr initialized:', fromPicker, toPicker);
+          console.log('fromPicker instance:', fromInput._flatpickr);
+          console.log('toPicker instance:', toInput._flatpickr);
+          return true;
+        } else {
+          console.log('Flatpickr not available yet, retrying...');
+          return false;
+        }
+      }
+      
+      // Try immediately
+      if (!initHealthDatePickers()) {
+        // Try after a short delay
+        setTimeout(function() {
+          if (!initHealthDatePickers()) {
+            // Try one more time
+            setTimeout(initHealthDatePickers, 500);
+          }
+        }, 100);
+      }
+    </script>
+    
+    <script>
+      // Filter function - needs to be available for onclick handler
+      function filterDashboard() {
+        const fromDate = document.getElementById('from_date').value;
+        const toDate = document.getElementById('to_date').value;
+        
+        console.log('Filter clicked with dates:', fromDate, toDate);
+        
+        // Send filter data to server to save in persons table
+        fetch('/update-filter', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from_date: fromDate,
+            to_date: toDate
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('Filter preferences saved successfully');
+            // Redirect to current page with filters
+            window.location.href = window.location.pathname;
+          } else {
+            console.error('Error saving filter preferences:', data.message);
+            // Still redirect to try to apply filters
+            const params = new URLSearchParams();
+            if (fromDate) params.append('from_date', fromDate);
+            if (toDate) params.append('to_date', toDate);
+            const queryString = params.toString();
+            const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+            window.location.href = url;
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // Fallback: reload page
+          window.location.href = window.location.pathname;
+        });
+      }
+    </script>
     
    
         <button
@@ -200,40 +348,35 @@
     });
   }
 
-  // Robust Flatpickr initialization for Health Check datepickers (matches dashboard)
-  document.addEventListener("DOMContentLoaded", function () {
-    var currentFromDate = '<%= currentFromDate || "" %>';
-    var currentToDate = '<%= locals.currentToDate || "" %>';
-
-    function isValidDateString(dateStr) {
-      // Accepts YYYY-MM-DD only
-      return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+  // Function to calculate and display day count
+  function updateDayCount() {
+    const fromInput = document.getElementById('from_date');
+    const toInput = document.getElementById('to_date');
+    const dayCountSpan = document.getElementById('dayCount');
+    
+    if (fromInput && toInput && dayCountSpan) {
+      const fromDate = fromInput.value;
+      const toDate = toInput.value;
+      
+      if (fromDate && toDate) {
+        const start = new Date(fromDate);
+        const end = new Date(toDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        dayCountSpan.textContent = `(${diffDays} days)`;
+      } else {
+        dayCountSpan.textContent = '';
+      }
     }
+  }
 
-    var fromPicker = flatpickr("#from_date", {
-      dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true
-    });
-    var toPicker = flatpickr("#to_date", {
-      dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true
-    });
-
-    // Force Flatpickr and input to session value after initialization
-    if (isValidDateString(currentFromDate)) {
-      fromPicker.setDate(currentFromDate, true);
-    }
-    if (isValidDateString(currentToDate)) {
-      toPicker.setDate(currentToDate, true);
-    }
+  // Calculate day count on DOMContentLoaded
+  document.addEventListener("DOMContentLoaded", function() {
+    updateDayCount();
   });
 </script>
-<%- contentFor('BottomJs') %>
 
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<%- contentFor('BottomJs') %>
 <script>
 // Filter functionality
 function filterHealth() {

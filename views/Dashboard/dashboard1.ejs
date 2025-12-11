@@ -29,6 +29,94 @@
 
 <%- contentFor('body') %>
 
+<script>
+  // Global navigation functions - must be available before onclick handlers
+  function loadProject(projectId) {
+    window.location.href = '/projects/cockpit/' + projectId;
+  }
+  
+  function loadRadar() {
+    window.location.href = '/projects/radar/view/';
+  }
+  
+  function loadHealth() {
+    window.location.href = '/projects/health/view/';
+  }
+  
+  function loadFlightFull() {
+    window.location.href = '/projects/flightview/view/';
+  }
+  
+  function loadAccomplishments() {
+    window.location.href = '/projects/accomplishments/view/';
+  }
+  
+  function filterDashboard() {
+    const fromDate = document.getElementById('from_date').value;
+    const toDate = document.getElementById('to_date').value;
+    
+    // Send filter data to server to save in persons table
+    fetch('/update-filter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from_date: fromDate,
+        to_date: toDate
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log('Filter preferences saved successfully');
+        // Redirect to current page with filters
+        window.location.href = window.location.pathname;
+      } else {
+        console.error('Error saving filter preferences:', data.message);
+        // Still redirect to try to apply filters
+        const params = new URLSearchParams();
+        if (fromDate) params.append('from_date', fromDate);
+        if (toDate) params.append('to_date', toDate);
+        const queryString = params.toString();
+        const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+        window.location.href = url;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Fallback: redirect with query parameters
+      const params = new URLSearchParams();
+      if (fromDate) params.append('from_date', fromDate);
+      if (toDate) params.append('to_date', toDate);
+      const queryString = params.toString();
+      const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+      window.location.href = url;
+    });
+  }
+
+  function updateDayCount() {
+    const fromDate = document.getElementById('from_date').value;
+    const toDate = document.getElementById('to_date').value;
+    const dayCountEl = document.getElementById('dayCount');
+    
+    if (fromDate && toDate) {
+      const start = new Date(fromDate);
+      const end = new Date(toDate);
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      
+      if (dayCountEl) {
+        dayCountEl.textContent = `(${diffDays} days)`;
+      }
+    } else {
+      if (dayCountEl) {
+        dayCountEl.textContent = '';
+      }
+    }
+  }
+</script>
+
 <div class="page-content-wrapper">
   <% 
   // Ensure these are defined before including the partial
@@ -57,25 +145,6 @@
 %>
 
 
-<!-- Budget/Effort Summary Row (under Delivery and Done) -->
- 
-
-
-              <div class="row mt-3 mb-2 align-items-center" style="min-height: 50px;height:50px;background:hsl(197, 70%, 91%); border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);margin-left:4px !important;">
-                <div class="col-md-6 d-flex align-items-center">
-                  <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
-                  <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
-                  <span class="text-muted" style="margin-right: 8px;">Start:</span>
-                  <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
-                  <span style="font-weight: 500; margin-right: 16px;">End:</span>
-                  <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
-                  <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" onclick="filterDashboard()">Update</button>
-                  <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
-                </div>
-                <div class="col-md-6"></div>
-              </div>
-        
-
     <div class="container-fluid">
         
 
@@ -90,7 +159,7 @@
   // Calculate deliveryTotalCost as (portfolio_budget / 365) * filteredDays
   let deliveryTotalCost = 0, deliveryUsedCost = 0, deliveryAvailCost = 0;
   let deliveryTotalEffort = 0, deliveryUsedEffort = 0, deliveryAvailEffort = 0;
-    let portfolioBudge = 0, portfolioEffort  = 0;
+    let portfolioBudget = 0, portfolioEffort  = 0;
     if (typeof companies !== 'undefined' && companies && companies.length > 0) {
       if (typeof companies[0].portfolio_budget !== 'undefined') {
         // Remove commas before converting to number
@@ -140,13 +209,64 @@
         <div class="row">
           <!-- Main content -->
           <div class="col-md-10">
+            
+            <!-- Date Range Row -->
+            <div class="row mb-2 align-items-center" style="margin-left: 0px;margin-right:0px;min-height: 50px;height:50px;background:hsl(197, 70%, 91%); box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+              <div class="col-md-12 d-flex align-items-center">
+                <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
+                <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
+                <span class="text-muted" style="margin-right: 8px;">Start:</span>
+                <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+                <span style="font-weight: 500; margin-right: 8px;">End:</span>
+                <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+                <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
+                <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
+              </div>
+            </div>
+            
+            <script>
+            // Immediate inline test - should execute right away
+            console.log('=== INLINE SCRIPT EXECUTING ===');
+            console.log('from_date exists?', document.getElementById('from_date'));
+            console.log('to_date exists?', document.getElementById('to_date'));
+            console.log('flatpickr loaded?', typeof flatpickr);
+            
+            // Try initializing immediately
+            if (typeof flatpickr !== 'undefined') {
+              console.log('Attempting immediate Flatpickr initialization...');
+              try {
+                var fp1 = flatpickr("#from_date", {
+                  dateFormat: "Y-m-d",
+                  allowInput: true
+                });
+                var fp2 = flatpickr("#to_date", {
+                  dateFormat: "Y-m-d",
+                  allowInput: true
+                });
+                console.log('SUCCESS! Pickers:', fp1, fp2);
+              } catch(e) {
+                console.error('ERROR initializing:', e);
+              }
+            } else {
+              console.log('Flatpickr not loaded yet, will retry...');
+              setTimeout(function() {
+                console.log('Retry - flatpickr loaded?', typeof flatpickr);
+                if (typeof flatpickr !== 'undefined') {
+                  flatpickr("#from_date", { dateFormat: "Y-m-d", allowInput: true });
+                  flatpickr("#to_date", { dateFormat: "Y-m-d", allowInput: true });
+                  console.log('Retry initialization complete');
+                }
+              }, 500);
+            }
+            </script>
+            
             <div class="row">
                     
            <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
           <div class="mini-stat bg-white clearfix" >
             <div class="mini-stat-info" style="background-color:#ffea99">
             <% function formatNumberWithCommas(x) { if (x == null) return '0'; var parts = x.toString().split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); return parts.join('.'); } %>
-            <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %> / $0 / <%= formatNumberWithCommas(pitch.ph) %> PH)</span></a>
+            <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %> / $<%= formatNumberWithCommas(pitch.cost) %> / <%= formatNumberWithCommas(pitch.ph) %> PH)</span></a>
             </div>
           </div>
           </div>
@@ -190,7 +310,7 @@
                                 else borderColor = 'black'; // default
                             %>
                               <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
-                              <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>">
+                              <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>">
                                 <%= project.project_name %>
                               </button>&nbsp;&nbsp;&nbsp;
                             <% } 
@@ -200,15 +320,6 @@
                           </div>
                       </div>
                       
-                        <script>
-                          // Apply inline styles stored in data-style to elements to avoid embedding EJS in CSS attributes
-                          document.addEventListener('DOMContentLoaded', function () {
-                            document.querySelectorAll('.project-btn').forEach(function (el) {
-                            var s = el.getAttribute('data-style');
-                            if (s) el.style.cssText = s;
-                          });
-                        });
-                      </script>
            <div class="col-md-6 phase-column" style="padding-bottom: 15px;">
             <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
               <div class="mini-stat-info">
@@ -227,7 +338,7 @@
                                   var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
                                   var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
                             %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -258,7 +369,7 @@
                                   var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
                                   var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
                             %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -286,7 +397,7 @@
                                   var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
                                   var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
                             %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -299,7 +410,7 @@
             </div> <!-- close inner delivery/done row -->
 
               <!-- Budget/Effort Summary Row (under Delivery and Done) -->
-              <div class="row mt-3 mb-2 align-items-center" style="min-height: 50px;height:50px;background: #e2fbef; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+              <div class="row mt-3 mb-2 align-items-center" style="margin-left:0px;margin-right:0px;min-height: 50px;height:50px;background: #e2fbef; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
                 <div class="col-md-6 d-flex align-items-center">
                   <span class="mdi mdi-currency-usd" style="font-size: 1.5rem; margin-right: 8px;"></span>
                   <span style="font-weight: 500; margin-right: 12px;">Budget</span>
@@ -342,11 +453,11 @@
                    <div><button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject" style="width: 150px;">Add Project</button></div>
                     <hr/>
 
-                    <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;width: 150px" onClick="loadRadar();">Radar</button></div>
+                    <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;width: 150px" onclick="loadRadar()">Radar</button></div>
                    
-                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onClick="loadHealth();" >Health Check</button></div>
-                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onClick="loadFlightFull();" >Flight Plan</button></div>
-                      <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onClick="loadAccomplishments();" >Accomplishments</button></div>
+                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onclick="loadHealth()" >Health Check</button></div>
+                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onclick="loadFlightFull()" >Flight Plan</button></div>
+                      <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onclick="loadAccomplishments()" >Accomplishments</button></div>
                     
                     <% 
                       const costColor = typeof availableCostColor !== 'undefined' && availableCostColor !== null ? availableCostColor : '#000';
@@ -422,21 +533,50 @@
           </div>
         </div>
       </div>
+    </div>
+</div>
 
-  <%- contentFor('FooterJs') %>
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<%- contentFor('FooterJs') %>
 <script src="public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
 <script src="public/assets/plugins/d3/d3.min.js"></script>
 <script src="public/assets/plugins/c3/c3.min.js"></script>
 <script src="public/assets/plugins/jquery-knob/excanvas.js"></script>
 <script src="public/assets/plugins/jquery-knob/jquery.knob.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+// Initialize Flatpickr immediately after the library loads
+window.addEventListener('load', function() {
+  console.log('Page loaded, initializing Flatpickr...');
+  console.log('Flatpickr available?', typeof flatpickr !== 'undefined');
+  console.log('from_date element:', document.getElementById('from_date'));
+  console.log('to_date element:', document.getElementById('to_date'));
+  
+  if (typeof flatpickr !== 'undefined') {
+    var fromPicker = flatpickr("#from_date", {
+      dateFormat: "Y-m-d",
+      allowInput: true,
+      allowInvalidPreload: true
+    });
+    
+    var toPicker = flatpickr("#to_date", {
+      dateFormat: "Y-m-d",
+      allowInput: true,
+      allowInvalidPreload: true
+    });
+    
+    console.log('Flatpickr instances created:', fromPicker, toPicker);
+  } else {
+    console.error('Flatpickr not available!');
+  }
+});
+</script>
+
 <%- contentFor('BottomJs') %>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     'use strict';
-    
    // Fetch all the forms we want to apply custom Bootstrap validation styles to
    var forms = document.querySelectorAll(".needs-validation");
 
@@ -470,7 +610,13 @@
         });
     });
 
-   
+    // Table row click navigation to edit page
+    document.querySelectorAll(".table tbody tr").forEach(function(row) {
+        row.addEventListener('click', function() {
+            var id = row.cells[0].textContent;
+            window.location.replace('/projects/edit/' + id);
+        });
+    });
 
     // Input formatting with commas for project cost and benefit
     ['project_cost', 'benefit'].forEach(function(fieldId) {
@@ -487,8 +633,85 @@
         });
     });
     
-    // Basic form validation without complex date picker manipulation
-    console.log("Basic form setup complete");
+    // Calculate initial day count on page load
+    updateDayCount();
+    
+    // Initialize Flatpickr - check multiple times if needed
+    function initializeFlatpickr() {
+      console.log('Checking for Flatpickr...', typeof flatpickr);
+      console.log('from_date element:', document.getElementById('from_date'));
+      console.log('to_date element:', document.getElementById('to_date'));
+      
+      if (typeof flatpickr !== 'undefined') {
+        console.log('Initializing Flatpickr...');
+        
+        var fromPicker = flatpickr("#from_date", {
+          dateFormat: "Y-m-d",
+          allowInput: true,
+          allowInvalidPreload: true,
+          onChange: function() {
+            updateDayCount();
+          }
+        });
+        
+        var toPicker = flatpickr("#to_date", {
+          dateFormat: "Y-m-d",
+          allowInput: true,
+          allowInvalidPreload: true,
+          onChange: function() {
+            updateDayCount();
+          }
+        });
+        
+        console.log('Flatpickr initialized successfully!', fromPicker, toPicker);
+        return true;
+      } else {
+        console.error('Flatpickr library not loaded!');
+        return false;
+      }
+    }
+    
+    // Try initializing immediately and with delays
+    if (!initializeFlatpickr()) {
+      setTimeout(function() {
+        if (!initializeFlatpickr()) {
+          setTimeout(initializeFlatpickr, 500);
+        }
+      }, 100);
+    }
+
+    // Apply colors to COST and EFFORT percentage values based on thresholds
+    function applyPercentageColors() {
+      const costEl = document.getElementById('cost-percentage');
+      const effortEl = document.getElementById('effort-percentage');
+      
+      function setColor(element) {
+        if (!element) return;
+        
+        const text = element.textContent || '';
+        const match = text.match(/-?\d+\.?\d*/);
+        const number = match ? parseFloat(match[0]) : 0;
+        
+        // Color thresholds: 0-95% green, 95-110% yellow, >110% red
+        if (number >= 0 && number < 95) {
+          element.style.color = '#28a745'; // Green
+        } else if (number >= 95 && number <= 110) {
+          element.style.color = '#ffc107'; // Yellow
+        } else if (number > 110) {
+          element.style.color = '#dc3545'; // Red
+        } else {
+          element.style.color = '#000'; // Black/default
+        }
+      }
+      
+      setColor(costEl);
+      setColor(effortEl);
+    }
+    
+    // Apply colors immediately and with delays to ensure DOM is fully rendered
+    applyPercentageColors();
+    setTimeout(applyPercentageColors, 100);
+    setTimeout(applyPercentageColors, 500);
 
     // Show or hide date_section based on phase selection
     const phaseSelect = document.getElementById("phase_id_fk");
@@ -531,127 +754,6 @@
 
     // Add event listener to phase selection change
     phaseSelect.addEventListener("change", toggleDateSection);
-    
-
- 
-    // avail-effort elements
-    document.querySelectorAll('.avail-effort').forEach(function(el) {
-      var color = el.getAttribute('data-color');
-      if (color) el.style.color = color;
-    });
-
-    // percent-cost and percent-effort elements: apply Bootstrap color classes
-    function applyPercentColors(selector) {
-      const elements = document.querySelectorAll(selector);
-      console.log('Found elements for selector "' + selector + '":', elements.length);
-      
-      elements.forEach(function(el, index) {
-        var txt = el.textContent || el.innerText || '';
-        // Remove commas, K/M/B suffixes and percent signs before parsing
-        var cleaned = String(txt).replace(/[, a0\s]/g, '').replace(/K|M|B|%/gi, '');
-        var num = parseFloat(cleaned) || 0;
-        
-        // Remove any previous text color classes and inline styles
-        el.classList.remove('text-danger', 'text-success', 'text-warning');
-        el.style.color = '';
-        el.removeAttribute('data-color');
-        
-        // Color logic: Green for 5-90%, Yellow for 90-110%, Red for >110%
-        if (num >= 5 && num < 90) {
-          el.style.cssText = 'color: #30c34b !important;'; // Green
-        } else if (num >= 90 && num <= 110) {
-          el.style.cssText = 'color: #ffc107 !important;'; // Yellow
-        } else if (num > 110) {
-          el.style.cssText = 'color: #dc3545 !important;'; // Red
-        } else {
-          el.style.cssText = 'color: #000 !important;'; // Black/default
-        }
-      });
-    }
-    
-    // Wait for DOM to be fully loaded and try multiple times
-    function applyColorsWithRetry() {
-      console.log('Attempting to apply percent colors...');
-      applyPercentColors('.percent-cost');
-      applyPercentColors('.percent-effort');
-      
-      // Direct approach using IDs as backup
-      const costEl = document.getElementById('cost-percentage');
-      const effortEl = document.getElementById('effort-percentage');
-      
-      if (costEl) {
-        const costText = costEl.textContent || '';
-        const costNum = parseFloat(costText.replace(/[^-0-9.]/g, '')) || 0;
-        console.log('Direct cost element found:', costText, 'Number:', costNum);
-        if (costNum < 0) {
-          costEl.style.cssText = 'color: #dc3545 !important;';
-        } else if (costNum > 0) {
-          costEl.style.cssText = 'color: #28a745 !important;';
-        } else {
-          costEl.style.cssText = 'color: #000 !important;';
-        }
-      }
-      
-      if (effortEl) {
-        const effortText = effortEl.textContent || '';
-        const effortNum = parseFloat(effortText.replace(/[^-0-9.]/g, '')) || 0;
-        console.log('Direct effort element found:', effortText, 'Number:', effortNum);
-        if (effortNum < 0) {
-          effortEl.style.cssText = 'color: #dc3545 !important;';
-        } else if (effortNum > 0) {
-          effortEl.style.cssText = 'color: #28a745 !important;';
-        } else {
-          effortEl.style.cssText = 'color: #000 !important;';
-        }
-      }
-      
-      // If no elements found, try again after a delay
-      if (document.querySelectorAll('.percent-cost, .percent-effort').length === 0) {
-        console.log('No percentage elements found, retrying in 500ms...');
-        setTimeout(applyColorsWithRetry, 500);
-      }
-    }
-    
-    applyColorsWithRetry();
-  });
-
-  // Additional function to ensure colors are applied after page is fully loaded
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      console.log('Window loaded - applying colors...');
-      
-      // Direct approach with specific targeting
-      const costElement = document.querySelector('#cost-percentage');
-      const effortElement = document.querySelector('#effort-percentage');
-      
-      function setColor(element, elementName) {
-        if (!element) {
-          console.log(elementName + ' element not found');
-          return;
-        }
-        
-        const text = element.textContent || element.innerText || '';
-        console.log(elementName + ' text content:', text);
-        
-        // Extract number from text
-        const match = text.match(/-?\d+\.?\d*/);
-        const number = match ? parseFloat(match[0]) : 0;
-        // Color logic: Green for 5-90%, Yellow for 90-110%, Red for >110%
-        if (number >= 5 && number < 90) {
-          element.style.setProperty('color', '#28a745', 'important'); // Green
-        } else if (number >= 90 && number <= 110) {
-          element.style.setProperty('color', '#ffc107', 'important'); // Yellow
-        } else if (number > 110) {
-          element.style.setProperty('color', '#dc3545', 'important'); // Red
-        } else {
-          element.style.setProperty('color', '#000000', 'important'); // Black/default
-        }
-      }
-      
-      setColor(costElement, 'Cost percentage');
-      setColor(effortElement, 'Effort percentage');
-      
-    }, 1000); // Wait 1 second to ensure everything is rendered
   });
 
   function submitForm() {
@@ -661,206 +763,20 @@
   function cancelForm(){
     window.location.replace("/projects");
   }
-</script>
-<script>
-  // Document ready initialization
-  document.addEventListener('DOMContentLoaded', function() {
-    // No special initialization needed for text inputs
-  });
-
-  function loadProject(project_id) {
-    window.location.replace('/projects/cockpit/' + project_id);
-  }
+  
   function loadFunnel() {
     window.location.replace('/projects/funnel/view/');
   }
+  
   function loadFreezer() {
     window.location.replace('/projects/freezer/view/');
   }
-  function loadFreezer() {
-    window.location.replace('/projects/freezer/view/');
-  }
-  function loadRadar() {
-   
-    window.location.replace('/projects/radar/view/');
-  }
-  function loadHealth() {
-   
-    window.location.replace('/projects/health/view/');
-  }
+  
   function loadFlightPlan() {
     window.location.replace('/projects/flight/view/');
-  }
-  function loadFlightFull() {
-    
-    window.location.replace('/projects/flightview/view/');
-  }
-    function loadAccomplishments() {
-    
-    window.location.replace('/projects/accomplishments/view/');
   }
  
   function getProjects() {
     window.location.replace('/projects/');
   }
-
-  // Centralized date filtering functions
-  window.filterDashboard = function() {
-    const fromDate = document.getElementById('from_date').value;
-    const toDate = document.getElementById('to_date').value;
-    
-    // Send filter data to server to save in persons table
-    fetch('/update-filter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from_date: fromDate,
-        to_date: toDate
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        console.log('Filter preferences saved successfully to persons table');
-        // Redirect to refresh the page with updated filter values from database
-        window.location.href = '/';
-      } else {
-        console.error('Error saving filter preferences:', data.message);
-        // Still redirect to try to apply filters
-        const params = new URLSearchParams();
-        if (fromDate) params.append('from_date', fromDate);
-        if (toDate) params.append('to_date', toDate);
-        const queryString = params.toString();
-        const url = queryString ? `/?${queryString}` : '/';
-        window.location.href = url;
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      // Fallback: redirect with query parameters
-      const params = new URLSearchParams();
-      if (fromDate) params.append('from_date', fromDate);
-      if (toDate) params.append('to_date', toDate);
-      const queryString = params.toString();
-      const url = queryString ? `/?${queryString}` : '/';
-      window.location.href = url;
-    });
-  };
-  
-  function clearFilters() {
-    // Clear the input fields first
-    document.getElementById('from_date').value = '';
-    document.getElementById('to_date').value = '';
-
-    // Send clear filter data to server to update persons table and session, and show all projects
-    fetch('/update-filter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from_date: null,
-        to_date: null,
-        clear_all: true // instruct backend to clear all filter/session/db values
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      // Always reload to show all projects regardless of backend response
-      window.location.href = '/';
-    })
-    .catch(error => {
-      // Fallback: reload to show all projects
-      window.location.href = '/';
-    });
-  }  // Global function to get current filter values for other pages
-  function getGlobalFilterValues() {
-    return {
-      fromDate: '<%= currentFromDate %>',
-      toDate: '<%= currentToDate %>'
-    };
-  }
-
-  // Make the function globally available
-  window.getGlobalFilterValues = getGlobalFilterValues;
-
-</script>
-
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-<script>
-// Calculate and display day count for date range
-function updateDayCount() {
-  const fromDateInput = document.getElementById('from_date');
-  const toDateInput = document.getElementById('to_date');
-  const dayCountSpan = document.getElementById('dayCount');
-  
-  console.log('updateDayCount called', {
-    fromDateInput: fromDateInput ? 'found' : 'NOT FOUND',
-    toDateInput: toDateInput ? 'found' : 'NOT FOUND', 
-    dayCountSpan: dayCountSpan ? 'found' : 'NOT FOUND',
-    fromValue: fromDateInput ? fromDateInput.value : 'N/A',
-    toValue: toDateInput ? toDateInput.value : 'N/A'
-  });
-  
-  if (fromDateInput && toDateInput && dayCountSpan) {
-    const fromDate = fromDateInput.value;
-    const toDate = toDateInput.value;
-    
-    if (fromDate && toDate) {
-      const start = new Date(fromDate);
-      const end = new Date(toDate);
-      const diffTime = end - start;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      console.log('Calculated days:', diffDays);
-      
-      if (diffDays >= 0) {
-        dayCountSpan.textContent = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
-        dayCountSpan.style.color = '#495057';
-      } else {
-        dayCountSpan.textContent = '(Invalid range)';
-        dayCountSpan.style.color = '#dc3545';
-      }
-    } else {
-      dayCountSpan.textContent = '';
-      console.log('One or both dates empty');
-    }
-  } else {
-    console.log('Missing elements!');
-  }
-}
-
-// Initialize Flatpickr for date inputs with onChange callback
-flatpickr("#from_date", {
-  dateFormat: "Y-m-d",
-  allowInput: true,
-  allowInvalidPreload: true,
-  onChange: function(selectedDates, dateStr, instance) {
-    updateDayCount();
-  },
-  onReady: function(selectedDates, dateStr, instance) {
-    updateDayCount();
-  }
-});
-
-flatpickr("#to_date", {
-  dateFormat: "Y-m-d",
-  allowInput: true,
-  allowInvalidPreload: true,
-  onChange: function(selectedDates, dateStr, instance) {
-    updateDayCount();
-  },
-  onReady: function(selectedDates, dateStr, instance) {
-    updateDayCount();
-  }
-});
-
-// Calculate initial day count on page load - multiple attempts to ensure it runs
-setTimeout(updateDayCount, 100);
-setTimeout(updateDayCount, 500);
-window.addEventListener('load', updateDayCount);
 </script>

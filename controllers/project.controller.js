@@ -1057,7 +1057,6 @@ exports.radar = async (req, res) => {
   // Build base where conditions
   const whereConditions = {
     company_id_fk: companyId,
-    phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 3] }, // Exclude Pitch and Planning phases
   };
 
   // Add date filtering using overlap logic
@@ -1211,8 +1210,8 @@ exports.radar = async (req, res) => {
       phaseStatsRaw.map((r) => [r.phase_id_fk, r]),
     );
 
-    // Build the ordered array phaseStats (excluding Pitch phase ID 1 and Planning phase ID 2)
-    const PHASE_ORDER = [3, 4, 5];
+    // Build the ordered array phaseStats (including all phases: Pitch, Planning, Initiate, Execute, Close)
+    const PHASE_ORDER = [1, 2, 3, 4, 5];
     const phaseStats = PHASE_ORDER.map((pid) => {
       const r = statsByPhase[pid] || {};
       return {
@@ -1234,10 +1233,9 @@ exports.radar = async (req, res) => {
     });
 
     // Calculate dynamic cost values for all projects in radar view
-    // Fetch all relevant projects (excluding Pitch and Planning phases, with filter)
+    // Fetch all relevant projects (including all phases, with filter)
     const projectWhere = {
       company_id_fk: companyId,
-      phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 3] },
     };
     if (fromDate && toDate) {
       projectWhere.start_date = { [db.Sequelize.Op.lte]: toDate };
@@ -1247,10 +1245,33 @@ exports.radar = async (req, res) => {
     } else if (toDate) {
       projectWhere.start_date = { [db.Sequelize.Op.lte]: toDate };
     }
-    const allProjects = await db.projects.findAll({
-      where: projectWhere,
-      raw: true,
-    });
+    const allProjects = await db.sequelize.query(
+      `
+      SELECT 
+        proj.*,
+        latest_status.health AS latest_status_health
+      FROM projects proj
+      LEFT JOIN (
+        SELECT DISTINCT ON (project_id_fk) 
+          project_id_fk, health
+        FROM statuses s1
+        WHERE s1.status_date = (
+          SELECT MAX(status_date) 
+          FROM statuses s2 
+          WHERE s2.project_id_fk = s1.project_id_fk
+        )
+      ) latest_status ON latest_status.project_id_fk = proj.id
+      WHERE proj.company_id_fk = :companyId
+        AND proj.phase_id_fk NOT IN (1, 2)
+        ${fromDate && toDate ? "AND proj.start_date <= :toDate AND proj.end_date >= :fromDate" : ""}
+        ${fromDate && !toDate ? "AND proj.end_date >= :fromDate" : ""}
+        ${!fromDate && toDate ? "AND proj.start_date <= :toDate" : ""}
+    `,
+      {
+        replacements: { companyId, fromDate, toDate },
+        type: db.Sequelize.QueryTypes.SELECT,
+      },
+    );
     // Helper to parse cost
     function parseCost(val) {
       if (!val) return 0;
@@ -1310,12 +1331,27 @@ exports.radar = async (req, res) => {
     const usedCost = allProjects.reduce((sum, p) => sum + (p.costUsed || 0), 0);
     // Avail = Total - Used
     const availableCost = totalCost - usedCost;
+
+    // Calculate Portfolio Health data for initial render
+    const colorCounts = { Green: 0, Yellow: 0, Red: 0 };
+    allProjects.forEach((p) => {
+      const health = p.latest_status_health;
+      if (health === "Green") colorCounts.Green++;
+      else if (health === "Yellow") colorCounts.Yellow++;
+      else if (health === "Red") colorCounts.Red++;
+    });
+
     // Render with dynamic cost values
     res.render("Pages/pages-radar", {
       pageTitle: "Radar",
       portfolioName: company.company_headline,
       currentDate: new Date().toLocaleDateString(),
       phaseStats,
+      portfolioHealth: {
+        labels: Object.keys(colorCounts),
+        counts: Object.values(colorCounts),
+        colors: ["#28a745", "#ffc107", "#dc3545"],
+      },
       totalCost: Math.round(totalCost),
       usedCost: Math.round(usedCost),
       availableCost: Math.round(availableCost),
@@ -3444,10 +3480,8 @@ ORDER BY
         portfolioName,
         projects: data,
         currentDate: moment().format("MMMM Do YYYY"),
-        currentFromDate: fromDate
-          ? moment(fromDate).format("MMM DD, YYYY")
-          : null,
-        currentToDate: toDate ? moment(toDate).format("MMM DD, YYYY") : null,
+        currentFromDate: fromDate ? moment(fromDate).format("YYYY-MM-DD") : "",
+        currentToDate: toDate ? moment(toDate).format("YYYY-MM-DD") : "",
       });
     } else {
       console.log("No project data found for company:", company_id_fk);
@@ -3456,10 +3490,8 @@ ORDER BY
         portfolioName,
         projects: [],
         currentDate: moment().format("MMMM Do YYYY"),
-        currentFromDate: fromDate
-          ? moment(fromDate).format("MMM DD, YYYY")
-          : null,
-        currentToDate: toDate ? moment(toDate).format("MMM DD, YYYY") : null,
+        currentFromDate: fromDate ? moment(fromDate).format("YYYY-MM-DD") : "",
+        currentToDate: toDate ? moment(toDate).format("YYYY-MM-DD") : "",
       });
     }
   } catch (error) {
@@ -4105,10 +4137,8 @@ function removeCommasAndConvertToNumber(value) {
 
 const formatCost = (cost) => {
   if (cost === null || cost === undefined) return "0";
-  if (cost >= 1_000_000_000) return `${(cost / 1_000_000_000).toFixed(1)}B`;
-  if (cost >= 1_000_000) return `${(cost / 1_000_000).toFixed(1)}M`;
-  if (cost >= 1_000) return `${(cost / 1_000).toFixed(1)}K`;
-  return cost.toString();
+  const rounded = Math.round(cost);
+  return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 async function returnPortfolioName(company_id_fk) {
   // Fetch the company headline from the database
