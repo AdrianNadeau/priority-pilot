@@ -186,6 +186,8 @@ exports.create = (req, res) => {
           primes: personsData,
           tags: tagsData,
           company_id: company_id_fk,
+          currentFromDate: req.session.filtered_start || "",
+          currentToDate: req.session.filtered_end || "",
         });
       })
       .catch((err) => {

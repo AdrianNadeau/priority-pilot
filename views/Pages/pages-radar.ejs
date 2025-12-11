@@ -23,6 +23,20 @@
 <div class="page-content-wrapper">
   <div class="container-fluid">
    
+    <!-- Download Report Button -->
+    <div class="row mt-2 mb-3" style="margin-left: 0px;margin-right:0px;">
+      <div class="col-md-12">
+        <button
+          type="button"
+          class="btn btn-success waves-effect waves-light"
+          id="btnPrintPage"
+          name="btnPrintPage"
+        >
+          <i class="mdi mdi-download mr-1"></i> Download Report
+        </button>
+      </div>
+    </div>
+   
     <!-- Date Range Row -->
     <div class="row mb-2 align-items-center" style="margin-left: 0px;margin-right:0px;min-height: 50px;height:50px;background:hsl(197, 70%, 91%); box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
       <div class="col-md-12 d-flex align-items-center">
@@ -42,6 +56,43 @@
       console.log('Flatpickr available?', typeof flatpickr);
       console.log('from_date element:', document.getElementById('from_date'));
       console.log('to_date element:', document.getElementById('to_date'));
+      
+      // Calculate and display day count - make it globally available
+      window.updateDayCount = function() {
+        const fromDate = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
+        const toDate = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
+        const dayCountSpan = document.getElementById('dayCount');
+        
+        console.log('updateDayCount called - fromDate:', fromDate, 'toDate:', toDate);
+        console.log('dayCountSpan element:', dayCountSpan);
+        
+        if (!dayCountSpan) {
+          console.error('dayCount span not found!');
+          return;
+        }
+        
+        if (fromDate && toDate) {
+          const from = new Date(fromDate);
+          const to = new Date(toDate);
+          
+          if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+            const diffTime = Math.abs(to - from);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
+            const dayText = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
+            dayCountSpan.textContent = dayText;
+            console.log('Day count updated to:', dayText);
+          } else {
+            dayCountSpan.textContent = '';
+            console.log('Invalid date format');
+          }
+        } else {
+          dayCountSpan.textContent = '';
+          console.log('Missing date(s) - fromDate:', fromDate, 'toDate:', toDate);
+        }
+      };
+      
+      // Call it immediately
+      window.updateDayCount();
       
       function initRadarDatePickers() {
         console.log('Attempting to initialize date pickers...', typeof flatpickr);
@@ -95,6 +146,9 @@
             },
             onChange: function(selectedDates, dateStr) {
               console.log('from_date changed to:', dateStr);
+              if (typeof updateDayCount === 'function') {
+                updateDayCount();
+              }
             }
           });
           
@@ -111,6 +165,9 @@
             },
             onChange: function(selectedDates, dateStr) {
               console.log('to_date changed to:', dateStr);
+              if (typeof updateDayCount === 'function') {
+                updateDayCount();
+              }
             }
           });
           
@@ -138,6 +195,30 @@
           }
         }, 100);
       }
+      
+      // Wait for DOM to be fully loaded
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, setting up event listeners and updating day count');
+        
+        // Add event listeners for manual input changes
+        const fromDateInput = document.getElementById('from_date');
+        const toDateInput = document.getElementById('to_date');
+        
+        if (fromDateInput) {
+          fromDateInput.addEventListener('change', updateDayCount);
+          fromDateInput.addEventListener('blur', updateDayCount);
+        }
+        
+        if (toDateInput) {
+          toDateInput.addEventListener('change', updateDayCount);
+          toDateInput.addEventListener('blur', updateDayCount);
+        }
+        
+        // Update day count immediately and with delays
+        updateDayCount();
+        setTimeout(updateDayCount, 100);
+        setTimeout(updateDayCount, 500);
+      });
     </script>
     
     <script>
@@ -222,6 +303,14 @@
         drawTag1Charts();
         drawTag2Charts();
         drawTag3Charts();
+      }
+      
+      // Call updateDayCount after inline script executes (dates should be available)
+      if (typeof updateDayCount === 'function') {
+        console.log('Calling updateDayCount from inline script');
+        updateDayCount();
+      } else {
+        console.log('updateDayCount function not found yet');
       }
       
       function drawTag1Charts() {
@@ -928,6 +1017,105 @@
 </div>
 
 <%- contentFor('FooterJs') %>
+<script>
+  // Print button event listener - attach immediately
+  console.log('FooterJs script executing');
+  
+  function attachPrintButtonHandler() {
+    console.log('Attempting to attach print button handler');
+    const btnPrintPage = document.getElementById("btnPrintPage");
+    console.log('Print button element:', btnPrintPage);
+    
+    if (btnPrintPage) {
+      console.log('Print button found! Attaching click listener');
+      btnPrintPage.onclick = function(e) {
+        console.log('===== PRINT BUTTON CLICKED =====');
+        e.preventDefault();
+        console.log('===== PRINT BUTTON CLICKED =====');
+        e.preventDefault();
+        
+        // Get portfolio name from session data or set a default
+        const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
+        console.log('Portfolio name:', portfolioName);
+
+        // Create a style element for the print header
+        console.log('Creating print style element');
+        const style = document.createElement("style");
+        style.setAttribute("type", "text/css");
+        style.setAttribute("media", "print");
+
+        // Add CSS for the print header
+        const css = `
+          @page {
+            size: landscape;
+            margin-top: 3cm;
+          }
+          body::before {
+            content: "${portfolioName} - Radar Report";
+            display: block;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.5em;
+            margin-bottom: 1cm;
+          }
+          #btnPrintPage,
+          .page-buttons,
+          .button-menu-mobile,
+          .page-title,
+          .portfolio-title {
+            display: none !important;
+          }
+          .filter-section,
+          .mini-stat {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        `;
+
+        style.appendChild(document.createTextNode(css));
+        document.head.appendChild(style);
+        console.log('Print style added to document head');
+
+        // Save the current title
+        const oldTitle = document.title;
+        const today = new Date();
+        const yyyy_mm_dd = today.toISOString().split('T')[0];
+        console.log('Old title:', oldTitle);
+        console.log('New title:', yyyy_mm_dd + " - PriorityPilot - Radar Report");
+
+        document.title = yyyy_mm_dd + " - PriorityPilot - Radar Report";
+
+        // Print
+        console.log('Calling window.print()...');
+        window.print();
+        console.log('window.print() called');
+
+        // Restore the old title after a short delay
+        setTimeout(() => {
+          console.log('Restoring original title and removing style');
+          document.title = oldTitle;
+          document.head.removeChild(style);
+          console.log('Cleanup complete');
+        }, 1000);
+      };
+      return true;
+    } else {
+      console.error('Print button NOT FOUND in DOM!');
+      return false;
+    }
+  }
+  
+  // Try to attach immediately
+  console.log('Trying to attach print handler immediately');
+  if (!attachPrintButtonHandler()) {
+    // If not found, try after a delay
+    console.log('Button not found, will retry in 500ms');
+    setTimeout(function() {
+      console.log('Retry attempt');
+      attachPrintButtonHandler();
+    }, 500);
+  }
+</script>
 
 <%- contentFor('BottomJs') %>
 <script>
@@ -1765,16 +1953,29 @@
             .catch((err) => console.error("Error loading Tag 3 Effort Chart:", err));
         }
       });
-     document.getElementById("btnPrintPage").addEventListener("click", function () {
-    // Get portfolio name from session data or set a default
-    const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
+    </script>
+    
+    <script>
+     // Print button event listener - ensure DOM is fully loaded
+     console.log('Setting up window load listener for print button');
+     window.addEventListener('load', function() {
+       console.log('Window loaded, searching for print button');
+       const btnPrintPage = document.getElementById("btnPrintPage");
+       console.log('Print button element:', btnPrintPage);
+       if (btnPrintPage) {
+         console.log('Print button found, attaching event listener');
+         btnPrintPage.addEventListener("click", function () {
+           console.log('===== Print button clicked =====');
+           // Get portfolio name from session data or set a default
+           const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
+           console.log('Portfolio name:', portfolioName);
 
     // Create a style element for the print header
+    console.log('Creating print style element');
     const style = document.createElement("style");
     style.setAttribute("type", "text/css");
     style.setAttribute("media", "print");
-
-    // Add CSS for the print header
+    console.log('Print style element created');    // Add CSS for the print header
     const css = `
       @page {
         size: landscape;
@@ -1804,24 +2005,35 @@
 
     style.appendChild(document.createTextNode(css));
     document.head.appendChild(style);
+    console.log('Print style added to document head');
 
     // Save the current title
     const oldTitle = document.title;
     const today = new Date();
     const yyyy_mm_dd = today.toISOString().split('T')[0];
+    console.log('Current title:', oldTitle);
+    console.log('New title will be:', yyyy_mm_dd + " - PriorityPilot - Radar Report");
 
     document.title = yyyy_mm_dd + " - PriorityPilot - Radar Report";
+    console.log('Title updated, opening print dialog...');
 
     // Print
     window.print();
+    console.log('Print dialog opened');
 
     // Restore the old title after a short delay
     setTimeout(() => {
+      console.log('Restoring original title');
       document.title = oldTitle;
       // Remove the added style element
       document.head.removeChild(style);
+      console.log('Print style removed, title restored');
     }, 1000);
-  });
-</script>
+         });
+       } else {
+         console.error('Print button not found in DOM');
+       }
+     });
+  </script>
   </div>
 </div>

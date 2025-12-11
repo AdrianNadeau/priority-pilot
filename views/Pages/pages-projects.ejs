@@ -1,4 +1,6 @@
 ﻿<%- contentFor('HeaderCss') %>
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
   .sortable {
     cursor: pointer;
@@ -7,56 +9,19 @@
     padding: 12px 8px !important;
     background-color: #f8f9fa;
     border-bottom: 2px solid #dee2e6 !important;
+    font-weight: bold;
+    color: #6c757d;
+    vertical-align: middle;
   }
   .sortable:hover {
     background-color: #e9ecef !important;
     cursor: pointer;
   }
-  .sortable {
-    <script src="https://unpkg.com/js-datepicker"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        if (window.datepicker) {
-          datepicker('#from_date', {
-            formatter: (input, date, instance) => {
-              if (date) input.value = date.toISOString().slice(0, 10);
-            },
-            startDay: 1,
-            customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-            customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            overlayButton: 'Go',
-            overlayPlaceholder: 'Enter a year',
-            alwaysShow: false
-          });
-          datepicker('#to_date', {
-            formatter: (input, date, instance) => {
-              if (date) input.value = date.toISOString().slice(0, 10);
-            },
-            startDay: 1,
-            customDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-            customMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            overlayButton: 'Go',
-            overlayPlaceholder: 'Enter a year',
-            alwaysShow: false
-          });
-        }
-      });
-    </script>
-    font-weight: bold;
-    color: #6c757d;
-    vertical-align: middle;
+  .sort-arrow {
     min-width: 12px;
-    color: #007bff !important;
+    color: #6c757d;
     transform: scale(1.1);
     cursor: pointer;
-  }
-  .sort-arrow.active {
-    color: #007bff !important;
-    cursor: pointer;
-  }
-  .table thead th {
-    font-weight: 600;
-    vertical-align: middle;
   }
   .sort-arrow.active {
     color: #007bff !important;
@@ -73,40 +38,38 @@
 <div class="page-content-wrapper">
   <div class="container-fluid">
     
-    <!-- Filter Display Section -->
-    <div class="row">
-        <div class="col-md-12" style="min-height: 50px; padding-bottom: 15px;">
-            <div class="mini-stat clearfix" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 10px;">
-                <div class="mini-stat-info d-flex align-items-center">
-                    <div class="d-flex align-items-center">
-                        <span class="counter" style="color: black; margin-right: 20px;"><strong>Date Range:</strong></span>
-                        
-                        <div class="d-flex align-items-center" style="margin-right: 15px;">
-                            <strong style="margin-right: 10px;">Start:</strong>
-                            <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px;" value="<%= locals.currentFromDate || '' %>">
-                        </div>
-                        
-                        <div class="d-flex align-items-center" style="margin-right: 15px;">
-                            <strong style="margin-right: 10px;">End:</strong>
-                            <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px;" value="<%= locals.currentToDate || '' %>">
-                        </div>
-                        
-                        <div class="d-flex">
-                            <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterDashboard()">Update</button>
-                            
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Action Buttons -->
+    <div class="row mt-2 mb-3" style="margin-left: 0px;margin-right:0px;">
+      <div class="col-md-12">
+        <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject" style="margin-right: 10px;">Add Project</button>
+        <button
+          type="button"
+          class="btn btn-success waves-effect waves-light"
+          id="btnPrintPage"
+          name="btnPrintPage"
+        >
+          <i class="mdi mdi-download mr-1"></i> Download Report
+        </button>
+      </div>
+    </div>
+   
+    <!-- Date Range Row -->
+    <div class="row mb-2 align-items-center" style="margin-left: 0px;margin-right:0px;min-height: 50px;height:50px;background:hsl(197, 70%, 91%); box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+      <div class="col-md-12 d-flex align-items-center">
+        <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
+        <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
+        <span class="text-muted" style="margin-right: 8px;">Start:</span>
+        <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+        <span style="font-weight: 500; margin-right: 8px;">End:</span>
+        <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+        <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
+        <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
+      </div>
     </div>
     
    
     <div class="page-buttons">
-      <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Project</button>
-      <% if (projects.length > 0) { %>
-        <button type="button" class="btn btn-primary waves-effect waves-light" id="btnExportProjects">Download Report</button>
-      <% } %>
+      
     </div>
 
     <div class="row">
@@ -329,60 +292,244 @@
   </div>
 </div>
 
-<%- contentFor('FooterJs') %> 
-<%- contentFor('BottomJs') %>
-
-<!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<%- contentFor('FooterJs') %>
 <!-- Flatpickr JS -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
-  // Robust Flatpickr initialization to always show session values
-  document.addEventListener("DOMContentLoaded", function () {
-    var fromDateValue = document.getElementById("from_date").value;
-    var toDateValue = document.getElementById("to_date").value;
-    var fromPicker = flatpickr("#from_date", {
-      dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true,
-      defaultDate: fromDateValue || undefined,
-    });
-    var toPicker = flatpickr("#to_date", {
-      dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true,
-      defaultDate: toDateValue || undefined,
-    });
-    // Force Flatpickr and input to session value after initialization
-    if (fromDateValue) {
-      fromPicker.setDate(fromDateValue, true, "Y-m-d");
-      document.getElementById("from_date").value = fromDateValue;
+  // Calculate and display day count - make it globally available
+  window.updateDayCount = function() {
+    const fromDate = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
+    const toDate = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
+    const dayCountSpan = document.getElementById('dayCount');
+    
+    console.log('updateDayCount called - fromDate:', fromDate, 'toDate:', toDate);
+    
+    if (!dayCountSpan) {
+      console.error('dayCount span not found!');
+      return;
     }
-    if (toDateValue) {
-      toPicker.setDate(toDateValue, true, "Y-m-d");
-      document.getElementById("to_date").value = toDateValue;
+    
+    if (fromDate && toDate) {
+      const from = new Date(fromDate);
+      const to = new Date(toDate);
+      
+      if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+        const diffTime = Math.abs(to - from);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        const dayText = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
+        dayCountSpan.textContent = dayText;
+        console.log('Day count updated to:', dayText);
+      } else {
+        dayCountSpan.textContent = '';
+      }
+    } else {
+      dayCountSpan.textContent = '';
     }
-  });
-  
-  function clearFilters() {
-    document.getElementById('from_date').value = '';
-    document.getElementById('to_date').value = '';
-    fetch('/filter/clear', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    }).then(() => {
-      window.location.reload();
-    });
-  }
+  };
 
-  // Initialize Flatpickr for date inputs
-  flatpickr(".datepicker", {
-    dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-    allowInput: true, // Allow manual input if needed
-    allowInvalidPreload: true, // Allow invalid dates to be preloaded
-  });
+  // Initialize date pickers
+  function initDatePickers() {
+    console.log('Initializing Flatpickr date pickers');
+    
+    var fromInput = document.getElementById('from_date');
+    var toInput = document.getElementById('to_date');
+    
+    if (!fromInput || !toInput) {
+      console.log('Date inputs not found');
+      return;
+    }
+    
+    var fromDateValue = fromInput.value;
+    var toDateValue = toInput.value;
+    console.log('Initial values - from:', fromDateValue, 'to:', toDateValue);
+    
+    // Destroy any existing instances
+    if (fromInput._flatpickr) {
+      fromInput._flatpickr.destroy();
+    }
+    if (toInput._flatpickr) {
+      toInput._flatpickr.destroy();
+    }
+    
+    // Initialize Flatpickr
+    flatpickr("#from_date", {
+      dateFormat: "Y-m-d",
+      allowInput: true,
+      clickOpens: true,
+      defaultDate: fromDateValue || null,
+      onChange: function(selectedDates, dateStr) {
+        console.log('from_date changed to:', dateStr);
+        updateDayCount();
+      }
+    });
+    
+    flatpickr("#to_date", {
+      dateFormat: "Y-m-d",
+      allowInput: true,
+      clickOpens: true,
+      defaultDate: toDateValue || null,
+      onChange: function(selectedDates, dateStr) {
+        console.log('to_date changed to:', dateStr);
+        updateDayCount();
+      }
+    });
+    
+    console.log('Flatpickr initialized successfully');
+    
+    // Add event listeners for manual input changes
+    fromInput.addEventListener('change', updateDayCount);
+    fromInput.addEventListener('blur', updateDayCount);
+    toInput.addEventListener('change', updateDayCount);
+    toInput.addEventListener('blur', updateDayCount);
+    
+    // Update day count
+    updateDayCount();
+    setTimeout(updateDayCount, 100);
+  }
+  
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDatePickers);
+  } else {
+    initDatePickers();
+  }
+  
+  // Filter dashboard function
+  window.filterDashboard = function() {
+    const fromDate = document.getElementById('from_date').value;
+    const toDate = document.getElementById('to_date').value;
+    
+    console.log('Filter clicked with dates:', fromDate, toDate);
+    
+    // Send filter data to server to save in persons table
+    fetch('/update-filter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from_date: fromDate,
+        to_date: toDate
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log('Filter preferences saved successfully');
+        // Reload the page to apply session-based filtering
+        window.location.reload();
+      } else {
+        console.error('Error saving filter preferences:', data.message);
+        alert('Error saving filter preferences');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while saving filter preferences');
+    });
+  };
 </script>
+
+<script>
+  // Print button event listener - attach immediately
+  console.log('FooterJs script executing');
+  
+  function attachPrintButtonHandler() {
+    console.log('Attempting to attach print button handler');
+    const btnPrintPage = document.getElementById("btnPrintPage");
+    console.log('Print button element:', btnPrintPage);
+    
+    if (btnPrintPage) {
+      console.log('Print button found! Attaching click listener');
+      btnPrintPage.onclick = function(e) {
+        console.log('===== PRINT BUTTON CLICKED =====');
+        e.preventDefault();
+        
+        // Get portfolio name from session data or set a default
+        const portfolioName = "<%= portfolio_name %>" || "Priority Pilot";
+        console.log('Portfolio name:', portfolioName);
+
+        // Create a style element for the print header
+        console.log('Creating print style element');
+        const style = document.createElement("style");
+        style.setAttribute("type", "text/css");
+        style.setAttribute("media", "print");
+
+        // Add CSS for the print header
+        const css = `
+          @page {
+            size: landscape;
+            margin-top: 3cm;
+          }
+          body::before {
+            content: "${portfolioName} - Projects Report";
+            display: block;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.5em;
+            margin-bottom: 1cm;
+          }
+          #btnPrintPage,
+          .page-buttons,
+          .button-menu-mobile,
+          .page-title,
+          .portfolio-title {
+            display: none !important;
+          }
+          .filter-section,
+          .mini-stat {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        `;
+
+        style.appendChild(document.createTextNode(css));
+        document.head.appendChild(style);
+        console.log('Print style added to document head');
+
+        // Save the current title
+        const oldTitle = document.title;
+        const today = new Date();
+        const yyyy_mm_dd = today.toISOString().split('T')[0];
+        console.log('Old title:', oldTitle);
+        console.log('New title:', yyyy_mm_dd + " - PriorityPilot - Projects Report");
+
+        document.title = yyyy_mm_dd + " - PriorityPilot - Projects Report";
+
+        // Print
+        console.log('Calling window.print()...');
+        window.print();
+        console.log('window.print() called');
+
+        // Restore the old title after a short delay
+        setTimeout(() => {
+          console.log('Restoring original title and removing style');
+          document.title = oldTitle;
+          document.head.removeChild(style);
+          console.log('Cleanup complete');
+        }, 1000);
+      };
+      return true;
+    } else {
+      console.error('Print button NOT FOUND in DOM!');
+      return false;
+    }
+  }
+  
+  // Try to attach immediately
+  console.log('Trying to attach print handler immediately');
+  if (!attachPrintButtonHandler()) {
+    // If not found, try after a delay
+    console.log('Button not found, will retry in 500ms');
+    setTimeout(function() {
+      console.log('Retry attempt');
+      attachPrintButtonHandler();
+    }, 500);
+  }
+</script>
+
+<%- contentFor('BottomJs') %>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -620,13 +767,6 @@ document.addEventListener("DOMContentLoaded", function() {
       var id = row.cells[0].textContent;
       window.location.replace('/projects/edit/' + id);
     });
-  });
-
-  // Flatpickr init
-  flatpickr(".datepicker, .start_datepicker, .end_datepicker, .nms_datepicker", {
-    dateFormat: "Y-m-d",
-    allowInput: true,
-    allowInvalidPreload: true
   });
 
   // Phase toggle
