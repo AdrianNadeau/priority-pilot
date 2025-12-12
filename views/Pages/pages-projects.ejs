@@ -357,35 +357,22 @@
       dateFormat: "Y-m-d",
       allowInput: true,
       clickOpens: true,
-      defaultDate: fromDateValue || null,
-      onChange: function(selectedDates, dateStr) {
-        console.log('from_date changed to:', dateStr);
-        updateDayCount();
-      }
+      defaultDate: fromDateValue || null
     });
     
     flatpickr("#to_date", {
       dateFormat: "Y-m-d",
       allowInput: true,
       clickOpens: true,
-      defaultDate: toDateValue || null,
-      onChange: function(selectedDates, dateStr) {
-        console.log('to_date changed to:', dateStr);
-        updateDayCount();
-      }
+      defaultDate: toDateValue || null
     });
     
     console.log('Flatpickr initialized successfully');
     
-    // Add event listeners for manual input changes
-    fromInput.addEventListener('change', updateDayCount);
-    fromInput.addEventListener('blur', updateDayCount);
-    toInput.addEventListener('change', updateDayCount);
-    toInput.addEventListener('blur', updateDayCount);
-    
-    // Update day count
-    updateDayCount();
-    setTimeout(updateDayCount, 100);
+    // Update day count on page load if dates exist
+    if (fromDateValue && toDateValue) {
+      updateDayCount();
+    }
   }
   
   // Initialize when DOM is ready
@@ -401,6 +388,9 @@
     const toDate = document.getElementById('to_date').value;
     
     console.log('Filter clicked with dates:', fromDate, toDate);
+    
+    // Update day count display
+    updateDayCount();
     
     // Send filter data to server to save in persons table
     fetch('/update-filter', {

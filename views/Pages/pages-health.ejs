@@ -41,6 +41,33 @@
       console.log('from_date element:', document.getElementById('from_date'));
       console.log('to_date element:', document.getElementById('to_date'));
       
+      // Calculate and display day count
+      window.updateDayCount = function() {
+        const fromDate = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
+        const toDate = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
+        const dayCountSpan = document.getElementById('dayCount');
+        
+        if (!dayCountSpan) {
+          return;
+        }
+        
+        if (fromDate && toDate) {
+          const from = new Date(fromDate);
+          const to = new Date(toDate);
+          
+          if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+            const diffTime = Math.abs(to - from);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            const dayText = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
+            dayCountSpan.textContent = dayText;
+          } else {
+            dayCountSpan.textContent = '';
+          }
+        } else {
+          dayCountSpan.textContent = '';
+        }
+      };
+      
       function initHealthDatePickers() {
         console.log('Attempting to initialize date pickers...', typeof flatpickr);
         
@@ -91,12 +118,6 @@
             },
             onOpen: function() {
               console.log('from_date picker opened!');
-            },
-            onChange: function(selectedDates, dateStr) {
-              console.log('from_date changed to:', dateStr);
-              if (typeof updateDayCount === 'function') {
-                updateDayCount();
-              }
             }
           });
           
@@ -111,12 +132,6 @@
             },
             onOpen: function() {
               console.log('to_date picker opened!');
-            },
-            onChange: function(selectedDates, dateStr) {
-              console.log('to_date changed to:', dateStr);
-              if (typeof updateDayCount === 'function') {
-                updateDayCount();
-              }
             }
           });
           
@@ -127,6 +142,14 @@
           console.log('Flatpickr initialized:', fromPicker, toPicker);
           console.log('fromPicker instance:', fromInput._flatpickr);
           console.log('toPicker instance:', toInput._flatpickr);
+          
+          // Update day count on page load if dates exist
+          var fromVal = fromInput.value;
+          var toVal = toInput.value;
+          if (fromVal && toVal && typeof updateDayCount === 'function') {
+            updateDayCount();
+          }
+          
           return true;
         } else {
           console.log('Flatpickr not available yet, retrying...');
@@ -153,6 +176,9 @@
         const toDate = document.getElementById('to_date').value;
         
         console.log('Filter clicked with dates:', fromDate, toDate);
+        
+        // Update day count display
+        updateDayCount();
         
         // Send filter data to server to save in persons table
         fetch('/update-filter', {

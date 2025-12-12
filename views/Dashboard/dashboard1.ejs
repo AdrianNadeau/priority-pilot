@@ -51,9 +51,39 @@
     window.location.href = '/projects/accomplishments/view/';
   }
   
+  // Calculate and display day count
+  window.updateDayCount = function() {
+    const fromDate = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
+    const toDate = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
+    const dayCountSpan = document.getElementById('dayCount');
+    
+    if (!dayCountSpan) {
+      return;
+    }
+    
+    if (fromDate && toDate) {
+      const from = new Date(fromDate);
+      const to = new Date(toDate);
+      
+      if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+        const diffTime = Math.abs(to - from);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        const dayText = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
+        dayCountSpan.textContent = dayText;
+      } else {
+        dayCountSpan.textContent = '';
+      }
+    } else {
+      dayCountSpan.textContent = '';
+    }
+  };
+  
   function filterDashboard() {
     const fromDate = document.getElementById('from_date').value;
     const toDate = document.getElementById('to_date').value;
+    
+    // Update day count display
+    updateDayCount();
     
     // Send filter data to server to save in persons table
     fetch('/update-filter', {
@@ -244,6 +274,13 @@
                   allowInput: true
                 });
                 console.log('SUCCESS! Pickers:', fp1, fp2);
+                
+                // Update day count on page load if dates exist
+                var fromVal = document.getElementById('from_date').value;
+                var toVal = document.getElementById('to_date').value;
+                if (fromVal && toVal && typeof updateDayCount === 'function') {
+                  updateDayCount();
+                }
               } catch(e) {
                 console.error('ERROR initializing:', e);
               }
@@ -255,6 +292,13 @@
                   flatpickr("#from_date", { dateFormat: "Y-m-d", allowInput: true });
                   flatpickr("#to_date", { dateFormat: "Y-m-d", allowInput: true });
                   console.log('Retry initialization complete');
+                  
+                  // Update day count after retry
+                  var fromVal = document.getElementById('from_date').value;
+                  var toVal = document.getElementById('to_date').value;
+                  if (fromVal && toVal && typeof updateDayCount === 'function') {
+                    updateDayCount();
+                  }
                 }
               }, 500);
             }
@@ -270,13 +314,13 @@
             </div>
           </div>
           </div>
-                <div class="col-md-6 phase-column">
-                <div class="mini-stat bg-white clearfix" style="min-height: 50px; background-color:#ffea99;">
-                  <div class="mini-stat-info" style="background-color: #FFEA99;" data-phase="Archive">
-                    <a href="/projects/freezer/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Archive</strong> (<%= archived.count %> / $<%= formatNumberWithCommas(archived.cost) %> / <%= formatNumberWithCommas(archived.ph) %> PH)</span></a>
-                  </div>
-                </div>
-                </div>
+                <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
+          <div class="mini-stat bg-white clearfix" >
+            <div class="mini-stat-info" style="background-color:#ffea99">
+            <a href="/projects/freezer/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Archive</strong> (<%= archived.count %> / $<%= formatNumberWithCommas(archived.cost) %> / <%= formatNumberWithCommas(archived.ph) %> PH)</span></a>
+            </div>
+          </div>
+          </div>
                     <div class="col-md-6 phase-column">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
@@ -504,17 +548,24 @@
                           
                           <% 
                             // Always show percent block, using same logic for all-time and filtered
-                            let costPercentVal = (typeof usedCost !== 'undefined' && typeof totalCost !== 'undefined' && sanitizeNumber(totalCost) && !isNaN(sanitizeNumber(totalCost)))
-                              ? ((sanitizeNumber(usedCost) / sanitizeNumber(totalCost)) * 100).toFixed(1) + '%'
-                              : '0%';
-                            let effortPercentVal = (typeof totalUsedPH !== 'undefined' && typeof totalPH !== 'undefined' && sanitizeNumber(totalPH) && !isNaN(sanitizeNumber(totalPH)))
-                              ? ((sanitizeNumber(totalUsedPH) / sanitizeNumber(totalPH)) * 100).toFixed(1) + '%'
-                              : '0%';
+                            let costPercentRaw = (deliveryTotalCost && !isNaN(deliveryTotalCost) && deliveryTotalCost > 0)
+                              ? ((deliveryUsedCost / deliveryTotalCost) * 100)
+                              : 0;
+                            let costPercentVal = costPercentRaw.toFixed(2) + '%';
+                            
+                            let effortPercentRaw = (deliveryTotalEffort && !isNaN(deliveryTotalEffort) && deliveryTotalEffort > 0)
+                              ? ((deliveryUsedEffort / deliveryTotalEffort) * 100)
+                              : 0;
+                            let effortPercentVal = effortPercentRaw.toFixed(2) + '%';
+                            
+                            // Determine color based on percentage: 0-95% green, 95-110% yellow, 110%+ red
+                            let costColorCalc = costPercentRaw < 95 ? '#28a745' : (costPercentRaw <= 110 ? '#ffc107' : '#dc3545');
+                            let effortColorCalc = effortPercentRaw < 95 ? '#28a745' : (effortPercentRaw <= 110 ? '#ffc107' : '#dc3545');
                           %>
                           <strong class="list-percent">COST</strong><br/>
-                          <span id="cost-percentage" class="list-percent percent-cost" data-color="<%= costColor %>"><%= costPercentVal %></span><br/>
+                          <span id="cost-percentage" class="list-percent percent-cost" data-color="<%= costColorCalc %>" style="color: <%= costColorCalc %>;"><%= costPercentVal %></span><br/>
                           <strong class="list-percent">EFFORT</strong><br/>
-                          <span id="effort-percentage" class="list-percent percent-effort" data-color="<%= effColor %>"><%= effortPercentVal %></span>
+                          <span id="effort-percentage" class="list-percent percent-effort" data-color="<%= effortColorCalc %>" style="color: <%= effortColorCalc %>;"><%= effortPercentVal %></span>
                         </div>
                     </div>
                 </div>
