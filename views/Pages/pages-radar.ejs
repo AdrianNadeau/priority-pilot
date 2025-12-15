@@ -16,13 +16,37 @@
 
 <!-- Load Flatpickr JS immediately before body content -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-  console.log('Flatpickr loaded in body:', typeof flatpickr);
-</script>
 
+<style>
+    @media print {
+    /* Hide buttons and other unnecessary elements */
+    #btnPrintPage,
+    #btnExportHealth,
+    .page-title,
+    .portfolio-title,
+    .button-menu-mobile {
+      display: none;
+    }
+
+    /* Ensure the table and charts fit within the page */
+    .table-responsive {
+      overflow: visible !important;
+    }
+
+    .page-content-wrapper {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Adjust font sizes for better readability */
+    body {
+      font-size: 12px;
+    }
+  }
+</style>
 <div class="page-content-wrapper">
   <div class="container-fluid">
-   
+
     <!-- Download Report Button -->
     <div class="row mt-2 mb-3" style="margin-left: 0px;margin-right:0px;">
       <div class="col-md-12">
@@ -52,19 +76,13 @@
     </div>
     
     <script>
-      console.log('=== RADAR PAGE INLINE SCRIPT ===');
-      console.log('Flatpickr available?', typeof flatpickr);
-      console.log('from_date element:', document.getElementById('from_date'));
-      console.log('to_date element:', document.getElementById('to_date'));
-      
+     
       // Calculate and display day count - make it globally available
       window.updateDayCount = function() {
         const fromDate = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
         const toDate = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
         const dayCountSpan = document.getElementById('dayCount');
-        
-        console.log('updateDayCount called - fromDate:', fromDate, 'toDate:', toDate);
-        console.log('dayCountSpan element:', dayCountSpan);
+      
         
         if (!dayCountSpan) {
           console.error('dayCount span not found!');
@@ -80,7 +98,7 @@
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
             const dayText = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
             dayCountSpan.textContent = dayText;
-            console.log('Day count updated to:', dayText);
+            
           } else {
             dayCountSpan.textContent = '';
             console.log('Invalid date format');
@@ -95,10 +113,10 @@
       window.updateDayCount();
       
       function initRadarDatePickers() {
-        console.log('Attempting to initialize date pickers...', typeof flatpickr);
+
         
         if (typeof flatpickr !== 'undefined') {
-          console.log('Flatpickr is available, initializing...');
+          
           
           // Destroy any existing instances first
           var fromInput = document.getElementById('from_date');
@@ -139,13 +157,13 @@
             clickOpens: true,
             static: false,
             onReady: function(selectedDates, dateStr, instance) {
-              console.log('from_date picker ready');
+              
             },
             onOpen: function() {
-              console.log('from_date picker opened!');
+              
             },
             onChange: function(selectedDates, dateStr) {
-              console.log('from_date changed to:', dateStr);
+              
               if (typeof updateDayCount === 'function') {
                 updateDayCount();
               }
@@ -158,13 +176,13 @@
             clickOpens: true,
             static: false,
             onReady: function(selectedDates, dateStr, instance) {
-              console.log('to_date picker ready');
+             
             },
             onOpen: function() {
-              console.log('to_date picker opened!');
+              
             },
             onChange: function(selectedDates, dateStr) {
-              console.log('to_date changed to:', dateStr);
+              
               if (typeof updateDayCount === 'function') {
                 updateDayCount();
               }
@@ -175,12 +193,9 @@
           window.fromPickerInstance = fromPicker;
           window.toPickerInstance = toPicker;
           
-          console.log('Flatpickr initialized:', fromPicker, toPicker);
-          console.log('fromPicker instance:', fromInput._flatpickr);
-          console.log('toPicker instance:', toInput._flatpickr);
           return true;
         } else {
-          console.log('Flatpickr not available yet, retrying...');
+          console.error('Flatpickr library not loaded yet');
           return false;
         }
       }
@@ -198,8 +213,6 @@
       
       // Wait for DOM to be fully loaded
       document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM loaded, setting up event listeners and updating day count');
-        
         // Add event listeners for manual input changes
         const fromDateInput = document.getElementById('from_date');
         const toDateInput = document.getElementById('to_date');
@@ -261,11 +274,9 @@
     </script>
     
     <script>
-      console.log('=== INLINE SCRIPT EXECUTING ===');
+      
       var phaseStatsData = <%- JSON.stringify(phaseStats) %>;
       var portfolioHealthData = <%- JSON.stringify(portfolioHealth) %>;
-      console.log('phaseStats from server:', phaseStatsData);
-      console.log('portfolioHealth from server:', portfolioHealthData);
       
       // Make data globally available
       window.radarPageData = {
@@ -275,7 +286,6 @@
       
       // Check if Google Charts is available
       if (typeof google !== 'undefined' && typeof google.charts !== 'undefined') {
-        console.log('Google Charts already loaded, initializing...');
         google.charts.load('current', { packages: ['corechart'] });
         google.charts.setOnLoadCallback(initializeRadarCharts);
       } else {
@@ -291,7 +301,7 @@
       }
       
       function initializeRadarCharts() {
-        console.log('Initializing radar charts...');
+       
         drawInitiativesByPhaseChart();
         drawInvestmentsByPhaseChart();
         drawProgressAndHealthChartsInline();
@@ -299,7 +309,7 @@
       }
       
       function drawTagCharts() {
-        console.log('Drawing tag charts...');
+       
         drawTag1Charts();
         drawTag2Charts();
         drawTag3Charts();
@@ -307,7 +317,7 @@
       
       // Call updateDayCount after inline script executes (dates should be available)
       if (typeof updateDayCount === 'function') {
-        console.log('Calling updateDayCount from inline script');
+       
         updateDayCount();
       } else {
         console.log('updateDayCount function not found yet');
@@ -683,11 +693,11 @@
       }
       
       function drawProgressAndHealthChartsInline() {
-        console.log('Fetching progress and health data...');
+      
         fetch('/projects/radar/progress/')
           .then(function(response) { return response.json(); })
           .then(function(data) {
-            console.log('Progress data received:', data);
+            
             drawProgressChartInline(data);
             drawHealthStatusChartInline(data);
           })
@@ -697,7 +707,7 @@
       }
       
       function drawProgressChartInline(data) {
-        console.log('Drawing Progress chart...');
+        
         if (!data || !data.project_names || data.project_names.length === 0) {
           document.getElementById('progressChart').parentElement.innerHTML = '<p style="color:#999;">No progress data available</p>';
           return;
@@ -792,11 +802,11 @@
             }
           }
         });
-        console.log('Progress chart drawn with Chart.js');
+        
       }
       
       function drawHealthStatusChartInline(data) {
-        console.log('Drawing Health Status chart...');
+        
         if (!data || !data.project_names || data.project_names.length === 0) {
           document.getElementById('healthStatusChart').innerHTML = '<p style="color:#999;">No health data available</p>';
           return;
@@ -839,11 +849,11 @@
         
         var chart = new google.visualization.PieChart(document.getElementById('healthStatusChart'));
         chart.draw(dataTable, options);
-        console.log('Health Status chart drawn');
+        
       }
       
       function drawInitiativesByPhaseChart() {
-        console.log('Drawing Initiatives by Phase chart...');
+        
         var stats = window.radarPageData.phaseStats;
         if (!stats || stats.length === 0) {
           document.getElementById('columnchart_values').innerHTML = '<p style="color:#999;">No data available</p>';
@@ -861,8 +871,6 @@
           ]);
         });
         
-        console.log('Chart data:', dataArray);
-        
         var data = google.visualization.arrayToDataTable(dataArray);
         var options = {
           isStacked: true,
@@ -875,11 +883,11 @@
         
         var chart = new google.visualization.ColumnChart(document.getElementById('columnchart_values'));
         chart.draw(data, options);
-        console.log('Initiatives chart drawn');
+       
       }
       
       function drawInvestmentsByPhaseChart() {
-        console.log('Drawing Investments by Phase chart...');
+        
         var stats = window.radarPageData.phaseStats;
         if (!stats || stats.length === 0) {
           document.getElementById('columnChartCost_values').innerHTML = '<p style="color:#999;">No data available</p>';
@@ -897,8 +905,6 @@
           ]);
         });
         
-        console.log('Cost chart data:', dataArray);
-        
         var data = google.visualization.arrayToDataTable(dataArray);
         var options = {
           isStacked: true,
@@ -912,7 +918,7 @@
         
         var chart = new google.visualization.ColumnChart(document.getElementById('columnChartCost_values'));
         chart.draw(data, options);
-        console.log('Investments chart drawn');
+       
       }
     </script>
     
@@ -1018,31 +1024,65 @@
 
 <%- contentFor('FooterJs') %>
 <script>
-  // Print button event listener - attach immediately
-  console.log('FooterJs script executing');
-  
-  function attachPrintButtonHandler() {
-    console.log('Attempting to attach print button handler');
-    const btnPrintPage = document.getElementById("btnPrintPage");
-    console.log('Print button element:', btnPrintPage);
-    
-    if (btnPrintPage) {
-      console.log('Print button found! Attaching click listener');
-      btnPrintPage.onclick = function(e) {
-        console.log('===== PRINT BUTTON CLICKED =====');
-        e.preventDefault();
-        console.log('===== PRINT BUTTON CLICKED =====');
-        e.preventDefault();
-        
-        // Get portfolio name from session data or set a default
-        const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
-        console.log('Portfolio name:', portfolioName);
+  console.log("button:",document.getElementById("btnPrintPage"))
+     document.getElementById("btnPrintPage").addEventListener("click", function () {
+      alert("button clicked");
+    // Get portfolio name from session data or set a default
+    const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
 
-        // Create a style element for the print header
-        console.log('Creating print style element');
-        const style = document.createElement("style");
-        style.setAttribute("type", "text/css");
-        style.setAttribute("media", "print");
+    // Create a style element for the print header
+    const style = document.createElement("style");
+    style.setAttribute("type", "text/css");
+    style.setAttribute("media", "print");
+
+    // Add CSS for the print header
+    const css = `
+      @page {
+        size: landscape;
+        margin-top: 3cm;
+      }
+      body::before {
+        content: "${portfolioName} - Radar Report";
+        display: block;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.5em;
+        margin-bottom: 1cm;
+      }
+      #btnPrintPage,
+      .page-buttons,
+      .button-menu-mobile,
+      .page-title,
+      .portfolio-title {
+        display: none !important;
+      }
+      .filter-section,
+      .mini-stat {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    `;
+
+    style.appendChild(document.createTextNode(css));
+    document.head.appendChild(style);
+
+    // Save the current title
+    const oldTitle = document.title;
+    const today = new Date();
+    const yyyy_mm_dd = today.toISOString().split('T')[0];
+
+    document.title = yyyy_mm_dd + " - PriorityPilot - Radar Report";
+
+    // Print
+    window.print();
+
+    // Restore the old title after a short delay
+    setTimeout(() => {
+      document.title = oldTitle;
+      // Remove the added style element
+      document.head.removeChild(style);
+    }, 1000);
+  });
 
         // Add CSS for the print header
         const css = `
@@ -1220,12 +1260,7 @@
           return parseFloat(cost);
         }
 
-        // Diagnostic logging for chart rendering
-        console.log('=== RADAR PAGE INITIALIZATION ===');
-        console.log('phaseStats from server:', <%- JSON.stringify(phaseStats) %>);
-        console.log('portfolioHealth from server:', <%- JSON.stringify(portfolioHealth) %>);
-        console.log('typeof google:', typeof google);
-        console.log('typeof google.charts:', typeof google !== 'undefined' ? typeof google.charts : 'N/A');
+       
         
         // Make phaseStats a global variable
         window.phaseStats = <%- JSON.stringify(phaseStats) %>;

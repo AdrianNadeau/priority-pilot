@@ -3631,20 +3631,24 @@ exports.accomplishments = async (req, res) => {
   const fromDate = req.session.filtered_start;
   const toDate = req.session.filtered_end;
 
-  // Build date filter conditions for the SQL query
+  // Build date filter conditions for the SQL query - filter by status_date
+  // If no dates are set, show all accomplishments
   let dateFilter = "";
   let queryParams = [company_id_fk];
 
   if (fromDate && toDate) {
-    dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
+    dateFilter = " AND status.status_date BETWEEN ? AND ?";
     queryParams.push(fromDate, toDate);
   } else if (fromDate) {
-    dateFilter = " AND proj.start_date >= ?";
+    dateFilter = " AND status.status_date >= ?";
     queryParams.push(fromDate);
   } else if (toDate) {
-    dateFilter = " AND proj.end_date <= ?";
+    dateFilter = " AND status.status_date <= ?";
     queryParams.push(toDate);
   }
+  // If no date filter, don't filter by date at all - show all accomplishments
+
+  console.log("Accomplishments date filter SQL:", dateFilter);
 
   const query = `
     SELECT DISTINCT
@@ -3676,9 +3680,6 @@ exports.accomplishments = async (req, res) => {
     LEFT JOIN phases ON phases.id = proj.phase_id_fk
     LEFT JOIN statuses status ON status.project_id_fk = proj.id
     WHERE proj.company_id_fk = ?${dateFilter}
-      AND proj.phase_id_fk IN (
-        SELECT id FROM phases WHERE phase_name IN ('Planning', 'Discovery', 'Delivery', 'Done')
-      )
       AND status.accomplishments IS NOT NULL 
       AND status.accomplishments != ''
     ORDER BY 
@@ -3693,12 +3694,6 @@ exports.accomplishments = async (req, res) => {
       replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
     });
-
-    console.log(
-      "Accomplishments query result:",
-      data.length,
-      "accomplishment records found",
-    );
 
     // Debug: Check for line breaks in accomplishments text
     if (data.length > 0) {
@@ -3812,6 +3807,129 @@ exports.accomplishments = async (req, res) => {
   } catch (error) {
     console.error("Error in accomplishments query:", error);
     res.status(500).send("Error fetching project data: " + error.message);
+  }
+};
+
+exports.accomplishmentsCSV = async (req, res) => {
+  const company_id_fk = req.session.company.id;
+  const portfolioName = req.session.company.company_headline;
+
+  // Get date filter from session
+  const fromDate = req.session.filtered_start;
+  const toDate = req.session.filtered_end;
+
+  // Build date filter conditions
+  let dateFilter = "";
+  let queryParams = [company_id_fk];
+
+  if (fromDate && toDate) {
+    dateFilter = " AND status.status_date BETWEEN ? AND ?";
+    queryParams.push(fromDate, toDate);
+  } else if (fromDate) {
+    dateFilter = " AND status.status_date >= ?";
+    queryParams.push(fromDate);
+  } else if (toDate) {
+    dateFilter = " AND status.status_date <= ?";
+    queryParams.push(toDate);
+  }
+
+  const query = `
+    SELECT DISTINCT
+      proj.project_name,
+      phases.phase_name,
+      prime_person.first_name AS prime_first_name,
+      prime_person.last_name AS prime_last_name,
+      sponsor_person.first_name AS sponsor_first_name,
+      sponsor_person.last_name AS sponsor_last_name,
+      status.status_date,
+      status.accomplishments,
+      status.progress,
+      status.health
+    FROM projects proj
+    LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk
+    LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
+    LEFT JOIN phases ON phases.id = proj.phase_id_fk
+    LEFT JOIN statuses status ON status.project_id_fk = proj.id
+    WHERE proj.company_id_fk = ?${dateFilter}
+      AND status.accomplishments IS NOT NULL 
+      AND status.accomplishments != ''
+    ORDER BY 
+      CASE phases.phase_name 
+        WHEN 'Planning' THEN 1 
+        WHEN 'Discovery' THEN 2 
+        WHEN 'Delivery' THEN 3 
+        WHEN 'Done' THEN 4
+        ELSE 5 
+      END,
+      proj.project_name ASC,
+      status.status_date DESC;
+  `;
+
+  try {
+    const data = await db.sequelize.query(query, {
+      replacements: queryParams,
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    // Create CSV content
+    const csvRows = [];
+
+    // Add header row
+    csvRows.push(
+      [
+        "Project Name",
+        "Phase",
+        "Prime",
+        "Sponsor",
+        "Status Date",
+        "Progress",
+        "Health",
+        "Accomplishments",
+      ].join(","),
+    );
+
+    // Add data rows
+    data.forEach((record) => {
+      const prime =
+        record.prime_first_name && record.prime_last_name
+          ? `${record.prime_first_name} ${record.prime_last_name}`
+          : "";
+      const sponsor =
+        record.sponsor_first_name && record.sponsor_last_name
+          ? `${record.sponsor_first_name} ${record.sponsor_last_name}`
+          : "";
+
+      // Escape and clean accomplishments text for CSV
+      let accomplishments = record.accomplishments || "";
+      accomplishments = accomplishments.replace(/"/g, '""'); // Escape quotes
+      accomplishments = accomplishments.replace(/\r\n/g, " "); // Remove line breaks
+      accomplishments = accomplishments.replace(/\n/g, " ");
+      accomplishments = accomplishments.replace(/\r/g, " ");
+
+      csvRows.push(
+        [
+          `"${record.project_name || ""}"`,
+          `"${record.phase_name || ""}"`,
+          `"${prime}"`,
+          `"${sponsor}"`,
+          `"${record.status_date || ""}"`,
+          `"${record.progress || ""}"`,
+          `"${record.health || ""}"`,
+          `"${accomplishments}"`,
+        ].join(","),
+      );
+    });
+
+    const csvContent = csvRows.join("\n");
+    const filename = `Accomplishments_${moment().format("YYYY-MM-DD")}.csv`;
+
+    // Set headers for CSV download
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(csvContent);
+  } catch (error) {
+    console.error("Error in accomplishments CSV export:", error);
+    res.status(500).send("Error exporting CSV: " + error.message);
   }
 };
 
@@ -4374,13 +4492,23 @@ exports.exportHealthDataToCSV = async (req, res) => {
   }
 };
 exports.exportProjectsWithStatusToCSV = async (req, res) => {
+  console.log("=== EXPORT CSV DEBUG START ===");
+  console.log("Request received at:", new Date().toISOString());
+  console.log("Session exists:", !!req.session);
+  console.log("Session company:", req.session?.company);
   console.log("Exporting projects with status to CSV...");
   try {
+    if (!req.session || !req.session.company || !req.session.company.id) {
+      console.error("ERROR: Missing session or company data");
+      return res.status(401).send("Session expired or invalid");
+    }
     const company_id_fk = req.session.company.id;
+    console.log("Company ID:", company_id_fk);
 
     // Get date filter from session
     const fromDate = req.session.filtered_start;
     const toDate = req.session.filtered_end;
+    console.log("Date filter - From:", fromDate, "To:", toDate);
 
     // Build date filter conditions for the SQL query
     let dateFilter = "";
@@ -4397,7 +4525,6 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
       queryParams.push(toDate);
     }
 
-    // Fetch projects with phase_name, prime, sponsor, and benefit details
     const projectsRaw = await db.sequelize.query(
       `
       SELECT 
@@ -4440,6 +4567,7 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
       `,
       { replacements: queryParams, type: db.sequelize.QueryTypes.SELECT },
     );
+    console.log("Projects query completed. Rows returned:", projectsRaw.length);
 
     // Remove duplicates based on project ID (same logic as the projects page)
     const projects = [];
@@ -4477,6 +4605,7 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
       `,
       { type: db.Sequelize.QueryTypes.SELECT },
     );
+    console.log("Statuses fetched:", statuses.length);
 
     // Map statuses to their corresponding projects
     const statusMap = {};
@@ -4589,15 +4718,21 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
     // Convert JSON to CSV
     const json2csvParser = new Parser({ fields });
     const csv = json2csvParser.parse(combinedData);
+    console.log("CSV generated successfully. Length:", csv.length);
+
     const exportDate = moment().format("YYYY-MM-DD");
     const fileName = `${exportDate} PriorityPilot - Project List.csv`;
+    console.log("Sending file:", fileName);
 
     // Set headers and send the CSV file
     res.header("Content-Type", "text/csv");
     res.attachment(exportDate + " PriorityPilot - Projects.csv");
     res.send(csv);
+    console.log("=== EXPORT CSV DEBUG END - SUCCESS ===");
   } catch (error) {
+    console.error("=== EXPORT CSV DEBUG END - ERROR ===");
     console.error("Error exporting projects with status to CSV:", error);
+    console.error("Error stack:", error.stack);
     res
       .status(500)
       .send({ message: "Error exporting projects with status to CSV." });
@@ -4721,40 +4856,60 @@ exports.exportAccomplishmentsToCSV = async (req, res) => {
     const fromDate = req.session.filtered_start;
     const toDate = req.session.filtered_end;
 
-    // Build date filter conditions for the SQL query
+    // Calculate total days
+    let totalDays = 0;
+    if (fromDate && toDate) {
+      const from = moment(fromDate);
+      const to = moment(toDate);
+      totalDays = to.diff(from, "days") + 1; // +1 to include both start and end dates
+    }
+
+    // Build date filter conditions for the SQL query - filter by status_date to match the page
     let dateFilter = "";
     let queryParams = [company_id_fk];
 
     if (fromDate && toDate) {
-      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
+      dateFilter = " AND status.status_date BETWEEN ? AND ?";
       queryParams.push(fromDate, toDate);
     } else if (fromDate) {
-      dateFilter = " AND proj.start_date >= ?";
+      dateFilter = " AND status.status_date >= ?";
       queryParams.push(fromDate);
     } else if (toDate) {
-      dateFilter = " AND proj.end_date <= ?";
+      dateFilter = " AND status.status_date <= ?";
       queryParams.push(toDate);
     }
 
-    // Use the same query as the accomplishments page with date filtering
+    // Query to get projects with their accomplishments
     const query = `
       SELECT DISTINCT
         proj.id AS project_id,
         proj.project_name,
+        phases.phase_name,
+        prime_person.first_name AS prime_first_name,
+        prime_person.last_name AS prime_last_name,
+        sponsor_person.first_name AS sponsor_first_name,
+        sponsor_person.last_name AS sponsor_last_name,
         status.status_date,
         status.accomplishments,
         status.progress,
+        status.health,
         status.id AS status_id
       FROM projects proj
+      LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk
+      LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
       LEFT JOIN phases ON phases.id = proj.phase_id_fk
       LEFT JOIN statuses status ON status.project_id_fk = proj.id
       WHERE proj.company_id_fk = ?${dateFilter}
-        AND proj.phase_id_fk IN (
-          SELECT id FROM phases WHERE phase_name IN ('Planning', 'Discovery', 'Delivery', 'Done')
-        )
         AND status.accomplishments IS NOT NULL 
         AND status.accomplishments != ''
       ORDER BY 
+        CASE phases.phase_name 
+          WHEN 'Planning' THEN 1 
+          WHEN 'Discovery' THEN 2 
+          WHEN 'Delivery' THEN 3 
+          WHEN 'Done' THEN 4
+          ELSE 5 
+        END,
         proj.project_name ASC,
         status.status_date DESC,
         status.id DESC;
@@ -4771,24 +4926,77 @@ exports.exportAccomplishmentsToCSV = async (req, res) => {
       "accomplishment records found",
     );
 
-    // Transform data for CSV export - only requested fields
-    const csvData = data.map((record) => {
-      return {
-        Project: record.project_name || "",
-        Date: record.status_date
-          ? moment(record.status_date).format("YYYY-MM-DD")
-          : "",
-        Accomplishments: record.accomplishments || "",
-        Progress: record.progress ? `${record.progress}%` : "0%",
-      };
+    // Group accomplishments by project
+    const projectsMap = new Map();
+    data.forEach((record) => {
+      const projectId = record.project_id;
+      if (!projectsMap.has(projectId)) {
+        projectsMap.set(projectId, {
+          project_name: record.project_name,
+          phase_name: record.phase_name,
+          prime:
+            record.prime_first_name && record.prime_last_name
+              ? `${record.prime_first_name} ${record.prime_last_name}`
+              : "",
+          sponsor:
+            record.sponsor_first_name && record.sponsor_last_name
+              ? `${record.sponsor_first_name} ${record.sponsor_last_name}`
+              : "",
+          accomplishments: [],
+        });
+      }
+
+      projectsMap.get(projectId).accomplishments.push({
+        date: record.status_date,
+        text: record.accomplishments,
+        progress: record.progress,
+        health: record.health,
+      });
     });
 
-    // Define CSV fields for accomplishments report - only requested fields
-    const fields = ["Project", "Date", "Accomplishments", "Progress"];
+    // Build CSV content manually to add date range header
+    let csvContent = "";
 
-    // Convert to CSV
-    const json2csvParser = new Parser({ fields });
-    const csv = json2csvParser.parse(csvData);
+    // Add date range header with total days
+    const dateRangeText =
+      fromDate && toDate
+        ? `Date Range: ${moment(fromDate).format("YYYY-MM-DD")} to ${moment(toDate).format("YYYY-MM-DD")} (${totalDays} days)`
+        : fromDate
+          ? `Date Range: From ${moment(fromDate).format("YYYY-MM-DD")}`
+          : toDate
+            ? `Date Range: To ${moment(toDate).format("YYYY-MM-DD")}`
+            : "Date Range: All dates";
+
+    csvContent += `${portfolioName} - Accomplishments Report\n`;
+    csvContent += `${dateRangeText}\n`;
+    csvContent += `Export Date: ${moment().format("YYYY-MM-DD")}\n`;
+    csvContent += "\n"; // Blank line before data
+
+    // Add column headers
+    csvContent += "Project,Phase,Prime,Sponsor,Accomplishments\n";
+
+    // Add data rows - one row per project with all accomplishments combined
+    projectsMap.forEach((project) => {
+      const projectName = (project.project_name || "").replace(/"/g, '""');
+      const phase = (project.phase_name || "").replace(/"/g, '""');
+      const prime = (project.prime || "").replace(/"/g, '""');
+      const sponsor = (project.sponsor || "").replace(/"/g, '""');
+
+      // Combine all accomplishments for this project
+      const allAccomplishments = project.accomplishments
+        .map((a) => {
+          const date = a.date ? moment(a.date).format("YYYY-MM-DD") : "";
+          const text = (a.text || "")
+            .replace(/"/g, '""')
+            .replace(/\r\n/g, " ")
+            .replace(/\n/g, " ")
+            .replace(/\r/g, " ");
+          return `[${date}] ${text}`;
+        })
+        .join(" | ");
+
+      csvContent += `"${projectName}","${phase}","${prime}","${sponsor}","${allAccomplishments}"\n`;
+    });
 
     const exportDate = moment().format("YYYY-MM-DD");
     const fileName = `${exportDate} ${portfolioName} - Accomplishments Report.csv`;
@@ -4796,7 +5004,7 @@ exports.exportAccomplishmentsToCSV = async (req, res) => {
     // Set headers and send CSV
     res.header("Content-Type", "text/csv");
     res.attachment(fileName);
-    res.send(csv);
+    res.send(csvContent);
   } catch (error) {
     console.error("Error exporting accomplishments data to CSV:", error);
     res

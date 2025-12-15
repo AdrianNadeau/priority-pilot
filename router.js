@@ -402,9 +402,6 @@ ORDER BY
             name: project.project_name,
             phase_name: project.phase_name,
           });
-          console.log(
-            `Dashboard: Added pitch project ID ${project.id}: ${project.project_name}`,
-          );
         }
       } else {
         console.warn(
@@ -552,15 +549,6 @@ ORDER BY
       tagsData = [{ id: 0, tag_name: "None" }];
     }
     const portfolioName = req.session.company.company_headline;
-    console.log("**************************** portfolioName:", portfolioName);
-    console.log(
-      "**************************** budget:",
-      req.session.company.portfolio_budget,
-    );
-    console.log(
-      "**************************** budget:",
-      req.session.company.effort,
-    );
 
     // Always fetch and pass the company as companies: [company] for EJS logic
     const company = await Company.findByPk(company_id_fk);
@@ -623,7 +611,6 @@ ORDER BY
       currentMilestoneDetails: currentMilestoneDetails,
       companies: company ? [company] : [],
     });
-    console.log("totalCostPercent:", proportionalTotalCost);
   } catch (error) {
     console.error("Error executing query:", error);
     res.status(500).send("Internal Server Error");

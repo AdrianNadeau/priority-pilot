@@ -89,50 +89,145 @@
 
 <%- contentFor('breadcrumb') %>
 <%- contentFor('body') %>
+<!-- Load Flatpickr JS immediately before body content -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 
 <div class="page-content-wrapper">
   <div class="container-fluid">
     
-    <!-- Filter Display Section -->
-    <div class="row">
-        <div class="col-md-12" style="min-height: 50px; padding-bottom: 15px;">
-            <div class="mini-stat clearfix" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 10px;">
-                <div class="mini-stat-info d-flex align-items-center">
-                    <div class="d-flex align-items-center">
-                        <span class="counter" style="color: black; margin-right: 20px;"><strong>Date Range:</strong></span>
-                        
-                        <div class="d-flex align-items-center" style="margin-right: 15px;">
-                            <strong style="margin-right: 10px;">Start:</strong>
-                            <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px;" value="<%= locals.currentFromDate || '' %>">
-                        </div>
-                        
-                        <div class="d-flex align-items-center" style="margin-right: 15px;">
-                            <strong style="margin-right: 10px;">End:</strong>
-                            <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px;" value="<%= locals.currentToDate || '' %>">
-                        </div>
-                        
-                        <div class="d-flex">
-                            <button type="button" class="btn btn-primary btn-sm" style="margin-right: 5px;" onclick="filterDashboard()">Update</button>
-                            
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Date Range Row -->
+    <div class="row mb-2 align-items-center" style="margin-left: 0px;margin-right:0px;min-height: 50px;height:50px;background:hsl(197, 70%, 91%); box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+      <div class="col-md-12 d-flex align-items-center">
+        <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
+        <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
+        <span class="text-muted" style="margin-right: 8px;">Start:</span>
+        <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate || '' %>">
+        <span style="font-weight: 500; margin-right: 8px;">End:</span>
+        <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate || '' %>">
+        <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" onclick="filterDashboard()">Update</button>
+        <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
+      </div>
     </div>
     
-   
-    <div class="mb-3">
-      <button
-        type="button"
-        class="btn btn-success waves-effect waves-light ml-2"
-        id="btnExportCSV"
-        name="btnExportCSV"
-      >
-        Download Report
-      </button>
-
+    <script>
+     
+      // Calculate and display day count - make it globally available
+      window.updateDayCount = function() {
+        const fromDate = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
+        const toDate = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
+        const dayCountSpan = document.getElementById('dayCount');
+        
+        if (!dayCountSpan) {
+          return;
+        }
+        
+        if (fromDate && toDate) {
+          const from = new Date(fromDate);
+          const to = new Date(toDate);
+          
+          if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+            const diffTime = Math.abs(to - from);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            dayCountSpan.textContent = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
+          } else {
+            dayCountSpan.textContent = '';
+          }
+        } else {
+          dayCountSpan.textContent = '';
+        }
+      };
       
+      // Call it immediately
+      window.updateDayCount();
+      
+      
+      var currentFromDate = '<%= currentFromDate || "" %>';
+      var currentToDate = '<%= currentToDate || "" %>';
+      
+      var fromPicker = flatpickr("#from_date", {
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        clickOpens: true,
+        onReady: function() {
+          
+        },
+        onOpen: function() {
+          
+        }
+      });
+      
+      var toPicker = flatpickr("#to_date", {
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        clickOpens: true,
+        onReady: function() {
+         
+        },
+        onOpen: function() {
+        
+        }
+      });
+      
+      // Set initial dates if available
+      if (currentFromDate) {
+        fromPicker.setDate(currentFromDate, true);
+      }
+      if (currentToDate) {
+        toPicker.setDate(currentToDate, true);
+      }
+      
+      // Update day count on load if both dates exist
+      if (currentFromDate && currentToDate) {
+        updateDayCount();
+      }
+      
+      // Filter functions
+      function filterDashboard() {
+        const fromDate = document.getElementById('from_date').value;
+        const toDate = document.getElementById('to_date').value;
+        
+        updateDayCount();
+        
+        fetch('/update-filter', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from_date: fromDate,
+            to_date: toDate
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('Filter preferences saved successfully');
+            window.location.reload();
+          } else {
+            console.error('Error saving filter preferences:', data.message);
+            window.location.reload();
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          window.location.reload();
+        });
+      }
+    </script>
+   
+    <!-- Download Report Button -->
+    <div class="row mt-2 mb-3" style="margin-left: 0px;margin-right:0px;">
+      <div class="col-md-12">
+        <button
+          type="button"
+          class="btn btn-success waves-effect waves-light"
+          id="btnExportCSV"
+          name="btnExportCSV"
+        >
+          <i class="mdi mdi-download mr-1"></i> Download Report
+        </button>
+      </div>
     </div>
 
     <div class="row">
@@ -156,9 +251,7 @@
                       <td style="font-weight: bold; min-width: 250px; vertical-align: top; padding: 5px;">
                         <%= project.project_name %>
                         &nbsp;
-                        <a href="/projects/edit/<%= project.project_id %>">
-                          <i class="mdi mdi-border-color"></i>
-                        </a>
+                       
                         <br/>
                        
                       </td>
@@ -214,105 +307,9 @@
 
 <%- contentFor('FooterJs') %>
 
-<!-- Removed js-datepicker (qs-datepicker) code; only Flatpickr is used for date inputs. -->
-
-<script>
-  // Filter functions
-  function filterDashboard() {
-    const fromDate = document.getElementById('from_date').value;
-    const toDate = document.getElementById('to_date').value;
-    
-    // Send filter data to server to save in persons table
-    fetch('/update-filter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from_date: fromDate,
-        to_date: toDate
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        console.log('Filter preferences saved successfully');
-        // Redirect to current page with filters
-        window.location.href = window.location.pathname;
-      } else {
-        console.error('Error saving filter preferences:', data.message);
-        // Still redirect to try to apply filters
-        const params = new URLSearchParams();
-        if (fromDate) params.append('from_date', fromDate);
-        if (toDate) params.append('to_date', toDate);
-        const queryString = params.toString();
-        const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
-        window.location.href = url;
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      // Fallback: redirect with query parameters
-      const params = new URLSearchParams();
-      if (fromDate) params.append('from_date', fromDate);
-      if (toDate) params.append('to_date', toDate);
-      const queryString = params.toString();
-      const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
-      window.location.href = url;
-    });
-  }
-  
-  function clearFilters() {
-    document.getElementById('from_date').value = '';
-    document.getElementById('to_date').value = '';
-    fetch('/filter/clear', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    }).then(() => {
-      window.location.reload();
-    });
-  }
-
-  // Robust Flatpickr initialization to always show session values
-  document.addEventListener("DOMContentLoaded", function () {
-    var fromDateValue = document.getElementById("from_date").value;
-    var toDateValue = document.getElementById("to_date").value;
-    var fromPicker = flatpickr("#from_date", {
-      dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true,
-      defaultDate: fromDateValue || undefined,
-    });
-    var toPicker = flatpickr("#to_date", {
-      dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true,
-      defaultDate: toDateValue || undefined,
-    });
-    // Force Flatpickr and input to session value after initialization
-    if (fromDateValue) {
-      fromPicker.setDate(fromDateValue, true, "Y-m-d");
-      document.getElementById("from_date").value = fromDateValue;
-    }
-    if (toDateValue) {
-      toPicker.setDate(toDateValue, true, "Y-m-d");
-      document.getElementById("to_date").value = toDateValue;
-    }
-  });
-</script>
 <%- contentFor('BottomJs') %>
 
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
 <script>
-// Initialize Flatpickr for date inputs
-flatpickr(".datepicker", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true, // Allow manual input if needed
-      allowInvalidPreload: true, // Allow invalid dates to be preloaded
-});
-
 // Filter functionality
 function filterAccomplishments() {
     const startDate = document.getElementById('from_date').value;
@@ -462,69 +459,9 @@ function clearAccomplishmentsFilter() {
     window.location.href = '/projects/accomplishments/view/';
 }
 
-// CSV Export
+// CSV Export - simple redirect approach (working version)
 document.getElementById("btnExportCSV").addEventListener("click", function () {
-  window.location.href = "/projects/export/accomplishments-data";
-});
-
-// Print functionality
-document.getElementById("btnPrintPage").addEventListener("click", function () {
-  // Get portfolio name from session data or set a default
-  const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
-
-  // Create a style element for the print header
-  const style = document.createElement("style");
-  style.setAttribute("type", "text/css");
-  style.setAttribute("media", "print");
-
-  // Add CSS for the print header
-  const css = `
-    @page {
-      size: landscape;
-      margin-top: 3cm;
-    }
-    body::before {
-      content: "${portfolioName} - Accomplishments Report";
-      display: block;
-      text-align: center;
-      font-weight: bold;
-      font-size: 1.5em;
-      margin-bottom: 1cm;
-    }
-    #btnPrintPage,
-    #btnExportCSV,
-    .page-buttons,
-    .button-menu-mobile,
-    .page-title,
-    .portfolio-title,
-    .card:has(#from_date),
-    .mb-3 {
-      display: none !important;
-    }
-    td, th, tr, .table, .mini-stat, .card-body {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-  `;
-
-  style.appendChild(document.createTextNode(css));
-  document.head.appendChild(style);
-
-  // Save the current title
-  const oldTitle = document.title;
-  const today = new Date();
-  const yyyy_mm_dd = today.toISOString().split('T')[0];
-  
-  document.title = yyyy_mm_dd + " - PriorityPilot - Accomplishments Report";
-
-  // Print
-  window.print();
-
-  // Restore the old title after a short delay
-  setTimeout(() => {
-    document.title = oldTitle;
-    // Remove the added style element
-    document.head.removeChild(style);
-  }, 1000);
+    window.location.href = "/projects/export/accomplishments-data";
 });
 </script>
+

@@ -220,15 +220,7 @@
   });
   deliveryAvailCost = deliveryTotalCost - deliveryUsedCost;
   deliveryAvailEffort = deliveryTotalEffort - deliveryUsedEffort;
-  console.log("----------------- COMPANY :------------------------", companies[0].portfolio_budget);
-  // Debug: Output totals to server console
-  console.log('Dashboard totals:', {
-    deliveryTotalCost,
-    deliveryTotalEffort,
-    filteredDays,
-    portfolioBudget: (companies && companies[0] && companies[0].company_budget) ? companies[0].company_budget : 500000,
-    portfolioEffort: (companies && companies[0] && companies[0].effort) ? companies[0].effort : 20000
-  });
+ 
   %>
                  
         
@@ -256,14 +248,10 @@
             
             <script>
             // Immediate inline test - should execute right away
-            console.log('=== INLINE SCRIPT EXECUTING ===');
-            console.log('from_date exists?', document.getElementById('from_date'));
-            console.log('to_date exists?', document.getElementById('to_date'));
-            console.log('flatpickr loaded?', typeof flatpickr);
             
             // Try initializing immediately
             if (typeof flatpickr !== 'undefined') {
-              console.log('Attempting immediate Flatpickr initialization...');
+              
               try {
                 var fp1 = flatpickr("#from_date", {
                   dateFormat: "Y-m-d",
