@@ -351,10 +351,6 @@
   </div>
 </div>
 
-<%- contentFor('FooterJs') %>
-
-<%- contentFor('BottomJs') %>
-
 <script>
 // Filter functionality
 function filterAccomplishments() {
@@ -507,7 +503,33 @@ function clearAccomplishmentsFilter() {
 
 // CSV Export - simple redirect approach (working version)
 document.getElementById("btnExportCSV").addEventListener("click", function () {
-    window.location.href = "/projects/export/accomplishments-data";
+    // window.location.href = "/projects/export/accomplishments-data";
+    fetch('/projects/export/accomplishments-data')
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          return response.blob();
+        })
+        .then(blob => {
+          console.log('Blob received:', blob);
+          const today = new Date();
+          const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = `projects-accomplishments-export-${formattedDate}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          console.log("Export successful");
+        })
+        .catch(error => {
+          console.error('Error fetching project data:', error);
+        });
 });
 </script>
+
+<%- contentFor('FooterJs') %>
+
+<%- contentFor('BottomJs') %>
 
