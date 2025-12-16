@@ -1,10 +1,25 @@
 <%- contentFor('HeaderCss') %>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <!-- Bootstrap CSS -->
 
 
 <%- contentFor('breadcrumb') %>
 
 <%- contentFor('body') %>
+
+<!-- Load Flatpickr JS immediately before body content -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Define global functions immediately -->
+<script>
+  window.submitForm = function() {
+    document.getElementById('editProjectForm').submit();
+  };
+
+  window.cancelForm = function(){
+    window.location.replace("/projects");
+  };
+</script>
 
 <div class="page-content-wrapper">
   <div class="container-fluid">
@@ -265,8 +280,8 @@
                              </div>
                          </div>
                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
-                            <button class="btn btn-primary w-md waves-effect waves-light" onclick="submitForm();" type="submit">Confirm</button>
+                            <button type="button" class="btn btn-secondary waves-effect" onclick="window.location.replace('/projects')" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary w-md waves-effect waves-light" onclick="window.submitForm();" type="submit">Confirm</button>
                            
                         </div>
                      </form>
@@ -296,8 +311,61 @@
         }, false);
     });
 
+  // Robust Flatpickr Initialization
+  function initDatePickers() {
+    if (typeof flatpickr === 'undefined') {
+      console.log('Flatpickr library not loaded yet - retrying...');
+      return false;
+    }
+    console.log('Initializing Flatpickr...');
+
+    const ids = ['start_date', 'end_date', 'next_milestone_date'];
+    
+    ids.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        // Destroy existing instance if any
+        if (element._flatpickr) {
+          element._flatpickr.destroy();
+        }
+        
+        // Add manual click handler to force open
+        element.addEventListener('click', function() {
+            if (element._flatpickr) {
+                element._flatpickr.open();
+            }
+        });
+
+        // Initialize
+        flatpickr(element, {
+          dateFormat: "Y-m-d",
+          allowInput: true,
+          clickOpens: true,
+          parseDate: function(datestr, format) {
+            if (!datestr || datestr.trim() === '' || datestr === 'Invalid date') return null;
+            return flatpickr.parseDate(datestr, format);
+          }
+        });
+      }
+    });
+
+    return true;
+  }
+
+  // Try to initialize immediately and with retries
+  if (!initDatePickers()) {
+    setTimeout(function() {
+      if (!initDatePickers()) {
+        setTimeout(initDatePickers, 500);
+      }
+    }, 100);
+  }
+
   document.addEventListener("DOMContentLoaded", function() {
     'use strict';
+    
+    // Ensure datepickers are initialized
+    initDatePickers();
 
     // Form validation using Bootstrap's custom styles
     var forms = document.querySelectorAll('.needs-validation');
@@ -311,9 +379,13 @@
             // Don't clear values when phase is pitch or done - let the server handle the logic
             // Just ensure flatpickr instances are cleared to prevent errors
             if (phaseName === 'pitch' || phaseName === 'done') {
-                if (typeof startDatePicker !== 'undefined') startDatePicker.clear();
-                if (typeof endDatePicker !== 'undefined') endDatePicker.clear();
-                if (typeof nextMilestoneDatePicker !== 'undefined') nextMilestoneDatePicker.clear();
+                const startDatePicker = document.getElementById('start_date')._flatpickr;
+                const endDatePicker = document.getElementById('end_date')._flatpickr;
+                const nextMilestoneDatePicker = document.getElementById('next_milestone_date')._flatpickr;
+
+                if (startDatePicker) startDatePicker.clear();
+                if (endDatePicker) endDatePicker.clear();
+                if (nextMilestoneDatePicker) nextMilestoneDatePicker.clear();
             }
 
             if (!form.checkValidity()) {
@@ -327,14 +399,17 @@
     // Numeric input validation for specific fields
     const numericFields = ['project_cost', 'effort', 'benefit'];
     numericFields.forEach(function(fieldId) {
-        document.getElementById(fieldId).addEventListener('keydown', function(event) {
-            if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
-                !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
-                !(event.ctrlKey || event.metaKey)) {
-                alert("Only numbers are allowed.")
-                event.preventDefault();
-            }
-        });
+        const el = document.getElementById(fieldId);
+        if(el) {
+            el.addEventListener('keydown', function(event) {
+                if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
+                    !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
+                    !(event.ctrlKey || event.metaKey)) {
+                    alert("Only numbers are allowed.")
+                    event.preventDefault();
+                }
+            });
+        }
     });
 
     // Table row click navigation to edit page
@@ -347,59 +422,20 @@
 
     // Input formatting with commas for project cost and benefit
     ['project_cost', 'benefit'].forEach(function(fieldId) {
-        document.getElementById(fieldId).addEventListener('input', function () {
-            let input = this.value.replace(/[^0-9.]/g, '');
-            if (input.includes('.')) {
-                const parts = input.split('.');
-                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                input = parts.join('.');
-            } else {
-                input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            }
-            this.value = input;
-        });
-    });
-
-    console.log("Initializing flatpickr");
-    
-    // Initialize Flatpickr for all datepicker inputs with error handling
-    const startDatePicker = flatpickr("#start_date", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true,    // Allow manual input if needed
-      defaultDate: null,   // Start with no default date
-      parseDate: function(datestr, format) {
-        // Custom parse function to handle invalid dates gracefully
-        if (!datestr || datestr.trim() === '' || datestr === 'Invalid date') {
-          return null;
+        const el = document.getElementById(fieldId);
+        if(el) {
+            el.addEventListener('input', function () {
+                let input = this.value.replace(/[^0-9.]/g, '');
+                if (input.includes('.')) {
+                    const parts = input.split('.');
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    input = parts.join('.');
+                } else {
+                    input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                }
+                this.value = input;
+            });
         }
-        return flatpickr.parseDate(datestr, format);
-      }
-    });
-
-    const endDatePicker = flatpickr("#end_date", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true,    // Allow manual input if needed
-      defaultDate: null,   // Start with no default date
-      parseDate: function(datestr, format) {
-        // Custom parse function to handle invalid dates gracefully
-        if (!datestr || datestr.trim() === '' || datestr === 'Invalid date') {
-          return null;
-        }
-        return flatpickr.parseDate(datestr, format);
-      }
-    });
-
-    const nextMilestoneDatePicker = flatpickr("#next_milestone_date", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true,    // Allow manual input if needed
-      defaultDate: null,   // Start with no default date
-      parseDate: function(datestr, format) {
-        // Custom parse function to handle invalid dates gracefully
-        if (!datestr || datestr.trim() === '' || datestr === 'Invalid date') {
-          return null;
-        }
-        return flatpickr.parseDate(datestr, format);
-      }
     });
 
     // Show or hide date_section based on phase selection
@@ -418,6 +454,10 @@
         const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
         
         if (dateSection) {
+            const startDatePicker = startDateInput._flatpickr;
+            const endDatePicker = endDateInput._flatpickr;
+            const nextMilestoneDatePicker = nextMilestoneDateInput._flatpickr;
+
             if (phaseName === 'pitch' || phaseName === 'done') {
                 // Hide entire date section when phase is Pitch or Done
                 dateSection.style.display = 'none';
@@ -430,15 +470,9 @@
                 const milestoneValue = nextMilestoneDateInput.value;
                 
                 // Clear flatpickr instances to prevent invalid date errors
-                if (typeof startDatePicker !== 'undefined') {
-                    startDatePicker.clear();
-                }
-                if (typeof endDatePicker !== 'undefined') {
-                    endDatePicker.clear();
-                }
-                if (typeof nextMilestoneDatePicker !== 'undefined') {
-                    nextMilestoneDatePicker.clear();
-                }
+                if (startDatePicker) startDatePicker.clear();
+                if (endDatePicker) endDatePicker.clear();
+                if (nextMilestoneDatePicker) nextMilestoneDatePicker.clear();
                 
                 // Restore the input values after clearing flatpickr
                 startDateInput.value = startValue;
@@ -461,21 +495,21 @@
                 // Restore flatpickr dates if inputs have values
                 if (startDateInput.value && isValidDateString(startDateInput.value)) {
                     try {
-                        startDatePicker.setDate(startDateInput.value, false); // false = don't trigger change event
+                        if(startDatePicker) startDatePicker.setDate(startDateInput.value, false);
                     } catch (error) {
                         console.warn('Could not restore start date:', startDateInput.value);
                     }
                 }
                 if (endDateInput.value && isValidDateString(endDateInput.value)) {
                     try {
-                        endDatePicker.setDate(endDateInput.value, false); // false = don't trigger change event
+                        if(endDatePicker) endDatePicker.setDate(endDateInput.value, false);
                     } catch (error) {
                         console.warn('Could not restore end date:', endDateInput.value);
                     }
                 }
                 if (nextMilestoneDateInput.value && isValidDateString(nextMilestoneDateInput.value)) {
                     try {
-                        nextMilestoneDatePicker.setDate(nextMilestoneDateInput.value, false); // false = don't trigger change event
+                        if(nextMilestoneDatePicker) nextMilestoneDatePicker.setDate(nextMilestoneDateInput.value, false);
                     } catch (error) {
                         console.warn('Could not restore milestone date:', nextMilestoneDateInput.value);
                     }
@@ -531,7 +565,6 @@
         toggleDateSectionVisibility();
     }
 
-    // Set the date to default for datepicker start_date then change to date if it exists
     // Helper function to check if a date string is valid
     function isValidDateString(dateStr) {
       if (!dateStr || dateStr.trim() === '' || dateStr === 'Invalid date' || dateStr === 'null' || dateStr === 'undefined') {
@@ -541,40 +574,9 @@
       return date instanceof Date && !isNaN(date);
     }
 
-    if (startDateInput.value && isValidDateString(startDateInput.value)) {
-      try {
-        startDatePicker.setDate(startDateInput.value);
-      } catch (error) {
-        console.warn('Could not set start date:', startDateInput.value, error);
-        startDateInput.value = '';
-      }
-    }
-    if (endDateInput.value && isValidDateString(endDateInput.value)) {
-      try {
-        endDatePicker.setDate(endDateInput.value);
-      } catch (error) {
-        console.warn('Could not set end date:', endDateInput.value, error);
-        endDateInput.value = '';
-      }
-    }
-    if (nextMilestoneDateInput.value && isValidDateString(nextMilestoneDateInput.value)) {
-      try {
-        nextMilestoneDatePicker.setDate(nextMilestoneDateInput.value);
-      } catch (error) {
-        console.warn('Could not set milestone date:', nextMilestoneDateInput.value, error);
-        nextMilestoneDateInput.value = '';
-      }
-    }
   });
 
-  function submitForm() {
-    document.getElementById('editProjectForm').submit();
-  }
-
-  function cancelForm(){
-    window.location.replace("/projects");
-  }
-  function archiveProject(id){
+  window.archiveProject = function(id){
     console.log("Archiving project with id: " + id);
     fetch('/projects/archive/' + id, {
     }).then(response => {
@@ -585,7 +587,8 @@
         console.error("Error archiving project");
       }
     });
-  }
+  };
+
   function disableAllInputs() {
     // Disable all input fields
     document.querySelectorAll('input').forEach(input => {
