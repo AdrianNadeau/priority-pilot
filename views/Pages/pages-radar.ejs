@@ -1,5 +1,4 @@
 <%- contentFor('HeaderCss') %>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
@@ -13,9 +12,6 @@
 </style>
 
 <%- contentFor('body') %>
-
-<!-- Load Flatpickr JS immediately before body content -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <style>
     @media print {
@@ -67,9 +63,9 @@
         <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
         <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
         <span class="text-muted" style="margin-right: 8px;">Start:</span>
-        <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+        <input type="date" class="form-control" id="from_date" name="from_date" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
         <span style="font-weight: 500; margin-right: 8px;">End:</span>
-        <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+        <input type="date" class="form-control" id="to_date" name="to_date" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
         <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
         <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
       </div>
@@ -111,105 +107,6 @@
       
       // Call it immediately
       window.updateDayCount();
-      
-      function initRadarDatePickers() {
-
-        
-        if (typeof flatpickr !== 'undefined') {
-          
-          
-          // Destroy any existing instances first
-          var fromInput = document.getElementById('from_date');
-          var toInput = document.getElementById('to_date');
-          
-          if (fromInput._flatpickr) {
-            console.log('Destroying existing from_date picker');
-            fromInput._flatpickr.destroy();
-          }
-          if (toInput._flatpickr) {
-            console.log('Destroying existing to_date picker');
-            toInput._flatpickr.destroy();
-          }
-          
-          // Add manual click handlers to force open
-          if (fromInput) {
-            fromInput.addEventListener('click', function() {
-              console.log('From input clicked, attempting manual open...');
-              if (window.fromPickerInstance && window.fromPickerInstance.open) {
-                window.fromPickerInstance.open();
-              }
-            });
-          }
-          
-          if (toInput) {
-            toInput.addEventListener('click', function() {
-              console.log('To input clicked, attempting manual open...');
-              if (window.toPickerInstance && window.toPickerInstance.open) {
-                window.toPickerInstance.open();
-              }
-            });
-          }
-          
-          // Initialize Flatpickr
-          var fromPicker = flatpickr("#from_date", {
-            dateFormat: "Y-m-d",
-            allowInput: true,
-            clickOpens: true,
-            static: false,
-            onReady: function(selectedDates, dateStr, instance) {
-              
-            },
-            onOpen: function() {
-              
-            },
-            onChange: function(selectedDates, dateStr) {
-              
-              if (typeof updateDayCount === 'function') {
-                updateDayCount();
-              }
-            }
-          });
-          
-          var toPicker = flatpickr("#to_date", {
-            dateFormat: "Y-m-d",
-            allowInput: true,
-            clickOpens: true,
-            static: false,
-            onReady: function(selectedDates, dateStr, instance) {
-             
-            },
-            onOpen: function() {
-              
-            },
-            onChange: function(selectedDates, dateStr) {
-              
-              if (typeof updateDayCount === 'function') {
-                updateDayCount();
-              }
-            }
-          });
-          
-          // Store instances globally for manual open handlers
-          window.fromPickerInstance = fromPicker;
-          window.toPickerInstance = toPicker;
-          
-          return true;
-        } else {
-          console.error('Flatpickr library not loaded yet');
-          return false;
-        }
-      }
-      
-      // Try immediately
-      if (!initRadarDatePickers()) {
-        // Try after a short delay
-        setTimeout(function() {
-          if (!initRadarDatePickers()) {
-            // Try one more time
-            setTimeout(initRadarDatePickers, 500);
-          }
-        }, 100);
-      }
       
       // Wait for DOM to be fully loaded
       document.addEventListener('DOMContentLoaded', function() {

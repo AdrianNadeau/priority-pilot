@@ -3,24 +3,24 @@
 
 <%- contentFor('HeaderCss') %>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
 <style>
    /* ===== SORT ARROWS ===== */
   .sort-arrow {
     margin-left: 6px;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     opacity: 0.4;
-    transition: transform 0.35s ease, opacity 0.35s ease;
+    transition: opacity 0.35s ease;
+  }
+
+  th.sorted-asc .sort-arrow::before {
+    content: '';
   }
 
   th.sorted-asc .sort-arrow {
-    transform: rotate(180deg);
     opacity: 1;
   }
 
   th.sorted-desc .sort-arrow {
-    transform: rotate(0deg);
     opacity: 1;
   }
 
@@ -39,7 +39,127 @@
 <%- contentFor('breadcrumb') %>
 <%- contentFor('body') %>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- Initialize sorting immediately -->
+<script>
+  console.log('Script loading - before DOM ready');
+  
+  window.updateProjectDayCount = function() {
+    console.log('updateProjectDayCount called');
+    const fromInput = document.getElementById('from_date');
+    const toInput = document.getElementById('to_date');
+    const dayCountSpan = document.getElementById('dayCount');
+    
+    if (!fromInput || !toInput || !dayCountSpan) {
+      console.log('Missing elements for day count');
+      return;
+    }
+    
+    const from = fromInput.value;
+    const to = toInput.value;
+    
+    console.log('From:', from, 'To:', to);
+    
+    if (!from || !to) {
+      dayCountSpan.textContent = '';
+      return;
+    }
+    
+    const diff = Math.abs(new Date(to) - new Date(from));
+    const days = Math.ceil(diff / 86400000) + 1;
+    dayCountSpan.textContent = '(' + days + ' day' + (days !== 1 ? 's' : '') + ')';
+  };
+  
+  window.handleSortClick = function(e) {
+    const th = e.currentTarget;
+    console.log('Sort clicked:', th.textContent.trim());
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const table = th.closest('table');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const column = th.dataset.column;
+    const columnIndex = Array.from(th.parentNode.children).indexOf(th);
+    
+    console.log('Column:', column, 'Index:', columnIndex, 'Rows:', rows.length);
+    
+    let isAsc = true;
+    if (th.classList.contains('sorted-asc')) {
+      isAsc = false;
+    } else if (th.classList.contains('sorted-desc')) {
+      isAsc = true;
+    }
+    
+    console.log('Direction:', isAsc ? 'ASC' : 'DESC');
+    
+    document.querySelectorAll('th.sortable').forEach(h => {
+      if(h !== th) {
+        h.classList.remove('sorted-asc', 'sorted-desc');
+        const icon = h.querySelector('.sort-arrow');
+        if (icon) {
+          icon.className = 'sort-arrow mdi mdi-sort-alphabetical-ascending';
+        }
+      }
+    });
+    
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    th.classList.add(isAsc ? 'sorted-asc' : 'sorted-desc');
+    
+    const icon = th.querySelector('.sort-arrow');
+    if (icon) {
+      icon.className = isAsc ? 'sort-arrow mdi mdi-sort-alphabetical-ascending' : 'sort-arrow mdi mdi-sort-alphabetical-descending';
+      console.log('Icon updated');
+    }
+    
+    rows.sort((a, b) => {
+      let aVal = a.children[columnIndex].innerText.trim();
+      let bVal = b.children[columnIndex].innerText.trim();
+      
+      if (column.includes('date')) {
+        aVal = new Date(aVal).getTime() || 0;
+        bVal = new Date(bVal).getTime() || 0;
+      } else if (column.includes('cost')) {
+        aVal = parseFloat(aVal.replace(/[^0-9.-]+/g,"")) || 0;
+        bVal = parseFloat(bVal.replace(/[^0-9.-]+/g,"")) || 0;
+      }
+      
+      if (aVal < bVal) return isAsc ? -1 : 1;
+      if (aVal > bVal) return isAsc ? 1 : -1;
+      return 0;
+    });
+    
+    console.log('Rows sorted, appending');
+    rows.forEach(row => tbody.appendChild(row));
+    console.log('Sort complete');
+  };
+  
+  window.initDatepickers = function() {
+    console.log('Initializing date inputs...');
+    
+    const fromInput = document.getElementById('from_date');
+    const toInput = document.getElementById('to_date');
+    
+    console.log('from_date element:', fromInput);
+    console.log('to_date element:', toInput);
+    
+    try {
+      // Add change listeners for day count calculation
+      if (fromInput) {
+        fromInput.addEventListener('change', window.updateProjectDayCount);
+        console.log('from_date listener added');
+      }
+      
+      if (toInput) {
+        toInput.addEventListener('change', window.updateProjectDayCount);
+        console.log('to_date listener added');
+      }
+      
+      console.log('Date pickers initialized successfully');
+    } catch(e) {
+      console.error('ERROR initializing datepickers:', e);
+    }
+  };
+</script>
 
 <div class="page-content-wrapper">
   <div class="container-fluid">
@@ -58,8 +178,8 @@
 <div class="row mb-2 align-items-center" style="background:hsl(197,70%,91%); height:50px;">
   <div class="col-md-12 d-flex align-items-center">
     <strong class="mr-2">Date Range:</strong>
-    <input id="from_date" class="form-control mr-2" style="width:150px" value="<%= currentFromDate %>">
-    <input id="to_date" class="form-control mr-2" style="width:150px" value="<%= currentToDate %>">
+    <input id="from_date" type="date" class="form-control mr-2" style="width:150px" value="<%= currentFromDate %>">
+    <input id="to_date" type="date" class="form-control mr-2" style="width:150px" value="<%= currentToDate %>">
     <button class="btn btn-primary btn-sm" onclick="filterDashboard()">Update</button>
     <span id="dayCount" class="ml-3 font-weight-bold"></span>
   </div>
@@ -78,13 +198,13 @@
         <table class="table">
           <thead>
             <tr>
-              <th class="sortable" data-column="project_name">Name <i class="sort-arrow mdi mdi-sort"></i></th>
-              <th class="sortable" data-column="prime_name">Prime <i class="sort-arrow mdi mdi-sort"></i></th>
-              <th class="sortable" data-column="sponsor_name">Sponsor <i class="sort-arrow mdi mdi-sort"></i></th>
-              <th class="sortable" data-column="start_date">Start <i class="sort-arrow mdi mdi-sort"></i></th>
-              <th class="sortable" data-column="end_date">End <i class="sort-arrow mdi mdi-sort"></i></th>
-              <th class="sortable" data-column="phase_name">Phase <i class="sort-arrow mdi mdi-sort"></i></th>
-              <th class="sortable" data-column="project_cost">Cost <i class="sort-arrow mdi mdi-sort"></i></th>
+              <th class="sortable" data-column="project_name">Name <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="prime_name">Prime <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="sponsor_name">Sponsor <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="start_date">Start <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="end_date">End <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="phase_name">Phase <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="project_cost">Cost <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
               <th>Status</th>
             </tr>
           </thead>
@@ -122,97 +242,43 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('DOM loaded - initializing projects page');
-
-  /* DATE PICKERS */
-  flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
-  flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
-
-  function updateDayCount() {
-    const from = from_date.value;
-    const to = to_date.value;
-    if (!from || !to) return dayCount.textContent = '';
-    const diff = Math.abs(new Date(to) - new Date(from));
-    const days = Math.ceil(diff / 86400000) + 1;
-    dayCount.textContent = '(' + days + ' day' + (days !== 1 ? 's' : '') + ')';
-  }
-
-  /* ROW CLICK NAVIGATION */
-  const rows = document.querySelectorAll('.project-row');
-  console.log('Found project rows:', rows.length);
-  
-  rows.forEach(row => {
-    row.addEventListener('click', function (e) {
-      console.log('Row clicked', e.target);
-      if (e.target.closest('i') || e.target.closest('button') || e.target.closest('a')) {
-        console.log('Ignoring click on interactive element');
-        return;
-      }
-      const id = this.dataset.projectId;
-      console.log('Navigating to project:', id);
-      if (id) window.location.href = '/projects/edit/' + id;
-    });
-  });
-
-  /* TABLE SORTING */
-  document.querySelectorAll('th.sortable').forEach(th => {
-    th.addEventListener('click', function() {
-      const table = th.closest('table');
-      const tbody = table.querySelector('tbody');
-      const rows = Array.from(tbody.querySelectorAll('tr'));
-      const column = th.dataset.column;
-      const columnIndex = Array.from(th.parentNode.children).indexOf(th);
-      const isAsc = !th.classList.contains('sorted-asc');
-      
-      // Reset other headers
-      document.querySelectorAll('th.sortable').forEach(h => {
-        if(h !== th) h.classList.remove('sorted-asc', 'sorted-desc');
-      });
-      
-      // Toggle current header
-      th.classList.remove('sorted-asc', 'sorted-desc');
-      th.classList.add(isAsc ? 'sorted-asc' : 'sorted-desc');
-      
-      // Sort rows
-      rows.sort((a, b) => {
-        let aVal = a.children[columnIndex].innerText.trim();
-        let bVal = b.children[columnIndex].innerText.trim();
-        
-        // Handle dates
-        if (column.includes('date')) {
-            aVal = new Date(aVal).getTime() || 0;
-            bVal = new Date(bVal).getTime() || 0;
-        } 
-        // Handle currency/numbers
-        else if (column.includes('cost')) {
-            aVal = parseFloat(aVal.replace(/[^0-9.-]+/g,"")) || 0;
-            bVal = parseFloat(bVal.replace(/[^0-9.-]+/g,"")) || 0;
-        }
-        
-        if (aVal < bVal) return isAsc ? -1 : 1;
-        if (aVal > bVal) return isAsc ? 1 : -1;
-        return 0;
-      });
-      
-      // Re-append rows
-      tbody.innerHTML = '';
-      rows.forEach(row => tbody.appendChild(row));
-    });
-  });
-
+  console.log('DOM ready event fired, setting up sorting and datepickers');
+  setupPage();
 });
+
+// Also run immediately in case DOM is already loaded
+if (document.readyState === 'loading') {
+  console.log('Document still loading, waiting for DOMContentLoaded');
+} else {
+  console.log('Document already loaded, running setup immediately');
+  setupPage();
+}
+
+function setupPage() {
+  console.log('setupPage() called');
+  
+  // Initialize datepickers
+  window.initDatepickers();
+  
+  // Setup sorting
+  const sortableHeaders = document.querySelectorAll('th.sortable');
+  console.log('Found', sortableHeaders.length, 'sortable headers');
+  sortableHeaders.forEach(th => {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', window.handleSortClick);
+  });
+}
 
 function filterDashboard() {
   fetch('/update-filter', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from_date: from_date.value,
-      to_date: to_date.value
+      from_date: document.getElementById('from_date').value,
+      to_date: document.getElementById('to_date').value
     })
   }).finally(() => location.reload());
 }
-
 </script>
 
 <%- contentFor('BottomJs') %>

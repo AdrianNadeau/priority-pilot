@@ -55,19 +55,19 @@
                           <label for="dates">Start Date and End Date: <span class="required_star">*</span></label>
                           <div class="form-row">
                             <div class="col">
-                              <input type="text" required class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date" value="<%= startDateTest %>">
+                              <input type="date" required class="form-control" id="start_date" name="start_date" value="<%= startDateTest %>">
                               <div class="invalid-feedback">
                                 Start Date is required.
                               </div>
                             </div>
                             <div class="col">
-                              <input type="text" required class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date" value="<%= endDateTest %>">
+                              <input type="date" required class="form-control" id="end_date" name="end_date" value="<%= endDateTest %>">
                               <div class="invalid-feedback">
                                 End Date is required.   
                               </div>
                             </div>
                             <div class="col">
-                              <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date" value="<%= nextMilestoneDateTest %>">
+                              <input type="date" class="form-control" id="next_milestone_date" name="next_milestone_date" value="<%= nextMilestoneDateTest %>">
                             </div>
                           </div>
                           <div class="form-row" id="milestone_details_row" style="padding-top:5px;">
@@ -311,61 +311,8 @@
         }, false);
     });
 
-  // Robust Flatpickr Initialization
-  function initDatePickers() {
-    if (typeof flatpickr === 'undefined') {
-      console.log('Flatpickr library not loaded yet - retrying...');
-      return false;
-    }
-    console.log('Initializing Flatpickr...');
-
-    const ids = ['start_date', 'end_date', 'next_milestone_date'];
-    
-    ids.forEach(id => {
-      const element = document.getElementById(id);
-      if (element) {
-        // Destroy existing instance if any
-        if (element._flatpickr) {
-          element._flatpickr.destroy();
-        }
-        
-        // Add manual click handler to force open
-        element.addEventListener('click', function() {
-            if (element._flatpickr) {
-                element._flatpickr.open();
-            }
-        });
-
-        // Initialize
-        flatpickr(element, {
-          dateFormat: "Y-m-d",
-          allowInput: true,
-          clickOpens: true,
-          parseDate: function(datestr, format) {
-            if (!datestr || datestr.trim() === '' || datestr === 'Invalid date') return null;
-            return flatpickr.parseDate(datestr, format);
-          }
-        });
-      }
-    });
-
-    return true;
-  }
-
-  // Try to initialize immediately and with retries
-  if (!initDatePickers()) {
-    setTimeout(function() {
-      if (!initDatePickers()) {
-        setTimeout(initDatePickers, 500);
-      }
-    }, 100);
-  }
-
   document.addEventListener("DOMContentLoaded", function() {
     'use strict';
-    
-    // Ensure datepickers are initialized
-    initDatePickers();
 
     // Form validation using Bootstrap's custom styles
     var forms = document.querySelectorAll('.needs-validation');

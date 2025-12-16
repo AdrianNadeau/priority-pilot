@@ -51,14 +51,6 @@
 />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-/>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css"
-/>
-<link
-  rel="stylesheet"
   href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css"
 />
 <script
@@ -599,7 +591,7 @@
                                 <!-- First column of form fields -->
                                 <div class="form-group needs-validation" novalidate>
                                   <strong>Status Date: </strong>
-                                  <input type="text" style="width:150px;" required class="form-control datepicker" required id="status_date" name="status_date" placeholder="Status Date">
+                                  <input type="date" style="width:150px;" required class="form-control" id="status_date" name="status_date">
                                   <div class="invalid-feedback">
                                     Please Status Date.
                                   </div>
@@ -771,13 +763,6 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <script> 
   document.addEventListener("DOMContentLoaded", function() {
-    flatpickr("#status_date", {
-      dateFormat: "Y-m-d",
-      defaultDate: new Date(), // Set the default date to today
-      onChange: function(selectedDates, dateStr, instance) {
-        
-      }
-    });
 (function () {
     'use strict'
   

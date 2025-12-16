@@ -2753,6 +2753,8 @@ exports.flight = async (req, res) => {
       start_date: startDateTest,
       projects: data,
       portfolioName,
+      currentFromDate: req.session.filtered_start || "",
+      currentToDate: req.session.filtered_end || "",
     });
   } catch (error) {
     console.log("Query error:", error);
@@ -4155,20 +4157,8 @@ exports.flightview = async (req, res) => {
     currentDate: moment().format("MMMM Do YYYY"),
     portfolioName,
     // Pass current filter values back to template using session values
-    currentFromDate: req.session.filtered_start
-      ? new Date(req.session.filtered_start).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })
-      : null,
-    currentToDate: req.session.filtered_end
-      ? new Date(req.session.filtered_end).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })
-      : null,
+    currentFromDate: req.session.filtered_start || "",
+    currentToDate: req.session.filtered_end || "",
   });
 };
 

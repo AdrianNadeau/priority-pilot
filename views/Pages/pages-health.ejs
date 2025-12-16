@@ -4,18 +4,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-<!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
 <%- contentFor('breadcrumb') %>
 
 <%- contentFor('body') %>
-
-<!-- Load Flatpickr JS immediately before body content -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-  console.log('Flatpickr loaded in body:', typeof flatpickr);
-</script>
 
 <div class="page-content-wrapper">
     <div class="container-fluid">
@@ -27,9 +18,9 @@
         <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
         <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
         <span class="text-muted" style="margin-right: 8px;">Start:</span>
-        <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+        <input type="date" class="form-control" id="from_date" name="from_date" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
         <span style="font-weight: 500; margin-right: 8px;">End:</span>
-        <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+        <input type="date" class="form-control" id="to_date" name="to_date" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
         <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
         <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
       </div>
@@ -155,20 +146,6 @@
           console.log('Flatpickr not available yet, retrying...');
           return false;
         }
-      }
-      
-      // Try immediately
-      if (!initHealthDatePickers()) {
-        // Try after a short delay
-        setTimeout(function() {
-          if (!initHealthDatePickers()) {
-            // Try one more time
-            setTimeout(initHealthDatePickers, 500);
-          }
-        }, 100);
-      }
-    </script>
-    
     <script>
       // Filter function - needs to be available for onclick handler
       function filterDashboard() {

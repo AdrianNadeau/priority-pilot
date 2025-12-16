@@ -1,6 +1,4 @@
 <%- contentFor('HeaderCss') %>
-<!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
   /* Add small internal gap to all mini-stat white boxes */
   .mini-stat.bg-white.clearfix { padding: 5px !important; }
@@ -238,59 +236,13 @@
                 <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
                 <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
                 <span class="text-muted" style="margin-right: 8px;">Start:</span>
-                <input type="text" class="form-control datepicker" id="from_date" name="from_date" placeholder="From" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+                <input type="date" class="form-control" id="from_date" name="from_date" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
                 <span style="font-weight: 500; margin-right: 8px;">End:</span>
-                <input type="text" class="form-control datepicker" id="to_date" name="to_date" placeholder="To" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+                <input type="date" class="form-control" id="to_date" name="to_date" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
                 <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
                 <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
               </div>
             </div>
-            
-            <script>
-            // Immediate inline test - should execute right away
-            
-            // Try initializing immediately
-            if (typeof flatpickr !== 'undefined') {
-              
-              try {
-                var fp1 = flatpickr("#from_date", {
-                  dateFormat: "Y-m-d",
-                  allowInput: true
-                });
-                var fp2 = flatpickr("#to_date", {
-                  dateFormat: "Y-m-d",
-                  allowInput: true
-                });
-                console.log('SUCCESS! Pickers:', fp1, fp2);
-                
-                // Update day count on page load if dates exist
-                var fromVal = document.getElementById('from_date').value;
-                var toVal = document.getElementById('to_date').value;
-                if (fromVal && toVal && typeof updateDayCount === 'function') {
-                  updateDayCount();
-                }
-              } catch(e) {
-                console.error('ERROR initializing:', e);
-              }
-            } else {
-              console.log('Flatpickr not loaded yet, will retry...');
-              setTimeout(function() {
-                console.log('Retry - flatpickr loaded?', typeof flatpickr);
-                if (typeof flatpickr !== 'undefined') {
-                  flatpickr("#from_date", { dateFormat: "Y-m-d", allowInput: true });
-                  flatpickr("#to_date", { dateFormat: "Y-m-d", allowInput: true });
-                  console.log('Retry initialization complete');
-                  
-                  // Update day count after retry
-                  var fromVal = document.getElementById('from_date').value;
-                  var toVal = document.getElementById('to_date').value;
-                  if (fromVal && toVal && typeof updateDayCount === 'function') {
-                    updateDayCount();
-                  }
-                }
-              }, 500);
-            }
-            </script>
             
             <div class="row">
                     
@@ -582,36 +534,6 @@
 <script src="public/assets/plugins/jquery-knob/excanvas.js"></script>
 <script src="public/assets/plugins/jquery-knob/jquery.knob.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-<script>
-// Initialize Flatpickr immediately after the library loads
-window.addEventListener('load', function() {
-  console.log('Page loaded, initializing Flatpickr...');
-  console.log('Flatpickr available?', typeof flatpickr !== 'undefined');
-  console.log('from_date element:', document.getElementById('from_date'));
-  console.log('to_date element:', document.getElementById('to_date'));
-  
-  if (typeof flatpickr !== 'undefined') {
-    var fromPicker = flatpickr("#from_date", {
-      dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true
-    });
-    
-    var toPicker = flatpickr("#to_date", {
-      dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true
-    });
-    
-    console.log('Flatpickr instances created:', fromPicker, toPicker);
-  } else {
-    console.error('Flatpickr not available!');
-  }
-});
-</script>
-
 <%- contentFor('BottomJs') %>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
@@ -675,50 +597,6 @@ window.addEventListener('load', function() {
     // Calculate initial day count on page load
     updateDayCount();
     
-    // Initialize Flatpickr - check multiple times if needed
-    function initializeFlatpickr() {
-      console.log('Checking for Flatpickr...', typeof flatpickr);
-      console.log('from_date element:', document.getElementById('from_date'));
-      console.log('to_date element:', document.getElementById('to_date'));
-      
-      if (typeof flatpickr !== 'undefined') {
-        console.log('Initializing Flatpickr...');
-        
-        var fromPicker = flatpickr("#from_date", {
-          dateFormat: "Y-m-d",
-          allowInput: true,
-          allowInvalidPreload: true,
-          onChange: function() {
-            updateDayCount();
-          }
-        });
-        
-        var toPicker = flatpickr("#to_date", {
-          dateFormat: "Y-m-d",
-          allowInput: true,
-          allowInvalidPreload: true,
-          onChange: function() {
-            updateDayCount();
-          }
-        });
-        
-        console.log('Flatpickr initialized successfully!', fromPicker, toPicker);
-        return true;
-      } else {
-        console.error('Flatpickr library not loaded!');
-        return false;
-      }
-    }
-    
-    // Try initializing immediately and with delays
-    if (!initializeFlatpickr()) {
-      setTimeout(function() {
-        if (!initializeFlatpickr()) {
-          setTimeout(initializeFlatpickr, 500);
-        }
-      }, 100);
-    }
-
     // Apply colors to COST and EFFORT percentage values based on thresholds
     function applyPercentageColors() {
       const costEl = document.getElementById('cost-percentage');
