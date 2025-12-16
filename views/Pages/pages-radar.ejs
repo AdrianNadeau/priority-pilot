@@ -1022,7 +1022,6 @@
   </div>
 </div>
 
-<%- contentFor('FooterJs') %>
 <script>
   console.log("button:",document.getElementById("btnPrintPage"))
      document.getElementById("btnPrintPage").addEventListener("click", function () {
@@ -1157,7 +1156,6 @@
   }
 </script>
 
-<%- contentFor('BottomJs') %>
 <script>
 
   function updateChartsWithFilteredData(data) {
@@ -2072,3 +2070,6 @@
   </script>
   </div>
 </div>
+
+<%- contentFor('FooterJs') %>
+<%- contentFor('BottomJs') %>

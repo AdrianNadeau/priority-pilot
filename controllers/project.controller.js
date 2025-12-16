@@ -4881,7 +4881,7 @@ exports.exportAccomplishmentsToCSV = async (req, res) => {
 
     // Query to get projects with their accomplishments
     const query = `
-      SELECT DISTINCT
+      SELECT
         proj.id AS project_id,
         proj.project_name,
         phases.phase_name,
