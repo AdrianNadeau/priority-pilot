@@ -453,7 +453,7 @@ exports.findAll = async (req, res) => {
               currentPerson.id === p.prime_id_fk ||
               currentPerson.id === p.sponsor_id_fk
             : false;
-
+          // console.log(p);
           return {
             ...p,
             can_update_status: canModify,
