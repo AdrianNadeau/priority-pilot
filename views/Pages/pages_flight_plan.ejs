@@ -254,7 +254,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     console.log("DOMContentLoaded fired on flight plan page");
     console.log("gantt object available:", typeof gantt);
-    
+
     // Fetch project data from your API
     fetch("/projects/flightview/ganttChart/")
       .then((response) => {
