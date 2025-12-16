@@ -253,14 +253,14 @@
     console.log("DOMContentLoaded fired on flight plan page");
     console.log("gantt object available:", typeof gantt);
 
-    // Fetch project data from your API
     fetch("/projects/flightview/ganttChart/")
       .then((response) => {
         console.log("Fetch response status:", response.status);
         return response.json();
       })
       .then((pData) => {
-        console.log("Gantt data received:", pData); // Debug: Log the fetched data
+        console.log("Gantt data received:", pData);
+
         const projects = pData.companyProjects;
 
         const phaseMapping = {
@@ -272,21 +272,12 @@
         const categories = Object.values(phaseMapping);
 
         const filteredProjects = projects.filter((project) => {
-          // Filter by phase
-          const validPhase =
-            project.phase_id_fk === 2 ||
-            project.phase_id_fk === 3 ||
-            project.phase_id_fk === 4;
+          const validPhase = [2, 3, 4].includes(project.phase_id_fk);
 
-          // Additional date validation to ensure we have valid dates
           const hasValidStartDate =
-            project.start_date &&
-            new Date(project.start_date) instanceof Date &&
-            !isNaN(new Date(project.start_date));
+            project.start_date && !isNaN(new Date(project.start_date));
           const hasValidEndDate =
-            project.end_date &&
-            new Date(project.end_date) instanceof Date &&
-            !isNaN(new Date(project.end_date));
+            project.end_date && !isNaN(new Date(project.end_date));
 
           return validPhase && hasValidStartDate && hasValidEndDate;
         });
@@ -311,7 +302,7 @@
                 (new Date(project.end_date) - new Date(project.start_date)) /
                   (1000 * 60 * 60 * 24),
               ),
-              parent: phaseId || null,
+              parent: phaseId,
               color: colorMapping[project.health] || "#000000",
               health: project.health,
               type: "task",
@@ -322,106 +313,68 @@
           links: [],
         };
 
-        const sortedData = [...categories, ...tasks.data].sort((a, b) =>
-          a.id === 2 ? -1 : 1,
-        );
+        const ganttData = [...categories, ...tasks.data];
 
-        // Configure gantt BEFORE init
+        /* ------------------ GANTT CONFIG ------------------ */
+
         gantt.config.scales = [
           { unit: "month", step: 1, format: "%M %Y" },
           {
             unit: "quarter",
             step: 1,
             format: function (date) {
-              const quarter = Math.floor(date.getMonth() / 3) + 1;
-              return "Q" + quarter;
+              return "Q" + (Math.floor(date.getMonth() / 3) + 1);
             },
           },
         ];
+
         gantt.config.scale_height = 60;
         gantt.config.readonly = true;
         gantt.config.columns = [
-          { name: "text", label: "Project Name", tree: true, width: "210" },
+          { name: "text", label: "Project Name", tree: true, width: 210 },
         ];
 
-        console.log("About to initialize gantt with", sortedData.length, "tasks");
         gantt.plugins({ tooltip: true });
-        gantt.init("gantt_here");
-        console.log("Gantt initialized successfully");
+
+        /* ------------------ TEMPLATES ------------------ */
+
         gantt.templates.tooltip_text = function (start, end, task) {
           if (task.type === "phase") return "";
+
           const milestone = task.next_milestone_date
             ? moment(task.next_milestone_date).format("DD MMM, YYYY")
             : "N/A";
+
           const details =
             task.next_milestone_date_details || "No details available";
-          return `
-            <b>${task.text}</b><br/>
-            <b>Next Milestone:</b> ${milestone}<br/>
-            <b>Details:</b> ${details}
-        console.log("Parsing data into gantt");
-        gantt.parse({ data: sortedData });
-        console.log("Data parsed successfully");
 
-        gantt.templates.task_class = function (start, end, task) {
+          return `
+          <b>${task.text}</b><br/>
+          <b>Next Milestone:</b> ${milestone}<br/>
+          <b>Details:</b> ${details}
+        `;
+        };
 
         gantt.templates.task_class = function (start, end, task) {
           if (task.type === "phase") return "";
 
-          if (task.health && typeof task.health === "string") {
+          if (typeof task.health === "string") {
             return task.health.toLowerCase();
+          }
+
           return "no-status";
         };
+
+        /* ------------------ INIT ------------------ */
+
+        console.log("Initializing gantt with", ganttData.length, "items");
+        gantt.init("gantt_here");
+        gantt.parse({ data: ganttData });
         console.log("Gantt setup complete");
       })
       .catch((error) => {
         console.error("Error fetching or processing gantt data:", error);
       });
-  });   };
-      });
   });
-  document
-    .getElementById("btnPrintPage")
-    .addEventListener("click", function () {
-      const portfolioTitleElement = document.querySelector(".portfolio-title");
-
-      if (!portfolioTitleElement) {
-        console.error("Portfolio title element not found!");
-        return;
-      }
-
-      const portfolioName = portfolioTitleElement.textContent.trim();
-
-      // Create a style element for the print header
-      const style = document.createElement("style");
-      style.setAttribute("type", "text/css");
-      style.setAttribute("media", "print");
-
-      // Add CSS for the print header
-      const css = `
-      @page {
-          margin-top: 3cm; /* Adjust top margin to make space for the header */
-      }
-      body::before {
-        content: "${portfolioName}";
-        display: block;
-        text-align: center; /* Center the header */
-        font-weight: bold;
-        font-size: 1.5em;
-        margin-bottom: 1cm; /* Add space between the header and content */
-      }
-    `;
-
-      style.appendChild(document.createTextNode(css));
-      document.head.appendChild(style);
-
-      // Trigger the print dialog
-      window.print();
-
-      // Remove the style element after printing
-      setTimeout(() => {
-        document.head.removeChild(style);
-      }, 100); // Short delay to ensure the print dialog is handled
-    });
 </script>
 <%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
