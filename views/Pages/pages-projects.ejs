@@ -557,7 +557,7 @@ document.addEventListener('DOMContentLoaded', function () {
     row.addEventListener('click', function(e) {
       if (e.target.closest('[data-toggle="modal"]') || e.target.closest('.js-status-eye')) return;
       var id = row.cells[0].textContent;
-      window.location.replace('/projects/edit/' + id);
+      // window.location.replace('/projects/edit/' + id);
     });
   });
 
