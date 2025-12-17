@@ -466,12 +466,12 @@
                             let costPercentRaw = (deliveryTotalCost && !isNaN(deliveryTotalCost) && deliveryTotalCost > 0)
                               ? ((deliveryUsedCost / deliveryTotalCost) * 100)
                               : 0;
-                            let costPercentVal = costPercentRaw.toFixed(2) + '%';
+                            let costPercentVal = Math.round(costPercentRaw) + '%';
                             
                             let effortPercentRaw = (deliveryTotalEffort && !isNaN(deliveryTotalEffort) && deliveryTotalEffort > 0)
                               ? ((deliveryUsedEffort / deliveryTotalEffort) * 100)
                               : 0;
-                            let effortPercentVal = effortPercentRaw.toFixed(2) + '%';
+                            let effortPercentVal = Math.round(effortPercentRaw) + '%';
                             
                             // Determine color based on percentage: 0-95% green, 95-110% yellow, 110%+ red
                             let costColorCalc = costPercentRaw < 95 ? '#28a745' : (costPercentRaw <= 110 ? '#ffc107' : '#dc3545');
