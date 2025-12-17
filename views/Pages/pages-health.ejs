@@ -18,9 +18,9 @@
         <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
         <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
         <span class="text-muted" style="margin-right: 8px;">Start:</span>
-        <input type="date" class="form-control" id="from_date" name="from_date" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+        <input type="text" class="form-control flatpickr-input active" id="from_date" name="from_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
         <span style="font-weight: 500; margin-right: 8px;">End:</span>
-        <input type="date" class="form-control" id="to_date" name="to_date" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+        <input type="text" class="form-control flatpickr-input active" id="to_date" name="to_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
         <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
         <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
       </div>
@@ -28,26 +28,23 @@
     
     <script>
       console.log('=== HEALTH CHECK PAGE INLINE SCRIPT ===');
-      console.log('Flatpickr available?', typeof flatpickr);
-      console.log('from_date element:', document.getElementById('from_date'));
-      console.log('to_date element:', document.getElementById('to_date'));
       
       // Calculate and display day count
       window.updateDayCount = function() {
-        const fromDate = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
-        const toDate = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
+        const from = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
+        const to = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
         const dayCountSpan = document.getElementById('dayCount');
         
         if (!dayCountSpan) {
           return;
         }
         
-        if (fromDate && toDate) {
-          const from = new Date(fromDate);
-          const to = new Date(toDate);
+        if (from && to) {
+          const fromDate = new Date(from);
+          const toDate = new Date(to);
           
-          if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
-            const diffTime = Math.abs(to - from);
+          if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+            const diffTime = Math.abs(toDate - fromDate);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
             const dayText = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
             dayCountSpan.textContent = dayText;
@@ -58,94 +55,18 @@
           dayCountSpan.textContent = '';
         }
       };
-      
-      function initHealthDatePickers() {
-        console.log('Attempting to initialize date pickers...', typeof flatpickr);
+
+      // Wait for DOM to be fully loaded
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Flatpickr for date inputs
+        flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+        flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
         
-        if (typeof flatpickr !== 'undefined') {
-          console.log('Flatpickr is available, initializing...');
-          
-          // Destroy any existing instances first
-          var fromInput = document.getElementById('from_date');
-          var toInput = document.getElementById('to_date');
-          
-          if (fromInput._flatpickr) {
-            console.log('Destroying existing from_date picker');
-            fromInput._flatpickr.destroy();
-          }
-          if (toInput._flatpickr) {
-            console.log('Destroying existing to_date picker');
-            toInput._flatpickr.destroy();
-          }
-          
-          // Add manual click handlers to force open
-          if (fromInput) {
-            fromInput.addEventListener('click', function() {
-              console.log('From input clicked, attempting manual open...');
-              if (window.fromPickerInstance && window.fromPickerInstance.open) {
-                window.fromPickerInstance.open();
-              }
-            });
-          }
-          
-          if (toInput) {
-            toInput.addEventListener('click', function() {
-              console.log('To input clicked, attempting manual open...');
-              if (window.toPickerInstance && window.toPickerInstance.open) {
-                window.toPickerInstance.open();
-              }
-            });
-          }
-          
-          // Initialize Flatpickr
-          var fromPicker = flatpickr("#from_date", {
-            dateFormat: "Y-m-d",
-            allowInput: true,
-            clickOpens: true,
-            static: false,
-            onReady: function(selectedDates, dateStr, instance) {
-              console.log('from_date picker ready');
-              console.log('Instance config:', instance.config);
-            },
-            onOpen: function() {
-              console.log('from_date picker opened!');
-            }
-          });
-          
-          var toPicker = flatpickr("#to_date", {
-            dateFormat: "Y-m-d",
-            allowInput: true,
-            clickOpens: true,
-            static: false,
-            onReady: function(selectedDates, dateStr, instance) {
-              console.log('to_date picker ready');
-              console.log('Instance config:', instance.config);
-            },
-            onOpen: function() {
-              console.log('to_date picker opened!');
-            }
-          });
-          
-          // Store instances globally for manual open handlers
-          window.fromPickerInstance = fromPicker;
-          window.toPickerInstance = toPicker;
-          
-          console.log('Flatpickr initialized:', fromPicker, toPicker);
-          console.log('fromPicker instance:', fromInput._flatpickr);
-          console.log('toPicker instance:', toInput._flatpickr);
-          
-          // Update day count on page load if dates exist
-          var fromVal = fromInput.value;
-          var toVal = toInput.value;
-          if (fromVal && toVal && typeof updateDayCount === 'function') {
-            updateDayCount();
-          }
-          
-          return true;
-        } else {
-          console.log('Flatpickr not available yet, retrying...');
-          return false;
-        }
+        // Update day count immediately
+        updateDayCount();
+      });
+    </script>
+
     <script>
       // Filter function - needs to be available for onclick handler
       function filterDashboard() {

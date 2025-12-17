@@ -86,21 +86,23 @@
         <span style="font-weight: 500; margin-right: 12px">Date Range: </span>
         <span class="text-muted" style="margin-right: 8px">Start:</span>
         <input
-          type="date"
-          class="form-control"
+          type="text"
+          class="form-control flatpickr-input active"
           id="from_date"
           name="from_date"
+          placeholder="YYYY-MM-DD"
           style="width: 150px; margin-right: 10px"
           value="<%= currentFromDate || '' %>"
         />
         <span style="font-weight: 500; margin-right: 8px">End:</span>
         <input
-          type="date"
-          class="form-control"
+          type="text"
+          class="form-control flatpickr-input active"
           id="to_date"
           name="to_date"
+          placeholder="YYYY-MM-DD"
           style="width: 150px; margin-right: 10px"
-          value="<%= currentToDate || '' %>"
+          value="<%= currentToDate || ''%>"
         />
         <button
           type="button"
@@ -249,12 +251,41 @@
   });
 </script>
 <script>
+  // Wait for gantt to be available
+  function waitForGantt(callback, maxWait = 5000) {
+    const startTime = Date.now();
+    const checkInterval = setInterval(() => {
+      if (typeof gantt !== 'undefined') {
+        clearInterval(checkInterval);
+        console.log("Gantt library loaded");
+        callback();
+      } else if (Date.now() - startTime > maxWait) {
+        clearInterval(checkInterval);
+        console.error("Gantt library failed to load within", maxWait, "ms");
+      }
+    }, 100);
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     console.log("DOMContentLoaded fired on flight plan page");
     console.log("gantt object available:", typeof gantt);
 
-    // Fetch project data from your API
-    fetch("/projects/flightview/ganttChart/")
+    // Wait for gantt library if not available yet
+    if (typeof gantt === 'undefined') {
+      console.log("Gantt not available yet, waiting...");
+      waitForGantt(initializeGantt);
+      return;
+    }
+
+    initializeGantt();
+  });
+
+  function initializeGantt() {
+    console.log("initializeGantt() called");
+    console.log("gantt available:", typeof gantt);
+
+      // Fetch project data from your API
+      fetch("/projects/flightview/ganttChart/")
       .then((response) => {
         console.log("Fetch response status:", response.status);
         return response.json();
@@ -377,7 +408,7 @@
       .catch((error) => {
         console.error("Error fetching or processing gantt data:", error);
       });
-  });   };
+  }   };
       });
   });
   document

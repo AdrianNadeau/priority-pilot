@@ -178,8 +178,8 @@
 <div class="row mb-2 align-items-center" style="background:hsl(197,70%,91%); height:50px;">
   <div class="col-md-12 d-flex align-items-center">
     <strong class="mr-2">Date Range:</strong>
-    <input id="from_date" class="form-control mr-2" style="width:150px" value="<%= currentFromDate %>">
-    <input id="to_date" class="form-control mr-2" style="width:150px" value="<%= currentToDate %>">
+    <input id="from_date" type="text" class="form-control flatpickr-input active mr-2" placeholder="YYYY-MM-DD" style="width:150px" value="<%= currentFromDate %>">
+    <input id="to_date" type="text" class="form-control flatpickr-input active mr-2" placeholder="YYYY-MM-DD" style="width:150px" value="<%= currentToDate %>">
     <button class="btn btn-primary btn-sm" id="btnFilter" onclick="filterDashboard()">Update</button>
     <span id="dayCount" class="ml-3 font-weight-bold"></span>
   </div>

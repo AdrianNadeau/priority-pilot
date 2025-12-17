@@ -49,39 +49,43 @@
     window.location.href = '/projects/accomplishments/view/';
   }
   
-  // Calculate and display day count
+  // Calculate and display day count - make it globally available
   window.updateDayCount = function() {
-    const fromDate = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
-    const toDate = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
+    const from = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
+    const to = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
     const dayCountSpan = document.getElementById('dayCount');
+  
     
     if (!dayCountSpan) {
+      console.error('dayCount span not found!');
       return;
     }
     
-    if (fromDate && toDate) {
-      const from = new Date(fromDate);
-      const to = new Date(toDate);
+    if (from && to) {
+      const fromDate = new Date(from);
+      const toDate = new Date(to);
       
-      if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
-        const diffTime = Math.abs(to - from);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+        const diffTime = Math.abs(toDate - fromDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
         const dayText = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
         dayCountSpan.textContent = dayText;
+        
       } else {
         dayCountSpan.textContent = '';
+        console.log('Invalid date format');
       }
     } else {
       dayCountSpan.textContent = '';
     }
   };
   
+  // Filter function - needs to be available for onclick handler
   function filterDashboard() {
     const fromDate = document.getElementById('from_date').value;
     const toDate = document.getElementById('to_date').value;
     
-    // Update day count display
-    updateDayCount();
+    console.log('Filter clicked with dates:', fromDate, toDate);
     
     // Send filter data to server to save in persons table
     fetch('/update-filter', {
@@ -98,50 +102,19 @@
     .then(data => {
       if (data.success) {
         console.log('Filter preferences saved successfully');
-        // Redirect to current page with filters
-        window.location.href = window.location.pathname;
+        // Reload the page to apply session-based filtering
+        window.location.reload();
       } else {
         console.error('Error saving filter preferences:', data.message);
-        // Still redirect to try to apply filters
-        const params = new URLSearchParams();
-        if (fromDate) params.append('from_date', fromDate);
-        if (toDate) params.append('to_date', toDate);
-        const queryString = params.toString();
-        const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
-        window.location.href = url;
+        // Still reload to try to apply filters
+        window.location.reload();
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      // Fallback: redirect with query parameters
-      const params = new URLSearchParams();
-      if (fromDate) params.append('from_date', fromDate);
-      if (toDate) params.append('to_date', toDate);
-      const queryString = params.toString();
-      const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
-      window.location.href = url;
+      // Fallback: reload page
+      window.location.reload();
     });
-  }
-
-  function updateDayCount() {
-    const fromDate = document.getElementById('from_date').value;
-    const toDate = document.getElementById('to_date').value;
-    const dayCountEl = document.getElementById('dayCount');
-    
-    if (fromDate && toDate) {
-      const start = new Date(fromDate);
-      const end = new Date(toDate);
-      const diffTime = Math.abs(end - start);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-      
-      if (dayCountEl) {
-        dayCountEl.textContent = `(${diffDays} days)`;
-      }
-    } else {
-      if (dayCountEl) {
-        dayCountEl.textContent = '';
-      }
-    }
   }
 </script>
 
@@ -166,7 +139,9 @@
   const totalFilteredEffort = typeof getFilteredValue === 'function' && Array.isArray(projects) ? getFilteredValue(projects, 'effort') : 0;
   function formatNumberWithCommas(x) {
     if (x == null) return '0';
-    var parts = x.toString().split('.');
+    // Remove decimals and format with commas
+    var num = Math.round(x);
+    var parts = num.toString().split('.');
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return parts.join('.');
   }
@@ -209,8 +184,8 @@
     if (project.phase_name) {
         const phase = project.phase_name.trim().toLowerCase();
         if (phase === 'delivery') {
-            let usedCost = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'project_cost') : 0;
-            let usedEffort = (typeof getFilteredValue === 'function') ? getFilteredValue(project, currentFromDate, currentToDate, 'effort') : 0;
+            let usedCost = (typeof getFilteredValue === 'function') ? Math.round(getFilteredValue(project, currentFromDate, currentToDate, 'project_cost')) : 0;
+            let usedEffort = (typeof getFilteredValue === 'function') ? Math.round(getFilteredValue(project, currentFromDate, currentToDate, 'effort')) : 0;
             deliveryUsedCost += usedCost;
             deliveryUsedEffort += usedEffort;
         }
@@ -236,9 +211,9 @@
                 <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
                 <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
                 <span class="text-muted" style="margin-right: 8px;">Start:</span>
-                <input type="date" class="form-control" id="from_date" name="from_date" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+                <input type="text" class="form-control flatpickr-input active" id="from_date" name="from_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
                 <span style="font-weight: 500; margin-right: 8px;">End:</span>
-                <input type="date" class="form-control" id="to_date" name="to_date" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+                <input type="text" class="form-control flatpickr-input active" id="to_date" name="to_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
                 <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
                 <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
               </div>
@@ -538,6 +513,15 @@
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     'use strict';
+    
+    /* DATE PICKERS */
+    // Initialize Flatpickr for date inputs
+    flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+    flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+    
+    // Update day count immediately
+    updateDayCount();
+    
    // Fetch all the forms we want to apply custom Bootstrap validation styles to
    var forms = document.querySelectorAll(".needs-validation");
 

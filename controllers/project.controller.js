@@ -2814,12 +2814,6 @@ exports.findFunnel = async (req, res) => {
       type: db.sequelize.QueryTypes.SELECT,
     });
 
-    // Log funnel projects for debugging
-    console.log(`Funnel: Found ${data.length} pitch projects:`);
-    data.forEach((project) => {
-      console.log(`Funnel: Project ID ${project.id}: ${project.project_name}`);
-    });
-
     // Calculate pitch count, total cost, and total effort
     const pitchCount = data.length;
     let pitchTotalCost = 0;
@@ -3460,7 +3454,6 @@ ORDER BY
 `;
 
   try {
-    console.log("Executing health query for company_id:", company_id_fk);
     const data = await db.sequelize.query(query, {
       replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
@@ -3648,9 +3641,7 @@ exports.accomplishments = async (req, res) => {
     dateFilter = " AND status.status_date <= ?";
     queryParams.push(toDate);
   }
-  // If no date filter, don't filter by date at all - show all accomplishments
-
-  console.log("Accomplishments date filter SQL:", dateFilter);
+  // If no date filter, don't filter by date at all - show all accomplishment
 
   const query = `
     SELECT DISTINCT
@@ -4076,6 +4067,7 @@ exports.accomplishmentsData = async (req, res) => {
 
 exports.ganttChart = async (req, res) => {
   //get all company projects
+  console.log("🔧 ganttChart endpoint called");
 
   const company_id_fk = req.session.company.id;
 
