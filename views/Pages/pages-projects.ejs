@@ -210,7 +210,7 @@
           </thead>
           <tbody>
             <% projects.forEach(function(project) { %>
-            <tr class="project-row" data-project-id="<%= project.id %>" onclick="if(!event.target.closest('i, button, a')) window.location.href='/projects/edit/<%= project.id %>';" style="cursor: pointer;">
+            <tr class="project-row" data-project-id="<%= project.id %>" onclick="window.location.replace='/projects/edit/<%= project.id %>';" style="cursor: pointer;">
               <td><%= project.project_name %></td>
               <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
               <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
@@ -313,8 +313,8 @@
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         </div>
         <div class="modal-body">
-          <input type="hidden" name="project_id" value="<%= project.id %>">
-          <input type="hidden" name="prime_id_fk" value="<%= project.prime_id_fk %>">
+          <input type="hidden" name="project_id" value="<%= project.id || '' %>">
+          <input type="hidden" name="prime_id_fk" value="<%= (project.prime_id_fk && !isNaN(project.prime_id_fk)) ? project.prime_id_fk : '' %>">
           
           <div class="row">
             <div class="col-md-12">

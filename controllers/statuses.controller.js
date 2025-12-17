@@ -6,6 +6,30 @@ const Op = db.Sequelize.Op;
 // Create and Save a new Status
 exports.create = async (req, res) => {
   try {
+    console.log("Status form data received:", req.body);
+
+    // Validate critical fields before processing - ensure they are ONLY numbers
+    if (req.body.project_id) {
+      const projectIdStr = String(req.body.project_id).trim();
+      if (!/^\d+$/.test(projectIdStr)) {
+        console.error(
+          "Invalid project_id format (contains non-digits):",
+          projectIdStr,
+        );
+        return res.status(400).send({ message: "Invalid project ID format." });
+      }
+    }
+    if (req.body.prime_id_fk) {
+      const primeIdStr = String(req.body.prime_id_fk).trim();
+      if (!/^\d+$/.test(primeIdStr)) {
+        console.error(
+          "Invalid prime_id_fk format (contains non-digits):",
+          primeIdStr,
+        );
+        return res.status(400).send({ message: "Invalid prime ID format." });
+      }
+    }
+
     const statusDate = req.body.status_date;
     if (!statusDate || isNaN(new Date(statusDate).getTime())) {
       return res.status(400).send({ message: "Invalid status date provided." });
@@ -17,16 +41,37 @@ exports.create = async (req, res) => {
     );
 
     const status = {
-      project_id_fk: req.body.project_id,
-      prime_id_fk: req.body.prime_id_fk,
-      progress: req.body.progress,
-      health: req.body.health,
-      issue: req.body.issue,
-      actions: req.body.actions,
-      accomplishments: req.body.status_accomplishments,
-      attachments: req.body.attachment,
+      project_id_fk:
+        req.body.project_id &&
+        !isNaN(parseInt(req.body.project_id, 10)) &&
+        parseInt(req.body.project_id, 10) > 0
+          ? parseInt(req.body.project_id, 10)
+          : undefined,
+      prime_id_fk:
+        req.body.prime_id_fk &&
+        !isNaN(parseInt(req.body.prime_id_fk, 10)) &&
+        parseInt(req.body.prime_id_fk, 10) > 0
+          ? parseInt(req.body.prime_id_fk, 10)
+          : undefined,
+      progress: req.body.progress ? String(req.body.progress).trim() : null,
+      health: req.body.health ? String(req.body.health).trim() : null,
+      issue: req.body.issue ? String(req.body.issue).trim() : null,
+      actions: req.body.actions ? String(req.body.actions).trim() : null,
+      accomplishments: req.body.status_accomplishments
+        ? String(req.body.status_accomplishments).trim()
+        : null,
+      attachments: req.body.attachment
+        ? String(req.body.attachment).trim()
+        : null,
       status_date: adjustedStatusDate, // Save the adjusted date
     };
+
+    // Remove undefined keys so Sequelize uses defaults or NULL
+    Object.keys(status).forEach(
+      (key) => status[key] === undefined && delete status[key],
+    );
+
+    console.log("Sanitized status object:", status);
 
     const data = await Status.create(status);
 

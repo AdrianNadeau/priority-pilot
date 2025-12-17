@@ -147,8 +147,8 @@ body.modal-open {
                                                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <input type="hidden" name="project_id" value="<%= project.id %>">
-                                                    <input type="hidden" name="prime_id_fk" value="<%= project.prime_id_fk %>">
+                                                    <input type="hidden" name="project_id" value="<%= project.id || '' %>">
+                                                    <input type="hidden" name="prime_id_fk" value="<%= (project.prime_id_fk && !isNaN(project.prime_id_fk)) ? project.prime_id_fk : '' %>">
                                                     
                                                     <div class="row">
                                                         <div class="col-md-12">

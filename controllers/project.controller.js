@@ -329,7 +329,9 @@ exports.findAll = async (req, res) => {
     proj.project_cost,
     proj.effort,
     proj.benefit,
-    phases.phase_name
+    phases.phase_name,
+    proj.prime_id_fk,
+    proj.sponsor_id_fk
   FROM 
     projects proj
   LEFT JOIN 
