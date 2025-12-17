@@ -552,15 +552,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Row navigation
-  document.querySelectorAll(".table tbody tr").forEach(function(row) {
-    row.addEventListener('click', function(e) {
-      if (e.target.closest('[data-toggle="modal"]') || e.target.closest('.js-status-eye')) return;
-      var id = row.cells[0].textContent;
-      // window.location.replace('/projects/edit/' + id);
-    });
-  });
-
   // Phase toggle
   window.phaseSelect = document.getElementById("phase_id_fk");
   window.dateSection = document.getElementById("date_section");
