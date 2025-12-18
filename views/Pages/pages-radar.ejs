@@ -538,7 +538,6 @@
       }
       
       function drawPortfolioHealthChart() {
-        console.log('Drawing Portfolio Health chart...');
         var portfolioHealth = window.radarPageData.portfolioHealth;
         if (!portfolioHealth || !portfolioHealth.counts) {
           document.getElementById('pieChart').innerHTML = '<p style="color:#999;">No health data available</p>';
