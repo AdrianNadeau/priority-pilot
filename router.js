@@ -427,15 +427,88 @@ ORDER BY
     phaseData.pitch.count = pitchData.length;
     phaseData.pitch.cost = pitchCost;
     phaseData.pitch.ph = pitchEffort;
-    // --- Proportional cost calculation for dashboard totals ---
-    // Only for non-pitch, non-archived projects (phases: planning, discovery, delivery, done)
+
+    // Calculate filtered phase totals for display
+    const filterStart = fromDate ? new Date(fromDate) : null;
+    const filterEnd = toDate ? new Date(toDate) : new Date();
+
+    const filteredPhaseData = {
+      pitch: { count: 0, cost: 0, ph: 0 },
+      planning: { count: 0, cost: 0, ph: 0 },
+      discovery: { count: 0, cost: 0, ph: 0 },
+      delivery: { count: 0, cost: 0, ph: 0 },
+      done: { count: 0, cost: 0, ph: 0 },
+      archived: { count: 0, cost: 0, ph: 0 },
+    };
+
+    // Helper function to parse cost values
     function parseCost(val) {
       if (!val) return 0;
       if (typeof val === "number") return val;
       return parseFloat(String(val).replace(/[^0-9.\-]/g, "")) || 0;
     }
-    const filterStart = fromDate ? new Date(fromDate) : null;
-    const filterEnd = toDate ? new Date(toDate) : new Date();
+
+    // Calculate filtered costs based on date range overlap
+    data.forEach((project) => {
+      const phase = mapPhaseToKey(project.phase_name);
+      if (!phase || phase === "unknown") return;
+
+      const cost = parseCost(project.project_cost);
+      const effort = parseCost(project.effort);
+      const start = project.start_date ? new Date(project.start_date) : null;
+      const end = project.end_date ? new Date(project.end_date) : null;
+
+      // For pitch and archived, use full values regardless of dates
+      if (phase === "pitch" || phase === "archived") {
+        if (filteredPhaseData[phase]) {
+          filteredPhaseData[phase].count++;
+          filteredPhaseData[phase].cost += cost;
+          filteredPhaseData[phase].ph += effort;
+        }
+        return;
+      }
+
+      // For other phases, calculate proportional values based on date overlap
+      if (!start || !end) return;
+
+      const projectStart = start;
+      const projectEnd = end;
+      const overlapStart =
+        filterStart && filterStart > projectStart ? filterStart : projectStart;
+      const overlapEnd =
+        filterEnd && filterEnd < projectEnd ? filterEnd : projectEnd;
+
+      const projectDays = Math.max(
+        1,
+        Math.ceil((projectEnd - projectStart) / (1000 * 60 * 60 * 24)) + 1,
+      );
+      const daysInFilter =
+        overlapEnd >= overlapStart
+          ? Math.max(
+              0,
+              Math.ceil((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) +
+                1,
+            )
+          : 0;
+
+      if (daysInFilter > 0) {
+        filteredPhaseData[phase].count++;
+        const dailyCost = projectDays > 0 ? cost / projectDays : 0;
+        const dailyEffort = projectDays > 0 ? effort / projectDays : 0;
+        filteredPhaseData[phase].cost += dailyCost * daysInFilter;
+        filteredPhaseData[phase].ph += dailyEffort * daysInFilter;
+      }
+    });
+
+    // Update phaseData with filtered values for display
+    phaseData.planning = filteredPhaseData.planning;
+    phaseData.discovery = filteredPhaseData.discovery;
+    phaseData.delivery = filteredPhaseData.delivery;
+    phaseData.done = filteredPhaseData.done;
+    phaseData.archived = filteredPhaseData.archived;
+
+    // --- Proportional cost calculation for dashboard totals (budget/effort) ---
+    // Only for non-pitch, non-archived projects (phases: planning, discovery, delivery, done)
     let proportionalTotalCost = 0;
     let proportionalUsedCost = 0;
     let proportionalAvailableCost = 0;

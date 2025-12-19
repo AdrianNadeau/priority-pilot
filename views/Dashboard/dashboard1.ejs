@@ -21,6 +21,11 @@
     padding-left: 7.5px !important;
     padding-right: 0 !important;
   }
+  
+  /* Ensure Flatpickr calendar is visible above all elements */
+  .flatpickr-calendar {
+    z-index: 99999 !important;
+  }
 </style>
 
 <%- contentFor('breadcrumb') %>
@@ -139,11 +144,9 @@
   const totalFilteredEffort = typeof getFilteredValue === 'function' && Array.isArray(projects) ? getFilteredValue(projects, 'effort') : 0;
   function formatNumberWithCommas(x) {
     if (x == null) return '0';
-    // Remove decimals and format with commas
+    // Display as whole number with commas
     var num = Math.round(x);
-    var parts = num.toString().split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return parts.join('.');
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 %>
 
@@ -224,7 +227,7 @@
            <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
           <div class="mini-stat bg-white clearfix" >
             <div class="mini-stat-info" style="background-color:#ffea99">
-            <% function formatNumberWithCommas(x) { if (x == null) return '0'; var parts = x.toString().split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); return parts.join('.'); } %>
+            <% function formatNumberWithCommas(x) { if (x == null) return '0'; var num = Math.round(x); return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); } %>
             <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %> / $<%= formatNumberWithCommas(pitch.cost) %> / <%= formatNumberWithCommas(pitch.ph) %> PH)</span></a>
             </div>
           </div>
@@ -269,7 +272,9 @@
                                 else borderColor = 'black'; // default
                             %>
                               <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
-                              <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>">
+                              <% var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost'); %>
+                              <% var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort'); %>
+                              <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= Math.round(filteredCost) %> | Filtered Effort: <%= Math.round(filteredEffort) %> PH">
                                 <%= project.project_name %>
                               </button>&nbsp;&nbsp;&nbsp;
                             <% } 
@@ -297,7 +302,7 @@
                                   var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
                                   var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
                             %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= Math.round(filteredCost) %> | Filtered Effort: <%= Math.round(filteredEffort) %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -328,7 +333,7 @@
                                   var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
                                   var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
                             %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= Math.round(filteredCost) %> | Filtered Effort: <%= Math.round(filteredEffort) %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -356,7 +361,7 @@
                                   var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
                                   var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
                             %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost %> | Filtered Effort: <%= filteredEffort %> PH">
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost.toLocaleString() %> | Filtered Effort: <%= filteredEffort.toLocaleString() %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -510,17 +515,40 @@
 <script src="public/assets/plugins/jquery-knob/jquery.knob.js"></script>
 
 <%- contentFor('BottomJs') %>
+
+<!-- Initialize date pickers AFTER Flatpickr library loads -->
+<script>
+  console.log('Dashboard script block loaded, checking for Flatpickr...');
+  
+  // Wait for Flatpickr to be available before initializing
+  function initializeDatePickers() {
+    if (typeof flatpickr !== 'undefined') {
+      console.log('Flatpickr available, initializing date pickers');
+      try {
+        flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+        flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+        updateDayCount();
+        console.log('Date pickers initialized successfully');
+      } catch(err) {
+        console.error('Error initializing date pickers:', err);
+      }
+    } else {
+      console.warn('Flatpickr not yet available, will retry...');
+      setTimeout(initializeDatePickers, 100);
+    }
+  }
+
+  // Initialize immediately since Flatpickr should be loaded by now
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeDatePickers);
+  } else {
+    initializeDatePickers();
+  }
+</script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     'use strict';
-    
-    /* DATE PICKERS */
-    // Initialize Flatpickr for date inputs
-    flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
-    flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
-    
-    // Update day count immediately
-    updateDayCount();
     
    // Fetch all the forms we want to apply custom Bootstrap validation styles to
    var forms = document.querySelectorAll(".needs-validation");

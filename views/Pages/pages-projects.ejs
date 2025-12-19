@@ -323,10 +323,10 @@
                 <input
                   type="text"
                   required
-                  class="form-control datepicker"
+                  class="form-control flatpickr-input active"
                   id="status_date_<%= project.id %>"
                   name="status_date"
-                  placeholder="Status Date"
+                  placeholder="YYYY-MM-DD"
                 />
                 <div class="invalid-feedback">
                   Please select a valid status date.
@@ -415,6 +415,11 @@ document.addEventListener('DOMContentLoaded', function () {
   /* DATE PICKERS */
   flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
   flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+  
+  // Initialize Flatpickr for all status date inputs in modals
+  document.querySelectorAll('input[id^="status_date_"]').forEach(input => {
+    flatpickr(input, { dateFormat: 'Y-m-d' });
+  });
 
   function updateDayCount() {
     const from = from_date.value;

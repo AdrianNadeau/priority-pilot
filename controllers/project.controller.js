@@ -28,7 +28,6 @@ const {
 // Create and Save a new Project
 exports.create = (req, res) => {
   company_id_fk = req.session.company.id;
-
   // Convert dates
   let startDateTest = null;
   let endDateTest = null;
@@ -52,10 +51,10 @@ exports.create = (req, res) => {
   const project = {
     company_id_fk: company_id_fk,
     project_name: req.body.project_name,
-    project_headline: req.body.headline,
+    project_headline: req.body.project_headline,
     project_description: req.body.project_description,
-    project_why: req.body.why,
-    project_what: req.body.what,
+    project_why: req.body.project_why,
+    project_what: req.body.project_what,
     start_date: startDateTest,
     end_date: endDateTest,
     next_milestone_date: nextMilestoneDateTest,
@@ -95,10 +94,10 @@ exports.create = (req, res) => {
       company_id_fk,
       project_id_fk: createdProject.id,
       project_name: createdProject.project_name,
-      project_headline: createdProject.headline,
+      project_headline: createdProject.project_headline,
       project_description: createdProject.project_description,
-      project_why: createdProject.why,
-      project_what: createdProject.what,
+      project_why: createdProject.project_why,
+      project_what: createdProject.project_what,
       start_date: startDateTest,
       end_date: endDateTest,
       next_milestone_date: nextMilestoneDateTest,
@@ -2935,10 +2934,7 @@ ORDER BY
       replacements: [company_id_fk],
       type: db.sequelize.QueryTypes.SELECT,
     });
-    if (!data || data.length === 0) {
-      console.log("No data found for company_id_fk:", company_id_fk);
-      return res.redirect("/projects");
-    }
+    // Allow page to render even with no archived projects
     // console.log("Data retrieved successfully:", data.length, "records found.");
     // Initialize phase data with default values
     const phaseData = {
@@ -2950,14 +2946,16 @@ ORDER BY
       archived: { count: 0, cost: 0, ph: 0 },
     };
 
-    // Retrieve portfolio_budget and portfolio_effort from the first record
-    const portfolio_budget = data[0].company_budget
-      ? removeCommasAndConvert(data[0].company_budget)
-      : 0;
+    // Retrieve portfolio_budget and portfolio_effort from the first record (if data exists)
+    const portfolio_budget =
+      data && data.length > 0 && data[0].company_budget
+        ? removeCommasAndConvert(data[0].company_budget)
+        : 0;
 
-    const portfolio_effort = data[0].company_effort
-      ? removeCommasAndConvert(data[0].company_effort)
-      : 0;
+    const portfolio_effort =
+      data && data.length > 0 && data[0].company_effort
+        ? removeCommasAndConvert(data[0].company_effort)
+        : 0;
 
     // Process data and calculate totals
     data.forEach((project) => {
@@ -3084,7 +3082,7 @@ ORDER BY
 
     // Create a Set to ensure distinct project IDs and calculate totals from the main query data
     const uniqueProjectIds = new Set();
-    const uniqueProjects = data.filter((project) => {
+    const uniqueProjects = (data || []).filter((project) => {
       if (uniqueProjectIds.has(project.id)) {
         return false; // Skip duplicate
       }
@@ -3159,11 +3157,6 @@ exports.update = async (req, res) => {
     const sanitizedTag2 = tag_2 ? parseInt(tag_2.replace(/,/g, ""), 10) : null;
     const sanitizedTag3 = tag_3 ? parseInt(tag_3.replace(/,/g, ""), 10) : null;
 
-    // Debug logging
-    console.log("Update request for project ID:", id);
-    console.log("Request body:", req.body);
-    console.log("Company ID from session:", req.session.company?.id);
-
     // First, check if the project exists AND belongs to the correct company
     const existingProject = await Project.findOne({
       where: {
@@ -3177,7 +3170,6 @@ exports.update = async (req, res) => {
         `Project with ID ${id} not found in database OR doesn't belong to company ${req.session.company?.id}`,
       );
 
-      // Let's check if the project exists but belongs to a different company
       const projectAnyCompany = await Project.findByPk(id);
       if (projectAnyCompany) {
         console.log(
@@ -3193,7 +3185,6 @@ exports.update = async (req, res) => {
         });
       }
     }
-    console.log("Found existing project:", existingProject.dataValues); // Compare current vs new values to see what's changing
     const currentValues = {
       project_name: existingProject.project_name,
       project_headline: existingProject.project_headline,
@@ -3236,9 +3227,6 @@ exports.update = async (req, res) => {
       reference,
     };
 
-    console.log("Current values in DB:", currentValues);
-    console.log("New values being sent:", newValues);
-
     // Check for differences
     const differences = {};
     Object.keys(newValues).forEach((key) => {
@@ -3249,7 +3237,6 @@ exports.update = async (req, res) => {
         };
       }
     });
-    console.log("Value differences:", differences);
 
     // Update the project with enhanced error catching
     let num;
@@ -3283,13 +3270,11 @@ exports.update = async (req, res) => {
         },
       );
       num = updateResult[0];
-      console.log("Full update result:", updateResult);
     } catch (updateError) {
       console.error("Sequelize update error:", updateError);
       throw updateError;
     }
 
-    console.log("Update result - number of rows affected:", num);
     console.log("Update data sent:", {
       id,
       project_name,
@@ -3339,7 +3324,6 @@ exports.update = async (req, res) => {
       };
 
       await ChangeProject.create(newChangedProject);
-      console.log("Project updated successfully:", newChangedProject);
       res.redirect("/projects/");
     } else {
       res.status(404).send({

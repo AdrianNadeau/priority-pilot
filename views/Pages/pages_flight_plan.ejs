@@ -36,30 +36,6 @@
     background-color: #6c757d !important;
     color: white;
   }
-
-  /* Flatpickr calendar header and weekday styling (identical to Radar) */
-  .flatpickr-calendar .flatpickr-months {
-    background: #2196f3 !important;
-    color: #fff !important;
-    border-bottom: 1px solid #1976d2 !important;
-    border-radius: 4px 4px 0 0 !important;
-  }
-  .flatpickr-calendar .flatpickr-month {
-    color: #fff !important;
-  }
-  .flatpickr-calendar .flatpickr-current-month {
-    color: #fff !important;
-  }
-  .flatpickr-calendar .flatpickr-weekdays {
-    background: #e3f2fd !important;
-    color: #1976d2 !important;
-    border-bottom: 1px solid #2196f3 !important;
-    font-weight: 600 !important;
-  }
-  .flatpickr-calendar .flatpickr-weekday {
-    color: #1976d2 !important;
-    font-weight: 600 !important;
-  }
 </style>
 
 <%- contentFor('breadcrumb') %> <%- contentFor('body') %>
@@ -124,9 +100,6 @@
   </div>
 </div>
 
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
 <script>
   // Calculate and display day count
   window.updateDayCount = function () {
@@ -143,6 +116,7 @@
     }
 
     if (fromDate && toDate) {
+      // Parse dates in Y-m-d format
       const from = new Date(fromDate);
       const to = new Date(toDate);
 
@@ -167,6 +141,12 @@
     // Update day count display
     updateDayCount();
 
+    // Dates are already in Y-m-d format from Flatpickr
+    function convertDateFormat(dateStr) {
+      // Flatpickr already provides Y-m-d format
+      return dateStr;
+    }
+
     // Send filter data to server to save in persons table
     fetch("/update-filter", {
       method: "POST",
@@ -174,8 +154,8 @@
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from_date: fromDate,
-        to_date: toDate,
+        from_date: convertDateFormat(fromDate),
+        to_date: convertDateFormat(toDate),
       }),
     })
       .then((response) => response.json())
@@ -188,8 +168,8 @@
           console.error("Error saving filter preferences:", data.message);
           // Still redirect to try to apply filters
           const params = new URLSearchParams();
-          if (fromDate) params.append("from_date", fromDate);
-          if (toDate) params.append("to_date", toDate);
+          if (fromDate) params.append("from_date", convertDateFormat(fromDate));
+          if (toDate) params.append("to_date", convertDateFormat(toDate));
           const queryString = params.toString();
           const url = queryString
             ? `${window.location.pathname}?${queryString}`
@@ -201,8 +181,8 @@
         console.error("Error:", error);
         // Fallback: redirect with query parameters
         const params = new URLSearchParams();
-        if (fromDate) params.append("from_date", fromDate);
-        if (toDate) params.append("to_date", toDate);
+        if (fromDate) params.append("from_date", convertDateFormat(fromDate));
+        if (toDate) params.append("to_date", convertDateFormat(toDate));
         const queryString = params.toString();
         const url = queryString
           ? `${window.location.pathname}?${queryString}`
@@ -211,40 +191,25 @@
       });
   }
 
-  // Flatpickr initialization to match Radar format
+  // Flatpickr initialization
   document.addEventListener("DOMContentLoaded", function () {
-    var currentFromDate = '<%= currentFromDate || "" %>';
-    var currentToDate = '<%= currentToDate || "" %>';
-
-    function isValidDateString(dateStr) {
-      // Accepts YYYY-MM-DD only
-      return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
-    }
-
-    var fromPicker = flatpickr("#from_date", {
+    // Initialize date pickers with Flatpickr
+    flatpickr("#from_date", {
       dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true,
-    });
-    var toPicker = flatpickr("#to_date", {
-      dateFormat: "Y-m-d",
-      allowInput: true,
-      allowInvalidPreload: true,
+      defaultDate: document.getElementById("from_date").value || null,
+      onChange: updateDayCount,
     });
 
-    // Force Flatpickr and input to session value after initialization
-    if (isValidDateString(currentFromDate)) {
-      fromPicker.setDate(currentFromDate, true);
-    }
-    if (isValidDateString(currentToDate)) {
-      toPicker.setDate(currentToDate, true);
-    }
+    flatpickr("#to_date", {
+      dateFormat: "Y-m-d",
+      defaultDate: document.getElementById("to_date").value || null,
+      onChange: updateDayCount,
+    });
 
     // Update day count on page load if dates exist
     if (
-      currentFromDate &&
-      currentToDate &&
-      typeof updateDayCount === "function"
+      document.getElementById("from_date").value &&
+      document.getElementById("to_date").value
     ) {
       updateDayCount();
     }
