@@ -84,7 +84,19 @@
       dayCountSpan.textContent = '';
     }
   };
-  
+
+  // Wait for DOM to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Flatpickr for date inputs
+    flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+    flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+
+    // Update day count immediately
+    updateDayCount();
+  });
+</script>
+
+<script>
   // Filter function - needs to be available for onclick handler
   function filterDashboard() {
     const fromDate = document.getElementById('from_date').value;
@@ -377,7 +389,7 @@
               <div class="row mt-3 mb-2 align-items-center" style="margin-left:0px;margin-right:0px;min-height: 50px;height:50px;background: #e2fbef; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
                 <div class="col-md-6 d-flex align-items-center">
                   <span class="mdi mdi-currency-usd" style="font-size: 1.5rem; margin-right: 8px;"></span>
-                  <span style="font-weight: 500; margin-right: 12px;">Budget</span>
+                  <span style="font-weight: 500; margin-right: 12px;">Cost</span>
                   <span class="text-muted" style="margin-right: 8px;">Total:</span>
                   <span style="font-weight: 500; margin-right: 16px;">
                     $<%= formatNumberWithCommas(deliveryTotalCost) %>
@@ -515,36 +527,6 @@
 <script src="public/assets/plugins/jquery-knob/jquery.knob.js"></script>
 
 <%- contentFor('BottomJs') %>
-
-<!-- Initialize date pickers AFTER Flatpickr library loads -->
-<script>
-  console.log('Dashboard script block loaded, checking for Flatpickr...');
-  
-  // Wait for Flatpickr to be available before initializing
-  function initializeDatePickers() {
-    if (typeof flatpickr !== 'undefined') {
-      console.log('Flatpickr available, initializing date pickers');
-      try {
-        flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
-        flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
-        updateDayCount();
-        console.log('Date pickers initialized successfully');
-      } catch(err) {
-        console.error('Error initializing date pickers:', err);
-      }
-    } else {
-      console.warn('Flatpickr not yet available, will retry...');
-      setTimeout(initializeDatePickers, 100);
-    }
-  }
-
-  // Initialize immediately since Flatpickr should be loaded by now
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeDatePickers);
-  } else {
-    initializeDatePickers();
-  }
-</script>
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {
