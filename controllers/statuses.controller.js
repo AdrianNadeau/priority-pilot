@@ -102,15 +102,25 @@ exports.findAll = (req, res) => {
 
 // Retrieve all by projectId from the database.
 exports.findAllByProjectId = (req, res) => {
-  const project_id_fk = req.params.project_id_fk;
+  const project_id_fk = parseInt(req.params.project_id_fk, 10);
+  console.log("Finding statuses for project_id_fk:", project_id_fk);
+
+  if (isNaN(project_id_fk)) {
+    return res.status(400).send({
+      message: "Invalid project ID",
+    });
+  }
+
   Status.findAll({ where: { project_id_fk }, order: [["status_date", "DESC"]] })
     .then((data) => {
+      console.log(`Found ${data.length} statuses for project ${project_id_fk}`);
       res.send(data);
     })
     .catch((err) => {
+      console.error("Error finding statuses:", err);
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving companies.",
+          err.message || "Some error occurred while retrieving statuses.",
       });
     });
 };

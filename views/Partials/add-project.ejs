@@ -46,15 +46,15 @@
           <label for="dates">Start Date and End Date: </label>
           <div class="form-row">
             <div class="col">
-              <label for="start_date">Start Date:</label>
+              <label for="start_date">Start:</label>
               <input type="date" class="form-control" id="start_date" name="start_date" value="<%= (typeof formData !== 'undefined' && formData && formData.start_date) ? formData.start_date : '' %>">
             </div>
             <div class="col">
-              <label for="end_date">End Date:</label>
+              <label for="end_date">End:</label>
               <input type="date" class="form-control" id="end_date" name="end_date" value="<%= (typeof formData !== 'undefined' && formData && formData.end_date) ? formData.end_date : '' %>">
             </div>
             <div class="col">
-              <label for="next_milestone_date">NMD:</label>
+              <label for="next_milestone_date">Next Milestone:</label>
               <input type="date" class="form-control" id="next_milestone_date" name="next_milestone_date" value="<%= (typeof formData !== 'undefined' && formData && formData.next_milestone_date) ? formData.next_milestone_date : '' %>">
             </div>
           </div>
@@ -154,28 +154,7 @@
             </div>
           </div>
         </div>
-        <div class="form-row">
-          <div class="col">
-            <div class="form-group">
-              <label for="impact">Impact:</label>
-              <select name="impact" id="impact" class="form-control">
-                <% for (var i = 1; i <= 10; i++) { %>
-                <option value="<%= i %>"><%= i %></option>
-                <% } %>
-              </select>
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group">
-              <label for="complexity">Complexity:</label>
-              <select name="complexity" id="complexity" class="form-control">
-                <% for (var i = 1; i <= 10; i++) { %>
-                <option value="<%= i %>"><%= i %></option>
-                <% } %>
-              </select>
-            </div>
-          </div>
-        </div>
+       
         <div class="form-row">
           <div class="col">
             <div class="form-group">
@@ -339,8 +318,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (projectNameValue.length < 3) {
             projectNameInput.setCustomValidity('Project name must be at least 3 characters long.');
             isValid = false;
-        } else if (projectNameValue.length > 25) {
-            projectNameInput.setCustomValidity('Project name cannot exceed 25 characters.');
+        } else if (projectNameValue.length > 255) {
+            projectNameInput.setCustomValidity('Project name cannot exceed 255 characters.');
             isValid = false;
         } else if (!/^[a-zA-Z0-9\s\-_\.\(\)]+$/.test(projectNameValue)) {
             projectNameInput.setCustomValidity('Project name can only contain letters, numbers, spaces, hyphens, underscores, dots, and parentheses.');
@@ -367,18 +346,25 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         event.stopPropagation();
 
-        if (!validateForm() || !form.checkValidity()) {
+        console.log('Form submit event triggered');
+        const isFormValid = validateForm();
+        const isCheckValid = form.checkValidity();
+        console.log('Custom validation:', isFormValid, 'HTML5 validation:', isCheckValid);
+
+        if (!isFormValid || !isCheckValid) {
             // Show validation errors
             form.classList.add('was-validated');
-            
+
             // Focus on first invalid field
             const firstInvalid = form.querySelector(':invalid');
             if (firstInvalid) {
+                console.log('First invalid field:', firstInvalid.name, firstInvalid.validationMessage);
                 firstInvalid.focus();
                 firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         } else {
             // Form is valid, submit it
+            console.log('Form is valid, submitting...');
             form.classList.add('was-validated');
             form.submit();
         }
