@@ -1,680 +1,280 @@
 <%- contentFor('HeaderCss') %>
-<!-- <style>
-  /* Base styling for icons */
-  .mdi-pencil, .mdi-delete, .mdi-notepad {
-    margin-left: 8px !important;
-    font-size: 16px !important;
-    color: #6c757d !important;
-    transition: all 0.2s ease-in-out !important;
-    cursor: pointer !important;
-  }
 
-  /* Hover effects with higher specificity */
-  i.mdi-pencil:hover {
-    color: #28a745 !important; /* Green for edit */
-    transform: scale(1.1) !important;
-  }
-  
-  i.mdi-notepad:hover {
-    color: #17a2b8 !important; /* Teal for notepad */
-    transform: scale(1.1) !important;
-  }
-  
-  i.mdi-delete:hover {
-    color: #dc3545 !important; /* Red for delete */
-    transform: scale(1.1) !important;
-  }
-:root {
-      --accent: #7c3aed; /* initial accent color */
-    }
-
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.4; padding: 2rem; }
-    .row { display: flex; align-items: center; gap: 1rem; }
-
-    /* The clickable MDI palette icon */
-    .color-trigger {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px; height: 40px;
-      border-radius: 999px;
-      cursor: pointer;
-      position: relative;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 1px 2px rgba(0,0,0,.06);
-      transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease;
-      color: var(--accent);
-      background: #fff;
-    }
-    .color-trigger:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
-    .color-trigger:active { transform: translateY(0); }
-    .color-trigger:focus-visible { outline: 3px solid rgba(124, 58, 237, .35); }
-
-    /* Tiny swatch dot on the button showing current color */
-    .color-trigger::after {
-      content: "";
-      position: absolute;
-      bottom: 6px; right: 6px;
-      width: 10px; height: 10px; border-radius: 999px;
-      border: 1px solid rgba(0,0,0,.15);
-      background: var(--accent);
-    }
-
-    /* Tooltip */
-    .color-trigger[data-tip]:hover::before {
-      content: attr(data-tip);
-      position: absolute;
-      top: -36px; left: 50%; transform: translateX(-50%);
-      background: #111827; color: #fff; font-size: 12px; padding: 6px 8px; border-radius: 8px;
-      white-space: nowrap; pointer-events: none;
-    }
-
-    /* Hidden color input (still accessible programmatically) */
-    #colorInput {
-      position: fixed; /* keep it out of layout */
-      left: -9999px; top: -9999px;
-      opacity: 0; width: 0; height: 0; border: 0; padding: 0; margin: 0;
-    }
-
-    /* Demo target to show the selected color being applied */
-    .demo-card {
-      border: 1px solid #e5e7eb; border-radius: 16px; padding: 1rem 1.25rem; max-width: 520px;
-      background: linear-gradient(180deg, rgba(0,0,0,.02), transparent);
-    }
-    .chip { display:inline-flex; align-items:center; gap:.5rem; border:1px dashed #d1d5db; padding:.25rem .5rem; border-radius:999px; font-size:12px; }
-    .preview {
-      inline-size: 28px; block-size: 28px; border-radius: 9px; border: 1px solid rgba(0,0,0,.15);
-      background: var(--accent);
-    }
-    .cta { appearance: none; border: 0; border-radius: 10px; padding: .6rem .85rem; background: var(--accent); color: #fff; font-weight: 600; }
-  
-  /* Tag color input hover effects */
-  #tag_color {
-    cursor: pointer !important;
-    transition: all 0.2s ease-in-out !important;
-  }
-  
-  #tag_color:hover {
-    border-color: #007bff !important;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
-    transform: scale(1.02) !important;
-  }
-  
-  #tag_color:focus {
-    cursor: text !important;
-  }
-  
-  /* Enhance existing icon hover effects */
-  .mdi-palette:hover {
-    color: #7c3aed !important;
-    transform: scale(1.1) !important;
-    cursor: pointer !important;
-  }
-  
-  /* Remove the ::after tooltips for now to test if hover works */
-</style> -->
 <style>
-    .color-box {
-      width: 50px !important;
-      height:50px !important;
-      margin-top: 20px;
-      border: 1px solid #ccc;
-      display: inline-block;
-    }
-    label {
-      font-family: sans-serif;
-      margin-right: 10px;
-    }
-    
-    /* Tag styling */
-    .tag-item {
-      display: block; 
-      color: #333; 
-      padding: 4px 0; 
-      margin: 2px 0; 
-      font-size: 14px;
-      position: relative;
-      transition: transform 0.2s ease;
-    }
-    
-    .tag-item:hover {
-      transform: translateX(4px);
-    }
-    
-    .tag-bullet {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-    
-    .tag-item .mdi {
-      margin-left: 6px; 
-      cursor: pointer; 
-      opacity: 0.6;
-      transition: opacity 0.2s ease;
-      color: #666;
-    }
-    
-    .tag-item .mdi:hover {
-      opacity: 1;
-      transform: scale(1.1);
-    }
-  </style>
-<%- contentFor('breadcrumb') %>
+  .tag-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    font-size: 14px;
+    transition: transform 0.2s ease;
+  }
 
+  .tag-item:hover {
+    transform: translateX(4px);
+  }
+
+  .tag-bullet {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .mdi {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+  }
+
+  .mdi:hover {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+
+  .mdi-pencil:hover {
+    filter: brightness(1.2);
+  }
+
+  .mdi-delete:hover {
+    color: #dc3545 !important;
+    filter: brightness(1.2);
+  }
+</style>
+
+<%- contentFor('breadcrumb') %>
 <%- contentFor('body') %>
+
 <div class="page-content-wrapper">
-  <!-- Render server-side error passed via query string as a client alert -->
-  <script>
-    (function(){
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const err = params.get('error');
-        if (err) {
-          // Inject a Bootstrap alert at the top of the page
-          const container = document.currentScript && document.currentScript.parentElement || document.body;
-          const alert = document.createElement('div');
-          alert.className = 'alert alert-danger';
-          alert.role = 'alert';
-          alert.style = 'margin: 10px 0;';
-          alert.textContent = decodeURIComponent(err);
-          // Insert after the page wrapper opening
-          container.insertBefore(alert, container.firstChild);
-        }
-      } catch (e) { console.error(e); }
-    })();
-  </script>
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-12">
-        <div class="card-body" style="border:0px !important;">
-          <form action="/companies/set/defaults" class="needs-validation" id="editDefaultsForm" novalidate method="POST">
-            <input type="hidden" id="company_id" name="company_id" value="<%= company.id %>">
+        <div class="card-body">
+
+          <!-- ================= DEFAULTS FORM ================= -->
+          <form action="/companies/set/defaults" method="POST" novalidate>
+            <input type="hidden" name="company_id" value="<%= company.id %>">
 
             <div class="row">
               <div class="col-md-6">
-                <!-- First column of form fields -->
-                <div class="form-group needs-validation" novalidate>
-                  <label for="company_headline">Portfolio Name:</label>
-                  <input type="text" class="form-control" id="company_headline" name="company_headline" value="<%= company.company_headline %>">
-                  <div class="invalid-feedback">
-                    Portfolio Name.
-                  </div>
+
+                <div class="form-group">
+                  <label>Portfolio Name</label>
+                  <input class="form-control" name="company_headline" value="<%= company.company_headline %>">
                 </div>
-                <div class="form-group needs-validation" novalidate>
-                  <label for="portfolio_budget">Portfolio Budget ($)</label>
-                  <input type="text" class="form-control" id="portfolio_budget" oninput="formatNumberWithCommas(this);" name="portfolio_budget" value="<%= company.portfolio_budget %>">
-                  <div class="invalid-feedback">
-                    Please enter Portfolio Budget.
-                  </div>
+
+                <div class="form-group">
+                  <label>Portfolio Budget ($)</label>
+                  <input class="form-control" name="portfolio_budget"
+                         value="<%= company.portfolio_budget %>"
+                         oninput="formatNumberWithCommas(this)">
                 </div>
-                <div class="form-group needs-validation" novalidate>
-                  <label for="portfolio_effort">Portfolio Effort (Person Hours)</label>
-                  <input type="text" class="form-control" id="portfolio_effort" oninput="formatNumberWithCommas(this);" name="portfolio_effort" value="<%= company.effort %>">
-                  <div class="invalid-feedback">
-                    Please enter Portfolio Effort.
-                  </div>
+
+                <div class="form-group">
+                  <label>Portfolio Effort</label>
+                  <input class="form-control" name="portfolio_effort"
+                         value="<%= company.effort %>"
+                         oninput="formatNumberWithCommas(this)">
                 </div>
-                
-                <div class="form-group needs-validation" novalidate>
-                  <label for="timezone">Timezone</label>
-                  <select class="form-control" id="timezone" name="company_timezone">
-                    <option value="">Select Timezone</option>
-                    <% const timezones = [
-                      "Pacific/Midway",
-                      "Pacific/Honolulu",
-                      "America/Juneau",
-                      "America/Los_Angeles",
-                      "America/Tijuana",
-                      "America/Denver",
-                      "America/Phoenix",
-                      "America/Chihuahua",
-                      "America/Mazatlan",
-                      "America/Chicago",
-                      "America/Regina",
-                      "America/Mexico_City",
-                      "America/Monterrey",
-                      "America/Guatemala",
-                      "America/New_York",
-                      "America/Indiana/Indianapolis",
-                      "America/Bogota",
-                      "America/Lima",
-                      "America/Halifax",
-                      "America/Caracas",
-                      "America/La_Paz",
-                      "America/Santiago",
-                      "America/St_Johns",
-                      "America/Sao_Paulo",
-                      "America/Argentina/Buenos_Aires",
-                      "America/Guyana",
-                      "America/Godthab",
-                      "Atlantic/South_Georgia",
-                      "Atlantic/Azores",
-                      "Atlantic/Cape_Verde",
-                      "Europe/Dublin",
-                      "Europe/Lisbon",
-                      "Europe/London",
-                      "Africa/Casablanca",
-                      "Africa/Monrovia",
-                      "Etc/UTC",
-                      "Europe/Belgrade",
-                      "Europe/Bratislava",
-                      "Europe/Budapest",
-                      "Europe/Ljubljana",
-                      "Europe/Prague",
-                      "Europe/Sarajevo",
-                      "Europe/Skopje",
-                      "Europe/Warsaw",
-                      "Europe/Zagreb",
-                      "Europe/Brussels",
-                      "Europe/Copenhagen",
-                      "Europe/Madrid",
-                      "Europe/Paris",
-                      "Europe/Amsterdam",
-                      "Europe/Berlin",
-                      "Europe/Rome",
-                      "Europe/Stockholm",
-                      "Europe/Vienna",
-                      "Europe/Zurich",
-                      "Europe/Athens",
-                      "Europe/Bucharest",
-                      "Africa/Cairo",
-                      "Africa/Harare",
-                      "Europe/Helsinki",
-                      "Europe/Kiev",
-                      "Europe/Riga",
-                      "Europe/Sofia",
-                      "Europe/Tallinn",
-                      "Europe/Vilnius",
-                      "Europe/Minsk",
-                      "Europe/Moscow",
-                      "Europe/Volgograd",
-                      "Europe/Samara",
-                      "Asia/Kuwait",
-                      "Asia/Riyadh",
-                      "Africa/Nairobi",
-                      "Asia/Baghdad",
-                      "Asia/Tehran",
-                      "Asia/Muscat",
-                      "Asia/Baku",
-                      "Asia/Tbilisi",
-                      "Asia/Yerevan",
-                      "Asia/Kabul",
-                      "Asia/Yekaterinburg",
-                      "Asia/Karachi",
-                      "Asia/Tashkent",
-                      "Asia/Kolkata",
-                      "Asia/Kathmandu",
-                      "Asia/Dhaka",
-                      "Asia/Colombo",
-                      "Asia/Almaty",
-                      "Asia/Novosibirsk",
-                      "Asia/Rangoon",
-                      "Asia/Bangkok",
-                      "Asia/Jakarta",
-                      "Asia/Krasnoyarsk",
-                      "Asia/Shanghai",
-                      "Asia/Chongqing",
-                      "Asia/Hong_Kong",
-                      "Asia/Urumqi",
-                      "Asia/Kuala_Lumpur",
-                      "Asia/Singapore",
-                      "Asia/Taipei",
-                      "Australia/Perth",
-                      "Asia/Irkutsk",
-                      "Asia/Ulaanbaatar",
-                      "Asia/Seoul",
-                      "Asia/Tokyo",
-                      "Asia/Yakutsk",
-                      "Australia/Darwin",
-                      "Australia/Adelaide",
-                      "Australia/Sydney",
-                      "Australia/Brisbane",
-                      "Australia/Hobart",
-                      "Asia/Vladivostok",
-                      "Pacific/Guam",
-                      "Asia/Magadan",
-                      "Pacific/Fiji",
-                      "Asia/Kamchatka",
-                      "Pacific/Auckland",
-                      "Pacific/Tongatapu"
-                    ]; %>
-                    <% timezones.forEach(function(timezone) { %>
-                      <option value="<%= timezone %>" <%= timezone === company.company_timezone ? 'selected' : '' %>><%= timezone %></option>
-                    <% }); %>
-                  </select>
-                  <div class="invalid-feedback">
-                    Please select a Timezone.
-                  </div>
+
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary">Update</button>
                 </div>
-                <div class="modal-footer text-center">
-                  <button type="button" class="btn btn-secondary waves-effect" onclick="window.location.replace('/')">Cancel</button>
-                  <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Update</button>
-                  
-                </div>
-                <div class="required_star">* To save default values, Update must be clicked.</div>
-                
               </div>
+
+              <!-- ================= TAGS ================= -->
               <div class="col-md-6">
-                <!-- Second column of form fields -->
-                 
-                <div class="form-group needs-validation"  novalidate>
-                  <label for="tags">Company Tags</label>
-                  <!-- Loop through tags if exists for company -->
-                  <ul style="list-style: none; padding-left: 0;">
-                  <% tags.forEach(function(tag) { %>
-                    <li class="tag-item" style="background-color: transparent; display: flex; align-items: center;">
-                      <span class="tag-bullet" style="
-                        background-color: <%= tag.tag_color || '#6c757d' %>; 
-                        width: 12px; 
-                        height: 12px; 
-                        border-radius: 50%; 
-                        display: inline-block; 
-                        margin-right: 8px;
-                        flex-shrink: 0;
-                      "></span>
+                <label>Company Tags</label>
+                <ul style="list-style:none;padding-left:0">
+
+                  <% tags.forEach(tag => { %>
+                    <li class="tag-item">
+                      <span class="tag-bullet"
+                            style="background:<%= tag.tag_color || '#6c757d' %>"></span>
+
                       <span><%= tag.tag_name %></span>
-               <i class="mdi mdi-pencil" 
-                 data-toggle="modal" 
-                 data-target="#editTagModal" 
-                 onclick='editTag(<%- JSON.stringify(tag.id) %>, <%- JSON.stringify(tag.tag_name) %>, <%- JSON.stringify(tag.company_id_fk) %>, <%- JSON.stringify(tag.tag_color || "#6c757d") %>)' 
-                 title="Edit Tag"
-                 style="margin-left: 8px; cursor: pointer; opacity: 0.6; color:#34b871">
-               </i>
-               <i class="mdi mdi-delete" 
-                 data-toggle="modal" 
-                 data-target="#deleteTagModal" 
-                 onclick='deleteTag(<%- JSON.stringify(tag.id) %>, <%- JSON.stringify(tag.tag_name) %>, <%- JSON.stringify(tag.company_id_fk) %>)' 
-                 title="Delete Tag"
-                 style="margin-left: 4px; cursor: pointer; opacity: 0.6; color:#34b871">
-               </i>
+
+                      <i class="mdi mdi-pencil edit-tag"
+                         data-toggle="modal"
+                         data-target="#editTagModal"
+                         data-id="<%= tag.id %>"
+                         data-name="<%= tag.tag_name %>"
+                         data-company="<%= tag.company_id_fk %>"
+                         data-color="<%= tag.tag_color || '#6c757d' %>"
+                         title="Edit"
+                         style="color: <%= tag.tag_color || '#6c757d' %>;"
+                         onclick="editTag(this)">
+                      </i>
+
+                      <i class="mdi mdi-delete delete-tag"
+                         data-toggle="modal"
+                         data-target="#deleteTagModal"
+                         data-id="<%= tag.id %>"
+                         data-name="<%- tag.tag_name %>"
+                         data-company="<%= tag.company_id_fk %>"
+                         title="Delete"
+                         onclick="deleteTag(this)">
+                      </i>
                     </li>
-                  <% }); %>
-                  </ul>
-                  <br/>
-                </form>
-                <form action="/tags" class="needs-validation" id="addTag" novalidate method="POST">
+                  <% }) %>
+
+                </ul>
+
+                <!-- ADD TAG -->
+                <form action="/tags" method="POST">
                   <input type="hidden" name="company_id_fk" value="<%= company.id %>">
-                  <div class="form-group needs-validation">
-                    <label for="colorInput">Pick Tag Color:</label><br/>
-                    
-                    <input type="color" id="colorInput" value="#000000">&nbsp;<a href="https://www.webfx.com/web-design/color-picker/color-chart/" target="_blank">More options...</a>
-                    <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;"> 
-                      <!-- <div id="colorBox" class="color-box"></div> -->
-                     <br/>
-                      <input type="text" id="tag_color"  value="#000000" name="tag_color" style="margin: 0;" >
-                      
-                    </div>
-                  </div>
-                   <div class="form-group needs-validation" novalidate>
-                    <label for="tag_name">Tag Name</label><span class="required_star">*</span>
-                    <input type="text" class="form-control" id="tag_name" name="tag_name" required>
-                   
-                  </div>
 
-                  <div class="modal-footer">
-                    <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Add</button>
-                  </div>
+                  <label>Tag Color</label>
+                  <input type="color" id="colorInput" value="#000000">
+                  <input type="text" id="tag_color" name="tag_color" value="#000000">
+
+                  <label>Tag Name</label>
+                  <input class="form-control" name="tag_name" required>
+
+                  <button class="btn btn-primary mt-2">Add</button>
                 </form>
+
               </div>
-            
-          </div>
+            </div>
+          </form>
 
-          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<%- contentFor('FooterJs') %>
-<%- contentFor('BottomJs') %>
-
-<div class="modal fade" id="editTagModal" tabindex="-1" role="dialog" aria-labelledby="editTagModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+<!-- ================= EDIT MODAL ================= -->
+<div class="modal fade" id="editTagModal">
+  <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editTagModalLabel">Edit Tag</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
+      <div class="modal-header"><h5>Edit Tag</h5></div>
       <div class="modal-body">
-        <form id="editTagForm" class="needs-validation" novalidate>
-          <input type="hidden" id="edit_tag_id" name="tag_id">
-          <input type="hidden" id="edit_company_id_fk" name="company_id_fk">
-           <div class="form-group">
-            <label for="edit_colorInput">Tag Color:</label>
-            <input type="color" id="edit_colorInput" value="#3498db">
-            <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
-              <!-- <div id="edit_colorBox" class="color-box" style="width: 30px; height: 30px; border: 1px solid #ccc; border-radius: 4px;"></div> -->
-              <input type="text" id="edit_tag_color" name="tag_color" value="#3498db" style="margin: 0; width: 80px;" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="edit_tag_name">Tag Name</label>
-            <input type="text" class="form-control" id="edit_tag_name" name="tag_name" required>
-            <div class="invalid-feedback">
-              Please enter tag name.
-            </div>
-          </div>
-          
-         
+        <form id="editTagForm">
+          <input type="hidden" id="edit_tag_id">
+          <input type="hidden" id="edit_company_id_fk">
+
+          <label>Color</label>
+          <input type="color" id="edit_colorInput" style="width: 60px; height: 40px;">
+          <input type="text" id="edit_tag_color" class="form-control" readonly style="display: inline-block; width: 120px; margin-left: 10px;">
+
+          <label>Name</label>
+          <input class="form-control" id="edit_tag_name" required>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="saveTag()">Save changes</button>
+        <button type="button" class="btn btn-secondary" id="cancelTagBtn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveTagBtn">Save</button>
       </div>
     </div>
   </div>
 </div>
-<!-- Delete Tag Modal -->
-<div class="modal fade" id="deleteTagModal" tabindex="-1" role="dialog" aria-labelledby="deleteTagModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+
+<!-- ================= DELETE MODAL ================= -->
+<div class="modal fade" id="deleteTagModal">
+  <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteTagModalLabel">Remove Tag</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
+      <div class="modal-header"><h5>Delete Tag</h5></div>
       <div class="modal-body">
-        <form id="deleteTagForm" class="needs-validation" novalidate>
-          <input type="hidden" id="delete_tag_id" name="tag_id">
-          <input type="hidden" id="delete_company_id_fk" name="company_id_fk">
-          <div class="form-group">
-            <label for="delete_tag_name">Tag Name</label>
-            <p id="delete_tag_name" class="form-control-plaintext"></p>
-          </div>
-          <div class="form-group">
-            <p>Are you sure you want to delete this tag?</p>
-          </div>
-        </form>
+        <input type="hidden" id="delete_tag_id">
+        <p>Are you sure you want to delete the tag: <strong id="delete_tag_name"></strong>?</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" onclick="confirmDeleteTag()">Remove</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-(function () {
-  'use strict'
+// ================= EDIT TAG =================
+function editTag(el) {
+  const tagId = el.dataset.id;
+  const companyId = el.dataset.company;
+  const tagName = el.dataset.name;
+  const tagColor = el.dataset.color;
 
-  document.addEventListener("DOMContentLoaded", function() {    
-    const timezoneSelect = document.getElementById('timezone');
-    if (timezoneSelect) {
-      const userTimezone = getUserTimezone();
-      if (!timezoneSelect.value) {
-        timezoneSelect.value = userTimezone;
-      }
-    }
+  console.log('Edit tag - Raw data:', { tagId, companyId, tagName, tagColor });
 
-    function getUserTimezone() {
-      return Intl.DateTimeFormat().resolvedOptions().timeZone;
-    }
-    
+  // Ensure tagColor is a valid hex code
+  const hexColor = (tagColor && tagColor.startsWith('#')) ? tagColor.toUpperCase() : '#000000';
+  console.log('Hex color formatted:', hexColor);
 
+  // Set values using vanilla JavaScript
+  document.getElementById('edit_tag_id').value = tagId || '';
+  document.getElementById('edit_company_id_fk').value = companyId || '';
+  document.getElementById('edit_tag_name').value = tagName || '';
+  document.getElementById('edit_tag_color').value = hexColor;
+  document.getElementById('edit_colorInput').value = hexColor;
+
+  console.log('Form values set:');
+  console.log('  - Tag Name:', document.getElementById('edit_tag_name').value);
+  console.log('  - Tag Color (text input):', document.getElementById('edit_tag_color').value);
+  console.log('  - Color Input (picker):', document.getElementById('edit_colorInput').value);
+
+  $('#editTagModal').modal('show');
+}
+
+// ================= DELETE TAG =================
+function deleteTag(el) {
+  const tagId = el.dataset.id;
+  const tagName = el.dataset.name;
+
+  console.log('Delete tag:', { tagId, tagName, allData: el.dataset });
+
+  $('#delete_tag_id').val(tagId || '');
+  $('#delete_tag_name').text(tagName || 'this tag');
+
+  console.log('Modal text set to:', $('#delete_tag_name').text());
+
+  $('#deleteTagModal').modal('show');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+
+
+  // ================= CANCEL TAG =================
+  document.getElementById('cancelTagBtn').addEventListener('click', () => {
+    $('#editTagModal').modal('hide');
   });
 
-  // Fix the editTag function - make it global
-  window.editTag = function(tagId, tagName, companyId, tagColor) {
-    document.getElementById('edit_tag_id').value = tagId;
-    document.getElementById('edit_tag_name').value = tagName;
-    document.getElementById('edit_company_id_fk').value = companyId;
-    
-    // Set the color values - use tagColor from database
-    const editColorInput = document.getElementById('edit_colorInput');
-    const editColorBox = document.getElementById('edit_colorBox');
-    const editTagColor = document.getElementById('edit_tag_color');
-    
-    // Use the tagColor from database, fallback to default if not provided
-    const colorToUse = tagColor || '#6c757d';
-    
-    if (editColorInput) {
-      editColorInput.value = colorToUse;
-    }
-    if (editColorBox) {
-      editColorBox.style.backgroundColor = colorToUse;
-    }
-    if (editTagColor) {
-      editTagColor.value = colorToUse;
-    }
-    
-    // Trigger the update function to sync all color elements
-    if (typeof updateEditColor === 'function') {
-      updateEditColor();
-    }
-  }
-
-  // Fix the deleteTag function - make it global
-  window.deleteTag = function(tagId, tagName, companyId) {
-    document.getElementById('delete_tag_id').value = tagId;
-    document.getElementById('delete_tag_name').textContent = tagName;
-    document.getElementById('delete_company_id_fk').value = companyId;
-  }
-
-  function saveTag() {
-    const form = document.getElementById('editTagForm');
-    const tagNameInput = document.getElementById('edit_tag_name');
-    
-    if (!form.checkValidity() || !tagNameInput.value.trim()) {
-      form.classList.add('was-validated');
-      tagNameInput.classList.add('is-invalid');
-      return;
-    } else {
-      tagNameInput.classList.remove('is-invalid');
-    }
-
-    const url = '/tags/' + document.getElementById('edit_tag_id').value;
-    const formData = new FormData(form);
-
-    fetch(url, {
+  // ================= SAVE TAG =================
+  document.getElementById('saveTagBtn').addEventListener('click', () => {
+    const id = edit_tag_id.value;
+    fetch(`/tags/${id}`, {
       method: 'PUT',
-      body: new URLSearchParams(formData),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    })
-    .then(response => {
-      if (response.redirected) {
-        window.location.href = response.url;
-      } else {
-        return response.json();
-      }
-    })
-    .then(data => {
-      console.log('Success:', data);
-      $('#editTagModal').modal('hide');
-      window.location.replace('/companies/get/defaults');
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-  }
+      body: new URLSearchParams({
+        tag_name: edit_tag_name.value,
+        tag_color: edit_tag_color.value
+      }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }).then(() => location.reload());
+  });
 
-  function confirmDeleteTag() {
-    const form = document.getElementById('deleteTagForm');
-    const url = '/tags/' + document.getElementById('delete_tag_id').value;
+  // ================= DELETE TAG =================
+  document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+    const id = document.getElementById('delete_tag_id').value;
+    if (!id) {
+      console.error('No tag ID found');
+      return;
+    }
+    fetch(`/tags/${id}`, { method: 'DELETE' })
+      .then(response => {
+        if (response.ok) {
+          location.reload();
+        } else {
+          console.error('Failed to delete tag');
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting tag:', error);
+      });
+  });
 
-    fetch(url, {
-      method: 'DELETE',
-      body: new URLSearchParams(new FormData(form)),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    })
-    .then(response => {
-      if (response.redirected) {
-        window.location.href = response.url;
-      } else {
-        return response.json();
-      }
-    })
-    .then(data => {
-      console.log('Success:', data);
-      $('#deleteTagModal').modal('hide');
-      window.location.replace('/companies/get/defaults');
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-  }
+  // ================= COLOR SYNC =================
+  colorInput.addEventListener('input', () => tag_color.value = colorInput.value);
+  edit_colorInput.addEventListener('input', () => edit_tag_color.value = edit_colorInput.value);
 
-  // Make functions global
-  window.saveTag = saveTag;
-  window.confirmDeleteTag = confirmDeleteTag;
-
-})();
-
-// Color picker functionality for add tag form
-const colorInput = document.getElementById('colorInput');
-console.log(colorInput);
-const colorBox = document.getElementById('colorBox');
-console.log(colorBox);
-const tag_color = document.getElementById('tag_color');
-console.log(tag_color);
-
-function updateColor() {
-  console.log("updateColor called: ",colorInput.value);
-  if (colorBox) {
-    colorBox.style.backgroundColor = colorInput.value;
-  }
-  if (tag_color) {
-    tag_color.value = colorInput.value;
-  }
-}
-
-if (colorInput) {
-  colorInput.addEventListener('input', updateColor);
-  // Initialize with the default color
-  updateColor();
-}
-
-// Color picker functionality for edit tag modal
-const editColorInput = document.getElementById('edit_colorInput');
-const editColorBox = document.getElementById('edit_colorBox');
-const editTagColor = document.getElementById('edit_tag_color');
-
-function updateEditColor() {
-  console.log("updateEditColor called: ", editColorInput.value);
-  if (editColorBox) {
-    editColorBox.style.backgroundColor = editColorInput.value;
-  }
-  if (editTagColor) {
-    editTagColor.value = editColorInput.value;
-  }
-}
-
-if (editColorInput) {
-  editColorInput.addEventListener('input', updateEditColor);
-  // Initialize with the default color
-  updateEditColor();
-}
-
+});
 </script>
