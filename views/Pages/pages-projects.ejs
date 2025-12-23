@@ -222,7 +222,7 @@
                 <% if (project.can_update_status) { %>
                   <i data-toggle="modal" data-target="#myModal_<%= project.id %>" style="cursor:pointer;color:#34b871 !important;" class="mdi mdi-note-plus"></i>
                 <% } %>
-                <% if (project.can_view) { %>
+                <% if (project.can_view && project.status_count > 0) { %>
                   <i data-toggle="modal" data-target="#StatusUpdatesModal" class="mdi mdi-eye js-status-eye" data-project-id="<%= project.id %>" style="cursor:pointer;color:#34b871 !important;"></i>
                 <% } %>
               </td>

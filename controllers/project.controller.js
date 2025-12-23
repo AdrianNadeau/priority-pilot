@@ -141,7 +141,7 @@ exports.create = (req, res) => {
     ]);
 
     const query =
-      "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name, proj.prime_id_fk, proj.sponsor_id_fk FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
+      "SELECT proj.company_id_fk,proj.id, proj.project_name, proj.start_date, proj.end_date, prime_person.first_name AS prime_first_name, prime_person.last_name AS prime_last_name, sponsor_person.first_name AS sponsor_first_name, sponsor_person.last_name AS sponsor_last_name, proj.project_cost, phases.phase_name, proj.prime_id_fk, proj.sponsor_id_fk, (SELECT COUNT(*) FROM statuses WHERE statuses.project_id_fk = proj.id) AS status_count FROM projects proj LEFT JOIN persons prime_person ON prime_person.id = proj.prime_id_fk LEFT JOIN persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk LEFT JOIN phases ON phases.id = proj.phase_id_fk WHERE proj.company_id_fk = ?";
 
     await db.sequelize
       .query(query, {
@@ -164,7 +164,13 @@ exports.create = (req, res) => {
         const currentPerson =
           req.session && req.session.person ? req.session.person : null;
         const enriched = uniqueProjects.map((p) => {
+          // For admins: can update and view all projects
+          // For non-admins: can update only if they are prime, can view if they are prime or sponsor
           const canModify = currentPerson
+            ? currentPerson.isAdmin ||
+              currentPerson.id === p.prime_id_fk
+            : false;
+          const canView = currentPerson
             ? currentPerson.isAdmin ||
               currentPerson.id === p.prime_id_fk ||
               currentPerson.id === p.sponsor_id_fk
@@ -172,7 +178,8 @@ exports.create = (req, res) => {
           return {
             ...p,
             can_update_status: canModify,
-            can_view: canModify,
+            can_view: canView,
+            status_count: parseInt(p.status_count, 10) || 0,
           };
         });
 
@@ -315,7 +322,7 @@ exports.findAll = async (req, res) => {
         currentPerson.isAdmin === 1)
     );
     const nonAdminQuery = `
-  SELECT 
+  SELECT
     proj.company_id_fk,
     proj.id,
     proj.project_name,
@@ -330,23 +337,24 @@ exports.findAll = async (req, res) => {
     proj.benefit,
     phases.phase_name,
     proj.prime_id_fk,
-    proj.sponsor_id_fk
-  FROM 
+    proj.sponsor_id_fk,
+    (SELECT COUNT(*) FROM statuses WHERE statuses.project_id_fk = proj.id) AS status_count
+  FROM
     projects proj
-  LEFT JOIN 
+  LEFT JOIN
     persons prime_person ON prime_person.id = proj.prime_id_fk
-  LEFT JOIN 
+  LEFT JOIN
     persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-  LEFT JOIN 
+  LEFT JOIN
     phases ON phases.id = proj.phase_id_fk
-  WHERE 
+  WHERE
     proj.company_id_fk = ?
     AND proj.phase_id_fk NOT IN (1, 6)${dateFilter}
   ORDER BY proj.project_name ASC;
 `;
 
     const adminQuery = `
-  SELECT 
+  SELECT
     proj.company_id_fk,
     proj.id,
     proj.project_name,
@@ -361,16 +369,17 @@ exports.findAll = async (req, res) => {
     proj.benefit,
     phases.phase_name,
     proj.prime_id_fk,
-    proj.sponsor_id_fk
-  FROM 
+    proj.sponsor_id_fk,
+    (SELECT COUNT(*) FROM statuses WHERE statuses.project_id_fk = proj.id) AS status_count
+  FROM
     projects proj
-  LEFT JOIN 
+  LEFT JOIN
     persons prime_person ON prime_person.id = proj.prime_id_fk
-  LEFT JOIN 
+  LEFT JOIN
     persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-  LEFT JOIN 
+  LEFT JOIN
     phases ON phases.id = proj.phase_id_fk
-  WHERE 
+  WHERE
     proj.company_id_fk = ?${dateFilter}
   ORDER BY proj.project_name ASC;
 `;
@@ -441,13 +450,11 @@ exports.findAll = async (req, res) => {
             percentInFilter = 0;
           }
 
-          // For admins: can update only if they are prime or sponsor, can view all
+          // For admins: can update and view all projects
           // For non-admins: can update only if they are prime, can view if they are prime or sponsor
           const canModify = currentPerson
-            ? (isAdminFlag &&
-                (currentPerson.id === p.prime_id_fk ||
-                  currentPerson.id === p.sponsor_id_fk)) ||
-              (!isAdminFlag && currentPerson.id === p.prime_id_fk)
+            ? isAdminFlag ||
+              currentPerson.id === p.prime_id_fk
             : false;
           const canView = currentPerson
             ? isAdminFlag ||
@@ -459,6 +466,7 @@ exports.findAll = async (req, res) => {
             ...p,
             can_update_status: canModify,
             can_view: canView,
+            status_count: parseInt(p.status_count, 10) || 0,
             costUsed: Math.round(costUsed * 100) / 100, // rounded to 2 decimals
             percentInFilter: Math.round(percentInFilter * 10000) / 100, // percent as 0-100
             daysInFilter,
@@ -488,6 +496,8 @@ exports.findAll = async (req, res) => {
           primes: personsData,
           tags: tagsData,
           company_id: company_id_fk,
+          currentFromDate: req.session.filtered_start || "",
+          currentToDate: req.session.filtered_end || "",
         });
       })
 
