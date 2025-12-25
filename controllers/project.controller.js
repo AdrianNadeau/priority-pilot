@@ -4263,18 +4263,21 @@ exports.exportHealthDataToCSV = async (req, res) => {
     const fromDate = req.session.filtered_start;
     const toDate = req.session.filtered_end;
 
-    // Build date filter conditions for the SQL query
+    // Build date filter conditions for the SQL query (using overlap logic to match findAll)
     let dateFilter = "";
     let queryParams = [company_id_fk];
 
     if (fromDate && toDate) {
-      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
-      queryParams.push(fromDate, toDate);
+      // Show projects that overlap with the filter period
+      dateFilter = " AND proj.start_date <= ? AND proj.end_date >= ?";
+      queryParams.push(toDate, fromDate);
     } else if (fromDate) {
-      dateFilter = " AND proj.start_date >= ?";
+      // Show projects that end on or after the from date
+      dateFilter = " AND proj.end_date >= ?";
       queryParams.push(fromDate);
     } else if (toDate) {
-      dateFilter = " AND proj.end_date <= ?";
+      // Show projects that start on or before the to date
+      dateFilter = " AND proj.start_date <= ?";
       queryParams.push(toDate);
     }
 
@@ -4488,18 +4491,25 @@ exports.exportProjectsWithStatusToCSV = async (req, res) => {
     const toDate = req.session.filtered_end;
     console.log("Date filter - From:", fromDate, "To:", toDate);
 
-    // Build date filter conditions for the SQL query
+    // Build date filter conditions for the SQL query (using overlap logic to match findAll)
+    // Note: Pitch (phase_id_fk = 1) and Archived (phase_id_fk = 6) projects should NOT be included
     let dateFilter = "";
     let queryParams = [company_id_fk];
 
+    // Exclude Pitch and Archived phases from export to match the projects page
+    dateFilter = " AND proj.phase_id_fk NOT IN (1, 6)";
+
     if (fromDate && toDate) {
-      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
-      queryParams.push(fromDate, toDate);
+      // Show projects that overlap with the filter period
+      dateFilter += " AND proj.start_date <= ? AND proj.end_date >= ?";
+      queryParams.push(toDate, fromDate);
     } else if (fromDate) {
-      dateFilter = " AND proj.start_date >= ?";
+      // Show projects that end on or after the from date
+      dateFilter += " AND proj.end_date >= ?";
       queryParams.push(fromDate);
     } else if (toDate) {
-      dateFilter = " AND proj.end_date <= ?";
+      // Show projects that start on or before the to date
+      dateFilter += " AND proj.start_date <= ?";
       queryParams.push(toDate);
     }
 

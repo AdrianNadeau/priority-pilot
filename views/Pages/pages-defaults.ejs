@@ -124,14 +124,20 @@
                 <form action="/tags" method="POST">
                   <input type="hidden" name="company_id_fk" value="<%= company.id %>">
 
-                  <label>Tag Color</label>
-                  <input type="color" id="colorInput" value="#000000">
-                  <input type="text" id="tag_color" name="tag_color" value="#000000">
+                  <div class="form-group">
+                    <label>Tag Color</label>
+                    <div>
+                      <input type="color" id="colorInput" value="#000000" style="width: 60px; height: 40px;">
+                      <input type="text" id="tag_color" name="tag_color" value="#000000" class="form-control" readonly style="display: inline-block; width: 120px; margin-left: 10px;">
+                    </div>
+                  </div>
 
-                  <label>Tag Name</label>
-                  <input class="form-control" name="tag_name" required>
+                  <div class="form-group">
+                    <label>Tag Name</label>
+                    <input class="form-control" name="tag_name" required>
+                  </div>
 
-                  <button class="btn btn-primary mt-2">Add</button>
+                  <button type="submit" class="btn btn-primary mt-2">Add Tag</button>
                 </form>
 
               </div>
@@ -233,6 +239,15 @@ function deleteTag(el) {
 
 document.addEventListener('DOMContentLoaded', function() {
 
+  // ================= DISPLAY ERROR MESSAGES =================
+  const urlParams = new URLSearchParams(window.location.search);
+  const errorMessage = urlParams.get('error');
+  if (errorMessage) {
+    alert('Error: ' + decodeURIComponent(errorMessage));
+    console.error('Server error:', errorMessage);
+    // Remove error from URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
 
   // ================= CANCEL TAG =================
   document.getElementById('cancelTagBtn').addEventListener('click', () => {
@@ -241,15 +256,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ================= SAVE TAG =================
   document.getElementById('saveTagBtn').addEventListener('click', () => {
-    const id = edit_tag_id.value;
+    const id = document.getElementById('edit_tag_id').value;
+    const tagName = document.getElementById('edit_tag_name').value;
+    const tagColor = document.getElementById('edit_tag_color').value;
+
+    console.log('Saving tag:', { id, tagName, tagColor });
+
+    if (!id) {
+      console.error('No tag ID found for update');
+      alert('Error: No tag ID found');
+      return;
+    }
+
+    if (!tagName) {
+      console.error('Tag name is required');
+      alert('Tag name is required');
+      return;
+    }
+
     fetch(`/tags/${id}`, {
       method: 'PUT',
       body: new URLSearchParams({
-        tag_name: edit_tag_name.value,
-        tag_color: edit_tag_color.value
+        tag_name: tagName,
+        tag_color: tagColor
       }),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    }).then(() => location.reload());
+    })
+    .then(response => {
+      console.log('Response status:', response.status);
+      // Backend redirects on success (302) or returns error JSON
+      if (response.ok || response.redirected || response.status === 302) {
+        console.log('Tag updated successfully');
+        location.reload();
+      } else {
+        return response.json().then(data => {
+          throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error updating tag:', error);
+      alert('Error updating tag: ' + error.message);
+    });
   });
 
   // ================= DELETE TAG =================
@@ -272,9 +320,80 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   });
 
+  // ================= ADD TAG FORM SUBMISSION =================
+  const addTagForm = document.querySelector('form[action="/tags"]');
+  if (addTagForm) {
+    addTagForm.addEventListener('submit', function(e) {
+      const formData = new FormData(addTagForm);
+      console.log('=== Add Tag Form Submission ===');
+      console.log('Tag Name:', formData.get('tag_name'));
+      console.log('Tag Color:', formData.get('tag_color'));
+      console.log('Company ID:', formData.get('company_id_fk'));
+
+      // Don't prevent default - let the form submit naturally
+    });
+  }
+
   // ================= COLOR SYNC =================
-  colorInput.addEventListener('input', () => tag_color.value = colorInput.value);
-  edit_colorInput.addEventListener('input', () => edit_tag_color.value = edit_colorInput.value);
+  const addColorInput = document.getElementById('colorInput');
+  const addTagColorField = document.getElementById('tag_color');
+  const editColorInput = document.getElementById('edit_colorInput');
+  const editTagColorField = document.getElementById('edit_tag_color');
+
+  if (addColorInput && addTagColorField) {
+    console.log('Add tag color sync initialized - Initial values:', {
+      colorInput: addColorInput.value,
+      tagColor: addTagColorField.value
+    });
+
+    // Function to sync color
+    function syncAddColor() {
+      const color = addColorInput.value.toUpperCase();
+      addTagColorField.value = color;
+      console.log('Color synced to:', color);
+    }
+
+    // Multiple event listeners for better browser compatibility
+    addColorInput.addEventListener('input', function(e) {
+      console.log('Color picker input event:', e.target.value);
+      syncAddColor();
+    });
+
+    addColorInput.addEventListener('change', function(e) {
+      console.log('Color picker change event:', e.target.value);
+      syncAddColor();
+    });
+
+    addColorInput.addEventListener('blur', function(e) {
+      console.log('Color picker blur event:', e.target.value);
+      syncAddColor();
+    });
+
+    // Also sync on click for browsers that don't fire input events
+    addColorInput.addEventListener('click', function() {
+      console.log('Color picker clicked, current value:', addColorInput.value);
+    });
+  } else {
+    console.error('Add tag color inputs not found', {
+      colorInput: addColorInput,
+      tagColorField: addTagColorField
+    });
+  }
+
+  if (editColorInput && editTagColorField) {
+    console.log('Edit tag color sync initialized');
+
+    editColorInput.addEventListener('input', function(e) {
+      editTagColorField.value = e.target.value.toUpperCase();
+      console.log('Edit tag color synced:', e.target.value);
+    });
+
+    editColorInput.addEventListener('change', function(e) {
+      editTagColorField.value = e.target.value.toUpperCase();
+    });
+  } else {
+    console.error('Edit tag color inputs not found');
+  }
 
 });
 </script>

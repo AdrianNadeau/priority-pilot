@@ -204,6 +204,8 @@ exports.findDefaults = (req, res) => {
 };
 exports.setDefaults = async (req, res, next) => {
   const company_id_fk = req.session.company.id;
+  console.log("Updating company ID:", company_id_fk);
+  console.log("Request body:", req.body);
 
   // Update company portfolio budget and effort
   try {
