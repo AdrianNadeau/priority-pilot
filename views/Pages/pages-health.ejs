@@ -275,17 +275,17 @@
     const fromInput = document.getElementById('from_date');
     const toInput = document.getElementById('to_date');
     const dayCountSpan = document.getElementById('dayCount');
-    
+
     if (fromInput && toInput && dayCountSpan) {
       const fromDate = fromInput.value;
       const toDate = toInput.value;
-      
+
       if (fromDate && toDate) {
         const start = new Date(fromDate);
         const end = new Date(toDate);
         const diffTime = Math.abs(end - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        dayCountSpan.textContent = `(${diffDays} days)`;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
+        dayCountSpan.textContent = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
       } else {
         dayCountSpan.textContent = '';
       }
