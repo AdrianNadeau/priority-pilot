@@ -3432,15 +3432,14 @@ FROM (
         ORDER BY status.status_date DESC
         LIMIT 1
     ) last_status ON true
-    WHERE proj.company_id_fk = ? AND proj.phase_id_fk != 1${dateFilter}
+    WHERE proj.company_id_fk = ? AND proj.phase_id_fk NOT IN (1, 2)${dateFilter}
     ORDER BY proj.id, last_status.status_date DESC NULLS LAST
 ) subquery
-ORDER BY 
-    CASE phase_name 
-        WHEN 'Planning' THEN 1 
-        WHEN 'Discovery' THEN 2 
-        WHEN 'Delivery' THEN 3 
-        ELSE 4 
+ORDER BY
+    CASE phase_name
+        WHEN 'Discovery' THEN 1
+        WHEN 'Delivery' THEN 2
+        ELSE 3
     END,
     start_date ASC NULLS LAST;
 
@@ -3580,15 +3579,14 @@ exports.healthData = async (req, res) => {
           ORDER BY status.status_date DESC
           LIMIT 1
       ) last_status ON true
-      WHERE proj.company_id_fk = ? AND proj.phase_id_fk != 1${dateFilter}
+      WHERE proj.company_id_fk = ? AND proj.phase_id_fk NOT IN (1, 2)${dateFilter}
       ORDER BY proj.id, last_status.status_date DESC NULLS LAST
   ) subquery
-  ORDER BY 
-      CASE phase_name 
-          WHEN 'Planning' THEN 1 
-          WHEN 'Discovery' THEN 2 
-          WHEN 'Delivery' THEN 3 
-          ELSE 4 
+  ORDER BY
+      CASE phase_name
+          WHEN 'Discovery' THEN 1
+          WHEN 'Delivery' THEN 2
+          ELSE 3
       END,
       start_date ASC NULLS LAST;
   `;
@@ -4345,15 +4343,14 @@ exports.exportHealthDataToCSV = async (req, res) => {
           ORDER BY status.status_date DESC
           LIMIT 1
       ) last_status ON true
-      WHERE proj.company_id_fk = ?${dateFilter}
+      WHERE proj.company_id_fk = ? AND proj.phase_id_fk NOT IN (1, 2)${dateFilter}
       ORDER BY proj.id, last_status.status_date DESC NULLS LAST
   ) subquery
-  ORDER BY 
-      CASE phase_name 
-          WHEN 'Planning' THEN 1 
-          WHEN 'Discovery' THEN 2 
-          WHEN 'Delivery' THEN 3 
-          ELSE 4 
+  ORDER BY
+      CASE phase_name
+          WHEN 'Discovery' THEN 1
+          WHEN 'Delivery' THEN 2
+          ELSE 3
       END,
       start_date ASC NULLS LAST;`;
 
@@ -4365,7 +4362,6 @@ exports.exportHealthDataToCSV = async (req, res) => {
     // Filter and format data for CSV (same as health page filtering)
     const filteredData = data.filter(
       (project) =>
-        project.phase_name === "Planning" ||
         project.phase_name === "Discovery" ||
         project.phase_name === "Delivery",
     );
