@@ -156,7 +156,7 @@
                                     <% let statsHealth = ''; %>
                             
                                     <% projects.forEach(project => { %>
-                                        <% if (project.phase_name === 'Planning' || project.phase_name === 'Discovery' || project.phase_name === 'Delivery') { %>
+                                        <% if (project.phase_name === 'Discovery' || project.phase_name === 'Delivery') { %>
                                         <% if (project.phase_name !== currentPhase) { %>
                                             <% currentPhase = project.phase_name; %>
                                             <tr>
@@ -360,7 +360,7 @@ function updateHealthTable(projects) {
     let currentPhase = '';
     
     projects.forEach(project => {
-        if (Planningproject.phase_name === 'Discovery' || project.phase_name === 'Delivery') {
+        if (project.phase_name === 'Discovery' || project.phase_name === 'Delivery') {
             if (project.phase_name !== currentPhase) {
                 currentPhase = project.phase_name;
                 tableHTML += `
