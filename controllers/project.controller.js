@@ -4075,28 +4075,29 @@ exports.ganttChart = async (req, res) => {
   let whereClause = { company_id_fk: company_id_fk };
 
   if (filtered_start && filtered_end) {
-    // Both start and end dates specified - projects must be completely within the date range
+    // Both start and end dates specified - show projects that overlap with the date range
+    // A project overlaps if: project.start_date <= filtered_end AND project.end_date >= filtered_start
     whereClause = {
       [Op.and]: [
         { company_id_fk: company_id_fk },
-        { start_date: { [Op.gte]: filtered_start } },
-        { end_date: { [Op.lte]: filtered_end } },
+        { start_date: { [Op.lte]: filtered_end } },
+        { end_date: { [Op.gte]: filtered_start } },
       ],
     };
   } else if (filtered_start) {
-    // Only start date specified - projects must start after filter start
+    // Only start date specified - show projects that end on or after filter start
     whereClause = {
       [Op.and]: [
         { company_id_fk: company_id_fk },
-        { start_date: { [Op.gte]: filtered_start } },
+        { end_date: { [Op.gte]: filtered_start } },
       ],
     };
   } else if (filtered_end) {
-    // Only end date specified - projects must end before filter end
+    // Only end date specified - show projects that start on or before filter end
     whereClause = {
       [Op.and]: [
         { company_id_fk: company_id_fk },
-        { end_date: { [Op.lte]: filtered_end } },
+        { start_date: { [Op.lte]: filtered_end } },
       ],
     };
   }

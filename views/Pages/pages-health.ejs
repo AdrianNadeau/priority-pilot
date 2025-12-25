@@ -156,7 +156,6 @@
                                     <% let statsHealth = ''; %>
                             
                                     <% projects.forEach(project => { %>
-                                        <% if (project.phase_name === 'Discovery' || project.phase_name === 'Delivery') { %>
                                         <% if (project.phase_name !== currentPhase) { %>
                                             <% currentPhase = project.phase_name; %>
                                             <tr>
@@ -200,7 +199,6 @@
                                               <td><% if (project.last_status) { %><%= project.last_status.actions %><% } %></td>
                                               <td><% if (project.last_status) { %><%= project.last_status.progress %> %<% } %></td>
                                             </tr>
-                                            <% } %>
                                         <% }); %>
                                 </tbody>
                             </table>
@@ -360,14 +358,13 @@ function updateHealthTable(projects) {
     let currentPhase = '';
     
     projects.forEach(project => {
-        if (project.phase_name === 'Discovery' || project.phase_name === 'Delivery') {
-            if (project.phase_name !== currentPhase) {
-                currentPhase = project.phase_name;
-                tableHTML += `
-                    <tr>
-                        <td colspan="12" style="background-color:#ececec;font-weight: bold; text-align: center;">${currentPhase}</td>
-                    </tr>`;
-            }
+        if (project.phase_name !== currentPhase) {
+            currentPhase = project.phase_name;
+            tableHTML += `
+                <tr>
+                    <td colspan="12" style="background-color:#ececec;font-weight: bold; text-align: center;">${currentPhase}</td>
+                </tr>`;
+        }
             
             let backgroundColor = 'gray'; // default gray
             if (project.last_status && project.last_status.health) {
@@ -403,7 +400,6 @@ function updateHealthTable(projects) {
                     <td>${project.last_status ? project.last_status.actions || '' : ''}</td>
                     <td>${project.last_status ? (project.last_status.progress || '') + ' %' : ''}</td>
                 </tr>`;
-        }
     });
     
     tableHTML += `

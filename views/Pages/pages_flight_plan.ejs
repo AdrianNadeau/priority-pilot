@@ -260,7 +260,6 @@
         const projects = pData.companyProjects;
 
         const phaseMapping = {
-          2: { id: 2, text: "Planning", open: false, type: "phase" },
           3: { id: 3, text: "Discovery", open: false, type: "phase" },
           4: { id: 4, text: "Delivery", open: false, type: "phase" },
         };
@@ -268,7 +267,7 @@
         const categories = Object.values(phaseMapping);
 
         const filteredProjects = projects.filter((project) => {
-          const validPhase = [2, 3, 4].includes(project.phase_id_fk);
+          const validPhase = [3, 4].includes(project.phase_id_fk);
 
           const hasValidStartDate =
             project.start_date && !isNaN(new Date(project.start_date));
@@ -371,9 +370,9 @@
       .catch((error) => {
         console.error("Error fetching or processing gantt data:", error);
       });
-  }   };
-      });
-  });
+  }
+</script>
+<script>
   document
     .getElementById("btnPrintPage")
     .addEventListener("click", function () {
