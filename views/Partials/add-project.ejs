@@ -17,8 +17,11 @@
     <div class="row">
       <div class="col-md-6">
         <!-- Left Column -->
+        <div class="mb-2">
+          <small class="text-danger"><i class="mdi mdi-asterisk"></i> Required</small>
+        </div>
         <div class="form-group">
-          <label for="project_name">Project Name:</label> <span class="required_star">*</span>
+          <label for="project_name">Project Name:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
           <input type="text" class="form-control" id="project_name" maxlength="255" name="project_name" required 
                 
                  title="Project name is required"
@@ -28,30 +31,43 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="project_headline">Headline:</label>
-          <input type="text" class="form-control" id="project_headline" name="project_headline" maxlength="250" value="<%= (typeof formData !== 'undefined' && formData && formData.project_headline) ? formData.project_headline : '' %>">
+          <label for="project_headline">Headline:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+          <input type="text" class="form-control" id="project_headline" name="project_headline" maxlength="250" required value="<%= (typeof formData !== 'undefined' && formData && formData.project_headline) ? formData.project_headline : '' %>">
+          <div class="invalid-feedback">
+            Headline is required.
+          </div>
         </div>
         <div class="form-group">
-          <label for="project_why">Why:</label>
-          <textarea class="form-control" id="project_why" name="project_why" maxlength="1000" placeholder="Explain why this project is important and the problem it solves..."><%= (typeof formData !== 'undefined' && formData && formData.project_why) ? formData.project_why : '' %></textarea>
-         
+          <label for="project_why">Why:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+          <textarea class="form-control" id="project_why" name="project_why" maxlength="1000" required placeholder="Explain why this project is important and the problem it solves..."><%= (typeof formData !== 'undefined' && formData && formData.project_why) ? formData.project_why : '' %></textarea>
+          <div class="invalid-feedback">
+            Why is required.
+          </div>
         </div>
         <div class="form-group">
-          <label for="project_what">What:</label> 
-          <textarea class="form-control" id="project_what" name="project_what" maxlength="500" placeholder="Describe what will be delivered and the scope of work..."><%= (typeof formData !== 'undefined' && formData && formData.project_what) ? formData.project_what : '' %></textarea>
-         
+          <label for="project_what">What:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+          <textarea class="form-control" id="project_what" name="project_what" maxlength="500" required placeholder="Describe what will be delivered and the scope of work..."><%= (typeof formData !== 'undefined' && formData && formData.project_what) ? formData.project_what : '' %></textarea>
+          <div class="invalid-feedback">
+            What is required.
+          </div>
         </div>
 
         <div class="form-group" id="date_section">
-          <label for="dates">Start Date and End Date: </label>
+          <label for="dates">Start Date and End Date: <span class="required_star"><i class="mdi mdi-asterisk"></i></span></label>
           <div class="form-row">
             <div class="col">
               <label for="start_date">Start:</label>
-              <input type="date" class="form-control" id="start_date" name="start_date" value="<%= (typeof formData !== 'undefined' && formData && formData.start_date) ? formData.start_date : '' %>">
+              <input type="date" class="form-control" id="start_date" name="start_date" required value="<%= (typeof formData !== 'undefined' && formData && formData.start_date) ? formData.start_date : '' %>">
+              <div class="invalid-feedback">
+                Start date is required.
+              </div>
             </div>
             <div class="col">
               <label for="end_date">End:</label>
-              <input type="date" class="form-control" id="end_date" name="end_date" value="<%= (typeof formData !== 'undefined' && formData && formData.end_date) ? formData.end_date : '' %>">
+              <input type="date" class="form-control" id="end_date" name="end_date" required value="<%= (typeof formData !== 'undefined' && formData && formData.end_date) ? formData.end_date : '' %>">
+              <div class="invalid-feedback">
+                End date is required.
+              </div>
             </div>
             <div class="col">
               <label for="next_milestone_date">Next Milestone:</label>
@@ -234,19 +250,32 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleDateSectionVisibility() {
         const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
         const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
-        
+
         if (dateSection) {
             if (phaseName === 'pitch') {
                 // Hide entire date section when phase is Pitch
                 dateSection.style.display = 'none';
                 // Clear all date inputs when hiding
-                if (document.getElementById('start_date')) document.getElementById('start_date').value = '';
-                if (document.getElementById('end_date')) document.getElementById('end_date').value = '';
+                if (document.getElementById('start_date')) {
+                    document.getElementById('start_date').value = '';
+                    document.getElementById('start_date').removeAttribute('required');
+                }
+                if (document.getElementById('end_date')) {
+                    document.getElementById('end_date').value = '';
+                    document.getElementById('end_date').removeAttribute('required');
+                }
                 if (nextMilestoneDateInput) nextMilestoneDateInput.value = '';
                 if (document.getElementById('next_milestone_date_details')) document.getElementById('next_milestone_date_details').value = '';
             } else {
                 // Show date section for all other phases
                 dateSection.style.display = 'block';
+                // Make dates required for non-Pitch phases
+                if (document.getElementById('start_date')) {
+                    document.getElementById('start_date').setAttribute('required', 'required');
+                }
+                if (document.getElementById('end_date')) {
+                    document.getElementById('end_date').setAttribute('required', 'required');
+                }
                 // Show milestone details if phase is not pitch and not empty
                 toggleMilestoneDetails();
             }
@@ -304,42 +333,125 @@ document.addEventListener('DOMContentLoaded', function() {
     // Enhanced form validation
     const form = document.querySelector('.needs-validation');
     const projectNameInput = document.getElementById('project_name');
+    const headlineInput = document.getElementById('project_headline');
+    const whyInput = document.getElementById('project_why');
+    const whatInput = document.getElementById('project_what');
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
 
     // Custom validation function
     function validateForm() {
         let isValid = true;
+        let errorMessages = [];
 
-        // Validate project name only
+        // Validate project name
         const projectNameValue = projectNameInput.value.trim();
-        
+
         if (!projectNameValue) {
             projectNameInput.setCustomValidity('Project name is required.');
+            errorMessages.push('Project name is required.');
             isValid = false;
         } else if (projectNameValue.length < 3) {
             projectNameInput.setCustomValidity('Project name must be at least 3 characters long.');
+            errorMessages.push('Project name must be at least 3 characters long.');
             isValid = false;
         } else if (projectNameValue.length > 255) {
             projectNameInput.setCustomValidity('Project name cannot exceed 255 characters.');
+            errorMessages.push('Project name cannot exceed 255 characters.');
             isValid = false;
         } else if (!/^[a-zA-Z0-9\s\-_\.\(\)]+$/.test(projectNameValue)) {
             projectNameInput.setCustomValidity('Project name can only contain letters, numbers, spaces, hyphens, underscores, dots, and parentheses.');
+            errorMessages.push('Project name contains invalid characters.');
             isValid = false;
         } else if (/^[\s\-_\.\(\)]+$/.test(projectNameValue)) {
             projectNameInput.setCustomValidity('Project name must contain meaningful text, not just spaces or symbols.');
+            errorMessages.push('Project name must contain meaningful text.');
             isValid = false;
-        } else if (projectNameValue.toLowerCase() === 'test' || projectNameValue.toLowerCase() === 'temp' || 
+        } else if (projectNameValue.toLowerCase() === 'test' || projectNameValue.toLowerCase() === 'temp' ||
                    projectNameValue.toLowerCase() === 'example' || projectNameValue.toLowerCase() === 'sample') {
             projectNameInput.setCustomValidity('Please use a more descriptive project name.');
+            errorMessages.push('Please use a more descriptive project name.');
             isValid = false;
         } else {
             projectNameInput.setCustomValidity('');
         }
 
+        // Validate headline
+        if (!headlineInput.value.trim()) {
+            headlineInput.setCustomValidity('Headline is required.');
+            errorMessages.push('Headline is required.');
+            isValid = false;
+        } else {
+            headlineInput.setCustomValidity('');
+        }
+
+        // Validate why
+        if (!whyInput.value.trim()) {
+            whyInput.setCustomValidity('Why is required.');
+            errorMessages.push('Why is required.');
+            isValid = false;
+        } else {
+            whyInput.setCustomValidity('');
+        }
+
+        // Validate what
+        if (!whatInput.value.trim()) {
+            whatInput.setCustomValidity('What is required.');
+            errorMessages.push('What is required.');
+            isValid = false;
+        } else {
+            whatInput.setCustomValidity('');
+        }
+
+        // Validate dates only if date section is visible (not Pitch phase)
+        const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+        const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+
+        if (phaseName !== 'pitch') {
+            // Validate start date
+            if (!startDateInput.value) {
+                startDateInput.setCustomValidity('Start date is required.');
+                errorMessages.push('Start date is required.');
+                isValid = false;
+            } else {
+                startDateInput.setCustomValidity('');
+            }
+
+            // Validate end date
+            if (!endDateInput.value) {
+                endDateInput.setCustomValidity('End date is required.');
+                errorMessages.push('End date is required.');
+                isValid = false;
+            } else {
+                endDateInput.setCustomValidity('');
+            }
+
+            // Validate end date is after start date
+            if (startDateInput.value && endDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
+                if (endDate < startDate) {
+                    endDateInput.setCustomValidity('End date must be after start date.');
+                    errorMessages.push('End date must be after start date.');
+                    isValid = false;
+                }
+            }
+        } else {
+            // Clear date validations for Pitch phase
+            startDateInput.setCustomValidity('');
+            endDateInput.setCustomValidity('');
+        }
+
         return isValid;
     }
 
-    // Add real-time validation listener only for project_name
+    // Add real-time validation listeners
     projectNameInput.addEventListener('input', validateForm);
+    headlineInput.addEventListener('input', validateForm);
+    whyInput.addEventListener('input', validateForm);
+    whatInput.addEventListener('input', validateForm);
+    startDateInput.addEventListener('change', validateForm);
+    endDateInput.addEventListener('change', validateForm);
 
     // Form submission validation
     form.addEventListener('submit', function(event) {
@@ -354,6 +466,26 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isFormValid || !isCheckValid) {
             // Show validation errors
             form.classList.add('was-validated');
+
+            // Collect all error messages
+            let errorMessages = [];
+            if (!projectNameInput.value.trim()) errorMessages.push('Project Name is required');
+            if (!headlineInput.value.trim()) errorMessages.push('Headline is required');
+            if (!whyInput.value.trim()) errorMessages.push('Why is required');
+            if (!whatInput.value.trim()) errorMessages.push('What is required');
+
+            const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+            const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+
+            if (phaseName !== 'pitch') {
+                if (!startDateInput.value) errorMessages.push('Start Date is required');
+                if (!endDateInput.value) errorMessages.push('End Date is required');
+            }
+
+            // Display error messages if any
+            if (errorMessages.length > 0) {
+                alert('Please fill in all required fields:\n\n' + errorMessages.join('\n'));
+            }
 
             // Focus on first invalid field
             const firstInvalid = form.querySelector(':invalid');
