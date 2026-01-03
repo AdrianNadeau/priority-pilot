@@ -167,8 +167,7 @@ exports.create = (req, res) => {
           // For admins: can update and view all projects
           // For non-admins: can update only if they are prime, can view if they are prime or sponsor
           const canModify = currentPerson
-            ? currentPerson.isAdmin ||
-              currentPerson.id === p.prime_id_fk
+            ? currentPerson.isAdmin || currentPerson.id === p.prime_id_fk
             : false;
           const canView = currentPerson
             ? currentPerson.isAdmin ||
@@ -453,8 +452,7 @@ exports.findAll = async (req, res) => {
           // For admins: can update and view all projects
           // For non-admins: can update only if they are prime, can view if they are prime or sponsor
           const canModify = currentPerson
-            ? isAdminFlag ||
-              currentPerson.id === p.prime_id_fk
+            ? isAdminFlag || currentPerson.id === p.prime_id_fk
             : false;
           const canView = currentPerson
             ? isAdminFlag ||
@@ -1223,8 +1221,8 @@ exports.radar = async (req, res) => {
       phaseStatsRaw.map((r) => [r.phase_id_fk, r]),
     );
 
-    // Build the ordered array phaseStats (including all phases: Pitch, Planning, Initiate, Execute, Close)
-    const PHASE_ORDER = [1, 2, 3, 4, 5];
+    // Build the ordered array phaseStats (including all phases: Pitch, Planning, Discovery, Delivery, Done, Archived)
+    const PHASE_ORDER = [3, 4, 5];
     const phaseStats = PHASE_ORDER.map((pid) => {
       const r = statsByPhase[pid] || {};
       return {
@@ -1402,7 +1400,7 @@ exports.radarData = async (req, res) => {
     const phaseStatsRaw = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 3] }, // Exclude Pitch and Planning phases
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch and Planning phases
         ...dateWhereConditions,
       },
       attributes: [
@@ -1555,7 +1553,7 @@ exports.radarData = async (req, res) => {
     const projects = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 3] }, // Exclude Pitch and Planning phases
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch and Planning phases
         ...dateWhereConditions,
       },
       attributes: ["health"],
@@ -1795,7 +1793,7 @@ exports.progress = async (req, res) => {
   // Use the same global filter approach as radar function (excluding Pitch phase)
   const baseWhere = {
     company_id_fk: companyId,
-    phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+    phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 6] }, // Exclude Pitch, Planning, Archived phase
   };
   const whereConditions = applyProjectDateFilter(req, baseWhere);
 
@@ -1901,7 +1899,7 @@ exports.countProjectsByTag1 = async (req, res) => {
     const tag1Counts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 6] }, // Exclude Pitch, Planning, Archived phase
         tag_1: {
           [Op.and]: {
             [Op.ne]: 0, // Ensure tag_1 is not 0
@@ -1983,7 +1981,7 @@ exports.countCostsByTag1 = async (req, res) => {
     const tag1Costs = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 6] }, // Exclude Pitch, Planning, Archived phase
         tag_1: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2085,7 +2083,7 @@ exports.countEffortByTag1 = async (req, res) => {
     const tag1Efforts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 6] }, // Exclude Pitch, Planning, Archived phase
         tag_1: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2178,7 +2176,7 @@ exports.countProjectsByTag2 = async (req, res) => {
     const tag2Counts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 6] }, // Exclude Pitch, Planning, Archived phase
         tag_2: {
           [Op.and]: {
             [Op.ne]: 0, // Ensure tag_2 is not 0
@@ -2250,7 +2248,7 @@ exports.countCostsByTag2 = async (req, res) => {
     const tag2Costs = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 6] }, // Exclude Pitch, Planning, Archived phase
         tag_2: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2352,7 +2350,7 @@ exports.countEffortByTag2 = async (req, res) => {
     const tag2Efforts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 6] }, // Exclude Pitch, Planning, Archived phase
         tag_2: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2445,7 +2443,7 @@ exports.countProjectsByTag3 = async (req, res) => {
     const tag3Counts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.ne]: 1 }, // Exclude Pitch phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 6] }, // Exclude Pitch, Planning, Archived phase
         tag_3: {
           [Op.and]: {
             [Op.ne]: 0, // Ensure tag_3 is not 0
@@ -2517,7 +2515,7 @@ exports.countCostsByTag3 = async (req, res) => {
     const tag3Costs = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 6] }, // Exclude Pitch, Planning, Archived phase
         tag_3: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -2619,7 +2617,7 @@ exports.countEffortByTag3 = async (req, res) => {
     const tag3Efforts = await db.projects.findAll({
       where: {
         company_id_fk: companyId,
-        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2] }, // Exclude Pitch phase and Initiatives phase
+        phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 6] }, // Exclude Pitch, Planning, Archived phase
         tag_3: {
           [Op.and]: {
             [Op.ne]: 0,
@@ -4362,8 +4360,7 @@ exports.exportHealthDataToCSV = async (req, res) => {
     // Filter and format data for CSV (same as health page filtering)
     const filteredData = data.filter(
       (project) =>
-        project.phase_name === "Discovery" ||
-        project.phase_name === "Delivery",
+        project.phase_name === "Discovery" || project.phase_name === "Delivery",
     );
 
     // Transform data for CSV export
