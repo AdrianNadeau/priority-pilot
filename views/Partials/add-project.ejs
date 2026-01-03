@@ -4,7 +4,7 @@
   <!-- Display validation errors if they exist -->
   <% if (typeof validationErrors !== 'undefined' && validationErrors && validationErrors.length > 0) { %>
     <div class="alert alert-danger" role="alert">
-      <h6><i class="fas fa-exclamation-triangle"></i> Please fix the following errors:</h6>
+      <h6><i class="mdi mdi-alert-circle"></i> Please fix the following errors:</h6>
       <ul class="mb-0">
         <% validationErrors.forEach(function(error) { %>
           <li><%= error %></li>
@@ -12,6 +12,12 @@
       </ul>
     </div>
   <% } %>
+
+  <!-- Client-side validation errors container -->
+  <div id="clientValidationErrors" class="alert alert-danger" role="alert" style="display: none;">
+    <h6><i class="mdi mdi-alert-circle"></i> Please fix the following errors:</h6>
+    <ul id="clientValidationErrorsList" class="mb-0"></ul>
+  </div>
 
   <div class="container">
     <div class="row">
@@ -484,7 +490,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Display error messages if any
             if (errorMessages.length > 0) {
-                alert('Please fill in all required fields:\n\n' + errorMessages.join('\n'));
+                const errorContainer = document.getElementById('clientValidationErrors');
+                const errorList = document.getElementById('clientValidationErrorsList');
+
+                // Clear previous errors
+                errorList.innerHTML = '';
+
+                // Add new error messages
+                errorMessages.forEach(function(message) {
+                    const li = document.createElement('li');
+                    li.textContent = message;
+                    errorList.appendChild(li);
+                });
+
+                // Show the error container
+                errorContainer.style.display = 'block';
+
+                // Scroll to the top to show errors
+                errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
 
             // Focus on first invalid field
@@ -492,10 +515,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (firstInvalid) {
                 console.log('First invalid field:', firstInvalid.name, firstInvalid.validationMessage);
                 firstInvalid.focus();
-                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         } else {
-            // Form is valid, submit it
+            // Form is valid, hide error messages and submit
+            const errorContainer = document.getElementById('clientValidationErrors');
+            errorContainer.style.display = 'none';
+
             console.log('Form is valid, submitting...');
             form.classList.add('was-validated');
             form.submit();
