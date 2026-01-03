@@ -706,11 +706,7 @@
           <!-- Modal content goes here -->
           <strong>Project Name:</strong> <%= project[0].project_name %><br/>
           <strong>Date: </strong><span id="view_status_date" style="width:100px"></span><br/>
-          
-            <% if(project[0].status_date) %>
-            <%=project[0].status_date %> <%=project[0].status_date %>
-          <strong>Prime:</strong><% if(project[0].prime_last_name) %>
-          <%=project[0].prime_last_name %>, <%=project[0].prime_first_name %>
+          <strong>Prime:</strong> <span id="view_status_prime"><% if (project[0].prime_last_name && project[0].prime_first_name) { %><%= project[0].prime_last_name %>, <%= project[0].prime_first_name %><% } else { %>N/A<% } %></span><br/>
           <div class="form-group">
             <label for="status_accomplishments"><strong>Accomplishments:</strong></label>
             <textarea id="view_status_accomplishments" class="form-control" rows="3" disabled></textarea>
@@ -843,8 +839,9 @@
   document.getElementById('view_status_progress').value = '';
   document.getElementById('view_status_health').value = '';
   document.getElementById('view_status_date').innerText = '';
+  document.getElementById('view_status_prime').innerText = '';
 
-  
+
   fetch(`/statuses/${id}`)
     .then(response => {
       if (!response.ok) {
@@ -853,7 +850,10 @@
       return response.json();
     })
     .then(data => {
-    
+      console.log("Status data received:", data);
+      console.log("Prime last name:", data.prime_last_name);
+      console.log("Prime first name:", data.prime_first_name);
+
       if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
       if (data.issue) document.getElementById('view_status_issue').value = data.issue;
       if (data.actions) document.getElementById('view_status_action').value = data.actions;
@@ -868,8 +868,15 @@
 
         // Format adjustedStatusDate to yyyy-mm-dd
         const formattedStatusDate = adjustedStatusDate.toISOString().split("T")[0];
-        
+
         document.getElementById('view_status_date').innerText = formattedStatusDate;
+      }
+
+      // Set Prime information
+      if (data.prime_last_name && data.prime_first_name) {
+        document.getElementById('view_status_prime').innerText = `${data.prime_last_name}, ${data.prime_first_name}`;
+      } else {
+        document.getElementById('view_status_prime').innerText = 'N/A';
       }
 
       // Open the modal
