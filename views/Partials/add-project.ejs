@@ -63,21 +63,21 @@
           <div class="form-row">
             <div class="col">
               <label for="start_date">Start:</label>
-              <input type="date" class="form-control" id="start_date" name="start_date" required value="<%= (typeof formData !== 'undefined' && formData && formData.start_date) ? formData.start_date : '' %>">
+              <input type="text" class="form-control flatpickr-input active" id="start_date" name="start_date" placeholder="YYYY-MM-DD" style="width: 150px;" required value="<%= (typeof formData !== 'undefined' && formData && formData.start_date) ? formData.start_date : '' %>" readonly="readonly">
               <div class="invalid-feedback">
                 Start date is required.
               </div>
             </div>
             <div class="col">
               <label for="end_date">End:</label>
-              <input type="date" class="form-control" id="end_date" name="end_date" required value="<%= (typeof formData !== 'undefined' && formData && formData.end_date) ? formData.end_date : '' %>">
+              <input type="text" class="form-control flatpickr-input active" id="end_date" name="end_date" placeholder="YYYY-MM-DD" style="width: 150px;" required value="<%= (typeof formData !== 'undefined' && formData && formData.end_date) ? formData.end_date : '' %>" readonly="readonly">
               <div class="invalid-feedback">
                 End date is required.
               </div>
             </div>
             <div class="col">
               <label for="next_milestone_date">Next Milestone:</label>
-              <input type="date" class="form-control" id="next_milestone_date" name="next_milestone_date" value="<%= (typeof formData !== 'undefined' && formData && formData.next_milestone_date) ? formData.next_milestone_date : '' %>">
+              <input type="text" class="form-control flatpickr-input active" id="next_milestone_date" name="next_milestone_date" placeholder="YYYY-MM-DD" style="width: 150px;" value="<%= (typeof formData !== 'undefined' && formData && formData.next_milestone_date) ? formData.next_milestone_date : '' %>" readonly="readonly">
             </div>
           </div>
           <div class="form-row" id="milestone_details_row" style="padding-top:5px;">
@@ -451,13 +451,55 @@ document.addEventListener('DOMContentLoaded', function() {
         return isValid;
     }
 
-    // Add real-time validation listeners
-    projectNameInput.addEventListener('input', validateForm);
-    headlineInput.addEventListener('input', validateForm);
-    whyInput.addEventListener('input', validateForm);
-    whatInput.addEventListener('input', validateForm);
-    startDateInput.addEventListener('change', validateForm);
-    endDateInput.addEventListener('change', validateForm);
+    // Add real-time validation listeners that clear errors when user types
+    projectNameInput.addEventListener('input', function() {
+        const value = projectNameInput.value.trim();
+        if (value) {
+            projectNameInput.classList.remove('is-invalid');
+            // Clear custom validity if the value passes basic checks
+            if (value.length >= 3 && value.length <= 255 &&
+                /^[a-zA-Z0-9\s\-_\.\(\)]+$/.test(value) &&
+                !/^[\s\-_\.\(\)]+$/.test(value) &&
+                !['test', 'temp', 'example', 'sample'].includes(value.toLowerCase())) {
+                projectNameInput.setCustomValidity('');
+            }
+        }
+    });
+
+    headlineInput.addEventListener('input', function() {
+        if (headlineInput.value.trim()) {
+            headlineInput.classList.remove('is-invalid');
+            headlineInput.setCustomValidity('');
+        }
+    });
+
+    whyInput.addEventListener('input', function() {
+        if (whyInput.value.trim()) {
+            whyInput.classList.remove('is-invalid');
+            whyInput.setCustomValidity('');
+        }
+    });
+
+    whatInput.addEventListener('input', function() {
+        if (whatInput.value.trim()) {
+            whatInput.classList.remove('is-invalid');
+            whatInput.setCustomValidity('');
+        }
+    });
+
+    startDateInput.addEventListener('change', function() {
+        if (startDateInput.value) {
+            startDateInput.classList.remove('is-invalid');
+            startDateInput.setCustomValidity('');
+        }
+    });
+
+    endDateInput.addEventListener('change', function() {
+        if (endDateInput.value) {
+            endDateInput.classList.remove('is-invalid');
+            endDateInput.setCustomValidity('');
+        }
+    });
 
     // Form submission validation
     form.addEventListener('submit', function(event) {
@@ -465,11 +507,28 @@ document.addEventListener('DOMContentLoaded', function() {
         event.stopPropagation();
 
         console.log('Form submit event triggered');
-        const isFormValid = validateForm();
-        const isCheckValid = form.checkValidity();
-        console.log('Custom validation:', isFormValid, 'HTML5 validation:', isCheckValid);
+        console.log('Project Name:', projectNameInput.value);
+        console.log('Headline:', headlineInput.value);
+        console.log('Why:', whyInput.value);
+        console.log('What:', whatInput.value);
+        console.log('Start Date:', startDateInput.value);
+        console.log('End Date:', endDateInput.value);
 
-        if (!isFormValid || !isCheckValid) {
+        // Run validation to set custom validity messages
+        validateForm();
+
+        // Now check if form is valid using HTML5 validation
+        const isCheckValid = form.checkValidity();
+        console.log('HTML5 validation after custom validation:', isCheckValid);
+
+        // Debug: Check which field is invalid
+        const invalidFields = form.querySelectorAll(':invalid');
+        console.log('Invalid fields count:', invalidFields.length);
+        invalidFields.forEach(field => {
+            console.log('Invalid field:', field.name, 'Validity:', field.validationMessage);
+        });
+
+        if (!isCheckValid) {
             // Show validation errors
             form.classList.add('was-validated');
 
@@ -527,7 +586,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Initialize validation on page load
-    validateForm();
+    // Initialize Flatpickr for date inputs
+    flatpickr('#start_date', {
+        dateFormat: 'Y-m-d',
+        allowInput: true,
+        onChange: function(selectedDates, dateStr, instance) {
+            if (dateStr) {
+                startDateInput.classList.remove('is-invalid');
+                startDateInput.setCustomValidity('');
+            }
+        }
+    });
+
+    flatpickr('#end_date', {
+        dateFormat: 'Y-m-d',
+        allowInput: true,
+        onChange: function(selectedDates, dateStr, instance) {
+            if (dateStr) {
+                endDateInput.classList.remove('is-invalid');
+                endDateInput.setCustomValidity('');
+            }
+        }
+    });
+
+    flatpickr('#next_milestone_date', {
+        dateFormat: 'Y-m-d',
+        allowInput: true
+    });
 });
 </script>

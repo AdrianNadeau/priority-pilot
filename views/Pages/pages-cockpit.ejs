@@ -53,6 +53,8 @@
   rel="stylesheet"
   href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css"
 />
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script
   type="text/javascript"
   src="https://www.gstatic.com/charts/loader.js"
@@ -591,7 +593,7 @@
                                 <!-- First column of form fields -->
                                 <div class="form-group needs-validation" novalidate>
                                   <strong>Status Date: </strong>
-                                  <input type="date" style="width:150px;" required class="form-control" id="status_date" name="status_date">
+                                  <input type="text" style="width:150px;" required class="form-control flatpickr-input" id="status_date" name="status_date" placeholder="YYYY-MM-DD">
                                   <div class="invalid-feedback">
                                     Please Status Date.
                                   </div>
@@ -757,14 +759,14 @@
 <script src="/public/assets/plugins/jquery-knob/excanvas.js"></script>
 <script src="/public/assets/plugins/jquery-knob/jquery.knob.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-<script> 
+<script>
   document.addEventListener("DOMContentLoaded", function() {
 (function () {
     'use strict'
-  
+
     // Fetch all the forms we want to apply custom Bootstrap validation styles to
     var forms = document.querySelectorAll('.needs-validation')
-  
+
     // Loop over them and prevent submission
     Array.prototype.slice.call(forms)
       .forEach(function (form) {
@@ -773,7 +775,7 @@
             event.preventDefault()
             event.stopPropagation()
           }
-  
+
           form.classList.add('was-validated')
         }, false)
       })
@@ -945,6 +947,18 @@ function getChange(event, id) {
 
 <!-- Flatpickr JS -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  // Initialize Flatpickr for status_date field
+  document.addEventListener("DOMContentLoaded", function() {
+    if (typeof flatpickr !== 'undefined') {
+      flatpickr('#status_date', {
+        dateFormat: 'Y-m-d'
+      });
+    } else {
+      console.error('Flatpickr library not loaded');
+    }
+  });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/moment"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>

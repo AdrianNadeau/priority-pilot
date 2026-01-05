@@ -1,14 +1,8 @@
 <%- contentFor('HeaderCss') %>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<!-- Bootstrap CSS -->
-
 
 <%- contentFor('breadcrumb') %>
 
 <%- contentFor('body') %>
-
-<!-- Load Flatpickr JS immediately before body content -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <!-- Define global functions immediately -->
 <script>
@@ -55,19 +49,19 @@
                           <label for="dates">Start Date and End Date: <span class="required_star">*</span></label>
                           <div class="form-row">
                             <div class="col">
-                              <input type="date" required class="form-control" id="start_date" name="start_date" value="<%= startDateTest %>">
+                              <input type="text" required class="form-control" id="start_date" name="start_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= startDateTest %>">
                               <div class="invalid-feedback">
                                 Start Date is required.
                               </div>
                             </div>
                             <div class="col">
-                              <input type="date" required class="form-control" id="end_date" name="end_date" value="<%= endDateTest %>">
+                              <input type="text" required class="form-control" id="end_date" name="end_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= endDateTest %>">
                               <div class="invalid-feedback">
-                                End Date is required.   
+                                End Date is required.
                               </div>
                             </div>
                             <div class="col">
-                              <input type="date" class="form-control" id="next_milestone_date" name="next_milestone_date" value="<%= nextMilestoneDateTest %>">
+                              <input type="text" class="form-control" id="next_milestone_date" name="next_milestone_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= nextMilestoneDateTest %>">
                             </div>
                           </div>
                           <div class="form-row" id="milestone_details_row" style="padding-top:5px;">
@@ -292,10 +286,7 @@
          </div><!-- /.modal-content -->
      </div><!-- /.modal-dialog -->
    </div><!-- /.modal -->
-   
-<%- contentFor('FooterJs') %>
 
-<%- contentFor('BottomJs') %>
 <script>
   // Form validation using Bootstrap's custom styles
   var forms = document.querySelectorAll('.needs-validation');
@@ -394,6 +385,27 @@
     const nextMilestoneDateInput = document.getElementById('next_milestone_date');
     const nextMilestoneDetailsInput = document.getElementById('next_milestone_date_details');
     const dateRequired = document.getElementById('dates_required');
+
+    // Initialize Flatpickr for date inputs
+    if (typeof flatpickr !== 'undefined') {
+        flatpickr('#start_date', {
+            dateFormat: 'Y-m-d',
+            allowInput: false,
+            clickOpens: true
+        });
+
+        flatpickr('#end_date', {
+            dateFormat: 'Y-m-d',
+            allowInput: false,
+            clickOpens: true
+        });
+
+        flatpickr('#next_milestone_date', {
+            dateFormat: 'Y-m-d',
+            allowInput: false,
+            clickOpens: true
+        });
+    }
 
     // Function to toggle date section and milestone details visibility
     function toggleDateSectionVisibility() {
