@@ -742,7 +742,6 @@ exports.cockpit = async (req, res) => {
     });
 
     res.render("Pages/pages-cockpit", {
-      layout: false,
       pageTitle: "Flight Deck",
       project: data,
       current_date: currentDate,
