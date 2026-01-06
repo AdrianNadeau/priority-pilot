@@ -154,10 +154,12 @@
                                     <% let currentPhase = ''; %>
                                     <% let health = ''; %>
                                     <% let statsHealth = ''; %>
-                            
+
                                     <% projects.forEach(project => { %>
+                                        <% if (project.phase_name && project.phase_name.toLowerCase() === 'done') { return; } %>
                                         <% if (project.phase_name !== currentPhase) { %>
-                                            <% currentPhase = project.phase_name; %>
+                                            <% currentPhase = project.phase_name;
+                                            console.log(currentPhase); %>
                                             <tr>
                                             <td colspan="12" style="background-color:#ececec;font-weight: bold; text-align: center;"><%= currentPhase %></td>
                                             </tr>
@@ -356,8 +358,13 @@ function updateHealthTable(projects) {
                     </tr>`;
     
     let currentPhase = '';
-    
+
     projects.forEach(project => {
+        // Skip "Done" phase projects
+        if (project.phase_name && project.phase_name.toLowerCase() === 'done') {
+            return;
+        }
+
         if (project.phase_name !== currentPhase) {
             currentPhase = project.phase_name;
             tableHTML += `
