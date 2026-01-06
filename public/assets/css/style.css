@@ -5031,8 +5031,7 @@ canvas {
   min-width: 300px; /* Reduced from 600px */
   text-align: center;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
 }
 /* Custom CSS */
 

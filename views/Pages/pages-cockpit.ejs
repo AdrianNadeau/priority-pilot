@@ -226,53 +226,86 @@
         <div class="content">
           <div class="topbar">
   <nav class="navbar-custom">
-    <div class="page-title-box">
-      <button type="button" class="button-menu-mobile open-left waves-effect">
-        <i class="ion-navicon"></i>
-      </button>
-      <h3 class="page-title"><%= pageTitle %></h3>
+    <% if (person) { %>
+      <div class="page-title-box">
+            <button type="button" class="button-menu-mobile open-left waves-effect">
+                <i class="ion-navicon"></i>
+            </button>
+            <h3 class="page-title"><%= pageTitle %></h3>
+            <div class="col-md-4">
+              <h3
+                class="page-title"
+                id="portfolioTitle"
+                name="portfolioTitle"
+                style="color: #34b871 !important; min-width: 400px"
+              >
+                <%= portfolio_name %>
+              </h3>
+            </div>
 
-      <!-- Fullscreen and User Account Section -->
-      <ul class="list-inline float-right mb-0" style="list-style: none; padding: 0; margin: 0;">
-        <!-- Fullscreen -->
-        <li class="list-inline-item dropdown notification-list hidden-xs-down">
-          <a class="nav-link waves-effect" href="#" id="btn-fullscreen">
-            <i class="mdi mdi-fullscreen noti-icon"></i>
-          </a>
-        </li>
 
-        <!-- User-->
-        <li class="list-inline-item dropdown notification-list">
-          <a
-            class="nav-link dropdown-toggle arrow-none waves-effect nav-user"
-            data-toggle="dropdown"
-            href="#"
-            role="button"
-            aria-haspopup="false"
-            aria-expanded="false"
-          >
-            <img
-              src="/public/assets/images/users/empty-avatar.webp"
-              alt="user"
-              class="rounded-circle"
-            />
-          </a>
-          <div class="dropdown-menu dropdown-menu-right profile-dropdown">
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#"
-              ><i class="mdi mdi-account-location"></i> Demo Admin</a
-            >
-            <a class="dropdown-item" href="/logout"
-              ><i class="dripicons-exit text-muted"></i> Logout</a
-            >
-          </div>
-        </li>
-      </ul>
+            <!-- Fullscreen -->
+             <ul>
+            <li class="list-inline-item dropdown notification-list hidden-xs-down">
+              <a class="nav-link waves-effect" href="#" id="btn-fullscreen">
+                <i class="mdi mdi-fullscreen noti-icon"></i>
+              </a>
+            </li>
+            <!-- language-->
+
+            <!-- User-->
+            <li class="list-inline-item dropdown notification-list">
+              <a
+                class="nav-link dropdown-toggle arrow-none waves-effect nav-user"
+                data-toggle="dropdown"
+                href="#"
+                role="button"
+                aria-haspopup="false"
+                aria-expanded="false"
+              >
+                <img
+                  src="/public/assets/images/users/empty-avatar.webp"
+                  alt="user"
+                  class="rounded-circle"
+                />
+              </a>
+              <div class="dropdown-menu dropdown-menu-right profile-dropdown">
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#"
+                  ><i class="mdi mdi-account-location"></i> <%=person.first_name%> <%=person.last_name%></a
+                >
+                <a class="dropdown-item" href="/logout"
+                  ><i class="dripicons-exit text-muted"></i> Logout</a
+                >
+              </div>
+            </li>
+          </ul>
     </div>
+
+    <% } %>
 
     <div class="clearfix"></div>
   </nav>
 </div>
+<style>
+  /* Quick Safari fix */
+  @media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .navbar-custom .row {
+      display: block !important;
+    }
+
+    .navbar-custom .col-md-4 {
+      display: inline-block;
+      vertical-align: middle;
+      width: 33.333333%;
+    }
+
+    #portfolioTitle {
+      min-width: auto !important;
+      max-width: 300px;
+    }
+  }
+</style>
 
         <div class="content">
           
@@ -311,7 +344,7 @@
               </div>
             </div>
             <div class="col-md-3">
-              <div style="margin-left: 8px; font-size: 16px;"><strong>Phase:</strong> 
+              <div style="margin-left: 8px; font-size: 16px;"><strong>Phase:</strong>
                 <% if (project[0].phase_name) { %>
                   <%= project[0].phase_name %>
                 <% } %>

@@ -3,7 +3,7 @@
     class="page-title"
     id="portfolioTitle"
     name="portfolioTitle"
-    style="color: #34b871 !important; min-width: 400px"
+    style="color: #34b871 !important; min-width: 400px; white-space: nowrap; overflow: visible;"
   >
     <%= portfolio_name %>
   </h3>
@@ -27,3 +27,34 @@
     }
   }
 </style>
+<script>
+  (function() {
+    function resizePortfolioTitle() {
+      const title = document.getElementById('portfolioTitle');
+      if (!title) return;
+
+      const container = title.parentElement;
+      const maxWidth = container.offsetWidth - 20; // 20px padding
+
+      // Start with default font size
+      let fontSize = 24; // Default h3 size
+      title.style.fontSize = fontSize + 'px';
+
+      // Reduce font size until it fits
+      while (title.scrollWidth > maxWidth && fontSize > 12) {
+        fontSize -= 0.5;
+        title.style.fontSize = fontSize + 'px';
+      }
+    }
+
+    // Run on page load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', resizePortfolioTitle);
+    } else {
+      resizePortfolioTitle();
+    }
+
+    // Run on window resize
+    window.addEventListener('resize', resizePortfolioTitle);
+  })();
+</script>
