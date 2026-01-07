@@ -102,7 +102,7 @@
                   <% if (project[0].next_milestone_date) { %>
                     <%= project[0].next_milestone_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
                     <% if (project[0].next_milestone_date && project[0].next_milestone_date_details) { %>
-                       <span style="font-size: 14px;"><%= project[0].next_milestone_date_details %></span>
+                       <br/><%= project[0].next_milestone_date_details %>
                       <% } %>
                   <% } %>
                 </div>
