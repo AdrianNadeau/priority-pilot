@@ -413,22 +413,20 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('DOM loaded - initializing projects page');
 
   /* DATE PICKERS */
-  flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
-  flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
-  
+  flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: window.updateProjectDayCount });
+  flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: window.updateProjectDayCount });
+
   // Initialize Flatpickr for all status date inputs in modals
   document.querySelectorAll('input[id^="status_date_"]').forEach(input => {
     flatpickr(input, { dateFormat: 'Y-m-d' });
   });
 
-  function updateDayCount() {
-    const from = from_date.value;
-    const to = to_date.value;
-    if (!from || !to) return dayCount.textContent = '';
-    const diff = Math.abs(new Date(to) - new Date(from));
-    const days = Math.ceil(diff / 86400000) + 1;
-    dayCount.textContent = '(' + days + ' day' + (days !== 1 ? 's' : '') + ')';
-  }
+  // Update day count on page load - with delay to ensure flatpickr has initialized
+  console.log('Calling updateProjectDayCount on page load');
+  setTimeout(function() {
+    console.log('Timeout fired, calling updateProjectDayCount');
+    window.updateProjectDayCount();
+  }, 100);
 
   /* ROW CLICK NAVIGATION */
   const rows = document.querySelectorAll('.project-row');

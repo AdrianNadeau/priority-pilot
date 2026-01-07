@@ -156,7 +156,7 @@
                                     <% let statsHealth = ''; %>
 
                                     <% projects.forEach(project => { %>
-                                        <% if (project.phase_name && project.phase_name.toLowerCase() === 'done') { return; } %>
+                                        <% if (project.phase_name && (project.phase_name.toLowerCase() === 'planning' || project.phase_name.toLowerCase() === 'done' || project.phase_name.toLowerCase() === 'pitch')) { return; } %>
                                         <% if (project.phase_name !== currentPhase) { %>
                                             <% currentPhase = project.phase_name;
                                             console.log(currentPhase); %>
@@ -360,8 +360,8 @@ function updateHealthTable(projects) {
     let currentPhase = '';
 
     projects.forEach(project => {
-        // Skip "Done" phase projects
-        if (project.phase_name && project.phase_name.toLowerCase() === 'done') {
+        // Skip Planning, Done, and Pitch phases
+        if (project.phase_name && (project.phase_name.toLowerCase() === 'planning' || project.phase_name.toLowerCase() === 'done' || project.phase_name.toLowerCase() === 'pitch')) {
             return;
         }
 

@@ -3355,26 +3355,31 @@ exports.health = async (req, res) => {
   const toDate = req.session.filtered_end;
 
   // Build date filter conditions for the SQL query
+  // Match dashboard logic: Pitch (phase_id_fk = 1) and Archived (phase_id_fk = 6) projects should always be shown regardless of date filters
   let dateFilter = "";
   let queryParams = [company_id_fk];
 
   if (fromDate && toDate) {
-    dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
-    queryParams.push(fromDate, toDate);
+    // Show projects that overlap with the filter period, but always include pitch and archived
+    dateFilter = " AND (proj.phase_id_fk IN (1, 6) OR (proj.start_date <= ? AND proj.end_date >= ?))";
+    queryParams.push(toDate, fromDate);
   } else if (fromDate) {
-    dateFilter = " AND proj.start_date >= ?";
+    // Show projects that end on or after the from date, but always include pitch and archived
+    dateFilter = " AND (proj.phase_id_fk IN (1, 6) OR proj.end_date >= ?)";
     queryParams.push(fromDate);
   } else if (toDate) {
-    dateFilter = " AND proj.end_date <= ?";
+    // Show projects that start on or before the to date, but always include pitch and archived
+    dateFilter = " AND (proj.phase_id_fk IN (1, 6) OR proj.start_date <= ?)";
     queryParams.push(toDate);
   }
 
-  const query = `SELECT 
+  const query = `SELECT
     company_id_fk,
     project_id,
     project_name,
     start_date,
     end_date,
+    next_milestone_date,
     health,
     effort,
     reference,
@@ -3387,7 +3392,7 @@ exports.health = async (req, res) => {
     company_effort,
     last_status,
     status_date,
-    phase_name 
+    phase_name
 FROM (
     SELECT DISTINCT ON (proj.id)
         proj.company_id_fk,
@@ -3395,6 +3400,7 @@ FROM (
         proj.project_name,
         proj.start_date,
         proj.end_date,
+        proj.next_milestone_date,
         proj.health,
         proj.effort,
         proj.reference,
@@ -3431,9 +3437,10 @@ FROM (
         ORDER BY status.status_date DESC
         LIMIT 1
     ) last_status ON true
-    WHERE proj.company_id_fk = ? AND proj.phase_id_fk NOT IN (1, 2)${dateFilter}
+    WHERE proj.company_id_fk = ? AND proj.deleted_yn = false${dateFilter}
     ORDER BY proj.id, last_status.status_date DESC NULLS LAST
 ) subquery
+WHERE phase_name NOT IN ('Planning', 'Done')
 ORDER BY
     CASE phase_name
         WHEN 'Discovery' THEN 1
@@ -3502,17 +3509,21 @@ exports.healthData = async (req, res) => {
     const toDate = req.query.to_date;
 
     // Build date filter conditions for the SQL query
+    // Match dashboard logic: Pitch (phase_id_fk = 1) and Archived (phase_id_fk = 6) projects should always be shown regardless of date filters
     let dateFilter = "";
     let queryParams = [company_id_fk];
 
     if (fromDate && toDate) {
-      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
-      queryParams.push(fromDate, toDate);
+      // Show projects that overlap with the filter period, but always include pitch and archived
+      dateFilter = " AND (proj.phase_id_fk IN (1, 6) OR (proj.start_date <= ? AND proj.end_date >= ?))";
+      queryParams.push(toDate, fromDate);
     } else if (fromDate) {
-      dateFilter = " AND proj.start_date >= ?";
+      // Show projects that end on or after the from date, but always include pitch and archived
+      dateFilter = " AND (proj.phase_id_fk IN (1, 6) OR proj.end_date >= ?)";
       queryParams.push(fromDate);
     } else if (toDate) {
-      dateFilter = " AND proj.end_date <= ?";
+      // Show projects that start on or before the to date, but always include pitch and archived
+      dateFilter = " AND (proj.phase_id_fk IN (1, 6) OR proj.start_date <= ?)";
       queryParams.push(toDate);
     }
 
@@ -3522,6 +3533,7 @@ exports.healthData = async (req, res) => {
       project_name,
       start_date,
       end_date,
+      next_milestone_date,
       health,
       effort,
       reference,
@@ -3542,6 +3554,7 @@ exports.healthData = async (req, res) => {
           proj.project_name,
           proj.start_date,
           proj.end_date,
+          proj.next_milestone_date,
           proj.health,
           proj.effort,
           proj.reference,
@@ -3578,9 +3591,10 @@ exports.healthData = async (req, res) => {
           ORDER BY status.status_date DESC
           LIMIT 1
       ) last_status ON true
-      WHERE proj.company_id_fk = ? AND proj.phase_id_fk NOT IN (1, 2)${dateFilter}
+      WHERE proj.company_id_fk = ? AND proj.deleted_yn = false${dateFilter}
       ORDER BY proj.id, last_status.status_date DESC NULLS LAST
   ) subquery
+  WHERE phase_name NOT IN ('Planning', 'Done')
   ORDER BY
       CASE phase_name
           WHEN 'Discovery' THEN 1
@@ -4286,6 +4300,7 @@ exports.exportHealthDataToCSV = async (req, res) => {
       project_name,
       start_date,
       end_date,
+      next_milestone_date,
       health,
       effort,
       reference,
@@ -4306,6 +4321,7 @@ exports.exportHealthDataToCSV = async (req, res) => {
           proj.project_name,
           proj.start_date,
           proj.end_date,
+          proj.next_milestone_date,
           proj.health,
           proj.effort,
           proj.reference,
@@ -4342,7 +4358,7 @@ exports.exportHealthDataToCSV = async (req, res) => {
           ORDER BY status.status_date DESC
           LIMIT 1
       ) last_status ON true
-      WHERE proj.company_id_fk = ? AND proj.phase_id_fk NOT IN (1, 2)${dateFilter}
+      WHERE proj.company_id_fk = ? AND proj.deleted_yn = false${dateFilter}
       ORDER BY proj.id, last_status.status_date DESC NULLS LAST
   ) subquery
   ORDER BY

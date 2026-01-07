@@ -26,6 +26,14 @@
   .flatpickr-calendar {
     z-index: 99999 !important;
   }
+
+  /* Prevent headline text from wrapping */
+  .mini-stat-info .counter {
+    white-space: nowrap;
+    overflow: visible;
+    display: block;
+    min-height: 30px;
+  }
 </style>
 
 <%- contentFor('breadcrumb') %>
