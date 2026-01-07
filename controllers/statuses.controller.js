@@ -133,7 +133,9 @@ exports.findOne = async (req, res) => {
     const status = await Status.findByPk(id);
 
     if (!status) {
-      return res.status(404).send({ message: `Cannot find Status with id=${id}.` });
+      return res
+        .status(404)
+        .send({ message: `Cannot find Status with id=${id}.` });
     }
 
     // If status has a prime_id_fk, fetch the prime person details
@@ -141,18 +143,15 @@ exports.findOne = async (req, res) => {
     if (status.prime_id_fk) {
       const Person = db.persons;
       primeInfo = await Person.findByPk(status.prime_id_fk);
-      console.log("Prime ID:", status.prime_id_fk);
-      console.log("Prime Info:", primeInfo ? primeInfo.toJSON() : "Not found");
     }
 
     // Combine status data with prime info
     const response = {
       ...status.toJSON(),
       prime_first_name: primeInfo ? primeInfo.first_name : null,
-      prime_last_name: primeInfo ? primeInfo.last_name : null
+      prime_last_name: primeInfo ? primeInfo.last_name : null,
     };
 
-    console.log("Response being sent:", response);
     res.send(response);
   } catch (err) {
     console.error("Error retrieving Status:", err);
