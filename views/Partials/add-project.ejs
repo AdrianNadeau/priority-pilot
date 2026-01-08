@@ -62,14 +62,14 @@
           
           <div class="form-row">
             <div class="col">
-              <label for="start_date">Start:</label>
+              <label for="start_date">Start:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
               <input type="text" class="form-control flatpickr-input active" id="start_date" name="start_date" placeholder="YYYY-MM-DD" style="width: 150px;" required value="<%= (typeof formData !== 'undefined' && formData && formData.start_date) ? formData.start_date : '' %>" readonly="readonly">
               <div class="invalid-feedback">
                 Start date is required.
               </div>
             </div>
             <div class="col">
-              <label for="end_date">End:</label>
+              <label for="end_date">End:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
               <input type="text" class="form-control flatpickr-input active" id="end_date" name="end_date" placeholder="YYYY-MM-DD" style="width: 150px;" required value="<%= (typeof formData !== 'undefined' && formData && formData.end_date) ? formData.end_date : '' %>" readonly="readonly">
               <div class="invalid-feedback">
                 End date is required.
