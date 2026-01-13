@@ -613,5 +613,46 @@ document.addEventListener('DOMContentLoaded', function() {
         dateFormat: 'Y-m-d',
         allowInput: true
     });
+
+    // Clear error messages when modal is opened
+    const addProjectModal = document.getElementById('addProject');
+    if (addProjectModal) {
+        // Using jQuery's modal show event (Bootstrap 4)
+        $(addProjectModal).on('show.bs.modal', function () {
+            // Hide client-side validation errors
+            const clientErrorContainer = document.getElementById('clientValidationErrors');
+            if (clientErrorContainer) {
+                clientErrorContainer.style.display = 'none';
+            }
+
+            // Clear the error list
+            const clientErrorList = document.getElementById('clientValidationErrorsList');
+            if (clientErrorList) {
+                clientErrorList.innerHTML = '';
+            }
+
+            // Remove validation classes and custom validity from form
+            if (form) {
+                form.classList.remove('was-validated');
+
+                // Clear all invalid states and custom validity messages
+                const allInputs = form.querySelectorAll('input, textarea, select');
+                allInputs.forEach(function(input) {
+                    input.classList.remove('is-invalid');
+                    input.setCustomValidity('');
+                });
+            }
+        });
+    }
+
+    // Also handle the link click that opens the modal
+    const openAddProjectModalLink = document.getElementById('openAddProjectModal');
+    if (openAddProjectModalLink) {
+        openAddProjectModalLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Trigger the modal
+            $('#addProject').modal('show');
+        });
+    }
 });
 </script>
