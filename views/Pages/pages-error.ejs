@@ -3,11 +3,15 @@
 <div id="notfound">
   <div class="notfound">
     <div class="notfound-404">
-      <h1><%= statusCode %></h1>
+      <h2>
+        Error Code: <%= statusCode %>
+        <br />
+        <%= errorMessage %><br />
+        <a href="/">Go To Login</a>
+      </h2>
+
+      <br />
     </div>
-    <h2>Oops! There was an error loading your page</h2>
-    <p><%= errorMessage %></p>
-    <a href="/">Go To Login</a>
   </div>
 </div>
 <% include ../Partials/FooterRoot %>

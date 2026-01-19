@@ -7,12 +7,17 @@ exports.create = (req, res) => {
   // Validate request
 
   if (!req.body.company_tag) {
-    res.status(400).send({
-      message: "Tag Name can not be empty!",
-    });
-    return;
+    const error = new Error("Tag name is required");
+    error.statusCode = 405;
+    throw error;
   }
-
+  // Validate health
+  const tagName = document.getElementById(`company_tag`);
+  console.log("tagName:", tagName);
+  if (!tagName.value || tagName.value === "") {
+    tagName.classList.add("is-invalid");
+    isValid = false;
+  }
   // Create a Tag
   const tag = {
     tag_name: req.body.company_tag,
