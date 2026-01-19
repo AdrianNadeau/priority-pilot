@@ -642,117 +642,39 @@ exports.radar = async (req, res) => {
   const companyId = req.session.company.id;
 
   try {
-    // One query: stats per phase, with conditional SUMs for health counts & costs
-    const phaseStatsRaw = await db.projects.findAll({
-      where: { company_id_fk: companyId },
-      attributes: [
-        "phase_id_fk",
-        // overall
-        [db.Sequelize.fn("COUNT", db.Sequelize.col("*")), "projectCount"],
-        [
-          db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.cast(
-              db.Sequelize.fn(
-                "NULLIF",
-                db.Sequelize.fn(
-                  "REPLACE",
-                  db.Sequelize.col("project_cost"),
-                  ",",
-                  "",
-                ),
-                "",
-              ),
-              "NUMERIC",
-            ),
-          ),
-          "totalCost",
-        ],
-        // Red
-        [
-          db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(
-              `CASE WHEN health='Red' 
-                THEN 1 ELSE 0 END`,
-            ),
-          ),
-          "redCount",
-        ],
-        [
-          db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(
-              `CASE WHEN health='Red' 
-                THEN CAST(REPLACE(project_cost,',','') AS NUMERIC) 
-                ELSE 0 END`,
-            ),
-          ),
-          "redCost",
-        ],
-        // Yellow
-        [
-          db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(`CASE WHEN health='Yellow' THEN 1 ELSE 0 END`),
-          ),
-          "yellowCount",
-        ],
-        [
-          db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(
-              `CASE WHEN health='Yellow' 
-                THEN CAST(REPLACE(project_cost,',','') AS NUMERIC)
-                ELSE 0 END`,
-            ),
-          ),
-          "yellowCost",
-        ],
-        // Green
-        [
-          db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(`CASE WHEN health='Green' THEN 1 ELSE 0 END`),
-          ),
-          "greenCount",
-        ],
-        [
-          db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(
-              `CASE WHEN health='Green' 
-                THEN CAST(REPLACE(project_cost,',','') AS NUMERIC)
-                ELSE 0 END`,
-            ),
-          ),
-          "greenCost",
-        ],
-        // No Status (NULL or empty)
-        [
-          db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(
-              `CASE WHEN health IS NULL OR health='' THEN 1 ELSE 0 END`,
-            ),
-          ),
-          "noStatusCount",
-        ],
-        [
-          db.Sequelize.fn(
-            "SUM",
-            db.Sequelize.literal(
-              `CASE WHEN health IS NULL OR health='' 
-                THEN CAST(REPLACE(project_cost,',','') AS NUMERIC)
-                ELSE 0 END`,
-            ),
-          ),
-          "noStatusCost",
-        ],
-      ],
-      group: ["phase_id_fk"],
-      raw: true,
-    });
+    // Query stats per phase using latest status health from statuses table
+    const phaseStatsRaw = await db.sequelize.query(
+      `
+      SELECT
+        p.phase_id_fk,
+        COUNT(*) AS "projectCount",
+        COALESCE(SUM(CAST(NULLIF(REPLACE(p.project_cost, ',', ''), '') AS NUMERIC)), 0) AS "totalCost",
+        SUM(CASE WHEN ls.health = 'Red' THEN 1 ELSE 0 END) AS "redCount",
+        SUM(CASE WHEN ls.health = 'Red' THEN COALESCE(CAST(NULLIF(REPLACE(p.project_cost, ',', ''), '') AS NUMERIC), 0) ELSE 0 END) AS "redCost",
+        SUM(CASE WHEN ls.health = 'Yellow' THEN 1 ELSE 0 END) AS "yellowCount",
+        SUM(CASE WHEN ls.health = 'Yellow' THEN COALESCE(CAST(NULLIF(REPLACE(p.project_cost, ',', ''), '') AS NUMERIC), 0) ELSE 0 END) AS "yellowCost",
+        SUM(CASE WHEN ls.health = 'Green' THEN 1 ELSE 0 END) AS "greenCount",
+        SUM(CASE WHEN ls.health = 'Green' THEN COALESCE(CAST(NULLIF(REPLACE(p.project_cost, ',', ''), '') AS NUMERIC), 0) ELSE 0 END) AS "greenCost",
+        SUM(CASE WHEN ls.health IS NULL OR ls.health = '' THEN 1 ELSE 0 END) AS "noStatusCount",
+        SUM(CASE WHEN ls.health IS NULL OR ls.health = '' THEN COALESCE(CAST(NULLIF(REPLACE(p.project_cost, ',', ''), '') AS NUMERIC), 0) ELSE 0 END) AS "noStatusCost"
+      FROM projects p
+      LEFT JOIN (
+        SELECT s.project_id_fk, s.health
+        FROM statuses s
+        INNER JOIN (
+          SELECT project_id_fk, MAX(status_date) AS max_status_date
+          FROM statuses
+          GROUP BY project_id_fk
+        ) latest ON s.project_id_fk = latest.project_id_fk AND s.status_date = latest.max_status_date
+      ) ls ON ls.project_id_fk = p.id
+      WHERE p.company_id_fk = ?
+      GROUP BY p.phase_id_fk
+      `,
+      {
+        replacements: [companyId],
+        type: db.Sequelize.QueryTypes.SELECT,
+      },
+    );
 
     // Fetch phase names and company headline
     const [phaseRows, company] = await Promise.all([
