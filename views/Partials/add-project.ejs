@@ -140,13 +140,14 @@
               </select>
             </div>
           </div>
-          <div class="col">
+          <div class="col" id="prime_section" style="display: none;">
             <div class="form-group">
               <label for="prime">Prime:</label>
               <select name="prime_id_fk" id="prime_id_fk" class="form-control">
-                <% 
+                <option value="-1">-- Select Prime --</option>
+                <%
                 // Remove duplicate primes by creating a unique array
-                const uniquePrimes = primes.filter((prime, index, self) => 
+                const uniquePrimes = primes.filter((prime, index, self) =>
                   index === self.findIndex(p => p.id === prime.id && p.first_name === prime.first_name && p.last_name === prime.last_name)
                 );
                 uniquePrimes.forEach(function(prime){ %>
@@ -251,7 +252,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const milestoneDetailsRow = document.getElementById('milestone_details_row');
     const phaseSelect = document.getElementById('phase_id_fk');
     const dateSection = document.getElementById('date_section');
-    
+    const primeSection = document.getElementById('prime_section');
+    const primeSelect = document.getElementById('prime_id_fk');
+
     // Function to toggle date section and milestone details visibility
     function toggleDateSectionVisibility() {
         const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
@@ -284,6 +287,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 // Show milestone details if phase is not pitch and not empty
                 toggleMilestoneDetails();
+            }
+        }
+
+        // Toggle Prime section visibility
+        if (primeSection) {
+            if (phaseName === 'pitch') {
+                // Hide Prime dropdown for Pitch phase and set value to -1
+                primeSection.style.display = 'none';
+                if (primeSelect) primeSelect.value = '-1';
+            } else {
+                // Show Prime dropdown for all other phases
+                primeSection.style.display = 'block';
             }
         }
     }
