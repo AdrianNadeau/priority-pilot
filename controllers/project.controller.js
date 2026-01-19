@@ -337,6 +337,7 @@ exports.findAll = async (req, res) => {
     proj.effort,
     proj.benefit,
     phases.phase_name,
+    proj.phase_id_fk,
     proj.prime_id_fk,
     proj.sponsor_id_fk,
     (SELECT COUNT(*) FROM statuses WHERE statuses.project_id_fk = proj.id) AS status_count
@@ -351,7 +352,7 @@ exports.findAll = async (req, res) => {
   WHERE
     proj.company_id_fk = ?
     AND proj.phase_id_fk NOT IN (1, 6)${dateFilter}
-  ORDER BY proj.project_name ASC;
+  ORDER BY phases.id ASC, proj.project_name ASC;
 `;
 
     const adminQuery = `
@@ -369,6 +370,7 @@ exports.findAll = async (req, res) => {
     proj.effort,
     proj.benefit,
     phases.phase_name,
+    proj.phase_id_fk,
     proj.prime_id_fk,
     proj.sponsor_id_fk,
     (SELECT COUNT(*) FROM statuses WHERE statuses.project_id_fk = proj.id) AS status_count
@@ -382,7 +384,7 @@ exports.findAll = async (req, res) => {
     phases ON phases.id = proj.phase_id_fk
   WHERE
     proj.company_id_fk = ?${dateFilter}
-  ORDER BY proj.project_name ASC;
+  ORDER BY phases.id ASC, proj.project_name ASC;
 `;
 
     const query = isAdminFlag ? adminQuery : nonAdminQuery;
