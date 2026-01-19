@@ -12,7 +12,8 @@
     (this.$wrapper = $("#wrapper")),
     (this.$btnFullScreen = $("#btn-fullscreen")),
     (this.$leftMenuButton = $(".button-menu-mobile")),
-    (this.$menuItem = $(".has_sub > a"));
+    (this.$menuItem = $(".has_sub > a")),
+    (this.$sidebarToggle = $("#sidebar-toggle"));
   };
   //scroll
   (MainApp.prototype.initSlimscroll = function () {
@@ -31,6 +32,22 @@
       $this.$body.toggleClass("fixed-left-void");
       $this.$wrapper.toggleClass("enlarged");
     });
+  }),
+  //sidebar toggle
+  (MainApp.prototype.initSidebarToggle = function () {
+    var $this = this;
+    this.$sidebarToggle.on("click", function (event) {
+      event.preventDefault();
+      $this.$wrapper.toggleClass("sidebar-collapsed");
+      // Save state to localStorage
+      var isCollapsed = $this.$wrapper.hasClass("sidebar-collapsed");
+      localStorage.setItem("sidebarCollapsed", isCollapsed);
+    });
+    // Restore state from localStorage on page load
+    var savedState = localStorage.getItem("sidebarCollapsed");
+    if (savedState === "true") {
+      $this.$wrapper.addClass("sidebar-collapsed");
+    }
   }),
   //left menu
   (MainApp.prototype.initComponents = function () {
@@ -149,6 +166,7 @@
   (MainApp.prototype.init = function () {
     this.initSlimscroll();
     this.initLeftMenuCollapse();
+    this.initSidebarToggle();
     this.initComponents();
     this.initFullScreen();
     this.initMenu();
