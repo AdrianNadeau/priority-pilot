@@ -5051,7 +5051,7 @@ canvas {
   background: transparent;
   border: none;
   color: rgba(255, 255, 255, 0.6);
-  font-size: 24px;
+  font-size: 48px;
   cursor: pointer;
   padding: 5px 10px;
   line-height: 1;
@@ -5064,6 +5064,27 @@ canvas {
 
 .sidebar-toggle-btn i {
   transition: transform 0.4s ease;
+}
+
+/* Logo styles */
+.topbar-left {
+  text-align: center;
+}
+
+.logo-full img {
+  width: 80px;
+  height: 80px;
+  padding: 10px;
+}
+
+.logo-small {
+  display: none;
+}
+
+.logo-small img {
+  width: 40px;
+  height: 40px;
+  padding: 5px;
 }
 
 /* Collapsed Sidebar State */
@@ -5080,8 +5101,12 @@ canvas {
   transform: rotate(180deg);
 }
 
-#wrapper.sidebar-collapsed .left.side-menu .logo {
+#wrapper.sidebar-collapsed .logo-full {
   display: none;
+}
+
+#wrapper.sidebar-collapsed .logo-small {
+  display: inline-block;
 }
 
 #wrapper.sidebar-collapsed #sidebar-menu > ul > li > a {

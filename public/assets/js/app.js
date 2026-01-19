@@ -40,9 +40,9 @@
 
     function updateToggleIcon(isCollapsed) {
       if (isCollapsed) {
-        $toggleIcon.removeClass("mdi-menu-open").addClass("mdi-menu");
+        $toggleIcon.removeClass("dripicons-folder-open").addClass("dripicons-folder");
       } else {
-        $toggleIcon.removeClass("mdi-menu").addClass("mdi-menu-open");
+        $toggleIcon.removeClass("dripicons-folder").addClass("dripicons-folder-open");
       }
     }
 
