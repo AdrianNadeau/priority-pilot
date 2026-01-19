@@ -255,6 +255,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const primeSection = document.getElementById('prime_section');
     const primeSelect = document.getElementById('prime_id_fk');
 
+    // Track previous phase for Pitch -> Done transition
+    let previousPhaseName = '';
+
     // Function to toggle date section and milestone details visibility
     function toggleDateSectionVisibility() {
         const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
@@ -264,40 +267,74 @@ document.addEventListener('DOMContentLoaded', function() {
             if (phaseName === 'pitch') {
                 // Hide entire date section when phase is Pitch
                 dateSection.style.display = 'none';
-                // Clear all date inputs when hiding
+                // Remove required attribute when hiding
                 if (document.getElementById('start_date')) {
-                    document.getElementById('start_date').value = '';
                     document.getElementById('start_date').removeAttribute('required');
                 }
                 if (document.getElementById('end_date')) {
-                    document.getElementById('end_date').value = '';
                     document.getElementById('end_date').removeAttribute('required');
                 }
-                if (nextMilestoneDateInput) nextMilestoneDateInput.value = '';
-                if (document.getElementById('next_milestone_date_details')) document.getElementById('next_milestone_date_details').value = '';
+            } else if (phaseName === 'done') {
+                // For Done phase: show dates if coming from Pitch, otherwise hide
+                if (previousPhaseName === 'pitch') {
+                    // Show date section when transitioning from Pitch to Done
+                    dateSection.style.display = 'block';
+                    // Dates not required for Done phase
+                    if (document.getElementById('start_date')) {
+                        document.getElementById('start_date').removeAttribute('required');
+                    }
+                    if (document.getElementById('end_date')) {
+                        document.getElementById('end_date').removeAttribute('required');
+                    }
+                    toggleMilestoneDetails();
+                } else {
+                    // Hide date section when Done is selected from other phases
+                    dateSection.style.display = 'none';
+                    if (document.getElementById('start_date')) {
+                        document.getElementById('start_date').removeAttribute('required');
+                    }
+                    if (document.getElementById('end_date')) {
+                        document.getElementById('end_date').removeAttribute('required');
+                    }
+                }
             } else {
                 // Show date section for all other phases
                 dateSection.style.display = 'block';
-                // Make dates required for non-Pitch phases
-                if (document.getElementById('start_date')) {
-                    document.getElementById('start_date').setAttribute('required', 'required');
-                }
-                if (document.getElementById('end_date')) {
-                    document.getElementById('end_date').setAttribute('required', 'required');
+
+                // Dates are required for all phases except Pitch, Done, and Archived
+                if (phaseName === 'archived') {
+                    // Show dates but don't require them for Archived phase
+                    if (document.getElementById('start_date')) {
+                        document.getElementById('start_date').removeAttribute('required');
+                    }
+                    if (document.getElementById('end_date')) {
+                        document.getElementById('end_date').removeAttribute('required');
+                    }
+                } else {
+                    // Make dates required for other phases
+                    if (document.getElementById('start_date')) {
+                        document.getElementById('start_date').setAttribute('required', 'required');
+                    }
+                    if (document.getElementById('end_date')) {
+                        document.getElementById('end_date').setAttribute('required', 'required');
+                    }
                 }
                 // Show milestone details if phase is not pitch and not empty
                 toggleMilestoneDetails();
             }
         }
 
-        // Toggle Prime section visibility
+        // Update previous phase for next change
+        previousPhaseName = phaseName;
+
+        // Toggle Prime section visibility - show for all phases except Pitch
         if (primeSection) {
             if (phaseName === 'pitch') {
                 // Hide Prime dropdown for Pitch phase and set value to -1
                 primeSection.style.display = 'none';
                 if (primeSelect) primeSelect.value = '-1';
             } else {
-                // Show Prime dropdown for all other phases
+                // Show Prime dropdown for all other phases including Done and Archived
                 primeSection.style.display = 'block';
             }
         }
@@ -424,11 +461,11 @@ document.addEventListener('DOMContentLoaded', function() {
             whatInput.setCustomValidity('');
         }
 
-        // Validate dates only if date section is visible (not Pitch phase)
+        // Validate dates only if date section is visible (not Pitch, Done, or Archived phase)
         const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
         const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
 
-        if (phaseName !== 'pitch') {
+        if (phaseName !== 'pitch' && phaseName !== 'done' && phaseName !== 'archived') {
             // Validate start date
             if (!startDateInput.value) {
                 startDateInput.setCustomValidity('Start date is required.');
@@ -458,7 +495,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         } else {
-            // Clear date validations for Pitch phase
+            // Clear date validations for Pitch, Done, and Archived phases
             startDateInput.setCustomValidity('');
             endDateInput.setCustomValidity('');
         }
@@ -557,7 +594,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
             const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
 
-            if (phaseName !== 'pitch') {
+            if (phaseName !== 'pitch' && phaseName !== 'done' && phaseName !== 'archived') {
                 if (!startDateInput.value) errorMessages.push('Start Date is required');
                 if (!endDateInput.value) errorMessages.push('End Date is required');
             }

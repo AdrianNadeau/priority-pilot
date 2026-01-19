@@ -1120,7 +1120,7 @@ exports.radar = async (req, res) => {
         [
           db.Sequelize.fn(
             "COUNT",
-            db.Sequelize.literal(`DISTINCT CASE WHEN health='Red' THEN id END`),
+            db.Sequelize.literal(`DISTINCT CASE WHEN LOWER(health)='red' THEN id END`),
           ),
           "redCount",
         ],
@@ -1128,8 +1128,8 @@ exports.radar = async (req, res) => {
           db.Sequelize.fn(
             "SUM",
             db.Sequelize.literal(
-              `CASE WHEN health='Red' 
-                THEN CAST(REPLACE(project_cost,',','') AS NUMERIC) 
+              `CASE WHEN LOWER(health)='red'
+                THEN CAST(REPLACE(project_cost,',','') AS NUMERIC)
                 ELSE 0 END`,
             ),
           ),
@@ -1140,7 +1140,7 @@ exports.radar = async (req, res) => {
           db.Sequelize.fn(
             "COUNT",
             db.Sequelize.literal(
-              `DISTINCT CASE WHEN health='Yellow' THEN id END`,
+              `DISTINCT CASE WHEN LOWER(health)='yellow' THEN id END`,
             ),
           ),
           "yellowCount",
@@ -1149,7 +1149,7 @@ exports.radar = async (req, res) => {
           db.Sequelize.fn(
             "SUM",
             db.Sequelize.literal(
-              `CASE WHEN health='Yellow' 
+              `CASE WHEN LOWER(health)='yellow'
                 THEN CAST(REPLACE(project_cost,',','') AS NUMERIC)
                 ELSE 0 END`,
             ),
@@ -1161,7 +1161,7 @@ exports.radar = async (req, res) => {
           db.Sequelize.fn(
             "COUNT",
             db.Sequelize.literal(
-              `DISTINCT CASE WHEN health='Green' THEN id END`,
+              `DISTINCT CASE WHEN LOWER(health)='green' THEN id END`,
             ),
           ),
           "greenCount",
@@ -1170,7 +1170,7 @@ exports.radar = async (req, res) => {
           db.Sequelize.fn(
             "SUM",
             db.Sequelize.literal(
-              `CASE WHEN health='Green' 
+              `CASE WHEN LOWER(health)='green'
                 THEN CAST(REPLACE(project_cost,',','') AS NUMERIC)
                 ELSE 0 END`,
             ),
@@ -1436,7 +1436,7 @@ exports.radarData = async (req, res) => {
         [
           db.Sequelize.fn(
             "COUNT",
-            db.Sequelize.literal(`DISTINCT CASE WHEN health='Red' THEN id END`),
+            db.Sequelize.literal(`DISTINCT CASE WHEN LOWER(health)='red' THEN id END`),
           ),
           "redCount",
         ],
@@ -1444,8 +1444,8 @@ exports.radarData = async (req, res) => {
           db.Sequelize.fn(
             "SUM",
             db.Sequelize.literal(
-              `CASE WHEN health='Red' 
-               THEN COALESCE(NULLIF(REPLACE(project_cost, ',', ''), '')::DECIMAL, 0) 
+              `CASE WHEN LOWER(health)='red'
+               THEN COALESCE(NULLIF(REPLACE(project_cost, ',', ''), '')::DECIMAL, 0)
                ELSE 0 END`,
             ),
           ),
@@ -1456,7 +1456,7 @@ exports.radarData = async (req, res) => {
           db.Sequelize.fn(
             "COUNT",
             db.Sequelize.literal(
-              `DISTINCT CASE WHEN health='Yellow' THEN id END`,
+              `DISTINCT CASE WHEN LOWER(health)='yellow' THEN id END`,
             ),
           ),
           "yellowCount",
@@ -1465,8 +1465,8 @@ exports.radarData = async (req, res) => {
           db.Sequelize.fn(
             "SUM",
             db.Sequelize.literal(
-              `CASE WHEN health='Yellow' 
-               THEN COALESCE(NULLIF(REPLACE(project_cost, ',', ''), '')::DECIMAL, 0) 
+              `CASE WHEN LOWER(health)='yellow'
+               THEN COALESCE(NULLIF(REPLACE(project_cost, ',', ''), '')::DECIMAL, 0)
                ELSE 0 END`,
             ),
           ),
@@ -1477,7 +1477,7 @@ exports.radarData = async (req, res) => {
           db.Sequelize.fn(
             "COUNT",
             db.Sequelize.literal(
-              `DISTINCT CASE WHEN health='Green' THEN id END`,
+              `DISTINCT CASE WHEN LOWER(health)='green' THEN id END`,
             ),
           ),
           "greenCount",
@@ -1486,8 +1486,8 @@ exports.radarData = async (req, res) => {
           db.Sequelize.fn(
             "SUM",
             db.Sequelize.literal(
-              `CASE WHEN health='Green' 
-               THEN COALESCE(NULLIF(REPLACE(project_cost, ',', ''), '')::DECIMAL, 0) 
+              `CASE WHEN LOWER(health)='green'
+               THEN COALESCE(NULLIF(REPLACE(project_cost, ',', ''), '')::DECIMAL, 0)
                ELSE 0 END`,
             ),
           ),

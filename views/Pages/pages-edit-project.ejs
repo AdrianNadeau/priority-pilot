@@ -793,6 +793,9 @@
     const nextMilestoneDetailsInput = document.getElementById('next_milestone_date_details');
     const dateRequired = document.getElementById('dates_required');
 
+    // Track previous phase for Pitch -> Done transition
+    let previousPhaseName = '';
+
     // Initialize Flatpickr for date inputs
     if (typeof flatpickr !== 'undefined') {
         flatpickr('#start_date', {
@@ -827,7 +830,7 @@
             const nextMilestoneDatePicker = nextMilestoneDateInput._flatpickr;
 
             if (phaseName === 'pitch') {
-                // Hide entire date section when phase is Pitch only
+                // Hide entire date section when phase is Pitch
                 console.log('Hiding date section for Pitch phase');
                 dateSection.style.display = 'none';
                 startDateInput.required = false;
@@ -847,13 +850,53 @@
                 startDateInput.value = startValue;
                 endDateInput.value = endValue;
                 nextMilestoneDateInput.value = milestoneValue;
+            } else if (phaseName === 'done') {
+                // For Done phase: show dates if coming from Pitch, otherwise hide
+                if (previousPhaseName === 'pitch') {
+                    // Show date section when transitioning from Pitch to Done
+                    console.log('Showing date section for Pitch -> Done transition');
+                    dateSection.style.display = 'block';
+                    startDateInput.required = false;
+                    endDateInput.required = false;
+                    dateRequired.style.display = 'none';
+                    // Restore flatpickr dates if inputs have values
+                    if (startDateInput.value && isValidDateString(startDateInput.value)) {
+                        try {
+                            if(startDatePicker) startDatePicker.setDate(startDateInput.value, false);
+                        } catch (error) {
+                            console.warn('Could not restore start date:', startDateInput.value);
+                        }
+                    }
+                    if (endDateInput.value && isValidDateString(endDateInput.value)) {
+                        try {
+                            if(endDatePicker) endDatePicker.setDate(endDateInput.value, false);
+                        } catch (error) {
+                            console.warn('Could not restore end date:', endDateInput.value);
+                        }
+                    }
+                    if (nextMilestoneDateInput.value && isValidDateString(nextMilestoneDateInput.value)) {
+                        try {
+                            if(nextMilestoneDatePicker) nextMilestoneDatePicker.setDate(nextMilestoneDateInput.value, false);
+                        } catch (error) {
+                            console.warn('Could not restore milestone date:', nextMilestoneDateInput.value);
+                        }
+                    }
+                    toggleMilestoneDetails();
+                } else {
+                    // Hide date section when Done is selected from other phases
+                    console.log('Hiding date section for Done phase');
+                    dateSection.style.display = 'none';
+                    startDateInput.required = false;
+                    endDateInput.required = false;
+                    dateRequired.style.display = 'none';
+                }
             } else {
-                // Show date section for all other phases including Done and Archived
+                // Show date section for all other phases
                 console.log('Showing date section for phase:', phaseName);
                 dateSection.style.display = 'block';
 
                 // Dates are required for all phases except Pitch, Done, and Archived
-                if (phaseName === 'done' || phaseName === 'archived') {
+                if (phaseName === 'archived') {
                     console.log('Dates NOT required for', phaseName);
                     startDateInput.required = false;
                     endDateInput.required = false;
@@ -898,8 +941,11 @@
                 toggleMilestoneDetails();
             }
         }
+
+        // Update previous phase for next change
+        previousPhaseName = phaseName;
     }
-    
+
     // Function to toggle milestone details visibility (separate from date section)
     function toggleMilestoneDetails() {
         const shouldShow = (nextMilestoneDateInput && nextMilestoneDateInput.value) || 
