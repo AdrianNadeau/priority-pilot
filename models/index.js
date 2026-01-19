@@ -8,12 +8,29 @@ const env = process.env.NODE_ENV || "development";
 console.log("ENVIRONMENT", env);
 console.log("LOGGING:", process.env.DB_LOGGING);
 const db = {};
-// Initialize Sequelize with the connection URL
+
+// Determine if we need SSL (only for remote databases, not localhost)
+const isRemoteDB = !process.env.DB_URL.includes("localhost");
+const dialectOptions = isRemoteDB
+  ? {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    }
+  : {};
+
 const sequelize = new Sequelize(process.env.DB_URL, {
   dialect: "postgres",
   logging: process.env.DB_LOGGING ? process.env.DB_LOGGING === "true" : true,
+  dialectOptions: dialectOptions,
+  pool: {
+    max: 100,
+    min: 2,
+    acquire: 30000,
+    idle: 30000,
+  },
 });
-
 db.companies = require("./company.model.js")(sequelize, Sequelize);
 db.persons = require("./person.model.js")(sequelize, Sequelize);
 db.change_logs = require("./change_log.model.js")(sequelize, Sequelize);

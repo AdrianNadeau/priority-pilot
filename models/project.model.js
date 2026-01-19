@@ -42,6 +42,9 @@ module.exports = (sequelize, Sequelize) => {
       next_milestone_date: {
         type: Sequelize.DATE,
       },
+      next_milestone_date_details: {
+        type: Sequelize.STRING,
+      },
 
       phase_id_fk: {
         type: Sequelize.INTEGER,

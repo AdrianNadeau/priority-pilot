@@ -1,26 +1,20 @@
 <%- contentFor('HeaderCss') %>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-  .dashboard-container {
-    width: 75%;
-    margin: 0 auto; /* Center the container */
+  /* Ensure filter section is visible */
+  .page-content-wrapper .row:first-child {
+    display: block !important;
   }
-  .chart-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-  .chart {
-    flex: 1;
-    margin: 10px;
-  }
-  /* Add hover-over pointer effect for pie charts */
-  #pieChart,
-  #tag1Chart,
-  #tag2Chart,
-  #tag3Chart {
-    cursor: pointer;
-  }
-  @media print {
+</style>
+
+<%- contentFor('body') %>
+
+<style>
+    @media print {
     /* Hide buttons and other unnecessary elements */
     #btnPrintPage,
     #btnExportHealth,
@@ -46,125 +40,862 @@
     }
   }
 </style>
+<div class="page-content-wrapper">
+  <div class="container-fluid">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-<%- contentFor('breadcrumb') %>
-<div class="row">
-  <div class="col-md-4">
-    <button type="button" class="button-menu-mobile open-left waves-effect">
-      <i class="ion-navicon"></i>
-    </button>
-    <h3 class="page-title">Radar</h3>
-    <button
-      type="button"
-      class="btn btn-primary waves-effect waves-light"
-      id="btnPrintPage"
-      name="btnPrintPage"
-    >
-      Download Report
-    </button>
-  </div>
-  <div class="col-md-4">
-    <h3
-      class="page-title portfolio-title"
-      style="color: #34b871; min-width: 600px"
-    >
-      <%= portfolio_name %>
-    </h3>
-  </div>
-  <div class="col-md-4 text-right">
-    <!-- Add any additional content here -->
-  </div>
-</div>
-<div class="row" class="progress-bar-container text-center">
-  <div class="col-md-12">
-    <span
-      style="margin-left: 45px; display: none"
-      id="download-label"
-      name="download-label"
-      >Reporting downloading...</span
-    >
-    <div class="progress" style="height: 24px; margin-left: 45px">
-      <div
-        class="progress-bar"
-        role="progressbar"
-        style="width: 0%"
-        aria-valuenow="0"
-        aria-valuemin="0"
-        aria-valuemax="100"
-      >
-        0%
+    <!-- Download Report Button -->
+    <div class="row mt-2 mb-3" style="margin-left: 0px;margin-right:0px;">
+      <div class="col-md-12">
+        <button
+          type="button"
+          class="btn btn-success waves-effect waves-light"
+          id="btnPrintPage"
+          name="btnPrintPage"
+        >
+          <i class="mdi mdi-download mr-1"></i> Download Report
+        </button>
       </div>
     </div>
-  </div>
-</div>
-<%- contentFor('body') %>
+   
+    <!-- Date Range Row -->
+    <div class="row mb-2 align-items-center" style="margin-left: 0px;margin-right:0px;min-height: 50px;height:50px;background:hsl(197, 70%, 91%); box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+      <div class="col-md-12 d-flex align-items-center">
+        <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
+        <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
+        <span class="text-muted" style="margin-right: 8px;">Start:</span>
+        <input type="text" class="form-control flatpickr-input active" id="from_date" name="from_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+        <span style="font-weight: 500; margin-right: 8px;">End:</span>
+        <input type="text" class="form-control flatpickr-input active" id="to_date" name="to_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+        <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
+        <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
+      </div>
+    </div>
+    
+    <script>
+     
+      // Calculate and display day count - make it globally available
+      window.updateDayCount = function() {
+        const from = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
+        const to = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
+        const dayCountSpan = document.getElementById('dayCount');
+      
+        
+        if (!dayCountSpan) {
+          console.error('dayCount span not found!');
+          return;
+        }
+        
+        if (from && to) {
+          const fromDate = new Date(from);
+          const toDate = new Date(to);
+          
+          if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+            const diffTime = Math.abs(toDate - fromDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
+            const dayText = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
+            dayCountSpan.textContent = dayText;
+            
+          } else {
+            dayCountSpan.textContent = '';
+            console.log('Invalid date format');
+          }
+        } else {
+          dayCountSpan.textContent = '';
+          console.log('Missing date(s) - from:', from, 'to:', to);
+        }
+      };
 
-<div class="page-content-wrapper">
-  <div class="container-fluid" style="margin-left: 0.5em">
+      // Wait for DOM to be fully loaded
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Flatpickr for date inputs
+        flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+        flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+        
+        // Update day count immediately
+        updateDayCount();
+      });
+    </script>
+    
+    <script>
+      // Filter function - needs to be available for onclick handler
+      function filterDashboard() {
+        const fromDate = document.getElementById('from_date').value;
+        const toDate = document.getElementById('to_date').value;
+        
+        console.log('Filter clicked with dates:', fromDate, toDate);
+        
+        // Send filter data to server to save in persons table
+        fetch('/update-filter', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from_date: fromDate,
+            to_date: toDate
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('Filter preferences saved successfully');
+            // Reload the page to apply session-based filtering
+            window.location.reload();
+          } else {
+            console.error('Error saving filter preferences:', data.message);
+            // Still reload to try to apply filters
+            window.location.reload();
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // Fallback: reload page
+          window.location.reload();
+        });
+      }
+    </script>
+    
+    <script>
+      
+      var phaseStatsData = <%- JSON.stringify(phaseStats) %>;
+      var portfolioHealthData = <%- JSON.stringify(portfolioHealth) %>;
+      
+      // Make data globally available
+      window.radarPageData = {
+        phaseStats: phaseStatsData,
+        portfolioHealth: portfolioHealthData
+      };
+      
+      // Check if Google Charts is available
+      if (typeof google !== 'undefined' && typeof google.charts !== 'undefined') {
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(initializeRadarCharts);
+      } else {
+        console.log('Waiting for Google Charts to load...');
+        window.addEventListener('load', function() {
+          if (typeof google !== 'undefined') {
+            google.charts.load('current', { packages: ['corechart'] });
+            google.charts.setOnLoadCallback(initializeRadarCharts);
+          } else {
+            console.error('Google Charts library not found!');
+          }
+        });
+      }
+      
+      function initializeRadarCharts() {
+       
+        drawInitiativesByPhaseChart();
+        drawInvestmentsByPhaseChart();
+        drawProgressAndHealthChartsInline();
+        drawTagCharts();
+      }
+      
+      function drawTagCharts() {
+       
+        drawTag1Charts();
+        drawTag2Charts();
+        drawTag3Charts();
+      }
+      
+      // Call updateDayCount after inline script executes (dates should be available)
+      if (typeof updateDayCount === 'function') {
+       
+        updateDayCount();
+      } else {
+        console.log('updateDayCount function not found yet');
+      }
+      
+      function drawTag1Charts() {
+        // Tag 1 Initiatives Chart
+        fetch('/projects/radar/countProjectsByTag1')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag1NoTags').innerText = 'No data found for tag 1';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Count']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && tag.project_count > 0) {
+                chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag1Chart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 1 Chart:', err); });
+        
+        // Tag 1 Cost Chart
+        fetch('/projects/radar/countCostsByTag1')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag1NoCostTags').innerText = 'No data found for tag 1 cost';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Cost']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_cost)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag1CostChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 1 Cost Chart:', err); });
+        
+        // Tag 1 Effort Chart
+        fetch('/projects/radar/countEffortByTag1')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag1NoEffortTags').innerText = 'No data found for tag 1 effort';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Effort']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_effort)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag1EffortChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 1 Effort Chart:', err); });
+      }
+      
+      function drawTag2Charts() {
+        // Tag 2 Initiatives Chart
+        fetch('/projects/radar/countProjectsByTag2')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag2NoTags').innerText = 'No data found for tag 2';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Count']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && tag.project_count > 0) {
+                chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag2Chart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 2 Chart:', err); });
+        
+        // Tag 2 Cost Chart
+        fetch('/projects/radar/countCostsByTag2')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag2NoCostTags').innerText = 'No data found for tag 2 cost';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Cost']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_cost)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag2CostChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 2 Cost Chart:', err); });
+        
+        // Tag 2 Effort Chart
+        fetch('/projects/radar/countEffortByTag2')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag2NoEffortTags').innerText = 'No data found for tag 2 effort';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Effort']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_effort)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag2EffortChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 2 Effort Chart:', err); });
+      }
+      
+      function drawTag3Charts() {
+        // Tag 3 Initiatives Chart
+        fetch('/projects/radar/countProjectsByTag3')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag3NoTags').innerText = 'No data found for tag 3';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Count']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseInt(tag.project_count) > 0) {
+                chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              tooltip: { text: 'value' },
+              pieSliceText: 'value',
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag3Chart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 3 Chart:', err); });
+        
+        // Tag 3 Cost Chart
+        fetch('/projects/radar/countCostsByTag3')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag3NoCostTags').innerText = 'No data found for tag 3 cost';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Cost']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_cost)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag3CostChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 3 Cost Chart:', err); });
+        
+        // Tag 3 Effort Chart
+        fetch('/projects/radar/countEffortByTag3')
+          .then(function(response) { return response.json(); })
+          .then(function(tagsData) {
+            if (!tagsData || tagsData.length === 0) {
+              document.getElementById('tag3NoEffortTags').innerText = 'No data found for tag 3 effort';
+              return;
+            }
+            
+            var chartData = [['Tag', 'Effort']];
+            var colors = [];
+            tagsData.forEach(function(tag) {
+              if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
+                chartData.push([tag.tag_name, parseFloat(tag.total_effort)]);
+                colors.push(tag.tag_color || '#6c757d');
+              }
+            });
+            
+            var data = google.visualization.arrayToDataTable(chartData);
+            var slices = {};
+            colors.forEach(function(c, i) { slices[i] = { color: c }; });
+            
+            var options = {
+              pieHole: 0.4,
+              backgroundColor: 'transparent',
+              width: 550,
+              height: 300,
+              legend: { position: 'none' },
+              slices: slices
+            };
+            
+            var chart = new google.visualization.PieChart(document.getElementById('tag3EffortChart'));
+            chart.draw(data, options);
+          })
+          .catch(function(err) { console.error('Error loading Tag 3 Effort Chart:', err); });
+      }
+      
+      function drawPortfolioHealthChart() {
+        var portfolioHealth = window.radarPageData.portfolioHealth;
+        if (!portfolioHealth || !portfolioHealth.counts) {
+          document.getElementById('pieChart').innerHTML = '<p style="color:#999;">No health data available</p>';
+          return;
+        }
+        
+        var dataArray = [['Status', 'Count']];
+        var labels = ['Healthy', 'Caution', 'In Trouble'];
+        portfolioHealth.counts.forEach(function(count, i) {
+          if (count > 0) {
+            dataArray.push([labels[i], count]);
+          }
+        });
+        
+        if (dataArray.length === 1) {
+          document.getElementById('pieChart').innerHTML = '<p style="color:#999;">No health data available</p>';
+          return;
+        }
+        
+        var data = google.visualization.arrayToDataTable(dataArray);
+        var options = {
+          pieHole: 0.4,
+          backgroundColor: 'transparent',
+          width: 600,
+          height: 350,
+          colors: portfolioHealth.colors,
+          legend: { position: 'right' },
+          pieSliceText: 'value'
+        };
+        
+        var chart = new google.visualization.PieChart(document.getElementById('pieChart'));
+        chart.draw(data, options);
+        console.log('Portfolio Health chart drawn');
+      }
+      
+      function drawProgressAndHealthChartsInline() {
+      
+        fetch('/projects/radar/progress/')
+          .then(function(response) { return response.json(); })
+          .then(function(data) {
+            
+            drawProgressChartInline(data);
+            drawHealthStatusChartInline(data);
+          })
+          .catch(function(err) {
+            console.error('Error loading Progress/Health data:', err);
+          });
+      }
+      
+      function drawProgressChartInline(data) {
+        
+        if (!data || !data.project_names || data.project_names.length === 0) {
+          document.getElementById('progressChart').parentElement.innerHTML = '<p style="color:#999;">No progress data available</p>';
+          return;
+        }
+        
+        var labels = [];
+        var progressValues = [];
+        var backgroundColors = [];
+        
+        data.project_names.forEach(function(projectName, index) {
+          var progress = data.progress[index] || 0;
+          var progressValue = typeof progress === 'number' ? progress :
+                             (typeof progress === 'string' && progress !== 'No status available') ?
+                             parseFloat(progress) : 0;
+          
+          var health = data.colors[index] || 'No status available';
+          
+          if (!health || health === 'No status available' || health === '' || health === null) {
+            return;
+          }
+          
+          labels.push(projectName);
+          progressValues.push(progressValue);
+          
+          if (health === 'green' || health === 'Green') {
+            backgroundColors.push('#28a745');
+          } else if (health === 'yellow' || health === 'Yellow') {
+            backgroundColors.push('#ffc107');
+          } else if (health === 'red' || health === 'Red') {
+            backgroundColors.push('#dc3545');
+          }
+        });
+        
+        if (labels.length === 0) {
+          document.getElementById('progressChart').parentElement.innerHTML = '<p style="color:#999;">No progress data available</p>';
+          return;
+        }
+        
+        var ctx = document.getElementById('progressChart').getContext('2d');
+        
+        if (window.progressChartInstance) {
+          window.progressChartInstance.destroy();
+        }
+        
+        window.progressChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Progress %',
+              data: progressValues,
+              backgroundColor: backgroundColors,
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                ticks: {
+                  font: {
+                    size: 10
+                  },
+                  maxRotation: 45,
+                  minRotation: 45
+                }
+              },
+              y: {
+                beginAtZero: true,
+                max: 100,
+                title: {
+                  display: true,
+                  text: 'Progress (%)'
+                },
+                grid: {
+                  color: '#eee'
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return context.parsed.y + '%';
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+      }
+      
+      function drawHealthStatusChartInline(data) {
+        
+        if (!data || !data.project_names || data.project_names.length === 0) {
+          document.getElementById('healthStatusChart').innerHTML = '<p style="color:#999;">No health data available</p>';
+          return;
+        }
+        
+        var healthCounts = { 'Green': 0, 'Yellow': 0, 'Red': 0 };
+        
+        data.colors.forEach(function(health) {
+          if (health === 'green' || health === 'Green') {
+            healthCounts['Green']++;
+          } else if (health === 'yellow' || health === 'Yellow') {
+            healthCounts['Yellow']++;
+          } else if (health === 'red' || health === 'Red') {
+            healthCounts['Red']++;
+          }
+        });
+        
+        var chartData = [['Health Status', 'Count']];
+        Object.keys(healthCounts).forEach(function(status) {
+          if (healthCounts[status] > 0) {
+            chartData.push([status, healthCounts[status]]);
+          }
+        });
+        
+        if (chartData.length === 1) {
+          document.getElementById('healthStatusChart').innerHTML = '<p style="color:#999;">No health status data available</p>';
+          return;
+        }
+        
+        var dataTable = google.visualization.arrayToDataTable(chartData);
+        var options = {
+          backgroundColor: 'transparent',
+          width: 650,
+          height: 400,
+          pieHole: 0.4,
+          colors: ['#28a745', '#ffc107', '#dc3545'],
+          legend: { position: 'right' },
+          pieSliceText: 'value'
+        };
+        
+        var chart = new google.visualization.PieChart(document.getElementById('healthStatusChart'));
+        chart.draw(dataTable, options);
+        
+      }
+      
+      function drawInitiativesByPhaseChart() {
+        
+        var stats = window.radarPageData.phaseStats;
+        if (!stats || stats.length === 0) {
+          document.getElementById('columnchart_values').innerHTML = '<p style="color:#999;">No data available</p>';
+          return;
+        }
+        
+        var dataArray = [['Phase', 'Trouble', 'Caution', 'Healthy', 'No Status']];
+        stats.forEach(function(s) {
+          dataArray.push([
+            s.phaseName,
+            s.troubleCount || 0,
+            s.cautionCount || 0,
+            s.healthyCount || 0,
+            s.noStatusCount || 0
+          ]);
+        });
+        
+        var data = google.visualization.arrayToDataTable(dataArray);
+        var options = {
+          isStacked: true,
+          width: 650,
+          height: 300,
+          colors: ['#dc3545','#ffc107','#28a745','#42a5f5'],
+          legend: { position: 'bottom' },
+          backgroundColor: 'transparent'
+        };
+        
+        var chart = new google.visualization.ColumnChart(document.getElementById('columnchart_values'));
+        chart.draw(data, options);
+       
+      }
+      
+      function drawInvestmentsByPhaseChart() {
+        
+        var stats = window.radarPageData.phaseStats;
+        if (!stats || stats.length === 0) {
+          document.getElementById('columnChartCost_values').innerHTML = '<p style="color:#999;">No data available</p>';
+          return;
+        }
+        
+        var dataArray = [['Phase', 'Trouble', 'Caution', 'Healthy', 'No Status']];
+        stats.forEach(function(s) {
+          dataArray.push([
+            s.phaseName,
+            s.troubleCost || 0,
+            s.cautionCost || 0,
+            s.healthyCost || 0,
+            s.noStatusCost || 0
+          ]);
+        });
+        
+        var data = google.visualization.arrayToDataTable(dataArray);
+        var options = {
+          isStacked: true,
+          width: 650,
+          height: 300,
+          colors: ['#dc3545','#ffc107','#28a745','#42a5f5'],
+          legend: { position: 'bottom' },
+          vAxis: { format: '$#,###' },
+          backgroundColor: 'transparent'
+        };
+        
+        var chart = new google.visualization.ColumnChart(document.getElementById('columnChartCost_values'));
+        chart.draw(data, options);
+       
+      }
+    </script>
+    
     <!-- Top row: Projects by Phase & Investment by Phase -->
     <div class="row mt-5">
-      <div class="col-lg-6 text-center">
-        <div id="columnchart_values"></div>
+      <div class="text-center" style="font-weight: 700;">
+        Initiatives by Phase
+        <div class="text-center;" style="align-items:center;" id="columnchart_values">
+          <p style="color: #999;">Loading chart...</p>
+        </div>
       </div>
-      <div class="col-lg-6 text-center">
-        <div id="columnChartCost_values"></div>
+      <div class="text-center" style="font-weight: 700;">
+        Investments by Phase
+        <div id="columnChartCost_values">
+          <p style="color: #999;">Loading chart...</p>
+        </div>
       </div>
     </div>
 
-    <!-- Second row: Progress Bar & Portfolio Health -->
+
+
+    <!-- Third row: Individual Project Progress and Health -->
     <div class="row mt-5">
-      <div class="col-lg-6 text-center">
-        <canvas id="barChart"></canvas>
+      <div class="col-lg-6 text-center" style="font-weight: 700;">
+        In-Flight Progress
+        <div style="position: relative; height: 400px; width: 100%;">
+          <canvas id="progressChart"></canvas>
+        </div>
       </div>
-      <div class="col-lg-6 text-center">
-        <div id="pieChart"></div>
+      <div class="col-lg-6 text-center" style="font-weight: 700;">
+        In-Flight Health
+        <div id="healthStatusChart"></div>
       </div>
     </div>
+
+
 
     <!-- Tag charts: three per row -->
     <div class="row mt-5">
-      <p><strong>Tag 1</strong></p>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-12">
+        <p><strong>Tag 1</strong></p>
+      </div>
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Initiatives</span>
         <div id="tag1Chart"></div>
         <span id="tag1NoTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Cost</span>
         <div id="tag1CostChart"></div>
         <span id="tag1NoCostTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Effort</span>
         <div id="tag1EffortChart"></div>
         <span id="tag1NoEffortTags" class="d-block"></span>
       </div>
     </div>
+
     <div class="row mt-3">
-      <p><strong>Tag 2</strong></p>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-12">
+        <p><strong>Tag 2</strong></p>
+      </div>
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Initiatives</span>
         <div id="tag2Chart"></div>
         <span id="tag2NoTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Cost</span>
         <div id="tag2CostChart"></div>
         <span id="tag2NoCostTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Effort</span>
         <div id="tag2EffortChart"></div>
         <span id="tag2NoEffortTags" class="d-block"></span>
       </div>
     </div>
+
     <div class="row mt-3">
-      <p><strong>Tag 3</strong></p>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-12">
+        <p><strong>Tag 3</strong></p>
+      </div>
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Initiatives</span>
         <div id="tag3Chart"></div>
         <span id="tag3NoTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Cost</span>
         <div id="tag3CostChart"></div>
         <span id="tag3NoCostTags" class="d-block"></span>
       </div>
-      <div class="col-lg-3 mb-4" style="margin-right: 50px">
+      <div class="col-lg-4 mb-4 text-center" style="font-weight: 700;">
+        <span>Effort</span>
         <div id="tag3EffortChart"></div>
         <span id="tag3NoEffortTags" class="d-block"></span>
       </div>
@@ -172,16 +903,229 @@
   </div>
 </div>
 
-<%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
+<script>
+  console.log("button:",document.getElementById("btnPrintPage"))
+     document.getElementById("btnPrintPage").addEventListener("click", function () {
+      alert("button clicked");
+    // Get portfolio name from session data or set a default
+    const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
+
+    // Create a style element for the print header
+    const style = document.createElement("style");
+    style.setAttribute("type", "text/css");
+    style.setAttribute("media", "print");
+
+    // Add CSS for the print header
+    const css = `
+      @page {
+        size: landscape;
+        margin-top: 3cm;
+      }
+      body::before {
+        content: "${portfolioName} - Radar Report";
+        display: block;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.5em;
+        margin-bottom: 1cm;
+      }
+      #btnPrintPage,
+      .page-buttons,
+      .button-menu-mobile,
+      .page-title,
+      .portfolio-title {
+        display: none !important;
+      }
+      .filter-section,
+      .mini-stat {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    `;
+
+    style.appendChild(document.createTextNode(css));
+    document.head.appendChild(style);
+
+    // Save the current title
+    const oldTitle = document.title;
+    const today = new Date();
+    const yyyy_mm_dd = today.toISOString().split('T')[0];
+
+    document.title = yyyy_mm_dd + " - PriorityPilot - Radar Report";
+
+    // Print
+    window.print();
+
+    // Restore the old title after a short delay
+    setTimeout(() => {
+      document.title = oldTitle;
+      // Remove the added style element
+      document.head.removeChild(style);
+    }, 1000);
+  });
+
+        // Add CSS for the print header
+        const css = `
+          @page {
+            size: landscape;
+            margin-top: 3cm;
+          }
+          body::before {
+            content: "${portfolioName} - Radar Report";
+            display: block;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.5em;
+            margin-bottom: 1cm;
+          }
+          #btnPrintPage,
+          .page-buttons,
+          .button-menu-mobile,
+          .page-title,
+          .portfolio-title {
+            display: none !important;
+          }
+          .filter-section,
+          .mini-stat {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        `;
+
+        style.appendChild(document.createTextNode(css));
+        document.head.appendChild(style);
+        console.log('Print style added to document head');
+
+        // Save the current title
+        const oldTitle = document.title;
+        const today = new Date();
+        const yyyy_mm_dd = today.toISOString().split('T')[0];
+        console.log('Old title:', oldTitle);
+        console.log('New title:', yyyy_mm_dd + " - PriorityPilot - Radar Report");
+
+        document.title = yyyy_mm_dd + " - PriorityPilot - Radar Report";
+
+        // Print
+        console.log('Calling window.print()...');
+        window.print();
+        console.log('window.print() called');
+
+        // Restore the old title after a short delay
+        setTimeout(() => {
+          console.log('Restoring original title and removing style');
+          document.title = oldTitle;
+          document.head.removeChild(style);
+          console.log('Cleanup complete');
+        }, 1000);
+      };
+      return true;
+    } else {
+      console.error('Print button NOT FOUND in DOM!');
+      return false;
+    }
+  }
+  
+  // Try to attach immediately
+  console.log('Trying to attach print handler immediately');
+  if (!attachPrintButtonHandler()) {
+    // If not found, try after a delay
+    console.log('Button not found, will retry in 500ms');
+    setTimeout(function() {
+      console.log('Retry attempt');
+      attachPrintButtonHandler();
+    }, 500);
+  }
+</script>
+
+<script>
+
+  function updateChartsWithFilteredData(data) {
+    // Update global phaseStats variable (no filtering - include all phases)
+    window.phaseStats = data.phaseStats;
+
+    // Redraw all charts with new data
+    drawProjectsByPhaseChart();
+    drawCostByPhaseChart();
+    drawProgressAndHealthCharts(); // Add progress and health charts
+    updatePortfolioHealthChart(data.portfolioHealth);
+    drawTagCharts(); // Now will use the date parameters in API calls
+  }
+  function updatePortfolioHealthChart(portfolioHealthData) {
+    const { labels, counts, colors } = portfolioHealthData;
+    const customLabels = ["Healthy", "Caution", "In Trouble"];
+
+    const total = counts.reduce((sum, count) => sum + count, 0);
+    const percentages = counts.map((count) =>
+      total > 0 ? Math.round((count / total) * 100) : 0,
+    );
+
+    const chartDataArray = [
+      ["Status", "Count", { role: "tooltip", p: { html: false } }],
+    ];
+    labels.forEach((label, i) => {
+      chartDataArray.push([
+        customLabels[i],
+        { v: counts[i], f: percentages[i] + "%" },
+        `${customLabels[i]}\n${counts[i]} (${percentages[i]}%)`,
+      ]);
+    });
+
+    const data = google.visualization.arrayToDataTable(chartDataArray);
+    const options = {
+      // title: "Portfolio Health3",
+      //   titleTextStyle: {
+      //   fontSize: 20,
+      //   bold: true,
+         
+      // },
+      pieHole: 0.4,
+      backgroundColor: "transparent",
+      width: 600,
+      height: 350,
+      colors: colors,
+      legend: {
+        position: "right",
+        textStyle: { color: "#333", fontSize: 14, alignment: 'center', },
+      },
+      pieSliceText: "value",
+      tooltip: { isHtml: false },
+    };
+
+    const pieChart = new google.visualization.PieChart(
+      document.getElementById("pieChart"),
+    );
+    pieChart.draw(data, options);
+  }
+</script>
 
 <script type="text/javascript">
+      console.log('RADAR PAGE SCRIPT LOADED - TOP');
       document.addEventListener("DOMContentLoaded", function() {
-        const portfolioTitle = document.getElementById("portfolioTitle");
-        console.error("DRAW!");
-        const barCtx = document.getElementById("barChart")?.getContext("2d");
-        if (!barCtx) {
-          console.error("Canvas element with ID 'barChart' not found!");
-          return;
+        console.log('RADAR PAGE - DOMContentLoaded fired');
+        // const portfolioTitle = document.getElementById("portfolioTitle");
+        // if (portfolioTitle) {
+        //   portfolioTitle.textContent = portfolioTitle;
+        // } else {
+        //   console.error("Portfolio title element not found!");
+        // }
+
+        // Global tag color mapping to ensure consistency across all charts
+        const globalTagColors = new Map();
+
+        function getTagColor(tagName, tagColor) {
+          if (!globalTagColors.has(tagName)) {
+            globalTagColors.set(tagName, tagColor || '#6c757d');
+          }
+          return globalTagColors.get(tagName);
+        }
+
+        // Convert colors array into Google Charts 'slices' option to assign per-slice colors
+        function colorsToSlices(colors) {
+          const slices = {};
+          colors.forEach((c, i) => {
+            slices[i] = { color: c };
+          });
+          return slices;
         }
 
         function parseFormattedCost(cost) {
@@ -195,160 +1139,61 @@
           return parseFloat(cost);
         }
 
-        google.charts.load('current', { packages: ['corechart'] });
-        google.charts.setOnLoadCallback(drawCharts);
+       
+        
+        // Make phaseStats a global variable
+        window.phaseStats = <%- JSON.stringify(phaseStats) %>;
+        console.log('window.phaseStats set to:', window.phaseStats);
+        
+        if (typeof google === 'undefined' || typeof google.charts === 'undefined') {
+          console.error('Google Charts library not loaded!');
+          document.getElementById('columnchart_values').innerHTML = '<p style="color:red;">Google Charts failed to load. Please refresh the page.</p>';
+        } else {
+          google.charts.load('current', { packages: ['corechart'] });
+          google.charts.setOnLoadCallback(function() {
+            console.log('Google Charts loaded, drawing charts...');
+            drawCharts();
+          });
+        }
 
         function drawCharts() {
+          console.log('drawCharts() called');
           // Draw all charts
-          drawProgressBarChart();
-          drawProjectsByPhaseChart();
-          drawCostByPhaseChart();
-          drawTagCharts();
+          try {
+            drawProjectsByPhaseChart();
+            drawCostByPhaseChart();
+            updatePortfolioHealthChart(<%- JSON.stringify(portfolioHealth) %>);
+            drawProgressAndHealthCharts();
+            drawTagCharts();
+            console.log('All charts drawn successfully');
+          } catch(err) {
+            console.error('Error drawing charts:', err);
+          }
         }
-
-        function drawProgressBarChart() {
-          // ---------------------------------------------
-          // 1) Progress Data & Bar Chart
-          // ---------------------------------------------
-          fetch(`/projects/radar/progress`)
-            .then((response) => response.json())
-            .then((progressData) => {
-              console.log("Progress Headline:", progressData);
-              if (
-                progressData &&
-                progressData.progress &&
-                Array.isArray(progressData.progress)
-              ) {
-                const colorMapping = {
-                  Green: "#28a745",
-                  Yellow: "#ffc107",
-                  Red: "#dc3545",
-                };
-
-                const validProgressData = progressData.progress.filter(
-                  (_, i) => progressData.colors[i].trim() !== "No status available"
-                );
-                const validColors = progressData.colors.filter(
-                  (color) => color.trim() !== "No status available"
-                );
-                const validProjectNames = progressData.project_names.filter(
-                  (_, i) => progressData.colors[i].trim() !== "No status available"
-                );
-                const mappedColors = validColors.map(
-                  (color) => colorMapping[color.trim()] || "#000000"
-                );
-
-                const barCtx = document.getElementById("barChart")?.getContext("2d");
-                console.log(barCtx); // Should log the 2D context or `null` if not found
-                new Chart(barCtx, {
-                  type: "bar",
-                  data: {
-                    labels: validProjectNames,
-                    datasets: [{
-                      label: "",
-                      data: validProgressData,
-                      backgroundColor: mappedColors,
-                      borderWidth: 1,
-                    }],
-                  },
-                  options: {
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: { stepSize: 10 },
-                        title: {
-                          display: true,
-                          text: "Progress (%)",
-                        },
-                      },
-                    },
-                    plugins: {
-                      title: { display: false },
-                      legend: { display: false },
-                      tooltip: {
-                        callbacks: {
-                          label: (tooltipItem) =>
-                            `Progress: ${Math.round(validProgressData[tooltipItem.dataIndex])}%`,
-                        },
-                      },
-                      datalabels: {
-                        anchor: "end",
-                        align: "end",
-                        formatter: (value) => Math.round(value) + "%",
-                        color: "#000",
-                        font: { weight: "bold" },
-                      },
-                    },
-                  },
-                  plugins: [ChartDataLabels],
-                });
-
-                // ---------------------------------------------
-                // 2) Portfolio Health Pie Chart
-                // ---------------------------------------------
-                const colorCounts = { Green: 0, Yellow: 0, Red: 0 };
-                validColors.forEach((color) => {
-                  if (colorCounts[color.trim()] !== undefined) {
-                    colorCounts[color.trim()] += 1;
-                  }
-                });
-
-                const labels = Object.keys(colorCounts);
-                const counts = Object.values(colorCounts);
-                const chartColors = ["#28a745", "#ffc107", "#dc3545"];
-                const total = counts.reduce((sum, count) => sum + count, 0);
-                const percentages = counts.map((count) =>
-                  Math.round((count / total) * 100)
-                );
-                const customLabels = ["Healthy", "Caution", "In Trouble"];
-
-                const chartDataArray = [
-                  ["Status", "Count", { role: "tooltip", p: { html: false } }],
-                ];
-                labels.forEach((label, i) => {
-                  chartDataArray.push([
-                    customLabels[i],
-                    { v: counts[i], f: percentages[i] + "%" },
-                    `${customLabels[i]}\n${counts[i]} (${percentages[i]}%)`,
-                  ]);
-                });
-
-                const data = google.visualization.arrayToDataTable(chartDataArray);
-                const options = {
-                  title: "Portfolio Health",
-                  pieHole: 0.4,
-                  backgroundColor: "transparent",
-                  width: 600,
-                  height: 350,
-                  colors: chartColors,
-                  legend: {
-                    position: "right",
-                    textStyle: { color: "#333", fontSize: 14 },
-                  },
-                  pieSliceText: "value",
-                  tooltip: { isHtml: false },
-                };
-
-                const pieChart = new google.visualization.PieChart(
-                  document.getElementById("pieChart")
-                );
-                pieChart.draw(data, options);
-              } else {
-                console.error("Expected an array but got:", progressData);
-              }
-            })
-            .catch((err) => console.error(err));
-        }
-
-        const phaseStats = <%- JSON.stringify(phaseStats) %>;
 
         function drawProjectsByPhaseChart() {
-          const phases          = phaseStats.map(p => p.phaseName);
-          const troubleCounts   = phaseStats.map(p => p.troubleCount);
-          const cautionCounts   = phaseStats.map(p => p.cautionCount);
-          const healthyCounts   = phaseStats.map(p => p.healthyCount);
-          const noStatusCounts  = phaseStats.map(p => p.noStatusCount);
+          console.log('drawProjectsByPhaseChart() called');
+          // Defensive: ensure window.phaseStats is an array
+          const stats = Array.isArray(window.phaseStats) ? window.phaseStats : [];
+          console.log('stats:', stats);
+          
+          if (!stats || stats.length === 0) {
+            console.warn('No phase stats data available');
+            document.getElementById('columnchart_values').innerHTML = '<p style="color:#999;">No data available for Initiatives by Phase</p>';
+            return;
+          }
+          
+          const phases          = stats.map(p => p.phaseName);
+          const troubleCounts   = stats.map(p => p.troubleCount);
+          const cautionCounts   = stats.map(p => p.cautionCount);
+          const healthyCounts   = stats.map(p => p.healthyCount);
+          const noStatusCounts  = stats.map(p => p.noStatusCount);
+          
+          console.log('phases:', phases);
+          console.log('troubleCounts:', troubleCounts);
+          console.log('cautionCounts:', cautionCounts);
+          console.log('healthyCounts:', healthyCounts);
+          console.log('noStatusCounts:', noStatusCounts);
 
           // Build annotations only for non‐zero values
           const ann = arr => arr.map(c => c > 0 ? String(c) : '');
@@ -357,26 +1202,26 @@
           const dataArray = [
             [
               'Phase',
-              'Trouble',   { type:'string', role:'annotation' },
-              'Caution',   { type:'string', role:'annotation' },
-              'Healthy',   { type:'string', role:'annotation' },
-              'No Status', { type:'string', role:'annotation' }
+              'Trouble',
+              'Caution',
+              'Healthy',
+              'No Status'
             ]
           ];
           phases.forEach((phase, i) => {
             dataArray.push([
               phase,
-              troubleCounts[i],  ann(troubleCounts)[i],
-              cautionCounts[i],  ann(cautionCounts)[i],
-              healthyCounts[i],  ann(healthyCounts)[i],
-              noStatusCounts[i], ann(noStatusCounts)[i]
+              Number(troubleCounts[i]),
+              Number(cautionCounts[i]),
+              Number(healthyCounts[i]),
+              Number(noStatusCounts[i])
             ]);
           });
 
           // Draw with Google Charts
           const data = google.visualization.arrayToDataTable(dataArray);
           const options = {
-            title: 'Initiatives by Phase',
+            // title: 'Initiatives by Phase',
             isStacked: true,
             width: 650,
             height: 300,
@@ -404,19 +1249,38 @@
             },
             backgroundColor: 'transparent'
           };
-          const chart = new google.visualization.ColumnChart(
-            document.getElementById('columnchart_values')
-          );
+          const chartContainer = document.getElementById('columnchart_values');
+          if (phases.length === 0 || (troubleCounts.every(c => c === 0) && cautionCounts.every(c => c === 0) && healthyCounts.every(c => c === 0) && noStatusCounts.every(c => c === 0))) {
+            chartContainer.innerHTML = '<p style="color:#dc3545;font-weight:bold;">No data available for Initiatives by Phase</p>';
+            return;
+          }
+          const chart = new google.visualization.ColumnChart(chartContainer);
           chart.draw(data, options);
         }
 
         function drawCostByPhaseChart() {
-          // Extract names & per‐status cost arrays from phaseStats
-          const phases         = phaseStats.map(p => p.phaseName);
-          const troubleCosts   = phaseStats.map(p => p.troubleCost);
-          const cautionCosts   = phaseStats.map(p => p.cautionCost);
-          const healthyCosts   = phaseStats.map(p => p.healthyCost);
-          const noStatusCosts  = phaseStats.map(p => p.noStatusCost);
+          console.log('drawCostByPhaseChart() called');
+          // Defensive: ensure window.phaseStats is an array
+          const stats = Array.isArray(window.phaseStats) ? window.phaseStats : [];
+          console.log('Cost chart - stats:', stats);
+          
+          if (!stats || stats.length === 0) {
+            console.warn('No phase stats data available for cost chart');
+            document.getElementById('columnChartCost_values').innerHTML = '<p style="color:#999;">No data available for Investments by Phase</p>';
+            return;
+          }
+          
+          const phases         = stats.map(p => p.phaseName);
+          const troubleCosts   = stats.map(p => p.troubleCost);
+          const cautionCosts   = stats.map(p => p.cautionCost);
+          const healthyCosts   = stats.map(p => p.healthyCost);
+          const noStatusCosts  = stats.map(p => p.noStatusCost);
+          
+          console.log('Cost chart - phases:', phases);
+          console.log('Cost chart - troubleCosts:', troubleCosts);
+          console.log('Cost chart - cautionCosts:', cautionCosts);
+          console.log('Cost chart - healthyCosts:', healthyCosts);
+          console.log('Cost chart - noStatusCosts:', noStatusCosts);
 
           // Formatter: only show annotation if cost > 0, add commas & dollar sign
           const fmt = n => {
@@ -453,7 +1317,7 @@
 
           // Chart options – stacked, currency axis, white annotations, one‐row legend
           const options = {
-            title: 'Investment by Phase',
+            // title: 'Investment by Phase',
             isStacked: true,
             width: 650,
             height: 300,
@@ -489,8 +1353,146 @@
           chart.draw(data, options);
         }
 
+        function drawProgressAndHealthCharts() {
+          // Fetch progress data - no need for query parameters since we use session-based filtering
+          fetch(`/projects/radar/progress/`)
+            .then((response) => response.json())
+            .then((data) => {
+              drawProgressChart(data);
+              drawHealthStatusChart(data);
+            })
+            .catch((err) => console.error("Error loading Progress/Health data:", err));
+        }
+
+        function drawProgressChart(data) {
+          if (!data || !data.project_names || data.project_names.length === 0) {
+            document.getElementById("progressChart").innerHTML = '<p>No progress data available</p>';
+            return;
+          }
+
+          // Create separate series for each health status to enable different colors (excluding No Status)
+          const chartData = [["Project", "Green", "Yellow", "Red"]];
+
+          data.project_names.forEach((projectName, index) => {
+            const progress = data.progress[index] || 0;
+            const progressValue = typeof progress === 'number' ? progress :
+                                  (typeof progress === 'string' && progress !== 'No status available') ?
+                                  parseFloat(progress) : 0;
+
+            const health = data.colors[index] || 'No status available';
+
+            // Skip projects with no status - don't include them in the chart
+            if (!health || health === 'No status available' || health === '' || health === null) {
+              return; // Skip this project
+            }
+
+            // Initialize row with zeros for all health statuses
+            const row = [projectName, 0, 0, 0];
+
+            // Set the progress value only for the appropriate health status column
+            if (health === 'green' || health === 'Green') {
+              row[1] = progressValue; // Green column
+            } else if (health === 'yellow' || health === 'Yellow') {
+              row[2] = progressValue; // Yellow column
+            } else if (health === 'red' || health === 'Red') {
+              row[3] = progressValue; // Red column
+            }
+            // No longer handling "No Status" cases
+
+            chartData.push(row);
+          });
+
+          const chartDataTable = google.visualization.arrayToDataTable(chartData);
+
+          const options = {
+            // title: 'Project Progress',
+            backgroundColor: 'transparent',
+            width: 650,
+            height: 400,
+            chartArea: { left: 80, top: 60, width: '75%', height: '70%' },
+            isStacked: true,
+            bar: { groupWidth: '70%' },
+            hAxis: {
+              textStyle: { fontSize: 10 }
+            },
+            vAxis: {
+              title: 'Progress %',
+              minValue: 0,
+              maxValue: 100,
+              format: '#\'%\'',
+              gridlines: { color: '#eee' }
+            },
+            legend: {
+              position: 'bottom',
+              textStyle: { fontSize: 10 }
+            },
+            colors: ['#28a745', '#ffc107', '#dc3545'] // Green, Yellow, Red (removed gray for No Status)
+          };
+
+          const chart = new google.visualization.ColumnChart(
+            document.getElementById('progressChart')
+          );
+          chart.draw(chartDataTable, options);
+        }
+
+        function drawHealthStatusChart(data) {
+          if (!data || !data.project_names || data.project_names.length === 0) {
+            document.getElementById("healthStatusChart").innerHTML = '<p>No health data available</p>';
+            return;
+          }
+
+          // Count health statuses (excluding No Status)
+          const healthCounts = { 'Green': 0, 'Yellow': 0, 'Red': 0 };
+
+          data.colors.forEach(health => {
+            if (health === 'green' || health === 'Green') {
+              healthCounts['Green']++;
+            } else if (health === 'yellow' || health === 'Yellow') {
+              healthCounts['Yellow']++;
+            } else if (health === 'red' || health === 'Red') {
+              healthCounts['Red']++;
+            }
+            // Skip "No Status" entries - don't count them
+          });
+
+          const chartData = [["Health Status", "Count"]];
+          Object.entries(healthCounts).forEach(([status, count]) => {
+            if (count > 0) {
+              chartData.push([status, count]);
+            }
+          });
+
+          if (chartData.length === 1) {
+            document.getElementById("healthStatusChart").innerHTML = '<p>No health status data available</p>';
+            return;
+          }
+          console.log("Health Status Chart Data:", chartData); // Debugging log
+          const chartDataTable = google.visualization.arrayToDataTable(chartData);
+
+          const options = {
+            // title: 'Project Health',
+            backgroundColor: 'transparent',
+            width: 650,
+            height: 400,
+            pieHole: 0.4,
+            colors: ['#28a745', '#ffc107', '#dc3545'], // Green, Yellow, Red (removed gray for No Status)
+            legend: {
+              position: 'right',
+              textStyle: { color: '#333', fontSize: 12 }
+            },
+            pieSliceText: 'value'
+          };
+
+          const chart = new google.visualization.PieChart(
+            document.getElementById('healthStatusChart')
+          );
+          chart.draw(chartDataTable, options);
+        }
+
         function drawTagCharts() {
-          // Tag 1 Chart
+          // Tag charts now use session-based filtering - no need for query parameters
+
+          // Tag 1 Chart with session-based filtering
           fetch(`/projects/radar/countProjectsByTag1`)
             .then((response) => response.json())
             .then((tagsData) => {
@@ -501,20 +1503,24 @@
               }
 
               const chartData = [["Tag", "Count"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && tag.project_count > 0) {
                   chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Initiatives ",
+                // title: "Initiatives ",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -524,7 +1530,7 @@
             })
             .catch((err) => console.error("Error loading Tag 1 Chart:", err));
 
-          // Tag 1 Cost Chart
+          // Tag 1 Cost Chart with date filtering
           fetch(`/projects/radar/countCostsByTag1`)
             .then((response) => response.json())
             .then((tagsData) => {
@@ -535,23 +1541,27 @@
               }
 
               const chartData = [["Tag", "Cost"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_cost),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Cost",
+                // title: "Cost",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -561,7 +1571,7 @@
             })
             .catch((err) => console.error("Error loading Tag 1 Cost Chart:", err));
 
-          // Tag 1 Effort Chart
+          // Tag 1 Effort Chart with date filtering
           fetch(`/projects/radar/countEffortByTag1`)
             .then((response) => response.json())
             .then((tagsData) => {
@@ -572,23 +1582,26 @@
               }
 
               const chartData = [["Tag", "Effort"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_effort),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Effort",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -598,7 +1611,7 @@
             })
             .catch((err) => console.error("Error loading Tag 1 Effort Chart:", err));
 
-          // Tag 2 Chart
+          // Tag 2 Chart with session-based filtering
           fetch(`/projects/radar/countProjectsByTag2`)
             .then((response) => response.json())
             .then((tagsData) => {
@@ -610,22 +1623,24 @@
               }
 
               const chartData = [["Tag", "Count"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && tag.project_count > 0) {
                   chartData.push([tag.tag_name, parseInt(tag.project_count)]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Initiatives",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
+                slices: colorsToSlices(colors),
               };
-
               const chart = new google.visualization.PieChart(
                 document.getElementById("tag2Chart")
               );
@@ -633,7 +1648,7 @@
             })
             .catch((err) => console.error("Error loading Tag 2 Chart:", err));
 
-            // Tag 2 Cost Chart
+            // Tag 2 Cost Chart with date filtering
           fetch(`/projects/radar/countCostsByTag2`)
             .then((response) => response.json())
             .then((tagsData) => {
@@ -644,23 +1659,26 @@
               }
 
               const chartData = [["Tag", "Cost"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_cost),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Cost",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -670,7 +1688,7 @@
             })
             .catch((err) => console.error("Error loading Tag 2 Cost Chart:", err));
 
-            // Tag 2 Effort Chart
+            // Tag 2 Effort Chart with date filtering
           fetch(`/projects/radar/countEffortByTag2`)
             .then((response) => response.json())
             .then((tagsData) => {
@@ -681,23 +1699,26 @@
               }
 
               const chartData = [["Tag", "Effort"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_effort),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Effort",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -707,7 +1728,7 @@
             })
             .catch((err) => console.error("Error loading Tag 2 Effort Chart:", err));
 
-          // Tag 3 Chart
+          // Tag 3 Chart with session-based filtering
           fetch(`/projects/radar/countProjectsByTag3`)
             .then((response) => response.json())
             .then((tagsData) => {
@@ -718,12 +1739,14 @@
               }
 
               const chartData = [["Tag 3", "Percentage"]];
+              const colors = [];
               let total = 0;
 
               tagsData.forEach((tag) => {
                 if (tag.tag_name !== null && parseInt(tag.project_count) > 0) {
                   const count = parseInt(tag.project_count);
                   chartData.push([tag.tag_name, count]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                   total += count;
                 }
               });
@@ -746,13 +1769,14 @@
               const data = google.visualization.arrayToDataTable(formattedData);
 
               const options = {
-                title: "Initiatives",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
                 tooltip: { text: "value" },
                 pieSliceText: "value",
+                legend: { position: 'none' },
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -762,7 +1786,7 @@
             })
             .catch((err) => console.error(err));
 
-            // Tag 3 Cost Chart
+            // Tag 3 Cost Chart with date filtering
           fetch(`/projects/radar/countCostsByTag3`)
             .then((response) => response.json())
             .then((tagsData) => {
@@ -773,23 +1797,26 @@
               }
 
               const chartData = [["Tag", "Cost"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_cost) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_cost),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Cost",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -799,7 +1826,7 @@
             })
             .catch((err) => console.error("Error loading Tag 3 Cost Chart:", err));
 
-            // Tag 3 Effort Chart
+            // Tag 3 Effort Chart with date filtering
           fetch(`/projects/radar/countEffortByTag3`)
             .then((response) => response.json())
             .then((tagsData) => {
@@ -810,23 +1837,26 @@
               }
 
               const chartData = [["Tag", "Effort"]];
+              const colors = [];
               tagsData.forEach((tag) => {
                 if (tag.tag_name && parseFloat(tag.total_effort) > 0) {
                   chartData.push([
                     tag.tag_name,
                     parseFloat(tag.total_effort),
                   ]);
+                  colors.push(getTagColor(tag.tag_name, tag.tag_color));
                 }
               });
 
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Effort",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
                 height: 300,
+                legend: { position: 'none' },
+                slices: colorsToSlices(colors),
               };
 
               const chart = new google.visualization.PieChart(
@@ -837,42 +1867,90 @@
             .catch((err) => console.error("Error loading Tag 3 Effort Chart:", err));
         }
       });
-     document.getElementById("btnPrintPage").addEventListener("click", function () {
-    // Get the progress bar element
-     const downloadLabel = document.getElementById("download-label");
-     console.log(downloadLabel);
-    downloadLabel.style.display = "block"; // Show the label
-    const progressBar = document.querySelector(".progress-bar");
-    let progress = 0;
-    progressBar.style.width = "0%";
-    progressBar.textContent = "0%";
-    const htmlContent = document.querySelector(".page-content-wrapper").innerHTML;
-    console.log(htmlContent);
-    // Animate progress bar from 0 to 100%
-    const interval = setInterval(() => {
-      progress += 2; // Increase speed as needed
-      if (progress > 100) progress = 100;
-      progressBar.style.width = progress + "%";
-      progressBar.textContent = progress + "%";
-      progressBar.setAttribute("aria-valuenow", progress);
+    </script>
+    
+    <script>
+     // Print button event listener - ensure DOM is fully loaded
+     console.log('Setting up window load listener for print button');
+     window.addEventListener('load', function() {
+       console.log('Window loaded, searching for print button');
+       const btnPrintPage = document.getElementById("btnPrintPage");
+       console.log('Print button element:', btnPrintPage);
+       if (btnPrintPage) {
+         console.log('Print button found, attaching event listener');
+         btnPrintPage.addEventListener("click", function () {
+           console.log('===== Print button clicked =====');
+           // Get portfolio name from session data or set a default
+           const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
+           console.log('Portfolio name:', portfolioName);
 
-      if (progress >= 100) {
-        clearInterval(interval);
-
-        // Now trigger your PDF generation here
-        // For example:
-
-        // generatePDF();
-        window.print();
-
-        // Optionally reset progress bar after printing
-        setTimeout(() => {
-          progressBar.style.width = "0%";
-          progressBar.textContent = "0%";
-          progressBar.setAttribute("aria-valuenow", 0);
-        }, 1000);
+    // Create a style element for the print header
+    console.log('Creating print style element');
+    const style = document.createElement("style");
+    style.setAttribute("type", "text/css");
+    style.setAttribute("media", "print");
+    console.log('Print style element created');    // Add CSS for the print header
+    const css = `
+      @page {
+        size: landscape;
+        margin-top: 3cm;
       }
-    }, 20); // Adjust interval speed as needed
-    downloadLabel.style.display = "none";
-  });
-</script>
+      body::before {
+        content: "${portfolioName} - Radar Report";
+        display: block;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.5em;
+        margin-bottom: 1cm;
+      }
+      #btnPrintPage,
+      .page-buttons,
+      .button-menu-mobile,
+      .page-title,
+      .portfolio-title {
+        display: none !important;
+      }
+      .filter-section,
+      .mini-stat {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    `;
+
+    style.appendChild(document.createTextNode(css));
+    document.head.appendChild(style);
+    console.log('Print style added to document head');
+
+    // Save the current title
+    const oldTitle = document.title;
+    const today = new Date();
+    const yyyy_mm_dd = today.toISOString().split('T')[0];
+    console.log('Current title:', oldTitle);
+    console.log('New title will be:', yyyy_mm_dd + " - PriorityPilot - Radar Report");
+
+    document.title = yyyy_mm_dd + " - PriorityPilot - Radar Report";
+    console.log('Title updated, opening print dialog...');
+
+    // Print
+    window.print();
+    console.log('Print dialog opened');
+
+    // Restore the old title after a short delay
+    setTimeout(() => {
+      console.log('Restoring original title');
+      document.title = oldTitle;
+      // Remove the added style element
+      document.head.removeChild(style);
+      console.log('Print style removed, title restored');
+    }, 1000);
+         });
+       } else {
+         console.error('Print button not found in DOM');
+       }
+     });
+  </script>
+  </div>
+</div>
+
+<%- contentFor('FooterJs') %>
+<%- contentFor('BottomJs') %>

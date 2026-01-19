@@ -6,31 +6,71 @@ const Op = db.Sequelize.Op;
 // Create and Save a new Status
 exports.create = async (req, res) => {
   try {
+    console.log("Status form data received:", req.body);
+
+    // Validate critical fields before processing - ensure they are ONLY numbers
+    if (req.body.project_id) {
+      const projectIdStr = String(req.body.project_id).trim();
+      if (!/^\d+$/.test(projectIdStr)) {
+        console.error(
+          "Invalid project_id format (contains non-digits):",
+          projectIdStr,
+        );
+        return res.status(400).send({ message: "Invalid project ID format." });
+      }
+    }
+    if (req.body.prime_id_fk) {
+      const primeIdStr = String(req.body.prime_id_fk).trim();
+      if (!/^\d+$/.test(primeIdStr)) {
+        console.error(
+          "Invalid prime_id_fk format (contains non-digits):",
+          primeIdStr,
+        );
+        return res.status(400).send({ message: "Invalid prime ID format." });
+      }
+    }
+
     const statusDate = req.body.status_date;
     if (!statusDate || isNaN(new Date(statusDate).getTime())) {
       return res.status(400).send({ message: "Invalid status date provided." });
     }
 
-    const parsedStatusDate = new Date(statusDate);
-    const adjustedStatusDate = new Date(
-      parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
+    const status = {
+      project_id_fk:
+        req.body.project_id &&
+        !isNaN(parseInt(req.body.project_id, 10)) &&
+        parseInt(req.body.project_id, 10) > 0
+          ? parseInt(req.body.project_id, 10)
+          : undefined,
+      prime_id_fk:
+        req.body.prime_id_fk &&
+        !isNaN(parseInt(req.body.prime_id_fk, 10)) &&
+        parseInt(req.body.prime_id_fk, 10) > 0
+          ? parseInt(req.body.prime_id_fk, 10)
+          : undefined,
+      progress: req.body.progress ? String(req.body.progress).trim() : null,
+      health: req.body.health ? String(req.body.health).trim() : null,
+      issue: req.body.issue ? String(req.body.issue).trim() : null,
+      actions: req.body.actions ? String(req.body.actions).trim() : null,
+      accomplishments: req.body.status_accomplishments
+        ? String(req.body.status_accomplishments).trim()
+        : null,
+      attachments: req.body.attachment
+        ? String(req.body.attachment).trim()
+        : null,
+      status_date: statusDate, // Save the date string directly
+    };
+
+    // Remove undefined keys so Sequelize uses defaults or NULL
+    Object.keys(status).forEach(
+      (key) => status[key] === undefined && delete status[key],
     );
 
-    const status = {
-      project_id_fk: req.body.project_id,
-      prime_id_fk: req.body.prime_id_fk,
-      progress: req.body.progress,
-      health: req.body.health,
-      issue: req.body.issue,
-      actions: req.body.actions,
-      accomplishments: req.body.status_accomplishments,
-      attachments: req.body.attachment,
-      status_date: adjustedStatusDate, // Save the adjusted date
-    };
+    console.log("Sanitized status object:", status);
 
     const data = await Status.create(status);
 
-    res.redirect("/");
+    res.redirect("/projects");
   } catch (err) {
     console.error("Error creating status:", err);
     res
@@ -57,36 +97,61 @@ exports.findAll = (req, res) => {
 
 // Retrieve all by projectId from the database.
 exports.findAllByProjectId = (req, res) => {
-  const project_id_fk = req.params.project_id_fk;
+  const project_id_fk = parseInt(req.params.project_id_fk, 10);
+  console.log("Finding statuses for project_id_fk:", project_id_fk);
+
+  if (isNaN(project_id_fk)) {
+    return res.status(400).send({
+      message: "Invalid project ID",
+    });
+  }
+
   Status.findAll({ where: { project_id_fk }, order: [["status_date", "DESC"]] })
     .then((data) => {
+      console.log(`Found ${data.length} statuses for project ${project_id_fk}`);
       res.send(data);
     })
     .catch((err) => {
+      console.error("Error finding statuses:", err);
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving companies.",
+          err.message || "Some error occurred while retrieving statuses.",
       });
     });
 };
 
 // Find a single Status with an id
-exports.findOne = (req, res) => {
+exports.findOne = async (req, res) => {
   const id = req.params.id;
 
-  Status.findByPk(id)
-    .then((data) => {
-      if (data) {
-        res.send(data);
-      } else {
-        res.status(404).send({ message: `Cannot find Status with id=${id}.` });
-      }
-    })
-    .catch((err) => {
-      res
-        .status(500)
-        .send({ message: "Error retrieving Status with id=" + id });
-    });
+  try {
+    const status = await Status.findByPk(id);
+
+    if (!status) {
+      return res
+        .status(404)
+        .send({ message: `Cannot find Status with id=${id}.` });
+    }
+
+    // If status has a prime_id_fk, fetch the prime person details
+    let primeInfo = null;
+    if (status.prime_id_fk) {
+      const Person = db.persons;
+      primeInfo = await Person.findByPk(status.prime_id_fk);
+    }
+
+    // Combine status data with prime info
+    const response = {
+      ...status.toJSON(),
+      prime_first_name: primeInfo ? primeInfo.first_name : null,
+      prime_last_name: primeInfo ? primeInfo.last_name : null,
+    };
+
+    res.send(response);
+  } catch (err) {
+    console.error("Error retrieving Status:", err);
+    res.status(500).send({ message: "Error retrieving Status with id=" + id });
+  }
 };
 
 // Update a Status by the id in the request

@@ -8,6 +8,7 @@ const sendEmail = require("../utils/emailSender");
 const sgMail = require("@sendgrid/mail");
 const ejs = require("ejs");
 const { v4: uuidv4 } = require("uuid");
+const moment = require("moment");
 const e = require("express");
 const Person = db.persons;
 const Company = db.companies;
@@ -16,8 +17,11 @@ const ChangedPasswordToken = db.changed_password_token;
 // Helper function to authenticate user credentials
 const authenticateUser = async (email, password) => {
   try {
+    // Check if email and password are provided
+    if (!email || !password) return null;
+
     const person = await Person.findOne({ where: { email } });
-    if (!person) return null;
+    if (!person || !person.password) return null;
 
     const isMatch = await bcrypt.compare(
       password.trim(),
@@ -40,16 +44,39 @@ exports.create = async (req, res, next) => {
       password,
       register_yn,
       isAdmin,
+      company_name,
+      company_headline,
+      portfolio_budget,
+      effort,
     } = req.body;
-    const company_id_fk = req.session.company?.id;
-
-    const company = await Company.findByPk(company_id_fk);
-    if (!company) throw new Error("Company not found.");
-
+    console.log("Registering user with email:", email);
+    console.log("Registering user with password:", password);
     if (!email || !password) {
-      const error = new Error("Email and password are required.");
+      const error = new Error(
+        "Email, password, and company name are required.",
+      );
       error.statusCode = 400;
       throw error;
+    }
+
+    // Always use the current session's company for new users (admin add)
+    let company_id_fk = null;
+    if (req.session.company && req.session.company.id) {
+      company_id_fk = req.session.company.id;
+    } else {
+      // For initial registration only, create company
+      if (register_yn === "y") {
+        const company = await Company.create({
+          company_name,
+          company_headline,
+        });
+        req.session.company = company;
+        company_id_fk = company.id;
+      } else {
+        const error = new Error("No company context found for new user.");
+        error.statusCode = 400;
+        throw error;
+      }
     }
 
     const existingPerson = await Person.findOne({ where: { email } });
@@ -66,7 +93,7 @@ exports.create = async (req, res, next) => {
       error.statusCode = 500;
       throw error;
     }
-    await Person.create({
+    const person = await Person.create({
       email,
       first_name,
       last_name,
@@ -75,8 +102,17 @@ exports.create = async (req, res, next) => {
       company_id_fk,
       isAdmin: isAdminStatus,
     });
-
-    res.redirect(register_yn === "y" ? "/" : "/persons");
+    req.session.person = {
+      id: person.id,
+      firstName: person.first_name,
+      lastName: person.last_name,
+      email: person.email,
+      company_id_fk: person.company_id_fk,
+      isAdmin: person.isAdmin,
+    };
+    req.session.save(() => {
+      res.redirect(register_yn === "y" ? "/" : "/persons");
+    });
   } catch (error) {
     next(error);
   }
@@ -86,14 +122,29 @@ exports.create = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   try {
     const company_id_fk = req.session.company?.id;
-    const data = await Person.findAll({
+
+    const rawData = await Person.findAll({
       where: { company_id_fk },
       order: [
         ["last_name", "ASC"],
         ["first_name", "ASC"],
       ],
     });
-    res.render("Pages/pages-persons", { persons: data });
+
+    // Remove any potential duplicates based on person ID
+    const uniquePersons = rawData.filter(
+      (person, index, self) =>
+        index === self.findIndex((p) => p.id === person.id),
+    );
+
+    console.log(
+      `DEBUG - Persons query: ${rawData.length} total records, ${uniquePersons.length} unique records`,
+    );
+
+    res.render("Pages/pages-persons", {
+      persons: uniquePersons,
+      pageTitle: "People",
+    });
   } catch (error) {
     next(error);
   }
@@ -103,17 +154,17 @@ exports.findAll = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    console.log("Login attempt with email:", email, password);
+
     const person = await authenticateUser(email, password);
-    console.log("Error logging in person:", email);
+
     if (!person) {
       const error = new Error("Invalid username or password.");
       error.statusCode = 401;
       throw error;
     }
-    console.log("Login successful for person:", person.id);
+
     const company = await Company.findByPk(person.company_id_fk);
-    console.log("Company found:", company ? company.id : "No company");
+
     if (!company) return res.redirect("/login");
 
     req.session.company = company;
@@ -126,14 +177,29 @@ exports.login = async (req, res, next) => {
       isAdmin: person.isAdmin,
     };
 
+    // Load user's saved filter preferences into session
+    if (person.filtered_start) {
+      // Format the date to ensure consistent display format (YYYY-MM-DD)
+      const formattedStart = moment(person.filtered_start).format("YYYY-MM-DD");
+      req.session.filtered_start = formattedStart;
+    }
+    if (person.filtered_end) {
+      // Format the date to ensure consistent display format (YYYY-MM-DD)
+      const formattedEnd = moment(person.filtered_end).format("YYYY-MM-DD");
+      req.session.filtered_end = formattedEnd;
+    }
+    // next_milestone_date_details column removed
+
     req.session.save((err) => {
       if (err) {
-        console.error("Session save error:", err);
-        return res.status(500).send("Internal Server Error");
+        console.error("🔥 SESSION SAVE ERROR:", err); // ← See real cause
+        return next(new Error("Session save failed."));
       }
+      console.log("✅ Session saved successfully");
       res.redirect("/");
     });
   } catch (error) {
+    console.log("Error logging in:", error);
     next(error);
   }
 };
@@ -163,7 +229,10 @@ exports.findOneForEdit = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    res.render("Pages/pages-edit-person", { personData });
+    res.render("Pages/pages-edit-person", {
+      personData,
+      pageTitle: "Edit Person",
+    });
   } catch (error) {
     next(error);
   }
@@ -215,7 +284,6 @@ exports.deleteAll = async (req, res, next) => {
   }
 };
 
-// Send Welcome Email
 // Send Welcome Email
 exports.sendWelcomeEmail = async (req, res) => {
   const personFirstName = req.session.person?.firstName;
@@ -301,7 +369,6 @@ exports.getChangePassword = async (req, res) => {
       return res.status(404).send("Invalid or expired token.");
     }
     const person_id_fk = tokenRecord.person_id_fk;
-    console.log("**************** GET TOKEN person id", person_id_fk);
 
     const person = await Person.findByPk(person_id_fk);
 
@@ -310,8 +377,9 @@ exports.getChangePassword = async (req, res) => {
     if (currentTime > tokenRecord.expires_at) {
       return res.status(400).send("Token has expired.");
     }
-    console.log("**************** GET TOKEN ", token);
+
     res.render("Pages/pages-change-password", {
+      pageTitle: "Change Password",
       token,
       person_id: person_id_fk,
       email: tokenRecord.email,
@@ -368,6 +436,7 @@ exports.updatePassword = async (req, res) => {
     });
     req.session.emailStatus = "Password updated successfully.";
     res.render("Pages/pages-change-updated", {
+      pageTitle: "Password Updated",
       layout: "layout-public",
       message: "Password updated successfully.",
     });

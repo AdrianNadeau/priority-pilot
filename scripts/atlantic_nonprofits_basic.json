@@ -1,0 +1,152 @@
+[
+  {
+    "source": "Known",
+    "name": "United Way Halifax",
+    "city": "Halifax",
+    "state": "NS",
+    "url": "https://www.unitedwayhalifax.ca/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "IWK Health Centre Foundation",
+    "city": "Halifax",
+    "state": "NS",
+    "url": "https://iwkfoundation.org/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "Feed Nova Scotia",
+    "city": "Halifax",
+    "state": "NS",
+    "url": "https://www.feednovascotia.ca/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "United Way of Greater Moncton",
+    "city": "Moncton",
+    "state": "NB",
+    "url": "https://www.unitedwaymoncton.ca/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "Hospice Greater Saint John",
+    "city": "Saint John",
+    "state": "NB",
+    "url": "https://www.hospicesaintjohn.ca/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "United Way PEI",
+    "city": "Charlottetown",
+    "state": "PE",
+    "url": "https://www.unitedwaypei.com/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "PEI Humane Society",
+    "city": "Charlottetown",
+    "state": "PE",
+    "url": "https://www.peihumanesociety.com/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "Janeway Children's Hospital Foundation",
+    "city": "St. John's",
+    "state": "NL",
+    "url": "https://www.janewayfoundation.nf.ca/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "Community Foundation of Newfoundland and Labrador",
+    "city": "St. John's",
+    "state": "NL",
+    "url": "https://www.cfnl.ca/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "Nova Scotia Nature Trust",
+    "city": "Halifax",
+    "state": "NS",
+    "url": "https://nsnt.ca/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "Heart and Stroke Foundation Nova Scotia",
+    "city": "Halifax",
+    "state": "NS",
+    "url": "https://www.heartandstroke.ca/what-we-do/in-your-community/nova-scotia",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "Canadian Cancer Society Nova Scotia",
+    "city": "Halifax",
+    "state": "NS",
+    "url": "https://cancer.ca/en/about-us/offices-and-contacts/nova-scotia",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "Big Brothers Big Sisters of Greater Halifax",
+    "city": "Halifax",
+    "state": "NS",
+    "url": "https://www.bigbrothersbigsisters.ca/en/local-agencies/greater-halifax/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "Salvation Army Nova Scotia",
+    "city": "Halifax",
+    "state": "NS",
+    "url": "https://www.salvationarmy.ca/nova-scotia/",
+    "ein": null,
+    "category": null,
+    "description": null
+  },
+  {
+    "source": "Known",
+    "name": "Easter Seals Nova Scotia",
+    "city": "Halifax",
+    "state": "NS",
+    "url": "https://www.easterseals.ns.ca/",
+    "ein": null,
+    "category": null,
+    "description": null
+  }
+]

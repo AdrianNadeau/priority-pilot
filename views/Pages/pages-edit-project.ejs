@@ -1,76 +1,95 @@
 <%- contentFor('HeaderCss') %>
-<!-- Bootstrap CSS -->
-
 
 <%- contentFor('breadcrumb') %>
-<div class="row">
-  <div class="col-md-4">
-    <button type="button" class="button-menu-mobile open-left waves-effect">
-      <i class="ion-navicon"></i>
-    </button>
-    <h3 class="page-title">Edit Project</h3>
-  </div>
-  <div class="col-md-4">
-    <h3
-      id = "portfolio_name" class="page-title"
-      style="color: #34b871; min-width: 600px"
-    >
-    <%= portfolio_name %>
-    </h3>
-  </div>
-  <div class="col-md-4 text-right">
-    <!-- Add any additional content here -->
-  </div>
-</div>
 
 <%- contentFor('body') %>
+
+<!-- Define global functions immediately -->
+<script>
+  window.submitForm = function() {
+    document.getElementById('editProjectForm').submit();
+  };
+
+  window.cancelForm = function(){
+    window.location.replace("/projects");
+  };
+</script>
 
 <div class="page-content-wrapper">
   <div class="container-fluid">
       <div class="row">
           <div class="col-lg-12">
             <div class="card-body" style="border:0px !important;">
+
+              <!-- Client-side validation errors container -->
+              <div id="clientValidationErrors" class="alert alert-danger" role="alert" style="display: none;">
+                <h6><i class="mdi mdi-alert-circle"></i> Please fix the following errors:</h6>
+                <ul id="clientValidationErrorsList" class="mb-0"></ul>
+              </div>
+
               <form action="/projects/<%= project.id %>" method="POST" class="needs-validation" novalidate id="editProjectForm">
+
                 <div class="row">
                     <div class="col-md-6">
+                        <div class="mb-2">
+                          <small class="text-danger"><i class="mdi mdi-asterisk"></i> Required</small>
+                        </div>
                         <div class="form-group">
-                          
-                            <label for="project_name">Project Name:</label>
-                            <input type="text" class="form-control" id="project_name" name="project_name" maxlength="25" value="<%= project.project_name %>" required>
+
+                            <label for="project_name">Project Name:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+                            <input type="text" class="form-control" id="project_name" name="project_name" maxlength="255" value="<%= project.project_name %>" required>
                             <div class="invalid-feedback">
-                                Please provide a project name.
+                                Project name is required.
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="project_headline">Headline:</label>
-                            <input type="text" class="form-control" id="project_headline" name="project_headline" maxlength="250" value="<%= project.project_headline %>">
+                            <label for="project_headline">Headline:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+                            <input type="text" class="form-control" id="project_headline" name="project_headline" maxlength="250" value="<%= project.project_headline %>" required>
+                            <div class="invalid-feedback">
+                                Headline is required.
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="project_why">Why?</label>
-                            <textarea rows="4" class="form-control" id="project_why" name="project_why"><%= project.project_why %></textarea>
+                            <label for="project_why">Why?</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+                            <textarea rows="4" class="form-control" id="project_why" name="project_why" maxlength="1000" required><%= project.project_why %></textarea>
+                            <div class="invalid-feedback">
+                                Why is required.
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="project_what">What?</label>
-                            <textarea rows="4" class="form-control" id="project_what" name="project_what"><%= project.project_what %></textarea>
+                            <label for="project_what">What?</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+                            <textarea rows="4" class="form-control" id="project_what" name="project_what" maxlength="500" required><%= project.project_what %></textarea>
+                            <div class="invalid-feedback">
+                                What is required.
+                            </div>
                         </div>
                         
                        <div class="form-group" id="date_section">
-                          <label for="dates">Start Date and End Date: <span class="required_star">*</span></label>
+
                           <div class="form-row">
                             <div class="col">
-                              <input type="text" required class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date" value="<%= startDateTest %>">
+                              <label for="start_date">Start:</label>
+                              <input type="text" required class="form-control" id="start_date" name="start_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= startDateTest %>">
                               <div class="invalid-feedback">
                                 Start Date is required.
                               </div>
                             </div>
                             <div class="col">
-                              <input type="text" required class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date" value="<%= endDateTest %>">
+                              <label for="end_date">End:</label>
+                              <input type="text" required class="form-control" id="end_date" name="end_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= endDateTest %>">
                               <div class="invalid-feedback">
-                                End Date is required.   
+                                End Date is required.
                               </div>
                             </div>
                             <div class="col">
-                              <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date" value="<%= nextMilestoneDateTest %>">
+                              <label for="next_milestone_date">Next Milestone:</label>
+                              <input type="text" class="form-control" id="next_milestone_date" name="next_milestone_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= nextMilestoneDateTest %>">
+                            </div>
+                          </div>
+                          <div class="form-row" id="milestone_details_row" style="padding-top:5px;">
+                            <div class="col">
+                              <input type="text" class="form-control" id="next_milestone_date_details" name="next_milestone_date_details" placeholder="Next Milestone Details" maxlength="100" value="<%= project.next_milestone_date_details || '' %>">
+                              <small class="form-text text-muted">Maximum 100 characters</small>
                             </div>
                           </div>
                           <div><span class="required_star" id ="dates_required" style="display:none;">Start and End dates are required</span></span></div>
@@ -225,7 +244,7 @@
     
         <div class="modal-footer">
          <button type="button" class="btn btn-secondary waves-effect" onclick="cancelForm()" data-dismiss="modal">Cancel</button>
-         <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#openConfirm" id="btnOpenConfirm">Submit</button>
+         <button type="button" class="btn btn-primary waves-effect waves-light" id="btnOpenConfirm">Submit</button>
          <!-- <button class="btn btn-danger w-md waves-effect waves-light" onclick="archiveProject('<%= project.id %>');" type="submit">Archive</button> -->
 
      </div>
@@ -277,8 +296,8 @@
                              </div>
                          </div>
                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
-                            <button class="btn btn-primary w-md waves-effect waves-light" onclick="submitForm();" type="submit">Confirm</button>
+                            <button type="button" class="btn btn-secondary waves-effect" onclick="window.location.replace('/projects')" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary w-md waves-effect waves-light" onclick="window.submitForm();" type="submit">Confirm</button>
                            
                         </div>
                      </form>
@@ -289,10 +308,7 @@
          </div><!-- /.modal-content -->
      </div><!-- /.modal-dialog -->
    </div><!-- /.modal -->
-   
-<%- contentFor('FooterJs') %>
 
-<%- contentFor('BottomJs') %>
 <script>
   // Form validation using Bootstrap's custom styles
   var forms = document.querySelectorAll('.needs-validation');
@@ -311,22 +327,419 @@
   document.addEventListener("DOMContentLoaded", function() {
     'use strict';
 
+    // Get form elements for validation
+    const form = document.getElementById('editProjectForm');
+    const projectNameInput = document.getElementById('project_name');
+    const headlineInput = document.getElementById('project_headline');
+    const whyInput = document.getElementById('project_why');
+    const whatInput = document.getElementById('project_what');
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const phaseSelect = document.getElementById("phase_id_fk");
+    const submitButton = document.getElementById('btnOpenConfirm');
+
+    // Custom validation function
+    function validateForm() {
+        let isValid = true;
+        let errorMessages = [];
+
+        // Validate project name
+        const projectNameValue = projectNameInput.value.trim();
+
+        if (!projectNameValue) {
+            projectNameInput.setCustomValidity('Project name is required.');
+            errorMessages.push('Project name is required.');
+            isValid = false;
+        } else if (projectNameValue.length < 3) {
+            projectNameInput.setCustomValidity('Project name must be at least 3 characters long.');
+            errorMessages.push('Project name must be at least 3 characters long.');
+            isValid = false;
+        } else if (projectNameValue.length > 255) {
+            projectNameInput.setCustomValidity('Project name cannot exceed 255 characters.');
+            errorMessages.push('Project name cannot exceed 255 characters.');
+            isValid = false;
+        } else if (!/^[a-zA-Z0-9\s\-_\.\(\)]+$/.test(projectNameValue)) {
+            projectNameInput.setCustomValidity('Project name can only contain letters, numbers, spaces, hyphens, underscores, dots, and parentheses.');
+            errorMessages.push('Project name contains invalid characters.');
+            isValid = false;
+        } else if (/^[\s\-_\.\(\)]+$/.test(projectNameValue)) {
+            projectNameInput.setCustomValidity('Project name must contain meaningful text, not just spaces or symbols.');
+            errorMessages.push('Project name must contain meaningful text.');
+            isValid = false;
+        } else if (projectNameValue.toLowerCase() === 'test' || projectNameValue.toLowerCase() === 'temp' ||
+                   projectNameValue.toLowerCase() === 'example' || projectNameValue.toLowerCase() === 'sample') {
+            projectNameInput.setCustomValidity('Please use a more descriptive project name.');
+            errorMessages.push('Please use a more descriptive project name.');
+            isValid = false;
+        } else {
+            projectNameInput.setCustomValidity('');
+        }
+
+        // Validate headline
+        if (!headlineInput.value.trim()) {
+            headlineInput.setCustomValidity('Headline is required.');
+            errorMessages.push('Headline is required.');
+            isValid = false;
+        } else {
+            headlineInput.setCustomValidity('');
+        }
+
+        // Validate why
+        if (!whyInput.value.trim()) {
+            whyInput.setCustomValidity('Why is required.');
+            errorMessages.push('Why is required.');
+            isValid = false;
+        } else {
+            whyInput.setCustomValidity('');
+        }
+
+        // Validate what
+        if (!whatInput.value.trim()) {
+            whatInput.setCustomValidity('What is required.');
+            errorMessages.push('What is required.');
+            isValid = false;
+        } else {
+            whatInput.setCustomValidity('');
+        }
+
+        // Validate dates only if date section is visible (not Pitch, Done, or Archived phase)
+        const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+        const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+
+        if (phaseName !== 'pitch' && phaseName !== 'done' && phaseName !== 'archived') {
+            // Validate start date
+            if (!startDateInput.value) {
+                startDateInput.setCustomValidity('Start date is required.');
+                errorMessages.push('Start date is required.');
+                isValid = false;
+            } else {
+                startDateInput.setCustomValidity('');
+            }
+
+            // Validate end date
+            if (!endDateInput.value) {
+                endDateInput.setCustomValidity('End date is required.');
+                errorMessages.push('End date is required.');
+                isValid = false;
+            } else {
+                endDateInput.setCustomValidity('');
+            }
+
+            // Validate end date is after start date
+            if (startDateInput.value && endDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
+                if (endDate < startDate) {
+                    endDateInput.setCustomValidity('End date must be after start date.');
+                    errorMessages.push('End date must be after start date.');
+                    isValid = false;
+                }
+            }
+        } else {
+            // Clear date validations for Pitch, Done, or Archived phase
+            startDateInput.setCustomValidity('');
+            endDateInput.setCustomValidity('');
+        }
+
+        return isValid;
+    }
+
+    // Add real-time validation listeners that clear errors when user types
+    projectNameInput.addEventListener('input', function() {
+        // Always clear the custom validity first
+        projectNameInput.setCustomValidity('');
+
+        const value = projectNameInput.value.trim();
+
+        if (value) {
+            projectNameInput.classList.remove('is-invalid');
+        }
+
+        // Note: We don't re-apply validation rules here in real-time
+        // The validation will be applied when the form is submitted via validateForm()
+    });
+
+    headlineInput.addEventListener('input', function() {
+        headlineInput.setCustomValidity('');
+        if (headlineInput.value.trim()) {
+            headlineInput.classList.remove('is-invalid');
+        }
+    });
+
+    whyInput.addEventListener('input', function() {
+        whyInput.setCustomValidity('');
+        if (whyInput.value.trim()) {
+            whyInput.classList.remove('is-invalid');
+        }
+    });
+
+    whatInput.addEventListener('input', function() {
+        whatInput.setCustomValidity('');
+        if (whatInput.value.trim()) {
+            whatInput.classList.remove('is-invalid');
+        }
+    });
+
+    startDateInput.addEventListener('change', function() {
+        startDateInput.setCustomValidity('');
+        if (startDateInput.value) {
+            startDateInput.classList.remove('is-invalid');
+        }
+    });
+
+    endDateInput.addEventListener('change', function() {
+        endDateInput.setCustomValidity('');
+        if (endDateInput.value) {
+            endDateInput.classList.remove('is-invalid');
+        }
+        // Note: End date validation will be handled by validateForm() on submit
+    });
+
+    // Validate form before opening confirmation modal
+    submitButton.addEventListener('click', function(event) {
+        // Clear any previous validation state
+        form.classList.remove('was-validated');
+
+        // Clear all custom validity messages before re-validating
+        projectNameInput.setCustomValidity('');
+        headlineInput.setCustomValidity('');
+        whyInput.setCustomValidity('');
+        whatInput.setCustomValidity('');
+        startDateInput.setCustomValidity('');
+        endDateInput.setCustomValidity('');
+
+        // Run validation to set custom validity messages
+        const isValid = validateForm();
+
+        // Find all invalid fields FIRST (more reliable than form.checkValidity())
+        const invalidFields = form.querySelectorAll(':invalid');
+        const isFormValid = invalidFields.length === 0;
+
+        console.log('Validation result:', isValid, 'Form validity:', isFormValid);
+
+        // Debug: Log each field's validity
+        console.log('Project Name valid:', projectNameInput.checkValidity(), 'Value:', projectNameInput.value);
+        console.log('Headline valid:', headlineInput.checkValidity(), 'Value:', headlineInput.value);
+        console.log('Why valid:', whyInput.checkValidity(), 'Value:', whyInput.value);
+        console.log('What valid:', whatInput.checkValidity(), 'Value:', whatInput.value);
+        console.log('Start Date valid:', startDateInput.checkValidity(), 'Value:', startDateInput.value);
+        console.log('End Date valid:', endDateInput.checkValidity(), 'Value:', endDateInput.value);
+
+        console.log('Invalid fields:', invalidFields.length);
+        invalidFields.forEach(field => {
+            console.log('Invalid field:', field.name || field.id, 'Type:', field.type, 'Validation message:', field.validationMessage, 'Value:', field.value);
+        });
+
+        if (!isFormValid) {
+            // Prevent modal from opening
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Show validation errors
+            form.classList.add('was-validated');
+
+            const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+            const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+
+            // Collect all error messages from custom validity
+            let errorMessages = [];
+
+            // Get validation messages from fields - only add if field is actually invalid
+            if (!projectNameInput.checkValidity()) {
+                if (projectNameInput.validationMessage) {
+                    errorMessages.push(projectNameInput.validationMessage);
+                }
+            }
+
+            if (!headlineInput.checkValidity()) {
+                if (headlineInput.validationMessage) {
+                    errorMessages.push(headlineInput.validationMessage);
+                }
+            }
+
+            if (!whyInput.checkValidity()) {
+                if (whyInput.validationMessage) {
+                    errorMessages.push(whyInput.validationMessage);
+                }
+            }
+
+            if (!whatInput.checkValidity()) {
+                if (whatInput.validationMessage) {
+                    errorMessages.push(whatInput.validationMessage);
+                }
+            }
+
+            if (phaseName !== 'pitch' && phaseName !== 'done' && phaseName !== 'archived') {
+                if (!startDateInput.checkValidity()) {
+                    if (startDateInput.validationMessage) {
+                        errorMessages.push(startDateInput.validationMessage);
+                    }
+                }
+
+                if (!endDateInput.checkValidity()) {
+                    if (endDateInput.validationMessage) {
+                        errorMessages.push(endDateInput.validationMessage);
+                    }
+                }
+            }
+
+            // Display error messages if any
+            const errorContainer = document.getElementById('clientValidationErrors');
+            const errorList = document.getElementById('clientValidationErrorsList');
+
+            if (errorMessages.length > 0) {
+                // Clear previous errors
+                errorList.innerHTML = '';
+
+                // Add new error messages
+                errorMessages.forEach(function(message) {
+                    const li = document.createElement('li');
+                    li.textContent = message;
+                    errorList.appendChild(li);
+                });
+
+                // Show the error container
+                errorContainer.style.display = 'block';
+
+                // Scroll to the top to show errors
+                errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                // No custom messages, but form is still invalid - hide error container
+                errorContainer.style.display = 'none';
+            }
+
+            // Focus on first invalid field
+            const firstInvalid = form.querySelector(':invalid');
+            if (firstInvalid) {
+                console.log('First invalid field:', firstInvalid.name, firstInvalid.validationMessage);
+                firstInvalid.focus();
+            }
+
+            return false;
+        } else {
+            // Form is valid, hide error messages and open modal
+            const errorContainer = document.getElementById('clientValidationErrors');
+            errorContainer.style.display = 'none';
+
+            console.log('Form is valid, opening modal');
+
+            // Manually open the confirmation modal
+            $('#openConfirm').modal('show');
+        }
+    });
+
     // Form validation using Bootstrap's custom styles
     var forms = document.querySelectorAll('.needs-validation');
     Array.prototype.slice.call(forms).forEach(function (form) {
         form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
             const phaseSelect = document.getElementById("phase_id_fk");
-            console.log("Phase ID: " + phaseSelect.value);
-            if (phaseSelect.value == "1" || phaseSelect.value == "6") {
-                document.getElementById('start_date').value = "";
-                document.getElementById('end_date').value = "";
-                document.getElementById('next_milestone_date').value = "";
+            const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+            const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+            console.log("Phase Name: " + phaseName);
+
+            // Don't clear values when phase is pitch - let the server handle the logic
+            // Just ensure flatpickr instances are cleared to prevent errors
+            // For Done phase, dates should be shown and retained
+            if (phaseName === 'pitch') {
+                const startDatePicker = document.getElementById('start_date')._flatpickr;
+                const endDatePicker = document.getElementById('end_date')._flatpickr;
+                const nextMilestoneDatePicker = document.getElementById('next_milestone_date')._flatpickr;
+
+                if (startDatePicker) startDatePicker.clear();
+                if (endDatePicker) endDatePicker.clear();
+                if (nextMilestoneDatePicker) nextMilestoneDatePicker.clear();
             }
 
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
+            // Run validation to set custom validity messages
+            validateForm();
+
+            // Now check if form is valid using HTML5 validation
+            const isCheckValid = form.checkValidity();
+
+            if (!isCheckValid) {
+                // Show validation errors
+                form.classList.add('was-validated');
+
+                // Collect all error messages from custom validity
+                let errorMessages = [];
+
+                // Get validation messages from fields
+                if (projectNameInput.validationMessage) {
+                    errorMessages.push(projectNameInput.validationMessage);
+                } else if (!projectNameInput.value.trim()) {
+                    errorMessages.push('Project Name is required');
+                }
+
+                if (headlineInput.validationMessage && !headlineInput.value.trim()) {
+                    errorMessages.push('Headline is required');
+                } else if (!headlineInput.value.trim()) {
+                    errorMessages.push('Headline is required');
+                }
+
+                if (whyInput.validationMessage && !whyInput.value.trim()) {
+                    errorMessages.push('Why is required');
+                } else if (!whyInput.value.trim()) {
+                    errorMessages.push('Why is required');
+                }
+
+                if (whatInput.validationMessage && !whatInput.value.trim()) {
+                    errorMessages.push('What is required');
+                } else if (!whatInput.value.trim()) {
+                    errorMessages.push('What is required');
+                }
+
+                if (phaseName !== 'pitch' && phaseName !== 'done' && phaseName !== 'archived') {
+                    if (startDateInput.validationMessage) {
+                        errorMessages.push(startDateInput.validationMessage);
+                    } else if (!startDateInput.value) {
+                        errorMessages.push('Start Date is required');
+                    }
+
+                    if (endDateInput.validationMessage) {
+                        errorMessages.push(endDateInput.validationMessage);
+                    } else if (!endDateInput.value) {
+                        errorMessages.push('End Date is required');
+                    }
+                }
+
+                // Display error messages if any
+                if (errorMessages.length > 0) {
+                    const errorContainer = document.getElementById('clientValidationErrors');
+                    const errorList = document.getElementById('clientValidationErrorsList');
+
+                    // Clear previous errors
+                    errorList.innerHTML = '';
+
+                    // Add new error messages
+                    errorMessages.forEach(function(message) {
+                        const li = document.createElement('li');
+                        li.textContent = message;
+                        errorList.appendChild(li);
+                    });
+
+                    // Show the error container
+                    errorContainer.style.display = 'block';
+
+                    // Scroll to the top to show errors
+                    errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+                // Focus on first invalid field
+                const firstInvalid = form.querySelector(':invalid');
+                if (firstInvalid) {
+                    console.log('First invalid field:', firstInvalid.name, firstInvalid.validationMessage);
+                    firstInvalid.focus();
+                }
+                return false;
             }
+
+            // Form is valid, hide error messages
+            const errorContainer = document.getElementById('clientValidationErrors');
+            errorContainer.style.display = 'none';
+
             form.classList.add('was-validated');
         }, false);
     });
@@ -334,14 +747,17 @@
     // Numeric input validation for specific fields
     const numericFields = ['project_cost', 'effort', 'benefit'];
     numericFields.forEach(function(fieldId) {
-        document.getElementById(fieldId).addEventListener('keydown', function(event) {
-            if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
-                !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
-                !(event.ctrlKey || event.metaKey)) {
-                alert("Only numbers are allowed.")
-                event.preventDefault();
-            }
-        });
+        const el = document.getElementById(fieldId);
+        if(el) {
+            el.addEventListener('keydown', function(event) {
+                if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
+                    !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
+                    !(event.ctrlKey || event.metaKey)) {
+                    alert("Only numbers are allowed.")
+                    event.preventDefault();
+                }
+            });
+        }
     });
 
     // Table row click navigation to edit page
@@ -354,100 +770,239 @@
 
     // Input formatting with commas for project cost and benefit
     ['project_cost', 'benefit'].forEach(function(fieldId) {
-        document.getElementById(fieldId).addEventListener('input', function () {
-            let input = this.value.replace(/[^0-9.]/g, '');
-            if (input.includes('.')) {
-                const parts = input.split('.');
-                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                input = parts.join('.');
-            } else {
-                input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            }
-            this.value = input;
-        });
-    });
-
-    console.log("Initializing flatpickr");
-    
-    // Initialize Flatpickr for all datepicker inputs
-    const startDatePicker = flatpickr("#start_date", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true,    // Allow manual input if needed
-    });
-
-    const endDatePicker = flatpickr("#end_date", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true,    // Allow manual input if needed
-    });
-
-    const nextMilestoneDatePicker = flatpickr("#next_milestone_date", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true,    // Allow manual input if needed
+        const el = document.getElementById(fieldId);
+        if(el) {
+            el.addEventListener('input', function () {
+                let input = this.value.replace(/[^0-9.]/g, '');
+                if (input.includes('.')) {
+                    const parts = input.split('.');
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    input = parts.join('.');
+                } else {
+                    input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                }
+                this.value = input;
+            });
+        }
     });
 
     // Show or hide date_section based on phase selection
-    const phaseSelect = document.getElementById("phase_id_fk");
     const dateSection = document.getElementById("date_section");
-    const startDateInput = document.getElementById('start_date');
-    const endDateInput = document.getElementById('end_date');
+    const milestoneDetailsRow = document.getElementById("milestone_details_row");
     const nextMilestoneDateInput = document.getElementById('next_milestone_date');
+    const nextMilestoneDetailsInput = document.getElementById('next_milestone_date_details');
     const dateRequired = document.getElementById('dates_required');
 
-    function toggleDateSection() {
-      
-      if (phaseSelect.value == "1" || phaseSelect.value == "6") {
-        // Phase is pitch, hide dates and clear validation messages
-        dateSection.style.display = 'none';
-        startDateInput.required = false;
-        endDateInput.required = false;
-        dateRequired.style.display = 'none';
-        startDateInput.value = "";
-        endDateInput.value = "";
-        nextMilestoneDateInput.value = "";
-      } else {
-        // Phase is not pitch, show dates and set required
-        dateSection.style.display = 'block';
-        startDateInput.required = true;
-        endDateInput.required = true;
-        if (!startDateInput.value) {
-          // Set the placeholder
-          startDateInput.placeholder = "Start Date";
+    // Track previous phase for Pitch -> Done transition
+    let previousPhaseName = '';
+
+    // Initialize Flatpickr for date inputs
+    if (typeof flatpickr !== 'undefined') {
+        flatpickr('#start_date', {
+            dateFormat: 'Y-m-d',
+            allowInput: false,
+            clickOpens: true
+        });
+
+        flatpickr('#end_date', {
+            dateFormat: 'Y-m-d',
+            allowInput: false,
+            clickOpens: true
+        });
+
+        flatpickr('#next_milestone_date', {
+            dateFormat: 'Y-m-d',
+            allowInput: false,
+            clickOpens: true
+        });
+    }
+
+    // Function to toggle date section and milestone details visibility
+    function toggleDateSectionVisibility() {
+        const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+        const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+
+        console.log('toggleDateSectionVisibility called, phase:', phaseName);
+
+        if (dateSection) {
+            const startDatePicker = startDateInput._flatpickr;
+            const endDatePicker = endDateInput._flatpickr;
+            const nextMilestoneDatePicker = nextMilestoneDateInput._flatpickr;
+
+            if (phaseName === 'pitch') {
+                // Hide entire date section when phase is Pitch
+                console.log('Hiding date section for Pitch phase');
+                dateSection.style.display = 'none';
+                startDateInput.required = false;
+                endDateInput.required = false;
+                dateRequired.style.display = 'none';
+                // Store current values before clearing flatpickr
+                const startValue = startDateInput.value;
+                const endValue = endDateInput.value;
+                const milestoneValue = nextMilestoneDateInput.value;
+
+                // Clear flatpickr instances to prevent invalid date errors
+                if (startDatePicker) startDatePicker.clear();
+                if (endDatePicker) endDatePicker.clear();
+                if (nextMilestoneDatePicker) nextMilestoneDatePicker.clear();
+
+                // Restore the input values after clearing flatpickr
+                startDateInput.value = startValue;
+                endDateInput.value = endValue;
+                nextMilestoneDateInput.value = milestoneValue;
+            } else if (phaseName === 'done') {
+                // For Done phase: show dates if coming from Pitch, otherwise hide
+                if (previousPhaseName === 'pitch') {
+                    // Show date section when transitioning from Pitch to Done
+                    console.log('Showing date section for Pitch -> Done transition');
+                    dateSection.style.display = 'block';
+                    startDateInput.required = false;
+                    endDateInput.required = false;
+                    dateRequired.style.display = 'none';
+                    // Restore flatpickr dates if inputs have values
+                    if (startDateInput.value && isValidDateString(startDateInput.value)) {
+                        try {
+                            if(startDatePicker) startDatePicker.setDate(startDateInput.value, false);
+                        } catch (error) {
+                            console.warn('Could not restore start date:', startDateInput.value);
+                        }
+                    }
+                    if (endDateInput.value && isValidDateString(endDateInput.value)) {
+                        try {
+                            if(endDatePicker) endDatePicker.setDate(endDateInput.value, false);
+                        } catch (error) {
+                            console.warn('Could not restore end date:', endDateInput.value);
+                        }
+                    }
+                    if (nextMilestoneDateInput.value && isValidDateString(nextMilestoneDateInput.value)) {
+                        try {
+                            if(nextMilestoneDatePicker) nextMilestoneDatePicker.setDate(nextMilestoneDateInput.value, false);
+                        } catch (error) {
+                            console.warn('Could not restore milestone date:', nextMilestoneDateInput.value);
+                        }
+                    }
+                    toggleMilestoneDetails();
+                } else {
+                    // Hide date section when Done is selected from other phases
+                    console.log('Hiding date section for Done phase');
+                    dateSection.style.display = 'none';
+                    startDateInput.required = false;
+                    endDateInput.required = false;
+                    dateRequired.style.display = 'none';
+                }
+            } else {
+                // Show date section for all other phases
+                console.log('Showing date section for phase:', phaseName);
+                dateSection.style.display = 'block';
+
+                // Dates are required for all phases except Pitch, Done, and Archived
+                if (phaseName === 'archived') {
+                    console.log('Dates NOT required for', phaseName);
+                    startDateInput.required = false;
+                    endDateInput.required = false;
+                } else {
+                    console.log('Dates ARE required for', phaseName);
+                    startDateInput.required = true;
+                    endDateInput.required = true;
+                }
+
+                if (!startDateInput.value) {
+                    startDateInput.placeholder = "Start Date";
+                }
+                if (!endDateInput.value) {
+                    endDateInput.placeholder = "End Date";
+                }
+                if (!nextMilestoneDateInput.value) {
+                    nextMilestoneDateInput.placeholder = "Milestone Date";
+                }
+                // Restore flatpickr dates if inputs have values
+                if (startDateInput.value && isValidDateString(startDateInput.value)) {
+                    try {
+                        if(startDatePicker) startDatePicker.setDate(startDateInput.value, false);
+                    } catch (error) {
+                        console.warn('Could not restore start date:', startDateInput.value);
+                    }
+                }
+                if (endDateInput.value && isValidDateString(endDateInput.value)) {
+                    try {
+                        if(endDatePicker) endDatePicker.setDate(endDateInput.value, false);
+                    } catch (error) {
+                        console.warn('Could not restore end date:', endDateInput.value);
+                    }
+                }
+                if (nextMilestoneDateInput.value && isValidDateString(nextMilestoneDateInput.value)) {
+                    try {
+                        if(nextMilestoneDatePicker) nextMilestoneDatePicker.setDate(nextMilestoneDateInput.value, false);
+                    } catch (error) {
+                        console.warn('Could not restore milestone date:', nextMilestoneDateInput.value);
+                    }
+                }
+                // Show milestone details if phase is not pitch and not done
+                toggleMilestoneDetails();
+            }
         }
-        if (!endDateInput.value) {
-          endDateInput.placeholder = "End Date";
+
+        // Update previous phase for next change
+        previousPhaseName = phaseName;
+    }
+
+    // Function to toggle milestone details visibility (separate from date section)
+    function toggleMilestoneDetails() {
+        const shouldShow = (nextMilestoneDateInput && nextMilestoneDateInput.value) || 
+                          (nextMilestoneDetailsInput && nextMilestoneDetailsInput.value) ||
+                          checkPhaseTransition();
+        
+        if (milestoneDetailsRow) {
+            if (shouldShow) {
+                milestoneDetailsRow.style.display = 'block';
+            } else {
+                milestoneDetailsRow.style.display = 'none';
+                // Don't clear the details input when hiding - preserve the data
+            }
         }
-        if (!nextMilestoneDateInput.value) {
-          nextMilestoneDateInput.placeholder = "Milestone Date";
-        }
+    }
+    
+    // Function to check if phase has changed from Pitch to another phase
+    function checkPhaseTransition() {
+        if (!phaseSelect) return false;
+        
+        const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+        const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+        
+        // Show milestone details if phase is not Pitch and not Done
+        return phaseName !== 'pitch' && phaseName !== 'done' && phaseName !== '';
+    }
+
+    // Add event listener to next milestone date input
+    if (nextMilestoneDateInput) {
+        nextMilestoneDateInput.addEventListener('change', toggleMilestoneDetails);
+        nextMilestoneDateInput.addEventListener('input', toggleMilestoneDetails);
+    }
+    
+    // Add event listener to phase selection for both date section and milestone details
+    if (phaseSelect) {
+        phaseSelect.addEventListener('change', function() {
+            toggleDateSectionVisibility();
+        });
+    }
+
+    // Initial check on page load
+    if (phaseSelect) {
+        toggleDateSectionVisibility();
+    }
+
+    // Helper function to check if a date string is valid
+    function isValidDateString(dateStr) {
+      if (!dateStr || dateStr.trim() === '' || dateStr === 'Invalid date' || dateStr === 'null' || dateStr === 'undefined') {
+        return false;
       }
+      const date = new Date(dateStr);
+      return date instanceof Date && !isNaN(date);
     }
 
-    // Initial check
-    toggleDateSection();
-
-    // Add event listener to phase selection change
-    phaseSelect.addEventListener("change", toggleDateSection);
-
-    // Set the date to default for datepicker start_date then change to date if it exists
-    if (startDateInput.value) {
-      startDatePicker.setDate(startDateInput.value);
-    }
-    if (endDateInput.value) {
-      endDatePicker.setDate(endDateInput.value);
-    }
-    if (nextMilestoneDateInput.value) {
-      nextMilestoneDatePicker.setDate(nextMilestoneDateInput.value);
-    }
   });
 
-  function submitForm() {
-    document.getElementById('editProjectForm').submit();
-  }
-
-  function cancelForm(){
-    window.location.replace("/projects");
-  }
-  function archiveProject(id){
+  window.archiveProject = function(id){
     console.log("Archiving project with id: " + id);
     fetch('/projects/archive/' + id, {
     }).then(response => {
@@ -458,7 +1013,8 @@
         console.error("Error archiving project");
       }
     });
-  }
+  };
+
   function disableAllInputs() {
     // Disable all input fields
     document.querySelectorAll('input').forEach(input => {

@@ -36,8 +36,15 @@
       href="/public/assets/images/favicons/site.webmanifest"
     />
 
+    <!-- Material Design Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css"
+    />
    
     <%- include('./Partials/HeaderStyle') %>
+    <link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
+    <script src="https://unpkg.com/js-datepicker"></script>
   </head>
   <body class="fixed-left">
     <!-- Loader -->
@@ -58,12 +65,11 @@
       </div>
     </div>
 
-    <%- include('./Partials/FooterScript') %> 
-    <%- FooterJs %>
+    <%- include('./Partials/FooterScript') %>
 
     <script src="/public/assets/js/app.js"></script>
     <script src="/utils/dateUtils.js"></script>
 
-    <%- BottomJs %>
+    <!-- Place for additional scripts from child views if using express-ejs-layouts or similar -->
   </body>
 </html>

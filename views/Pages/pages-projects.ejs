@@ -1,325 +1,520 @@
+﻿
+<!-- ================= HEADER CSS ================= -->
+
 <%- contentFor('HeaderCss') %>
 
+<style>
+   /* ===== SORT ARROWS ===== */
+  .sort-arrow {
+    margin-left: 6px;
+    font-size: 0.85rem;
+    opacity: 0.4;
+    transition: opacity 0.35s ease;
+  }
+
+  th.sorted-asc .sort-arrow::before {
+    content: '';
+  }
+
+  th.sorted-asc .sort-arrow {
+    opacity: 1;
+  }
+
+  th.sorted-desc .sort-arrow {
+    opacity: 1;
+  }
+
+  /* ===== SLOW SORT ANIMATION ===== */
+  tbody tr {
+    transition: transform 0.35s ease, opacity 0.35s ease;
+  }
+
+  tbody.sorting tr {
+    opacity: 0.6;
+  }
+</style>
+
+<!-- ================= BREADCRUMB / BODY ================= -->
 
 <%- contentFor('breadcrumb') %>
-<div class="row">
-  <div class="col-md-4">
-    <button type="button" class="button-menu-mobile open-left waves-effect">
-      <i class="ion-navicon"></i>
-    </button>
-    <h3 class="page-title">Projects</h3>
-    <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Project</button>
-    <% if (projects.length > 0) { %>
-    <button type="button" class="btn btn-primary waves-effect waves-light" id="btnExportProjects">Download Report</button>
-    <% } %>
-  </div>
-  <% include ../Partials/portfolio_name %>
-  <div class="col-md-4 text-right">
-    <!-- Add any additional content here -->
-  </div>
-</div>
 <%- contentFor('body') %>
+
+<!-- Initialize sorting immediately -->
+<script>
+  console.log('Script loading - before DOM ready');
+  
+  window.updateProjectDayCount = function() {
+    console.log('updateProjectDayCount called');
+    const fromInput = document.getElementById('from_date');
+    const toInput = document.getElementById('to_date');
+    const dayCountSpan = document.getElementById('dayCount');
+    
+    if (!fromInput || !toInput || !dayCountSpan) {
+      console.log('Missing elements for day count');
+      return;
+    }
+    
+    const from = fromInput.value;
+    const to = toInput.value;
+    
+    console.log('From:', from, 'To:', to);
+    
+    if (!from || !to) {
+      dayCountSpan.textContent = '';
+      return;
+    }
+    
+    const diff = Math.abs(new Date(to) - new Date(from));
+    const days = Math.ceil(diff / 86400000) + 1;
+    dayCountSpan.textContent = '(' + days + ' day' + (days !== 1 ? 's' : '') + ')';
+  };
+  
+  window.handleSortClick = function(e) {
+    const th = e.currentTarget;
+    console.log('Sort clicked:', th.textContent.trim());
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const table = th.closest('table');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const column = th.dataset.column;
+    const columnIndex = Array.from(th.parentNode.children).indexOf(th);
+    
+    console.log('Column:', column, 'Index:', columnIndex, 'Rows:', rows.length);
+    
+    let isAsc = true;
+    if (th.classList.contains('sorted-asc')) {
+      isAsc = false;
+    } else if (th.classList.contains('sorted-desc')) {
+      isAsc = true;
+    }
+    
+    console.log('Direction:', isAsc ? 'ASC' : 'DESC');
+    
+    document.querySelectorAll('th.sortable').forEach(h => {
+      if(h !== th) {
+        h.classList.remove('sorted-asc', 'sorted-desc');
+        const icon = h.querySelector('.sort-arrow');
+        if (icon) {
+          icon.className = 'sort-arrow mdi mdi-sort-alphabetical-ascending';
+        }
+      }
+    });
+    
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    th.classList.add(isAsc ? 'sorted-asc' : 'sorted-desc');
+    
+    const icon = th.querySelector('.sort-arrow');
+    if (icon) {
+      icon.className = isAsc ? 'sort-arrow mdi mdi-sort-alphabetical-ascending' : 'sort-arrow mdi mdi-sort-alphabetical-descending';
+      console.log('Icon updated');
+    }
+    
+    rows.sort((a, b) => {
+      let aVal = a.children[columnIndex].innerText.trim();
+      let bVal = b.children[columnIndex].innerText.trim();
+      
+      if (column.includes('date')) {
+        aVal = new Date(aVal).getTime() || 0;
+        bVal = new Date(bVal).getTime() || 0;
+      } else if (column.includes('cost')) {
+        aVal = parseFloat(aVal.replace(/[^0-9.-]+/g,"")) || 0;
+        bVal = parseFloat(bVal.replace(/[^0-9.-]+/g,"")) || 0;
+      }
+      
+      if (aVal < bVal) return isAsc ? -1 : 1;
+      if (aVal > bVal) return isAsc ? 1 : -1;
+      return 0;
+    });
+    
+    console.log('Rows sorted, appending');
+    rows.forEach(row => tbody.appendChild(row));
+    console.log('Sort complete');
+  };
+  
+  window.initDatepickers = function() {
+    console.log('Initializing date inputs...');
+    
+    const fromInput = document.getElementById('from_date');
+    const toInput = document.getElementById('to_date');
+    
+    console.log('from_date element:', fromInput);
+    console.log('to_date element:', toInput);
+    
+    try {
+      // Add change listeners for day count calculation
+      if (fromInput) {
+        fromInput.addEventListener('change', window.updateProjectDayCount);
+        console.log('from_date listener added');
+      }
+      
+      if (toInput) {
+        toInput.addEventListener('change', window.updateProjectDayCount);
+        console.log('to_date listener added');
+      }
+      
+      console.log('Date pickers initialized successfully');
+    } catch(e) {
+      console.error('ERROR initializing datepickers:', e);
+    }
+  };
+</script>
+
 <div class="page-content-wrapper">
   <div class="container-fluid">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card-body" style="border:0px !important;">
-          <% if (projects.length === 0) { %>
-          <div class="alert alert-warning" role="alert">
-            <strong>No projects found!</strong> Please <a href="#" id="openAddProjectModal">add one project</a> to get started.
-          </div>
-          <% } else { %>
-          <div class="table-responsive">
-            <table class="table mb-0">
-              <thead>
-                <tr>
-                  <!-- <th>ID</th> -->
-                  <th>Name</th>
-                  <th>Prime</th>
-                  <th>Sponsor</th>
-                  <th>Start</th>
-                  <th>End</th>
-                  <th>Phase</th>
-                  <th>Cost</th>
-                </tr>
-              </thead>
-              <% projects.forEach(function(project) { %>
-              <tbody>
-                <tr style="cursor: pointer;">
-                  <td style="display: none;"><%= project.id %></td>
-                  <td><%= project.project_name %></td>
-                  <% if (project.prime_last_name) { %>
-                  <td><%= project.prime_last_name %>, <%= project.prime_first_name %></td>
-                  <% } else { %>
-                  <td>N/A</td>
-                  <% } %>
-                  <% if (project.sponsor_last_name) { %>
-                  <td><%= project.sponsor_last_name %>, <%= project.sponsor_first_name %></td>
-                  <% } else { %>
-                  <td>N/A</td>
-                  <% } %>
-                  <td>
-                    <% if (project.start_date) { %>
-                    <%= new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                    <% } %>
-                  </td>
-                  <td>
-                    <% if (project.end_date) { %>
-                    <%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                    <% } %>
-                  </td>
-                  <td><%= project.phase_name %></td>
-                  <td>$<%= project.project_cost %></td>
-                </tr>
-              </tbody>
-              <% }); %>
-            </table>
-          </div>
-          <% } %>
-        </div>
+
+<!-- ACTION BUTTONS -->
+<div class="row mt-2 mb-3">
+  <div class="col-md-12">
+    <button class="btn btn-primary" data-toggle="modal" data-target="#addProject">Add Project</button>
+    <button class="btn btn-success" id="btnExportProjects">
+      <i class="mdi mdi-download mr-1"></i> Download Report
+    </button>
+  </div>
+</div>
+
+<!-- DATE FILTER -->
+<div class="row mb-2 align-items-center" style="background:hsl(197,70%,91%); height:50px;">
+  <div class="col-md-12 d-flex align-items-center">
+    <strong class="mr-2">Date Range:</strong>
+    <input id="from_date" type="text" class="form-control flatpickr-input active mr-2" placeholder="YYYY-MM-DD" style="width:150px" value="<%= currentFromDate %>">
+    <input id="to_date" type="text" class="form-control flatpickr-input active mr-2" placeholder="YYYY-MM-DD" style="width:150px" value="<%= currentToDate %>">
+    <button class="btn btn-primary btn-sm" id="btnFilter" onclick="filterDashboard()">Update</button>
+    <span id="dayCount" class="ml-3 font-weight-bold"></span>
+  </div>
+</div>
+
+<!-- PROJECT TABLE -->
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card-body">
+
+      <% if (!projects || projects.length === 0) { %>
+        <div class="alert alert-warning">No projects found.</div>
+      <% } else { %>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="sortable" data-column="project_name">Name <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="prime_name">Prime <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="sponsor_name">Sponsor <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="start_date">Start <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="end_date">End <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="phase_name">Phase <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="project_cost">Cost <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% projects.forEach(function(project) { %>
+            <tr class="project-row" data-project-id="<%= project.id %>" onclick="window.location.replace='/projects/edit/<%= project.id %>';" style="cursor: pointer;">
+              <td><%= project.project_name %></td>
+              <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
+              <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
+              <td><%= project.start_date ? new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '' %></td>
+              <td><%= project.end_date ? new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '' %></td>
+              <td><%= project.phase_name %></td>
+              <td>$<%= project.project_cost %></td>
+              <td>
+                <% if (project.can_update_status) { %>
+                  <i data-toggle="modal" data-target="#myModal_<%= project.id %>" style="cursor:pointer;color:#34b871 !important;" class="mdi mdi-note-plus"></i>
+                <% } %>
+                <% if (project.can_view && project.status_count > 0) { %>
+                  <i data-toggle="modal" data-target="#StatusUpdatesModal" class="mdi mdi-eye js-status-eye" data-project-id="<%= project.id %>" style="cursor:pointer;color:#34b871 !important;"></i>
+                <% } %>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+
+    </div>
+  </div>
+</div>
+
+
+  </div>
+</div>
+
+<!-- Status Updates Modal -->
+<div id="StatusUpdatesModal" class="modal fade" href="#" tabindex="-1" role="dialog" aria-labelledby="StatusUpdatesModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="StatusUpdatesModalLabel"><strong>Status Updates</strong></h5>
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+      <div class="modal-body" id="statusUpdates">
+        <!-- dynamic status -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
-  <div class="row">
-    <div class="col-md-6 m-t-30">
-      <!-- project modal content -->
-      <div id="addProject" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content" style="width: 900px;">
-            <div class="modal-header">
-              <h5 class="modal-title mt-0">Add Project</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-              <div class="container">
-                <div class="container">
-                  <form action="/projects" class="needs-validation" novalidate method="POST">
-                    <input type="hidden" name="funnelPage" id="funnelPage" value="n">
-                    <div class="row">
-                      <div class="col-md-6">
-                        <!-- Left Column -->
-                        <div class="form-group">
-                          <label for="project_name">Project Name:</label> <span class="required_star">*</span>
-                          <input type="text" class="form-control" id="project_name" maxlength="25" name="project_name" required>
-                          <div class="invalid-feedback">
-                            Please enter project name.
-                          </div>
-                        </div>
-                        <div class="form-group">
-                          <label for="headline">Headline:</label>
-                          <input type="text" class="form-control" id="headline" name="headline" maxlength="250">
-                        </div>
-                        <div class="form-group">
-                          <label for="why">Why:</label>
-                          <textarea class="form-control" id="why" name="why"></textarea>
-                        </div>
-                        <div class="form-group">
-                          <label for="what">What:</label>
-                          <textarea class="form-control" id="what" name="what"></textarea>
-                        </div>
+</div>
 
-                        <div class="form-group" id="date_section">
-                          <label for="dates">Start Date and End Date: <span class="required_star">*</span></label>
-                          <div class="form-row">
-                            <div class="col">
-                              <i class="bi bi-calendar-check"></i><input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date">
-                              <div class="invalid-feedback">
-                                Start Date is required.
-                              </div>
-                            </div>
-                            <div class="col">
-                              <input type="text" required class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date">
-                              <div class="invalid-feedback">
-                                End Date is required.   
-                              </div>
-                            </div>
-                            <div class="col">
-                              <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date">
-                            </div>
-                          </div>
-                          <div><span class="required_star" id ="dates_required" style="display:none;">Start and End dates are required</span></span></div>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <!-- Right Column -->
-                        <div class="form-row">
-                          <div class="col">
-                            <div class="form-group">
-                              <label for="phase">Phase:</label>
-                              <select name="phase_id_fk" id="phase_id_fk" class="form-control">
-                                <% phases.forEach(function(phase){ %>
-                                <option value="<%= phase.id %>"><%= phase.phase_name %></option>
-                                <% }) %>
-                              </select>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="form-group">
-                              <label for="priority">Priority:</label>
-                              <select name="priority_id_fk" id="priority_id_fk" class="form-control">
-                                <% priorities.forEach(function(priority){ %>
-                                <option value="<%= priority.id %>"><%= priority.priority_name %></option>
-                                <% }) %>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="form-row">
-                          <div class="col">
-                            <div class="form-group">
-                              <label for="sponsor">Sponsor:</label>
-                              <select name="sponsor_id_fk" id="sponsor_id_fk" class="form-control">
-                                <% sponsors.forEach(function(sponsor){ %>
-                                <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
-                                <% }) %>
-                              </select>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="form-group">
-                              <label for="prime">Prime:</label>
-                              <select name="prime_id_fk" id="prime_id_fk" class="form-control">
-                                <% primes.forEach(function(prime){ %>
-                                <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
-                                <% }) %>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="form-row">
-                          <div class="col">
-                            <div class="form-group">
-                              <label for="effort">Effort (PH)</label>
-                              <input type="text" class="form-control" id="effort" oninput="formatNumberWithCommas(this);" name="effort" value="0">
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="form-group">
-                              <label for="project_cost">Cost ($)</label>
-                              <input type="text" class="form-control" id="project_cost" oninput="formatNumberWithCommas(this);" name="project_cost" value="0">
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="form-group">
-                              <label for="benefit">Benefit (ROI or $)</label>
-                              <input type="text" class="form-control" id="benefit" oninput="formatNumberWithCommas(this);" name="benefit" value="0">
-                            </div>
-                          </div>
-                        </div>
-                        <div class="form-row">
-                          <div class="col">
-                            <div class="form-group">
-                              <label for="tag_1">Tag 1:</label>
-                              <select name="tag_1" id="tag_1" class="form-control">
-                                <% if (tags && tags.length > 0) { %>
-                                <% tags.forEach(function(tag){ %>
-                                <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                                <% }) %>
-                                <% } else { %>
-                                <option value="">No tags available</option>
-                                <% } %>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="form-row">
-                          <div class="col">
-                            <div class="form-group">
-                              <label for="tag_2">Tag 2:</label>
-                              <select name="tag_2" id="tag_2" class="form-control">
-                                <% if (tags && tags.length > 0) { %>
-                                <% tags.forEach(function(tag){ %>
-                                <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                                <% }) %>
-                                <% } else { %>
-                                <option value="">No tags available</option>
-                                <% } %>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="form-row">
-                          <div class="col">
-                            <div class="form-group">
-                              <label for="tag_3">Tag 3:</label>
-                              <select name="tag_3" id="tag_3" class="form-control">
-                                <% if (tags && tags.length > 0) { %>
-                                <% tags.forEach(function(tag){ %>
-                                <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                                <% }) %>
-                                <% } else { %>
-                                <option value="">No tags available</option>
-                                <% } %>
-                              </select>
-                            </div>
-                            <div class="form-group">
-                              <label for="reference">Reference:</label>
-                              <input type="text" class="form-control" id="reference" name="reference">
-                              <div class="invalid-feedback">
-                                Please enter project name.
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
-                      <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
-                    </div>
-                  </form>
+<!-- View Status Modal -->
+<div id="viewStatusModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="viewStatusModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewStatusModalLabel"><strong>View Status</strong></h5>
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- Modal content goes here -->
+        <strong>Date:</strong> <span id="view_status_date"></span><br/>
+        <strong>Prime:</strong> <span id="prime_name"></span>
+        
+        <div class="form-group">
+          <label for="status_accomplishments"><strong>Accomplishments:</strong></label>
+          <textarea id="view_status_accomplishments" maxlength="1000" class="form-control" rows="3" disabled></textarea>
+        </div>
+        <div class="form-group">
+          <label for="status_issue"><strong>Issue</strong></label>
+          <textarea id="view_status_issue" maxlength="1000" class="form-control" rows="3" disabled></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="status_action"><strong>Action</strong></label>
+          <textarea id="view_status_action" maxlength="1000" class="form-control" rows="3" disabled></textarea>
+        </div>
+        <div class="form-group">
+          <label for="status_progress"><strong>Progress</strong></label>
+          <input type="text" id="view_status_progress" class="form-control" disabled>
+        </div>
+        <div class="form-group">
+          <label for="status_health"><strong>Health</strong></label>
+          <input type="text" id="view_status_health" class="form-control" disabled>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Status Modals for each project -->
+<% projects.forEach(function(project) { %>
+<div id="myModal_<%= project.id %>" class="modal fade" href="#" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="/statuses" class="needs-validation" novalidate id="addStatusForm_<%= project.id %>" method="POST">
+        <input type="hidden" name="prime_only" value="n">
+        <div class="modal-header">
+          <h5 class="modal-title mt-0" id="myModalLabel">Add Status</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="project_id" value="<%= project.id || '' %>">
+          <input type="hidden" name="prime_id_fk" value="<%= (project.prime_id_fk && !isNaN(project.prime_id_fk)) ? project.prime_id_fk : '' %>">
+          
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <i class="bi bi-calendar-check"></i>
+                <input
+                  type="text"
+                  required
+                  class="form-control flatpickr-input active"
+                  id="status_date_<%= project.id %>"
+                  name="status_date"
+                  placeholder="YYYY-MM-DD"
+                />
+                <div class="invalid-feedback">
+                  Please select a valid status date.
+                </div>
+                
+                <strong>Prime:</strong> <%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %>
+              </div>
+              <div class="form-group">
+                <strong>Accomplishments:</strong>
+                <textarea class="form-control" maxlength="3000" name="status_accomplishments" id="accomplishments_<%= project.id %>" required rows="3" placeholder="Enter accomplishments..."></textarea>
+                <div class="invalid-feedback">
+                  Please enter accomplishments.
+                </div>
+              </div>
+              <div class="form-group">
+                <strong>Issues:</strong>
+                <textarea class="form-control" maxlength="3000" name="issue" id="issue_<%= project.id %>" rows="3" required placeholder="Enter issues..."></textarea>
+                <div class="invalid-feedback">
+                  Please enter issues.
+                </div>
+              </div>
+              <div class="form-group">
+                <strong>Actions:</strong>
+                <textarea class="form-control" maxlength="3000" name="actions" id="actions_<%= project.id %>" rows="3" required placeholder="Enter actions..."></textarea>
+                <div class="invalid-feedback">
+                  Please enter actions.
+                </div>
+              </div>
+              
+              <div class="d-flex align-items-center gap-2">
+                <div class="form-group needs-validation" novalidate>
+                  <strong>Progress:</strong>
+                  <select style="width:100px !important;" class="form-control" id="progress_<%= project.id %>" name="progress" required>
+                    <option value="">Select</option>
+                    <% for (let i = 10; i <= 100; i += 10) { %>
+                      <option value="<%= i %>"><%= i %></option>
+                    <% } %>
+                  </select>
+                  <div class="invalid-feedback">Please select a progress value.</div>
+                </div>
+
+                <div class="form-group" style="margin-left: 10px;">
+                  <strong>Health:</strong>
+                  <select style="width:100px !important;padding-left:10px;" class="form-control" id="health_<%= project.id %>" required name="health">
+                    <option value="">Select</option>
+                    <option value="green">Green</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="red">Red</option>
+                  </select>
+                  <div class="invalid-feedback">Please select a health status.</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% }); %>
+
+<!-- Add Project Modal -->
+<div id="addProject" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="width: 900px;">
+      <div class="modal-header">
+        <h5 class="modal-title mt-0">Add Project</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      </div>
+      <div class="modal-body">
+        <%- include('../Partials/add-project', {phases: phases, priorities: priorities, sponsors: sponsors, primes: primes, tags: tags}) %>
       </div>
     </div>
   </div>
 </div>
 
-<%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
-
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    'use strict';
-   var forms = document.querySelectorAll(".needs-validation");
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('btnFilter').addEventListener('click', filterDashboard);
+  console.log('DOM loaded - initializing projects page');
 
-    // Loop over them and prevent submission
-    Array.prototype.slice.call(forms).forEach(function (form) {
-      form.addEventListener(
-        "submit",
-        function (event) {
-          if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
+  /* DATE PICKERS */
+  flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: window.updateProjectDayCount });
+  flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: window.updateProjectDayCount });
 
-          form.classList.add("was-validated");
-        },
-        false,
-      );
-    });
-    //add event listenter for export
-    document.getElementById('btnExportProjects').addEventListener('click', function() {
+  // Initialize Flatpickr for all status date inputs in modals
+  document.querySelectorAll('input[id^="status_date_"]').forEach(input => {
+    flatpickr(input, { dateFormat: 'Y-m-d' });
+  });
+
+  // Update day count on page load - with delay to ensure flatpickr has initialized
+  console.log('Calling updateProjectDayCount on page load');
+  setTimeout(function() {
+    console.log('Timeout fired, calling updateProjectDayCount');
+    window.updateProjectDayCount();
+  }, 100);
+
+  /* ROW CLICK NAVIGATION */
+  const rows = document.querySelectorAll('.project-row');
+  console.log('Found project rows:', rows.length);
   
+  rows.forEach(row => {
+    row.addEventListener('click', function (e) {
+      console.log('Row clicked', e.target);
+      // Check if the click is on an interactive element (icon, button, link)
+      const clickedInteractive = e.target.closest('i') || e.target.closest('button') || e.target.closest('a');
+      if (clickedInteractive) {
+        console.log('Ignoring click on interactive element');
+        // Allow modal triggers to work by not stopping propagation
+        if (e.target.closest('[data-toggle="modal"]')) {
+          console.log('Modal trigger detected, allowing event');
+        }
+        return;
+      }
+      const id = this.dataset.projectId;
+      console.log('Navigating to project:', id);
+      if (id) window.location.href = '/projects/edit/' + id;
+    });
+  });
+
+  /* TABLE SORTING */
+  document.querySelectorAll('th.sortable').forEach(th => {
+    th.addEventListener('click', function() {
+      const table = th.closest('table');
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const column = th.dataset.column;
+      const columnIndex = Array.from(th.parentNode.children).indexOf(th);
+      const isAsc = !th.classList.contains('sorted-asc');
+      
+      // Reset other headers
+      document.querySelectorAll('th.sortable').forEach(h => {
+        if(h !== th) h.classList.remove('sorted-asc', 'sorted-desc');
+      });
+      
+      // Toggle current header
+      th.classList.remove('sorted-asc', 'sorted-desc');
+      th.classList.add(isAsc ? 'sorted-asc' : 'sorted-desc');
+      
+      // Sort rows
+      rows.sort((a, b) => {
+        let aVal = a.children[columnIndex].innerText.trim();
+        let bVal = b.children[columnIndex].innerText.trim();
+        
+        // Handle dates
+        if (column.includes('date')) {
+            aVal = new Date(aVal).getTime() || 0;
+            bVal = new Date(bVal).getTime() || 0;
+        } 
+        // Handle currency/numbers
+        else if (column.includes('cost')) {
+            aVal = parseFloat(aVal.replace(/[^0-9.-]+/g,"")) || 0;
+            bVal = parseFloat(bVal.replace(/[^0-9.-]+/g,"")) || 0;
+        }
+        
+        if (aVal < bVal) return isAsc ? -1 : 1;
+        if (aVal > bVal) return isAsc ? 1 : -1;
+        return 0;
+      });
+      
+      // Re-append rows
+      tbody.innerHTML = '';
+      rows.forEach(row => tbody.appendChild(row));
+    });
+  });
+
+  // Export button
+  const exportBtn = document.getElementById('btnExportProjects');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', function() {
       fetch('/projects/export/export-project-list/')
         .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.blob(); // Expecting a CSV file as a blob
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          return response.blob();
         })
         .then(blob => {
-
+          console.log('Blob received:', blob);
           const today = new Date();
-          const formattedDate = `${today.getFullYear()}-${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-          // Create a link to download the file
+          const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.style.display = 'none';
           a.href = url;
-          a.download = `projects-export-${formattedDate}.csv`; // Set the file name
+          a.download = `projects-export-${formattedDate}.csv`;
           document.body.appendChild(a);
           a.click();
           window.URL.revokeObjectURL(url);
@@ -329,105 +524,209 @@
           console.error('Error fetching project data:', error);
         });
     });
-    // Numeric input validation for specific fields
-    const numericFields = ['project_cost', 'effort', 'benefit'];
-    numericFields.forEach(function(fieldId) {
-        document.getElementById(fieldId).addEventListener('keydown', function(event) {
-            if (![46, 8, 9, 27, 13, 110, 190].includes(event.keyCode) &&
-                !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
-                !(event.ctrlKey || event.metaKey)) {
-                alert("Only numbers are allowed.")
-                event.preventDefault();
-            }
-        });
-    });
+  }
 
-    // Table row click navigation to edit page
-    document.querySelectorAll(".table tbody tr").forEach(function(row) {
-        row.addEventListener('click', function() {
-            var id = row.cells[0].textContent;
-            window.location.replace('/projects/edit/' + id);
-        });
-    });
-
-    // Input formatting with commas for project cost and benefit
-    ['project_cost', 'benefit'].forEach(function(fieldId) {
-        document.getElementById(fieldId).addEventListener('input', function () {
-            let input = this.value.replace(/[^0-9.]/g, '');
-            if (input.includes('.')) {
-                const parts = input.split('.');
-                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                input = parts.join('.');
-            } else {
-                input = input.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            }
-            this.value = input;
-        });
-    });
-    console.log("Initializing flatpickr");
-    // Initialize Flatpickr for all datepicker inputs
-    flatpickr(".datepicker", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true,     // Allow manual input if needed
-      allowInvalidPreload: true, // Allow invalid dates to be preloaded
-    });
-
-    // Show or hide date_section based on phase selection
-    const phaseSelect = document.getElementById("phase_id_fk");
-    const dateSection = document.getElementById("date_section");
-    const startDateInput = document.getElementById('start_date');
-    const endDateInput = document.getElementById('end_date');
-    const nextMilestoneDateInput = document.getElementById('next_milestone_date');
-    const dateRequired = document.getElementById('dates_required');
-
-    function toggleDateSection() {
-      if (phaseSelect.value == "1" || phaseSelect.value == "6") {
-        // Phase is pitch, hide dates and clear validation messages
-        dateSection.style.display = 'none';
-        startDateInput.required = false;
-        endDateInput.required = false;
-        dateRequired.style.display = 'none';
-        startDateInput.value = "";
-        endDateInput.value = "";
-        nextMilestoneDateInput.value = "";
-      } else {
-        // Phase is not pitch, show dates and set required
-        dateSection.style.display = 'block';
-        startDateInput.required = true;
-        endDateInput.required = true;
-        if (!startDateInput.value) {
-          // Set the placeholder
-          startDateInput.placeholder = "Start Date";
-        }
-        if (!endDateInput.value) {
-          endDateInput.placeholder = "End Date";
-        }
-        if (!nextMilestoneDateInput.value) {
-          nextMilestoneDateInput.placeholder = "Milestone Date";
-        }
+  // Form validation
+  var forms = document.querySelectorAll(".needs-validation");
+  Array.prototype.slice.call(forms).forEach(function (form) {
+    form.addEventListener("submit", function (event) {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
       }
-    }
-
-    // Initial check
-    toggleDateSection();
-
-    // Add event listener to phase selection change
-    phaseSelect.addEventListener("change", toggleDateSection);
+      form.classList.add("was-validated");
+    });
   });
 
-  function submitForm() {
-    document.getElementById('editProjectForm').submit();
-  }
-
-  function cancelForm(){
-    window.location.replace("/projects");
-  }
-  // Open Add Project modal from alert link
-  var openAddProjectModal = document.getElementById('openAddProjectModal');
-  if (openAddProjectModal) {
-    openAddProjectModal.addEventListener('click', function(e) {
+    // Handle "add one project" link
+    const addProjectLink = document.getElementById('openAddProjectModal');
+  if (addProjectLink) {
+    addProjectLink.addEventListener('click', function(e) {
       e.preventDefault();
       $('#addProject').modal('show');
     });
   }
+
+  // Numeric validation
+  ['project_cost', 'effort', 'benefit'].forEach(function(fieldId) {
+    const el = document.getElementById(fieldId);
+    if (!el) return;
+    el.addEventListener('keydown', function(event) {
+      if (![46,8,9,27,13,110,190].includes(event.keyCode) &&
+          !((event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) &&
+          !(event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        alert("Only numbers are allowed.");
+      }
+    });
+  });
+
+  // Phase toggle
+  window.phaseSelect = document.getElementById("phase_id_fk");
+  window.dateSection = document.getElementById("date_section");
+  window.startDateInput = document.getElementById('start_date');
+  window.endDateInput = document.getElementById('end_date');
+  window.nextMilestoneDateInput = document.getElementById('next_milestone_date');
+  window.dateRequired = document.getElementById('dates_required');
+
+  window.toggleDateSection = function() {
+    if (phaseSelect && dateSection) {
+      if (phaseSelect.value == "1" || phaseSelect.value == "6") {
+        dateSection.style.display = 'none';
+        if (startDateInput) startDateInput.required = false;
+        if (endDateInput) endDateInput.required = false;
+        if (dateRequired) dateRequired.style.display = 'none';
+        if (startDateInput) startDateInput.value = "";
+        if (endDateInput) endDateInput.value = "";
+        if (nextMilestoneDateInput) nextMilestoneDateInput.value = "";
+      } else {
+        dateSection.style.display = 'block';
+        if (startDateInput) startDateInput.required = true;
+        if (endDateInput) endDateInput.required = true;
+      }
+    }
+  }
+
+  // Initial phase check when add project modal opens
+  $('#addProject').on('shown.bs.modal', function () {
+    window.phaseSelect = document.getElementById("phase_id_fk");
+    window.dateSection = document.getElementById("date_section");
+    window.startDateInput = document.getElementById('start_date');
+    window.endDateInput = document.getElementById('end_date');
+    window.nextMilestoneDateInput = document.getElementById('next_milestone_date');
+    window.dateRequired = document.getElementById('dates_required');
+    
+    // Call toggle function to set initial state
+    toggleDateSection();
+    
+    // Add event listener for phase changes
+    if (phaseSelect) {
+      phaseSelect.addEventListener('change', toggleDateSection);
+    }
+  });
+
+  // Status modal functions
+  window.getStatusUpdates = function(project_id_fk){
+    var modalBody = document.getElementById("statusUpdates");
+    console.log("Fetching status updates for project ID:", project_id_fk);
+    modalBody.innerHTML = '';
+    fetch(`/statuses/projects/${project_id_fk}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          data.forEach(function(status) {
+            let healthStatus = status.health ? status.health.trim().toLowerCase() : '';
+            if (healthStatus === 'green') { 
+                modalBody.innerHTML += `<span style="display:inline-block; width:14px; height:14px; background-color:green; border-radius:50%; margin-right:6px; vertical-align:middle;"></span>`;
+            } else if (healthStatus === 'yellow') { 
+                modalBody.innerHTML += `<span style="display:inline-block; width:14px; height:14px; background-color:yellow; border-radius:50%; margin-right:6px; vertical-align:middle; border:1px solid #ccc;"></span>`;
+            } else if (healthStatus === 'red') { 
+                modalBody.innerHTML += `<span style="display:inline-block; width:14px; height:14px; background-color:red; border-radius:50%; margin-right:6px; vertical-align:middle;"></span>`;
+            }
+            modalBody.innerHTML += `[${status.progress}%]`;
+            if (status.status_date) {
+                modalBody.innerHTML += `<a href="#" onClick="getStatus(event, ${status.id})" data-target="#viewStatusModal" id="viewStatusLink">
+                    ${new Date(status.status_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </a>`;
+            }
+            modalBody.innerHTML += `<div style="width:100% !important;"><hr/></div>`;
+          });
+        } else {
+          modalBody.innerHTML = `<p>No status updates available</p>`;
+        }
+        $('#StatusUpdatesModal').modal('show');
+      })
+      .catch(err => console.error(err));
+  }
+
+  window.getStatus = function(event, id) {
+    event.preventDefault();
+
+    // Reset the fields before fetching new data
+    document.getElementById('view_status_accomplishments').value = '';
+    document.getElementById('view_status_issue').value = '';
+    document.getElementById('view_status_action').value = '';
+    document.getElementById('view_status_progress').value = '';
+    document.getElementById('view_status_health').value = '';
+    document.getElementById('view_status_date').innerText = '';
+
+    fetch(`/statuses/${id}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Fetched status data:", data);
+        if (data.accomplishments) document.getElementById('view_status_accomplishments').value = data.accomplishments;
+        if (data.issue) document.getElementById('view_status_issue').value = data.issue;
+        if (data.actions) document.getElementById('view_status_action').value = data.actions;
+        if (data.progress) document.getElementById('view_status_progress').value = data.progress;
+        if (data.health) document.getElementById('view_status_health').value = data.health;
+        if (data.status_date) {
+          // Parse and adjust the status_date to ensure correct timezone handling
+          const parsedStatusDate = new Date(data.status_date);
+          const adjustedStatusDate = new Date(
+            parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
+          );
+          // Format adjustedStatusDate to yyyy-mm-dd
+          const formattedStatusDate = adjustedStatusDate.toISOString().split("T")[0];
+          document.getElementById('view_status_date').innerText = formattedStatusDate;
+          
+          //fetch prime name
+          console.log("Prime id", data.prime_id_fk)
+          fetch(`/persons/${data.prime_id_fk}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              const contentType = response.headers.get("content-type");
+              if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Not a JSON response");
+              }
+              return response.json();
+            })
+            .then(primeData => {
+              document.getElementById("prime_name").innerText = `${primeData.last_name}, ${primeData.first_name}`;
+            })
+            .catch(err => console.error("Error fetching prime data:", err));
+        }
+        $('#StatusUpdatesModal').one('hidden.bs.modal', function () {
+            $('#viewStatusModal').modal('show');
+          });
+          $('#StatusUpdatesModal').modal('hide');
+      })
+      .catch(err => console.error("Error fetching status data:", err));
+  }
+
+  // Add click handler for status eye icons
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('js-status-eye')) {
+      const projectId = e.target.getAttribute('data-project-id');
+      if (projectId) {
+        getStatusUpdates(projectId);
+      }
+    }
+  });
+
+});
+
+function filterDashboard() {
+  const fromDate = document.getElementById('from_date').value;
+  const toDate = document.getElementById('to_date').value;
+
+  fetch('/update-filter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from_date: fromDate, to_date: toDate })
+  })
+  .then(res => res.json())
+  .then(() => window.location.reload())
+  .catch(() => window.location.reload());
+}
 </script>
+<!-- ================= FOOTER JS ================= -->
+
+<%- contentFor('FooterJs') %>
+<%- contentFor('BottomJs') %>

@@ -1,5 +1,6 @@
 const dbConfig = require("./config/db.config.js");
 var app = require("express")();
+const bodyParser = require("body-parser");
 var express = require("express");
 var session = require("express-session");
 var path = require("path");
@@ -9,7 +10,7 @@ const multer = require("multer");
 require("dotenv").config();
 const Sequelize = require("sequelize");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
-pg = require("pg");
+const pg = require("pg");
 const pgSession = require("connect-pg-simple")(session);
 
 const router = require("./router.js");
@@ -36,6 +37,20 @@ app.use(express.json());
 // Middleware to parse URL-encoded request bodies
 app.use(express.urlencoded({ extended: true }));
 
+// Determine if we need SSL for session store (only for remote databases)
+const isLocalDB =
+  ["localhost", "127.0.0.1"].includes(process.env.DB_HOST_NAME) ||
+  process.env.NODE_ENV === "development";
+
+const sessionSSLConfig = isLocalDB
+  ? { ssl: false }
+  : {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    };
+
 const sessionMiddleware = session({
   store: new pgSession({
     pool: new pg.Pool({
@@ -44,6 +59,7 @@ const sessionMiddleware = session({
       database: process.env.DB_NAME,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
+      ...sessionSSLConfig,
     }),
     tableName: "session", // Use a custom table name if needed
   }),
@@ -63,6 +79,17 @@ app.use(companyPortfolioName);
 app.get("/ping", (req, res) => {
   //test connection to db
   try {
+    // Determine if we need SSL for ping endpoint
+    const isPingRemoteDB = process.env.DB_HOST_NAME !== "localhost";
+    const pingDialectOptions = isPingRemoteDB
+      ? {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+          },
+        }
+      : {};
+
     const sequelize = new Sequelize(
       process.env.DB_NAME,
       process.env.DB_USER,
@@ -71,6 +98,7 @@ app.get("/ping", (req, res) => {
         host: process.env.DB_HOST_NAME,
         dialect: "postgres",
         logging: process.env.DB_LOGGING, // Disable logging for cleaner output
+        dialectOptions: pingDialectOptions,
       },
     );
     res.status(200).send("✅ Server is running and connected to the database.");
@@ -121,6 +149,23 @@ require("./routes/change_reason.routes.js")(app);
 require("./routes/changed_project.routes.js")(app);
 require("./routes/changed_password_token.routes.js")(app);
 
-http.listen(process.env.PORT || 8080, function () {
-  console.log("listening on *:8080");
-});
+app.use(errorHandler); // Use the error handler middleware
+
+// Start HTTP server with simple EADDRINUSE handling (try next port up to 3 times)
+const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 8080;
+function startServer(port, attemptsLeft = 3) {
+  http
+    .listen(port, function () {
+      console.log(`listening on *:${port}`);
+    })
+    .on("error", function (err) {
+      if (err && err.code === "EADDRINUSE" && attemptsLeft > 0) {
+        console.warn(`Port ${port} in use, trying ${port + 1}...`);
+        startServer(port + 1, attemptsLeft - 1);
+      } else {
+        console.error("Server failed to start:", err);
+        process.exit(1);
+      }
+    });
+}
+startServer(DEFAULT_PORT);

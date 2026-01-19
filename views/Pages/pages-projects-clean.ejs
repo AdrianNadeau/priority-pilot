@@ -1,0 +1,345 @@
+﻿<%- contentFor('HeaderCss') %>
+<style>
+  .sortable {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    padding: 12px 8px !important;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6 !important;
+  }
+  .sortable:hover {
+    background-color: #e9ecef !important;
+    cursor: pointer;
+  }
+  .sortable {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    padding: 12px 8px !important;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6 !important;
+  }
+  .sortable:hover {
+    background-color: #e9ecef !important;
+    cursor: pointer;
+  }
+  .sort-arrow {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #6c757d;
+    vertical-align: middle;
+    min-width: 12px;
+    text-align: center;
+    transition: color 0.2s ease, transform 0.1s ease;
+  }
+  .sort-arrow:hover {
+    color: #007bff !important;
+    transform: scale(1.1);
+    cursor: pointer;
+  }
+  .sort-arrow.active {
+    color: #007bff !important;
+    cursor: pointer;
+  }
+  .table thead th {
+    font-weight: 600;
+    vertical-align: middle;
+  }
+  .sort-arrow.active {
+    color: #007bff !important;
+    cursor: pointer;
+  }
+  .table thead th {
+    font-weight: 600;
+    vertical-align: middle;
+  }
+</style>
+
+<%- contentFor('breadcrumb') %>
+<%- contentFor('body') %>
+<div class="page-content-wrapper">
+  <div class="container-fluid">
+    <div class="page-buttons">
+      <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Project</button>
+      <% if (projects.length > 0) { %>
+        <button type="button" class="btn btn-primary waves-effect waves-light" id="btnExportProjects">Download Report</button>
+      <% } %>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card-body" style="border:0px !important;">
+          <% if (projects.length === 0) { %>
+            <div class="alert alert-warning" role="alert">
+              <strong>No projects found!</strong> Please <a href="#" id="openAddProjectModal">add one project</a> to get started.
+            </div>
+          <% } else { %>
+            <div class="table-responsive">
+              <table class="table mb-0">
+                <thead>
+                  <tr>
+                    <th class="sortable" data-column="project_name" data-sort="default">Name <i class="sort-arrow fa fa-sort"></i></th>
+                    <th class="sortable" data-column="prime_name" data-sort="default">Prime <i class="sort-arrow fa fa-sort"></i></th>
+                    <th class="sortable" data-column="sponsor_name" data-sort="default">Sponsor <i class="sort-arrow fa fa-sort"></i></th>
+                    <th class="sortable" data-column="start_date" data-sort="default">Start <i class="sort-arrow fa fa-sort"></i></th>
+                    <th class="sortable" data-column="end_date" data-sort="default">End <i class="sort-arrow fa fa-sort"></i></th>
+                    <th class="sortable" data-column="phase_name" data-sort="default">Phase <i class="sort-arrow fa fa-sort"></i></th>
+                    <th class="sortable" data-column="project_cost" data-sort="default">Cost <i class="sort-arrow fa fa-sort"></i></th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% projects.forEach(function(project) { %>
+                    <tr style="cursor: pointer;">
+                      <td style="display: none;"><%= project.id %></td>
+                      <td><%= project.project_name %></td>
+                      <td><%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %></td>
+                      <td><%= project.sponsor_last_name ? `${project.sponsor_last_name}, ${project.sponsor_first_name}` : "N/A" %></td>
+                      <td><%= project.start_date ? new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "" %></td>
+                      <td><%= project.end_date ? new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "" %></td>
+                      <td><%= project.phase_name %></td>
+                      <td>$<%= project.project_cost %></td>
+                      <td>
+                        <% if (project.can_update_status) { %>
+                          <i data-toggle="modal" data-target="#myModal_<%= project.id %>" style="cursor:pointer;color:#34b871 !important;" class="mdi mdi-note-plus"></i>
+                        <% } %>
+                        <% if (project.can_view) { %>
+                          <i data-toggle="modal" data-target="#StatusUpdatesModal" class="mdi mdi-eye js-status-eye" data-project-id="<%= project.id %>" style="cursor:pointer;color:#34b871 !important;"></i>
+                        <% } %>
+                      </td>
+                    </tr>
+                    <!-- Status Modal for each project ... -->
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Updates Modal -->
+<div id="StatusUpdatesModal" class="modal fade" href="#" tabindex="-1" role="dialog" aria-labelledby="StatusUpdatesModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="StatusUpdatesModalLabel"><strong>Status Updates</strong></h5>
+        <button type="button" class="close" data-dismiss="modal">Ã—</button>
+      </div>
+      <div class="modal-body" id="statusUpdates">
+        <!-- dynamic status -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Status Modal -->
+<div id="viewStatusModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="viewStatusModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewStatusModalLabel"><strong>View Status</strong></h5>
+        <button type="button" class="close" data-dismiss="modal">Ã—</button>
+      </div>
+      <div class="modal-body">
+        <!-- Modal content goes here -->
+        <strong>Date:</strong> <span id="view_status_date"></span><br/>
+        <strong>Prime:</strong> <span id="prime_name"></span>
+        
+        <div class="form-group">
+          <label for="status_accomplishments"><strong>Accomplishments:</strong></label>
+          <textarea id="view_status_accomplishments" maxlength="1000" class="form-control" rows="3" disabled></textarea>
+        </div>
+        <div class="form-group">
+          <label for="status_issue"><strong>Issue</strong></label>
+          <textarea id="view_status_issue" maxlength="1000" class="form-control" rows="3" disabled></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="status_action"><strong>Action</strong></label>
+          <textarea id="view_status_action" maxlength="1000" class="form-control" rows="3" disabled></textarea>
+        </div>
+        <div class="form-group">
+          <label for="status_progress"><strong>Progress</strong></label>
+          <input type="text" id="view_status_progress" class="form-control" disabled>
+        </div>
+        <div class="form-group">
+          <label for="status_health"><strong>Health</strong></label>
+          <input type="text" id="view_status_health" class="form-control" disabled>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Status Modals for each project -->
+<% projects.forEach(function(project) { %>
+<div id="myModal_<%= project.id %>" class="modal fade" href="#" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="/statuses" class="needs-validation" novalidate id="addStatusForm_<%= project.id %>" method="POST">
+        <input type="hidden" name="prime_only" value="n">
+        <div class="modal-header">
+          <h5 class="modal-title mt-0" id="myModalLabel">Add Status</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">Ã—</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="project_id" value="<%= project.id %>">
+          <input type="hidden" name="prime_id_fk" value="<%= project.prime_id_fk %>">
+          
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <i class="bi bi-calendar-check"></i>
+                <input
+                  type="date"
+                  required
+                  class="form-control"
+                  id="status_date_<%= project.id %>"
+                  name="status_date"
+                />
+                <div class="invalid-feedback">
+                  Please select a valid status date.
+                </div>
+                
+                <strong>Prime:</strong> <%= project.prime_last_name ? `${project.prime_last_name}, ${project.prime_first_name}` : "N/A" %>
+              </div>
+              <div class="form-group">
+                <strong>Accomplishments:</strong>
+                <textarea class="form-control" maxlength="3000" name="status_accomplishments" id="accomplishments_<%= project.id %>" required rows="3" placeholder="Enter accomplishments..."></textarea>
+                <div class="invalid-feedback">
+                  Please enter accomplishments.
+                </div>
+              </div>
+              <div class="form-group">
+                <strong>Issues:</strong>
+                <textarea class="form-control" maxlength="3000" name="issue" id="issue_<%= project.id %>" rows="3" required placeholder="Enter issues..."></textarea>
+                <div class="invalid-feedback">
+                  Please enter issues.
+                </div>
+              </div>
+              <div class="form-group">
+                <strong>Actions:</strong>
+                <textarea class="form-control" maxlength="3000" name="actions" id="actions_<%= project.id %>" rows="3" required placeholder="Enter actions..."></textarea>
+                <div class="invalid-feedback">
+                  Please enter actions.
+                </div>
+              </div>
+              
+              <div class="d-flex align-items-center gap-2">
+                <div class="form-group needs-validation" novalidate>
+                  <strong>Progress:</strong>
+                  <select style="width:100px !important;" class="form-control" id="progress_<%= project.id %>" name="progress" required>
+                    <option value="">Select</option>
+                    <% for (let i = 10; i <= 100; i += 10) { %>
+                      <option value="<%= i %>"><%= i %></option>
+                    <% } %>
+                  </select>
+                  <div class="invalid-feedback">Please select a progress value.</div>
+                </div>
+
+                <div class="form-group" style="margin-left: 10px;">
+                  <strong>Health:</strong>
+                  <select style="width:100px !important;padding-left:10px;" class="form-control" id="health_<%= project.id %>" required name="health">
+                    <option value="">Select</option>
+                    <option value="green">Green</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="red">Red</option>
+                  </select>
+                  <div class="invalid-feedback">Please select a health status.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% }); %>
+
+<!-- Add Project Modal -->
+<div id="addProject" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="width: 900px;">
+      <div class="modal-header">
+        <h5 class="modal-title mt-0">Add Project</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">Ã—</button>
+      </div>
+      <div class="modal-body">
+        <%- include('../Partials/add-project', {phases: phases, priorities: priorities, sponsors: sponsors, primes: primes, tags: tags}) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- contentFor('FooterJs') %> 
+<%- contentFor('BottomJs') %>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  'use strict';
+
+  // Form validation
+  var forms = document.querySelectorAll(".needs-validation");
+  Array.prototype.slice.call(forms).forEach(function (form) {
+    form.addEventListener("submit", function (event) {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add("was-validated");
+    });
+  });
+
+  // Export button
+  const exportBtn = document.getElementById('btnExportProjects');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', function() {
+      fetch('/projects/export/export-project-list/')
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          return response.blob();
+        })
+        .then(blob => {
+          console.log('Blob received:', blob);
+          const today = new Date();
+          const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = `projects-export-${formattedDate}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          console.log("Export successful");
+        })
+        .catch(error => {
+          console.error('Error fetching project data:', error);
+        });
+    });
+  }
+
+  // Table sorting functionality
+  document.querySelectorAll('.sortable').forEach(header => {
+    header.addEventListener('click', function() {
+      const column = this.dataset.column;
+      const arrow = this.querySelector('.sort-arrow');
+      const isCurrentlyDefault = arrow.classList.contains('fa-sort');
+      const isCurrentlyUp = arrow.classList.contains('fa-sort-up');

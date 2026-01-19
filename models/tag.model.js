@@ -9,6 +9,9 @@ module.exports = (sequelize, Sequelize) => {
     tag_name: {
       type: Sequelize.STRING,
     },
+    tag_color: {
+      type: Sequelize.STRING,
+    },
     company_id_fk: {
       type: Sequelize.DataTypes.INTEGER,
     },

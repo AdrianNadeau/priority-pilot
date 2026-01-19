@@ -1,133 +1,210 @@
-
 <%- contentFor('HeaderCss') %>
 
 <!-- <script src="frappe-gantt.min.js"></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
 <%- contentFor('breadcrumb') %>
-
-<div class="row">
-  <div class="col-md-4">
-    <button type="button" class="button-menu-mobile open-left waves-effect">
-      <i class="ion-navicon"></i>
-    </button>
-    <h3 class="page-title">Health Check</h3>
-    <button
-      type="button"
-      class="btn btn-primary waves-effect waves-light"
-      id="btnPrintPage" name="btnPrintPage"
-    >
-      Download Report
-    </button>
-  </div>
-  <div class="col-md-4">
-    <h3
-      class="page-title portfolio-title"
-      style="color: #34b871; min-width: 600px"
-    >
-      <%= portfolio_name %>
-    </h3>
-  </div>
-  <div class="col-md-4 text-right">
-    <!-- Add any additional content here -->
-  </div>
-</div>
-<br/>
-
-<div class="row" class="progress-bar-container text-center" style="display: none;">
-  
-  <div class="col-md-12">
-    <span  style="margin-left:45px;display:none;" id="download-label" name="download-label">Reporting downloading...</span>
-    <div class="progress" style="height: 24px;margin-left:45px;">
-      
-      <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0"
-        aria-valuemin="0" aria-valuemax="100">
-       0%
-      </div>
-    </div>
-  </div>
-</div>
 
 <%- contentFor('body') %>
 
 <div class="page-content-wrapper">
     <div class="container-fluid">
+    
+   
+    <!-- Date Range Row -->
+    <div class="row mb-2 align-items-center" style="margin-left: 0px;margin-right:0px;min-height: 50px;height:50px;background:hsl(197, 70%, 91%); box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+      <div class="col-md-12 d-flex align-items-center">
+        <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
+        <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
+        <span class="text-muted" style="margin-right: 8px;">Start:</span>
+        <input type="text" class="form-control flatpickr-input active" id="from_date" name="from_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+        <span style="font-weight: 500; margin-right: 8px;">End:</span>
+        <input type="text" class="form-control flatpickr-input active" id="to_date" name="to_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+        <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
+        <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
+      </div>
+    </div>
+    
+    <script>
+      console.log('=== HEALTH CHECK PAGE INLINE SCRIPT ===');
+      
+      // Calculate and display day count
+      window.updateDayCount = function() {
+        const from = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
+        const to = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
+        const dayCountSpan = document.getElementById('dayCount');
+        
+        if (!dayCountSpan) {
+          return;
+        }
+        
+        if (from && to) {
+          const fromDate = new Date(from);
+          const toDate = new Date(to);
+          
+          if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+            const diffTime = Math.abs(toDate - fromDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            const dayText = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
+            dayCountSpan.textContent = dayText;
+          } else {
+            dayCountSpan.textContent = '';
+          }
+        } else {
+          dayCountSpan.textContent = '';
+        }
+      };
+
+      // Wait for DOM to be fully loaded
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Flatpickr for date inputs
+        flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+        flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+        
+        // Update day count immediately
+        updateDayCount();
+      });
+    </script>
+
+    <script>
+      // Filter function - needs to be available for onclick handler
+      function filterDashboard() {
+        const fromDate = document.getElementById('from_date').value;
+        const toDate = document.getElementById('to_date').value;
+        
+        console.log('Filter clicked with dates:', fromDate, toDate);
+        
+        // Update day count display
+        updateDayCount();
+        
+        // Send filter data to server to save in persons table
+        fetch('/update-filter', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from_date: fromDate,
+            to_date: toDate
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('Filter preferences saved successfully');
+            // Redirect to current page with filters
+            window.location.href = window.location.pathname;
+          } else {
+            console.error('Error saving filter preferences:', data.message);
+            // Still redirect to try to apply filters
+            const params = new URLSearchParams();
+            if (fromDate) params.append('from_date', fromDate);
+            if (toDate) params.append('to_date', toDate);
+            const queryString = params.toString();
+            const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+            window.location.href = url;
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // Fallback: reload page
+          window.location.href = window.location.pathname;
+        });
+      }
+    </script>
+    
+   
+        <button
+      type="button"
+      class="btn btn-success waves-effect waves-light ml-2"
+      id="btnExportCSV" name="btnExportCSV"
+    >
+    Download Report
+      
+    </button>
+    
+
+    
+   
         <div class="row">
             
             <div class="col-lg-12 text-center">
                 <div class="card-body" style="border:0px !important;margin-top: 1.5em;">
                     
-                    <div class="table-responsive">
-                        <table class="table mb-12">
-                           
-                            <tbody>
-                              <tr>
-                                    <th>Project</th>
-                                    <th>Start</th>
-                                    <th>End</th>
-                                    <th>NMS</th>
-                                    <th>Status</th>
-                                    <th>Prime</th>
-                                    <th>Sponsor</th>
-                                    <th>Issues</th>
-                                    <th>Actions</th>
-                                    <th>Progress</th>
-                                   
-                                   
-                                </tr>
-                                <% let currentPhase = ''; %>
-                                <% let health = ''; %>
-                                <% let statsHealth = ''; %>
-                        
-                                <% projects.forEach(project => { %>
-                                    <% if (project.phase_name === 'Delivery' || project.phase_name === 'Discovery') { %>
-                                    <% if (project.phase_name !== currentPhase) { %>
-                                        <% currentPhase = project.phase_name; %>
-                                        <tr>
-                                        <td colspan="12" style="background-color:#ececec;font-weight: bold; text-align: center;"><%= currentPhase %></td>
-                                        </tr>
-                                    <% } %>
-                                     <thead>
-                              
-                            </thead>
-                           
-                                   <%
-                                      let backgroundColor = 'gray'; // default gray
-                                      if (project.last_status && project.last_status.health) {
-                                        let health = project.last_status.health.toLowerCase().trim();
-                                        if (health === 'yellow') backgroundColor = 'yellow';
-                                        else if (health === 'green') backgroundColor = 'green';
-                                        else if (health === 'red') backgroundColor = 'red';
-                                        else if (health === '#000') backgroundColor = 'red';
-                                        
-                                      }
-                                    %>
-                                    <tr>
-                                      <td style="background-color:<%= backgroundColor %>;color:black;font-weight: bold;min-width: 250px;">
-                                        <%= project.project_name %>&nbsp;<a href="/projects/edit/<%= project.project_id %>"><i class="mdi mdi-border-color"></i></a>
-                                      </td>
-                                      <td><% if (project.start_date) { %><%= new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                      <td><% if (project.end_date) { %><%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                      <td><% if (project.next_milestone_date) { %><%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
-                                      <td>
-                                        <%= project.last_status && project.last_status.health ? project.last_status.health : "N/A" %>
-                                      </td>
-                                      <% if (project.last_status && project.last_status.health) { %>
-                                        <% statsHealth = project.last_status.health.toUpperCase().trim(); %>
-                                      <% } %>
-                                      <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
+                    <div id="healthTableContainer">
+                        <div class="table-responsive">
+                            <table class="table mb-12">
+                               
+                                <tbody>
+                                  <tr>
+                                        <th>Project</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        <th>NMS</th>
+                                        <th>Status</th>
+                                        <th>Prime</th>
+                                        <th>Sponsor</th>
+                                        <th>Issues</th>
+                                        <th>Actions</th>
+                                        <th>Progress</th>
                                        
-                                     
-                                      
-                                      <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
-                                      <td><% if (project.last_status) { %><%= project.last_status.issue %><% } %></td>
-                                      <td><% if (project.last_status) { %><%= project.last_status.actions %><% } %></td>
-                                      <td><% if (project.last_status) { %><%= project.last_status.progress %> %<% } %></td>
+                                       
                                     </tr>
-                                    <% } %>
-                                <% }); %>
-                            </tbody>
-                        </table>
+                                    <% let currentPhase = ''; %>
+                                    <% let health = ''; %>
+                                    <% let statsHealth = ''; %>
+
+                                    <% projects.forEach(project => { %>
+                                        <% if (project.phase_name && (project.phase_name.toLowerCase() === 'planning' || project.phase_name.toLowerCase() === 'done' || project.phase_name.toLowerCase() === 'pitch')) { return; } %>
+                                        <% if (project.phase_name !== currentPhase) { %>
+                                            <% currentPhase = project.phase_name;
+                                            console.log(currentPhase); %>
+                                            <tr>
+                                            <td colspan="12" style="background-color:#ececec;font-weight: bold; text-align: center;"><%= currentPhase %></td>
+                                            </tr>
+                                        <% } %>
+                                         <thead>
+                                  
+                                    </thead>
+                                   
+                                           <%
+                                              let backgroundColor = 'gray'; // default gray
+                                              if (project.last_status && project.last_status.health) {
+                                                let health = project.last_status.health.toLowerCase().trim();
+                                                if (health === 'yellow') backgroundColor = 'yellow';
+                                                else if (health === 'green') backgroundColor = 'green';
+                                                else if (health === 'red') backgroundColor = 'red';
+                                                else if (health === '#000') backgroundColor = 'red';
+                                                
+                                              }
+                                            %>
+                                            <tr>
+                                              <td style="background-color:<%= backgroundColor %>;color:black;font-weight: bold;min-width: 250px;">
+                                                <%= project.project_name %>
+                                              </td>
+                                              <td><% if (project.start_date) { %><%= new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
+                                              <td><% if (project.end_date) { %><%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
+                                              <td><% if (project.next_milestone_date) { %><%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %></td>
+                                              <td>
+                                                <%= project.last_status && project.last_status.health ? project.last_status.health : "N/A" %>
+                                              </td>
+                                              <% if (project.last_status && project.last_status.health) { %>
+                                                <% statsHealth = project.last_status.health.toUpperCase().trim(); %>
+                                              <% } %>
+                                              <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
+                                               
+                                             
+                                              
+                                              <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
+                                              <td><% if (project.last_status) { %><%= project.last_status.issue %><% } %></td>
+                                              <td><% if (project.last_status) { %><%= project.last_status.actions %><% } %></td>
+                                              <td><% if (project.last_status) { %><%= project.last_status.progress %> %<% } %></td>
+                                            </tr>
+                                        <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -135,18 +212,250 @@
     </div>
 </div>
 
-<%- contentFor('FooterJs') %>
-<%- contentFor('BottomJs') %>
-<script>
-document.getElementById("btnPrintPage").addEventListener("click", function () {
-  const portfolioTitleElement = document.querySelector(".portfolio-title");
 
-  if (!portfolioTitleElement) {
-    console.error("Portfolio title element not found!");
-    return;
+<script>
+  // Filter functions
+  function filterDashboard() {
+    const fromDate = document.getElementById('from_date').value;
+    const toDate = document.getElementById('to_date').value;
+    
+    // Send filter data to server to save in persons table
+    fetch('/update-filter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from_date: fromDate,
+        to_date: toDate
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log('Filter preferences saved successfully');
+        // Redirect to current page with filters
+        window.location.href = window.location.pathname;
+      } else {
+        console.error('Error saving filter preferences:', data.message);
+        // Still redirect to try to apply filters
+        const params = new URLSearchParams();
+        if (fromDate) params.append('from_date', fromDate);
+        if (toDate) params.append('to_date', toDate);
+        const queryString = params.toString();
+        const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+        window.location.href = url;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Fallback: redirect with query parameters
+      const params = new URLSearchParams();
+      if (fromDate) params.append('from_date', fromDate);
+      if (toDate) params.append('to_date', toDate);
+      const queryString = params.toString();
+      const url = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+      window.location.href = url;
+    });
+  }
+  
+  function clearFilters() {
+    document.getElementById('from_date').value = '';
+    document.getElementById('to_date').value = '';
+    fetch('/filter/clear', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }).then(() => {
+      window.location.reload();
+    });
   }
 
-  const portfolioName = portfolioTitleElement.textContent.trim();
+  // Function to calculate and display day count
+  function updateDayCount() {
+    const fromInput = document.getElementById('from_date');
+    const toInput = document.getElementById('to_date');
+    const dayCountSpan = document.getElementById('dayCount');
+
+    if (fromInput && toInput && dayCountSpan) {
+      const fromDate = fromInput.value;
+      const toDate = toInput.value;
+
+      if (fromDate && toDate) {
+        const start = new Date(fromDate);
+        const end = new Date(toDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
+        dayCountSpan.textContent = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
+      } else {
+        dayCountSpan.textContent = '';
+      }
+    }
+  }
+
+  // Calculate day count on DOMContentLoaded
+  document.addEventListener("DOMContentLoaded", function() {
+    updateDayCount();
+  });
+</script>
+
+<script>
+// Filter functionality
+function filterHealth() {
+    const startDate = document.getElementById('from_date').value;
+    const endDate = document.getElementById('to_date').value;
+    
+    // Build the query parameters
+    const params = new URLSearchParams();
+    if (startDate) params.append('from_date', startDate);
+    if (endDate) params.append('to_date', endDate);
+    
+    // Show loading state
+    const container = document.getElementById('healthTableContainer');
+    container.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>';
+    
+    // Make AJAX request to get filtered data
+    fetch(`/projects/health/data?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateHealthTable(data.projects);
+            } else {
+                console.error('Error:', data.error);
+                // Fallback: reload the page with filter parameters
+                window.location.href = `/projects/health?${params.toString()}`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Fallback: reload the page with filter parameters
+            window.location.href = `/projects/health?${params.toString()}`;
+        });
+}
+
+function updateHealthTable(projects) {
+    const container = document.getElementById('healthTableContainer');
+    
+    if (!projects || projects.length === 0) {
+        container.innerHTML = '<div class="alert alert-danger">No projects found for the selected date range.</div>';
+        return;
+    }
+    
+    let tableHTML = `
+        <div class="table-responsive">
+            <table class="table mb-12">
+                <tbody>
+                    <tr>
+                        <th>Project</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>NMS</th>
+                        <th>Status</th>
+                        <th>Prime</th>
+                        <th>Sponsor</th>
+                        <th>Issues</th>
+                        <th>Actions</th>
+                        <th>Progress</th>
+                    </tr>`;
+    
+    let currentPhase = '';
+
+    projects.forEach(project => {
+        // Skip Planning, Done, and Pitch phases
+        if (project.phase_name && (project.phase_name.toLowerCase() === 'planning' || project.phase_name.toLowerCase() === 'done' || project.phase_name.toLowerCase() === 'pitch')) {
+            return;
+        }
+
+        if (project.phase_name !== currentPhase) {
+            currentPhase = project.phase_name;
+            tableHTML += `
+                <tr>
+                    <td colspan="12" style="background-color:#ececec;font-weight: bold; text-align: center;">${currentPhase}</td>
+                </tr>`;
+        }
+            
+            let backgroundColor = 'gray'; // default gray
+            if (project.last_status && project.last_status.health) {
+                let health = project.last_status.health.toLowerCase().trim();
+                if (health === 'yellow') backgroundColor = 'yellow';
+                else if (health === 'green') backgroundColor = 'green';
+                else if (health === 'red') backgroundColor = 'red';
+                else if (health === '#000') backgroundColor = 'red';
+            }
+            
+            // Format dates
+            const formatDate = (dateStr) => {
+                if (!dateStr) return '';
+                return new Date(dateStr).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+            };
+            
+            tableHTML += `
+                <tr>
+                    <td style="background-color:${backgroundColor};color:black;font-weight: bold;min-width: 250px;">
+                        ${project.project_name}&nbsp;<a href="/projects/edit/${project.project_id}"><i class="mdi mdi-border-color"></i></a>
+                    </td>
+                    <td>${formatDate(project.start_date)}</td>
+                    <td>${formatDate(project.end_date)}</td>
+                    <td>${formatDate(project.next_milestone_date)}</td>
+                    <td>${project.last_status && project.last_status.health ? project.last_status.health : "N/A"}</td>
+                    <td>${project.prime_first_name || ''} ${project.prime_last_name || ''}</td>
+                    <td>${project.sponsor_first_name || ''} ${project.sponsor_last_name || ''}</td>
+                    <td>${project.last_status ? project.last_status.issue || '' : ''}</td>
+                    <td>${project.last_status ? project.last_status.actions || '' : ''}</td>
+                    <td>${project.last_status ? (project.last_status.progress || '') + ' %' : ''}</td>
+                </tr>`;
+    });
+    
+    tableHTML += `
+                </tbody>
+            </table>
+        </div>`;
+    
+    container.innerHTML = tableHTML;
+}
+
+function clearHealthFilter() {
+    document.getElementById('from_date').value = '';
+    document.getElementById('to_date').value = '';
+    
+    // Reload page without filter parameters
+    window.location.href = '/projects/health/view';
+}
+
+// CSV Export functionality
+document.getElementById("btnExportCSV").addEventListener("click", function () {
+  // window.location.href = "/projects/export/health-data";
+  fetch('/projects/export/health-data')
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          return response.blob();
+        })
+        .then(blob => {
+          console.log('Blob received:', blob);
+          const today = new Date();
+          const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = `projects-health-export-${formattedDate}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          console.log("Export successful");
+        })
+        .catch(error => {
+          console.error('Error fetching project data:', error);
+        });
+});
+
+// Print/PDF functionality
+document.getElementById("btnPrintPage").addEventListener("click", function () {
+  // Get portfolio name from session data or set a default
+  const portfolioName = "<%= portfolioName %>" || "Priority Pilot";
 
   // Create a style element for the print header
   const style = document.createElement("style");
@@ -160,7 +469,7 @@ document.getElementById("btnPrintPage").addEventListener("click", function () {
       margin-top: 3cm;
     }
     body::before {
-      content: "${portfolioName}";
+      content: "${portfolioName} - Health Report";
       display: block;
       text-align: center;
       font-weight: bold;
@@ -168,9 +477,13 @@ document.getElementById("btnPrintPage").addEventListener("click", function () {
       margin-bottom: 1cm;
     }
     #btnPrintPage,
+    #btnExportCSV,
+    .page-buttons,
     .button-menu-mobile,
     .page-title,
-    .portfolio-title {
+    .portfolio-title,
+    .card:has(#start_date),
+    .mb-3 {
       display: none !important;
     }
     td, th, tr, .table, .mini-stat, .card-body {
@@ -186,7 +499,6 @@ document.getElementById("btnPrintPage").addEventListener("click", function () {
   const oldTitle = document.title;
   const today = new Date();
   const yyyy_mm_dd = today.toISOString().split('T')[0];
-  console.log(yyyy_mm_dd);
   
   document.title = yyyy_mm_dd + " - PriorityPilot - Health Report";
 
@@ -196,8 +508,12 @@ document.getElementById("btnPrintPage").addEventListener("click", function () {
   // Restore the old title after a short delay
   setTimeout(() => {
     document.title = oldTitle;
+    // Remove the added style element
+    document.head.removeChild(style);
   }, 1000);
 });
 </script>
-Extension Icon
+<%- contentFor('FooterJs') %>
+
+<%- contentFor('BottomJs') %>
 

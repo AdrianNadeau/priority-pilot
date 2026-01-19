@@ -197,6 +197,79 @@
   }
 }
 
+/* Sidebar Toggle Wrapper */
+.sidebar-toggle-wrapper {
+  text-align: center;
+  padding: 5px 0 10px;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+  background: transparent;
+  border: none;
+  color: rgba($white, 0.6);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px 10px;
+  line-height: 1;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: rgba($white, 0.9);
+  }
+
+  i {
+    transition: transform 0.4s ease;
+  }
+}
+
+/* Collapsed Sidebar State */
+#wrapper.sidebar-collapsed {
+  .left.side-menu {
+    width: 70px;
+
+    .topbar-left {
+      padding-left: 0;
+      text-align: center;
+    }
+
+    .logo {
+      display: none;
+    }
+  }
+
+  .sidebar-toggle-btn i {
+    transform: rotate(180deg);
+  }
+
+  #sidebar-menu > ul > li > a {
+    padding: 12px 0;
+    text-align: center;
+
+    > i {
+      display: block;
+      margin: 0 auto 5px;
+      font-size: 22px;
+    }
+
+    > span {
+      display: none;
+    }
+  }
+
+  .content-page {
+    margin-left: 70px;
+  }
+
+  .topbar {
+    left: 70px;
+  }
+
+  .footer {
+    left: 70px;
+  }
+}
+
 body.fixed-left {
   .side-menu.left {
     bottom: 50px;

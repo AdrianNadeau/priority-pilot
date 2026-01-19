@@ -1,26 +1,12 @@
 <%- contentFor('HeaderCss') %> 
 
 <%- contentFor('breadcrumb') %>
-<div class="row">
-  <div class="col-md-4">
-    <button type="button" class="button-menu-mobile open-left waves-effect">
-      <i class="ion-navicon"></i>
-    </button>
-    <h3 class="page-title">Archived</h3>
-  </div>
-  <div class="col-md-4">
-    <h3
-      id = "portfolio_name" class="page-title"
-      style="color: #34b871; min-width: 600px"
-    >
-    <%= portfolio_name %>
-    </h3>
-  </div>
-  <div class="col-md-4 text-right">
-    <!-- Add any additional content here -->
-  </div>
-</div>
 
+<script>
+  function loadProject(projectId) {
+    window.location.href = '/projects/cockpit/' + projectId;
+  }
+</script>
 
 <%- contentFor('body') %>
 
@@ -43,8 +29,19 @@
                       <span class="counter">Archived (<%= archivedCount %>, $<%= archivedTotalCost %>, <%= archivedTotalPH %> PH)</span>
                   </div>
                   <div>
+                    <% 
+                    // Create a Set to track unique project IDs and prevent duplicates
+                    const uniqueProjectIds = new Set();
+                    const uniqueProjects = projects.filter(project => {
+                      if (uniqueProjectIds.has(project.id)) {
+                        return false; // Skip duplicate
+                      }
+                      uniqueProjectIds.add(project.id);
+                      return true; // Include unique project
+                    });
+                    %>
                     
-                  <% projects.forEach(function(project) { 
+                  <% uniqueProjects.forEach(function(project) { 
                     let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
                     let borderColor = '';
                     if (health === 'green') borderColor = 'green';
@@ -54,8 +51,7 @@
                 %>
                  
                   <span>
-                      <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
-                        style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
+                      <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" data-style="<%= 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;' %>">
                         <%= project.project_name %>
                       </button>
                     </span>&nbsp;&nbsp;&nbsp;
@@ -106,4 +102,12 @@
   function loadFlightPlan() {
     window.location.replace("/projects/flight/view/");
   }
+</script>
+<script>
+  // Apply small padding to mini-stat boxes to match dashboard styles
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.mini-stat.bg-white.clearfix').forEach(function (el) {
+      el.style.padding = '5px';
+    });
+  });
 </script>

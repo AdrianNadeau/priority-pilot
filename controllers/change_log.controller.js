@@ -16,8 +16,7 @@ exports.create = (req, res) => {
     project_id_fk: project_id,
     company_id_fk: company_id_fk,
   };
-  console.log("req.body:", req.body);
-  console.log("change_log:", change_log);
+
   // Save  in the database
   ChangeLog.create(change_log)
     .then((data) => {

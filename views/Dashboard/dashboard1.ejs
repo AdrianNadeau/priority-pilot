@@ -1,72 +1,328 @@
 <%- contentFor('HeaderCss') %>
+<style>
+  /* Add small internal gap to all mini-stat white boxes */
+  .mini-stat.bg-white.clearfix { padding: 5px !important; }
+  .phase-buttons { padding-left: 5px; margin-left: 0; padding-top: 6px; }
+  
+  /* Add 15px spacing between phase columns */
+  .phase-column {
+    padding-left: 7.5px !important;
+    padding-right: 7.5px !important;
+  }
+  
+  /* First column - only right padding */
+  .phase-column:first-child {
+    padding-left: 0 !important;
+    padding-right: 7.5px !important;
+  }
+  
+  /* Last column - only left padding */
+  .phase-column:last-child {
+    padding-left: 7.5px !important;
+    padding-right: 0 !important;
+  }
+  
+  /* Ensure Flatpickr calendar is visible above all elements */
+  .flatpickr-calendar {
+    z-index: 99999 !important;
+  }
+
+  /* Prevent headline text from wrapping */
+  .mini-stat-info .counter {
+    white-space: nowrap;
+    overflow: visible;
+    display: block;
+    min-height: 30px;
+  }
+</style>
 
 <%- contentFor('breadcrumb') %>
-<div class="row">
-    <div class="col-md-4">
-        <button type="button" class="button-menu-mobile open-left waves-effect">
-            <i class="ion-navicon"></i>
-        </button>
-        <h3 class="page-title">Dashboard</h3>
-    </div>
-    <%- include ../Partials/portfolio_name %>
-    <div class="col-md-4 text-right">
-        <!-- Add any additional content here -->
-    </div>
-</div>
 
 <%- contentFor('body') %>
 
+<script>
+  // Global navigation functions - must be available before onclick handlers
+  function loadProject(projectId) {
+    window.location.href = '/projects/cockpit/' + projectId;
+  }
+  
+  function loadRadar() {
+    window.location.href = '/projects/radar/view/';
+  }
+  
+  function loadHealth() {
+    window.location.href = '/projects/health/view/';
+  }
+  
+  function loadFlightFull() {
+    window.location.href = '/projects/flightview/view/';
+  }
+  
+  function loadAccomplishments() {
+    window.location.href = '/projects/accomplishments/view/';
+  }
+  
+  // Calculate and display day count - make it globally available
+  window.updateDayCount = function() {
+    const from = document.getElementById('from_date') ? document.getElementById('from_date').value : '';
+    const to = document.getElementById('to_date') ? document.getElementById('to_date').value : '';
+    const dayCountSpan = document.getElementById('dayCount');
+  
+    
+    if (!dayCountSpan) {
+      console.error('dayCount span not found!');
+      return;
+    }
+    
+    if (from && to) {
+      const fromDate = new Date(from);
+      const toDate = new Date(to);
+      
+      if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+        const diffTime = Math.abs(toDate - fromDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
+        const dayText = `(${diffDays} day${diffDays !== 1 ? 's' : ''})`;
+        dayCountSpan.textContent = dayText;
+        
+      } else {
+        dayCountSpan.textContent = '';
+        console.log('Invalid date format');
+      }
+    } else {
+      dayCountSpan.textContent = '';
+    }
+  };
+
+  // Wait for DOM to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Flatpickr for date inputs
+    flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+    flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
+
+    // Update day count immediately
+    updateDayCount();
+  });
+</script>
+
+<script>
+  // Filter function - needs to be available for onclick handler
+  function filterDashboard() {
+    const fromDate = document.getElementById('from_date').value;
+    const toDate = document.getElementById('to_date').value;
+    
+    console.log('Filter clicked with dates:', fromDate, toDate);
+    
+    // Send filter data to server to save in persons table
+    fetch('/update-filter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from_date: fromDate,
+        to_date: toDate
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log('Filter preferences saved successfully');
+        // Reload the page to apply session-based filtering
+        window.location.reload();
+      } else {
+        console.error('Error saving filter preferences:', data.message);
+        // Still reload to try to apply filters
+        window.location.reload();
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Fallback: reload page
+      window.location.reload();
+    });
+  }
+</script>
+
 <div class="page-content-wrapper">
+  <% 
+  // Ensure these are defined before including the partial
+  // Ensure companies is always defined to avoid EJS errors
+  if (typeof companies === 'undefined') {
+    companies = [];
+  }
+  // Calculate default budget using portfolio_budget from companies table
+  let defaultBudget = 0;
+  if (companies && companies.length > 0 && companies[0].portfolio_budget) {
+    const portfolioBudget = Number(companies[0].portfolio_budget) || 0;
+    if (typeof filteredDays !== 'undefined' && filteredDays) {
+      defaultBudget = Math.round((portfolioBudget / 365) * filteredDays);
+    } else {
+      defaultBudget = Math.round(portfolioBudget);
+    }
+  }
+  const totalFilteredCost = typeof getFilteredValue === 'function' && Array.isArray(projects) ? getFilteredValue(projects, 'budget') : 0;
+  const totalFilteredEffort = typeof getFilteredValue === 'function' && Array.isArray(projects) ? getFilteredValue(projects, 'effort') : 0;
+  function formatNumberWithCommas(x) {
+    if (x == null) return '0';
+    // Display as whole number with commas
+    var num = Math.round(x);
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+%>
+
+
     <div class="container-fluid">
         
+
+        
+
+
+
+
+
+        
+        <% 
+  // Calculate deliveryTotalCost as (portfolio_budget / 365) * filteredDays
+  let deliveryTotalCost = 0, deliveryUsedCost = 0, deliveryAvailCost = 0;
+  let deliveryTotalEffort = 0, deliveryUsedEffort = 0, deliveryAvailEffort = 0;
+    let portfolioBudget = 0, portfolioEffort  = 0;
+    if (typeof companies !== 'undefined' && companies && companies.length > 0) {
+      if (typeof companies[0].portfolio_budget !== 'undefined') {
+        // Remove commas before converting to number
+        portfolioBudget = Number(String(companies[0].portfolio_budget).replace(/,/g, ''));
+      }
+      if (typeof companies[0].effort !== 'undefined') {
+        portfolioEffort = Number(companies[0].effort) || 20000;
+      }
+    }
+    if (typeof filteredDays !== 'undefined' && filteredDays) {
+      deliveryTotalCost = Math.round((portfolioBudget / 365) * filteredDays);
+      deliveryTotalEffort = Math.round((portfolioEffort / 365) * filteredDays);
+    } else {
+      deliveryTotalCost = Math.round(portfolioBudget);
+      deliveryTotalEffort = Math.round(portfolioEffort);
+    }
+  // Optionally, you can still sum up used/available as before if needed
+  projects.forEach(function(project) {
+    if (project.phase_name) {
+        const phase = project.phase_name.trim().toLowerCase();
+        if (phase === 'delivery') {
+            let usedCost = (typeof getFilteredValue === 'function') ? Math.round(getFilteredValue(project, currentFromDate, currentToDate, 'project_cost')) : 0;
+            let usedEffort = (typeof getFilteredValue === 'function') ? Math.round(getFilteredValue(project, currentFromDate, currentToDate, 'effort')) : 0;
+            deliveryUsedCost += usedCost;
+            deliveryUsedEffort += usedEffort;
+        }
+      }
+  });
+  deliveryAvailCost = deliveryTotalCost - deliveryUsedCost;
+  deliveryAvailEffort = deliveryTotalEffort - deliveryUsedEffort;
+ 
+  %>
+                 
+        
+
+
+       
+
         <div class="row">
-            <!-- Main content -->
-            <div class="col-md-10">
-                <div class="row">
-                   
-                    <!-- Priority and Discovery Section Side by Side -->
-                    <div class="col-md-6">
-                        <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
-                            <div class="mini-stat-info">
-                                <span class="counter"><strong>Planning</strong> (<%= planning.count %>, $<%= planning.cost %>, <%= planning.ph %> PH)</span>
-                            </div>
-                            <div>
-                            <% projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim() === 'Planning') { 
-                                  let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
-                                  let borderColor = '';
-                                  if (health === 'green') borderColor = 'green';
-                                  else if (health === 'yellow') borderColor = 'yellow';
-                                  else if (health === 'red') borderColor = 'red';
-                                  else borderColor = 'black'; // default
-                              %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
-                                  style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
-                                  <%= project.project_name %>
-                                </button>&nbsp;&nbsp;&nbsp;
-                              <%  } 
-                            }); %>
-                            </div>
-                        </div>
-                    </div>
+          <!-- Main content -->
+          <div class="col-md-10">
+            
+            <!-- Date Range Row -->
+            <div class="row mb-2 align-items-center" style="margin-left: 0px;margin-right:0px;min-height: 50px;height:50px;background:hsl(197, 70%, 91%); box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+              <div class="col-md-12 d-flex align-items-center">
+                <span class="mdi mdi-calendar-check" style="font-size: 1.5rem; margin-right: 8px;"></span>
+                <span style="font-weight: 500; margin-right: 12px;">Date Range: </span>
+                <span class="text-muted" style="margin-right: 8px;">Start:</span>
+                <input type="text" class="form-control flatpickr-input active" id="from_date" name="from_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= currentFromDate %>">
+                <span style="font-weight: 500; margin-right: 8px;">End:</span>
+                <input type="text" class="form-control flatpickr-input active" id="to_date" name="to_date" placeholder="YYYY-MM-DD" style="width: 150px; margin-right: 10px;" value="<%= currentToDate %>">
+                <button type="button" class="btn btn-primary btn-sm" style="margin-left: 10px;" id="updateBtn" onclick="filterDashboard()">Update</button>
+                <span id="dayCount" style="margin-left: 15px; font-weight: 500; color: #495057;"></span>
+              </div>
+            </div>
+            
+            <div class="row">
                     
-                    <div class="col-md-6">
+           <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
+          <div class="mini-stat bg-white clearfix" >
+            <div class="mini-stat-info" style="background-color:#ffea99">
+            <% function formatNumberWithCommas(x) { if (x == null) return '0'; var num = Math.round(x); return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); } %>
+            <a href="/projects/funnel/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Funnel</strong> (<%= pitch.count %> / $<%= formatNumberWithCommas(pitch.cost) %> / <%= formatNumberWithCommas(pitch.ph) %> PH)</span></a>
+            </div>
+          </div>
+          </div>
+                <div class="col-md-6 phase-column" style="min-height: 50px;padding-bottom:15px;">
+          <div class="mini-stat bg-white clearfix" >
+            <div class="mini-stat-info" style="background-color:#ffea99">
+            <a href="/projects/freezer/view/"><span class="counter" style="color:black;background-color: #FFEA99;"><strong>Archive</strong> (<%= archived.count %> / $<%= formatNumberWithCommas(archived.cost) %> / <%= formatNumberWithCommas(archived.ph) %> PH)</span></a>
+            </div>
+          </div>
+          </div>
+                    <div class="col-md-6 phase-column">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %>, $<%= discovery.cost %>, <%= discovery.ph %> PH)</span>
+                                <span class="counter"><strong>Planning</strong> (<%= planning.count %> / $<%= formatNumberWithCommas(planning.cost) %> / <%= formatNumberWithCommas(planning.ph) %> PH)</span>
                             </div>
-                            <div>
-                                 <% projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim() === 'Discovery') { 
+                            <div class="phase-buttons" style="padding-left: 10px;">
+
+                            <% 
+                            function getFilteredValue(project, fromDate, toDate, field) {
+                              if (!project.start_date || !project.end_date) return 0;
+                              var projectStart = new Date(project.start_date);
+                              var projectEnd = new Date(project.end_date);
+                              var filterStart = fromDate ? new Date(fromDate) : projectStart;
+                              var filterEnd = toDate ? new Date(toDate) : projectEnd;
+                              var overlapStart = projectStart > filterStart ? projectStart : filterStart;
+                              var overlapEnd = projectEnd < filterEnd ? projectEnd : filterEnd;
+                              var msInDay = 1000 * 60 * 60 * 24;
+                              var overlapDays = Math.max(0, Math.ceil((overlapEnd - overlapStart) / msInDay) + 1);
+                              var totalDays = Math.max(1, Math.ceil((projectEnd - projectStart) / msInDay) + 1);
+                              var percent = overlapDays / totalDays;
+                              var value = Number(project[field]) || 0;
+                              return Math.round(value * percent);
+                            }
+                            projects.forEach(function(project) { 
+                              if (project.phase_name && project.phase_name.trim().toLowerCase() === 'planning') { 
+                                let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
+                                let borderColor = '';
+                                if (health === 'green') borderColor = 'green';
+                                else if (health === 'yellow') borderColor = 'yellow';
+                                else if (health === 'red') borderColor = 'red';
+                                else borderColor = 'black'; // default
+                            %>
+                              <% const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;'; %>
+                              <% var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost'); %>
+                              <% var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort'); %>
+                              <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= Math.round(filteredCost) %> | Filtered Effort: <%= Math.round(filteredEffort) %> PH">
+                                <%= project.project_name %>
+                              </button>&nbsp;&nbsp;&nbsp;
+                            <% } 
+                            }); 
+                            %>
+                            </div>
+                          </div>
+                      </div>
+                      
+           <div class="col-md-6 phase-column" style="padding-bottom: 15px;">
+            <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
+              <div class="mini-stat-info">
+                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %> / $<%= formatNumberWithCommas(discovery.cost) %> / <%= formatNumberWithCommas(discovery.ph) %> PH)</span>
+                            </div>
+                            <div class="phase-buttons" style="padding-left: 10px;">
+                            <% projects.forEach(function(project) { 
+                                if (project.phase_name && project.phase_name.trim().toLowerCase() === 'discovery') { 
                                   let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
                                   let borderColor = '';
                                   if (health === 'green') borderColor = 'green';
                                   else if (health === 'yellow') borderColor = 'yellow';
                                   else if (health === 'red') borderColor = 'red';
                                   else borderColor = 'black'; // default
-                              %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
-                                  style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
+                                  const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;';
+                                  var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
+                                  var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
+                            %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= Math.round(filteredCost) %> | Filtered Effort: <%= Math.round(filteredEffort) %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -76,51 +332,56 @@
                     </div>
                 </div>
                 
-                <div class="row">
-                    <!-- Discovery Section on Left, Done Section on Right -->
-                    <div class="col-md-6">
-                        <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
-                            <div class="mini-stat-info">
-                                <span class="counter"><strong>Delivery</strong> (<%= delivery.count %>, $<%= delivery.cost %>, <%= delivery.ph %> PH)</span>
-                            </div>
-                             <div>
-                                 <% projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim() === 'Delivery') { 
-                                  let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
-                                  let borderColor = '';
-                                  if (health === 'green') borderColor = 'green';
-                                  else if (health === 'yellow') borderColor = 'yellow';
-                                  else if (health === 'red') borderColor = 'red';
-                                  else borderColor = 'black'; // default
-                              %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
-                                  style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
-                                  <%= project.project_name %>
-                                </button>&nbsp;&nbsp;&nbsp;
-                              <%  } 
-                            }); %>
-                            </div>
-                        </div>
-                    </div>
     
-                    <div class="col-md-6">
-                        <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
+             <div class="row">
+          <!-- Delivery (left), Done (center), Dates (right) -->
+      <div class="col-md-6 phase-column">
+            <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
-                              <span class="counter"><strong>Done</strong> (<%= operations.count %>, $<%= operations.cost  %>, <%= operations.ph %> PH)</span>
-                             
+                                <span class="counter"><strong>Delivery</strong> (<%= delivery.count %> / $<%= formatNumberWithCommas(delivery.cost) %> / <%= formatNumberWithCommas(delivery.ph) %> PH)</span>
                             </div>
-                            <div>
-                                 <% projects.forEach(function(project) { 
-                                if (project.phase_name && project.phase_name.trim() === 'Done') { 
+                            <div class="phase-buttons" style="padding-left: 10px;">
+                            <% projects.forEach(function(project) { 
+                                if (project.phase_name && project.phase_name.trim().toLowerCase() === 'delivery') { 
                                   let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
                                   let borderColor = '';
                                   if (health === 'green') borderColor = 'green';
                                   else if (health === 'yellow') borderColor = 'yellow';
                                   else if (health === 'red') borderColor = 'red';
                                   else borderColor = 'black'; // default
-                              %>
-                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light"
-                                  style="margin-bottom: 10px; border-color: <%= borderColor %>; border-width: 2px; border-radius:10px;">
+                                  const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;';
+                                  var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
+                                  var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
+                            %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= Math.round(filteredCost) %> | Filtered Effort: <%= Math.round(filteredEffort) %> PH">
+                                  <%= project.project_name %>
+                                </button>&nbsp;&nbsp;&nbsp;
+                              <%  } 
+                            }); %>
+                            </div>
+                           
+                        </div>
+                    </div>
+
+          <div class="col-md-6 phase-column">
+            <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
+                            <div class="mini-stat-info">
+                              <span class="counter"><strong>Done</strong> (<%= operations.count %> / $<%= formatNumberWithCommas(operations.cost) %> / <%= formatNumberWithCommas(operations.ph) %> PH)</span>
+                            </div>
+                            <div class="phase-buttons" style="padding-left: 10px;">
+                            <% projects.forEach(function(project) { 
+                                if (project.phase_name && project.phase_name.trim().toLowerCase() === 'done') { 
+                                  let health = project.latest_status_health ? project.latest_status_health.trim().toLowerCase() : '';
+                                  let borderColor = '';
+                                  if (health === 'green') borderColor = 'green';
+                                  else if (health === 'yellow') borderColor = 'yellow';
+                                  else if (health === 'red') borderColor = 'red';
+                                  else borderColor = 'black'; // default
+                                  const btnStyle = 'margin-bottom:10px; border-color:' + borderColor + '; border-width:2px; border-radius:10px;';
+                                  var filteredCost = getFilteredValue(project, currentFromDate, currentToDate, 'project_cost');
+                                  var filteredEffort = getFilteredValue(project, currentFromDate, currentToDate, 'effort');
+                            %>
+                                <button type="button" onclick="loadProject('<%= project.id %>')" class="btn btn-light project-btn" style="<%= btnStyle %>" title="Filtered Cost: $<%= filteredCost.toLocaleString() %> | Filtered Effort: <%= filteredEffort.toLocaleString() %> PH">
                                   <%= project.project_name %>
                                 </button>&nbsp;&nbsp;&nbsp;
                               <%  } 
@@ -128,240 +389,143 @@
                             </div>
                         </div>
                     </div>
+
+          
+            </div> <!-- close inner delivery/done row -->
+
+              <!-- Budget/Effort Summary Row (under Delivery and Done) -->
+              <div class="row mt-3 mb-2 align-items-center" style="margin-left:0px;margin-right:0px;min-height: 50px;height:50px;background: #e2fbef; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                <div class="col-md-6 d-flex align-items-center">
+                  <span class="mdi mdi-currency-usd" style="font-size: 1.5rem; margin-right: 8px;"></span>
+                  <span style="font-weight: 500; margin-right: 12px;">Cost</span>
+                  <span class="text-muted" style="margin-right: 8px;">Total:</span>
+                  <span style="font-weight: 500; margin-right: 16px;">
+                    $<%= formatNumberWithCommas(deliveryTotalCost) %>
+                  </span>
+                  <span class="text-muted" style="margin-right: 8px;">Used:</span>
+                  <span style="font-weight: 500; margin-right: 16px;">$<%= formatNumberWithCommas(deliveryUsedCost) %></span>
+                  <span class="text-muted" style="margin-right: 8px;">Available:</span>
+                  <span style="font-weight: 500;">$<%= formatNumberWithCommas(deliveryAvailCost) %></span>
                 </div>
-            </div>
-    
-            <!-- Radar and Flight Plan Buttons -->
+                <div class="col-md-6 d-flex align-items-center">
+                  <span class="mdi mdi-rocket" style="font-size: 1.5rem; margin-right: 8px;"></span>
+                  <span style="font-weight: 500; margin-right: 12px;">Effort</span>
+                  <span class="text-muted" style="margin-right: 8px;">Total:</span>
+                  <span style="font-weight: 500; margin-right: 16px;">
+                    <%= formatNumberWithCommas(deliveryTotalEffort) %>h
+                  </span>
+                  <span class="text-muted" style="margin-right: 8px;">Used:</span>
+                  <span style="font-weight: 500; margin-right: 16px;">
+                    <%= formatNumberWithCommas(deliveryUsedEffort) %>h
+                  </span>
+                  <span class="text-muted" style="margin-right: 8px;">Available:</span>
+                  <span style="font-weight: 500;">
+                    <%= formatNumberWithCommas(deliveryAvailEffort) %>h
+                  </span>
+                </div>
+              </div>
+
+            <!-- Combined Budget & Effort summary row spanning both columns -->
+           
+                     </div>
+
             <div class="col-md-2">
-                <div class="mini-stat bg-white text-center clearfix">
-                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFunnel();" >Funnel
-                        <%= pitch.count %>, $<%= pitch.cost %>, <%= pitch.ph %> PH)</button></div>
-                        <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFreezer();" >Archived
-                        <%= archived.count %>, $<%= archived.cost %>, <%= archived.ph %> PH)</button></div>
-                   
-                    <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;" onClick="loadRadar();" >Radar</div>
-                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadHealth();" >Health Check</div>
-                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;" onClick="loadFlightFull();" >Flight Plan</div>
-                    
-                    <div class="row text-center" style="padding-top: 20px;">
-                        <div class="col-md-12">
-                            <strong>$$</strong>
-                            <ul class="list-unstyled">
-                                <li>Full: $<%= totalCost %></li>
-                                <li>Used: $<%= usedCost %></li>
-                               <li>Avail: <span style="color: <%= availableCostColor %>; font-weight:900;"><strong>$<%= availableCost %></strong></span></li>
+              <div>
+                      
+                    </div>
+                <div class="mini-stat bg-white text-center clearfix" style="padding-top:15px;">
+                   <div><button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject" style="width: 150px;">Add Project</button></div>
+                    <hr/>
 
-                            </ul>
-                            <strong>Effort</strong>
-                            <ul class="list-unstyled">
-                                <li>Full: <%= totalPH %> PH</li>
-                                <li>Used: <%= totalUsedPH %> PH</li>
-                                <li>Avail: <span style="color: <%=availablePHColor%>; font-weight:900;"><strong><%= totalAvailPH %></strong></span></li>
-                                
-                            </ul>
+                    <div><button class="btn btn-primary w-md waves-effect waves-light"  style="margin-bottom: 10px;width: 150px" onclick="loadRadar()">Radar</button></div>
+                   
+                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onclick="loadHealth()" >Health Check</button></div>
+                    <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onclick="loadFlightFull()" >Flight Plan</button></div>
+                      <div><button class="btn btn-primary w-md waves-effect waves-light" style="margin-bottom: 10px;width: 150px" onclick="loadAccomplishments()" >Accomplishments</button></div>
+                    
+                    <% 
+                      const costColor = typeof availableCostColor !== 'undefined' && availableCostColor !== null ? availableCostColor : '#000';
+                      // sanitize percent values: strip commas, dollar signs, percent signs, and whitespace
+                      function sanitizeNumber(val) {
+                        if (typeof val === 'number') return val;
+                        if (typeof val !== 'string') return NaN;
+                        const cleaned = val.replace(/[^0-9.\-]/g, '');
+                        const parsed = parseFloat(cleaned);
+                        return isNaN(parsed) ? NaN : parsed;
+                      }
+
+                      function padFormatNumber(val) {
+                        // val expected numeric or numeric-string
+                        const numRaw = (typeof val === 'number') ? val : parseFloat(String(val).replace(/[^0-9.\-]/g, ''));
+                        if (isNaN(numRaw)) return '00.00';
+                        let num = numRaw;
+                        // Special business rule: if magnitude is very large (>= 1000),
+                        // treat as percentage scaled by 100 (divide by 100) and round to nearest integer
+                        // so -15189.60 -> -152.00
+                        if (Math.abs(numRaw) >= 1000) {
+                          // divide by 100 then round to nearest integer
+                          const scaled = Math.round(numRaw / 100);
+                          num = scaled; // treat as integer percent value
+                        }
+                        const fixed = num.toFixed(2); // ensure two decimals
+                        const parts = fixed.split('.');
+                        let intPart = parts[0];
+                        const decPart = parts[1] || '00';
+                        const sign = intPart.startsWith('-') ? '-' : '';
+                        if (sign) intPart = intPart.slice(1);
+                        if (intPart.length < 2) intPart = intPart.padStart(2, '0');
+                        return `${sign}${intPart}.${decPart}`;
+                      }
+
+                      const rawCost = (typeof availableCostPercent !== 'undefined' && availableCostPercent !== null) ? sanitizeNumber(availableCostPercent) : NaN;
+                      const costPercent = !isNaN(rawCost) ? padFormatNumber(rawCost) : '00.00';
+                      const effColor = typeof availablePHColor !== 'undefined' && availablePHColor !== null ? availablePHColor : '#000';
+                      const rawEff = (typeof availableEffortPercent !== 'undefined' && availableEffortPercent !== null) ? sanitizeNumber(availableEffortPercent) : NaN;
+                      const effPercent = !isNaN(rawEff) ? padFormatNumber(rawEff) : '00.00';
+                    %>
+                    <div class="row text-center" style="padding-top: 20px;padding-bottom: 20px;">
+                        <div class="col-md-12">
+                          
+                          <% 
+                            // Always show percent block, using same logic for all-time and filtered
+                            let costPercentRaw = (deliveryTotalCost && !isNaN(deliveryTotalCost) && deliveryTotalCost > 0)
+                              ? ((deliveryUsedCost / deliveryTotalCost) * 100)
+                              : 0;
+                            let costPercentVal = Math.round(costPercentRaw) + '%';
+                            
+                            let effortPercentRaw = (deliveryTotalEffort && !isNaN(deliveryTotalEffort) && deliveryTotalEffort > 0)
+                              ? ((deliveryUsedEffort / deliveryTotalEffort) * 100)
+                              : 0;
+                            let effortPercentVal = Math.round(effortPercentRaw) + '%';
+                            
+                            // Determine color based on percentage: 0-95% green, 95-110% yellow, 110%+ red
+                            let costColorCalc = costPercentRaw < 95 ? '#28a745' : (costPercentRaw <= 110 ? '#ffc107' : '#dc3545');
+                            let effortColorCalc = effortPercentRaw < 95 ? '#28a745' : (effortPercentRaw <= 110 ? '#ffc107' : '#dc3545');
+                          %>
+                          <strong class="list-percent">COST</strong><br/>
+                          <span id="cost-percentage" class="list-percent percent-cost" data-color="<%= costColorCalc %>" style="color: <%= costColorCalc %>;"><%= costPercentVal %></span><br/>
+                          <strong class="list-percent">EFFORT</strong><br/>
+                          <span id="effort-percentage" class="list-percent percent-effort" data-color="<%= effortColorCalc %>" style="color: <%= effortColorCalc %>;"><%= effortPercentVal %></span>
                         </div>
                     </div>
-                    <div>
-                      <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#addProject" id="btnAddProject">Add Project</button>
-                        <!-- <button type="button" class="btn btn-light" style="margin-bottom: 10px; border-color: green; border-width: 2px;border-radius:10px; min-width: 100px;" onClick="getProjects();"> -->
-                            
-                        </button>
-                    </div>
                 </div>
-               
             </div>
         </div>
-    </div>
-</div> 
-<div id="addProject" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content" style="width: 900px;">
-        <div class="modal-header">
-          <h5 class="modal-title mt-0">Add Project</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        </div>
-        <div class="modal-body">
-          <div class="container">
-            <div class="container">
-              <form action="/projects" class="needs-validation" novalidate method="POST">
-                <input type="hidden" name="funnelPage" id="funnelPage" value="n">
-                <div class="row">
-                  <div class="col-md-6">
-                    <!-- Left Column -->
-                    <div class="form-group">
-                      <label for="project_name">Project Name:</label> <span class="required_star">*</span>
-                      <input type="text" class="form-control" id="project_name" maxlength="25" name="project_name" required>
-                      <div class="invalid-feedback">
-                        Please enter project name.
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label for="headline">Headline:</label>
-                      <input type="text" class="form-control" id="headline" name="headline" maxlength="250">
-                    </div>
-                    <div class="form-group">
-                      <label for="why">Why:</label>
-                      <textarea class="form-control" id="why" name="why"></textarea>
-                    </div>
-                    <div class="form-group">
-                      <label for="what">What:</label>
-                      <textarea class="form-control" id="what" name="what"></textarea>
-                    </div>
-
-                    <div class="form-group" id="date_section">
-                      <label for="dates">Start Date and End Date: <span class="required_star">*</span></label>
-                      <div class="form-row">
-                        <div class="col">
-                          <i class="bi bi-calendar-check"></i><input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date">
-                          <div class="invalid-feedback">
-                            Start Date is required.
-                          </div>
-                        </div>
-                        <div class="col">
-                          <input type="text" required class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date">
-                          <div class="invalid-feedback">
-                            End Date is required.   
-                          </div>
-                        </div>
-                        <div class="col">
-                          <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date">
-                        </div>
-                      </div>
-                      <div><span class="required_star" id ="dates_required" style="display:none;">Start and End dates are required</span></span></div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <!-- Right Column -->
-                    <div class="form-row">
-                      <div class="col">
-                        <div class="form-group">
-                          <label for="phase">Phase:</label>
-                          <select name="phase_id_fk" id="phase_id_fk" class="form-control">
-                            <% phases.forEach(function(phase){ %>
-                            <option value="<%= phase.id %>"><%= phase.phase_name %></option>
-                            <% }) %>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group">
-                          <label for="priority">Priority:</label>
-                          <select name="priority_id_fk" id="priority_id_fk" class="form-control">
-                            <% priorities.forEach(function(priority){ %>
-                            <option value="<%= priority.id %>"><%= priority.priority_name %></option>
-                            <% }) %>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-row">
-                      <div class="col">
-                        <div class="form-group">
-                          <label for="sponsor">Sponsor:</label>
-                          <select name="sponsor_id_fk" id="sponsor_id_fk" class="form-control">
-                            <% sponsors.forEach(function(sponsor){ %>
-                            <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
-                            <% }) %>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group">
-                          <label for="prime">Prime:</label>
-                          <select name="prime_id_fk" id="prime_id_fk" class="form-control">
-                            <% primes.forEach(function(prime){ %>
-                            <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
-                            <% }) %>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-row">
-                      <div class="col">
-                        <div class="form-group">
-                          <label for="effort">Effort (PH)</label>
-                          <input type="text" class="form-control" id="effort" oninput="formatNumberWithCommas(this);" name="effort" value="0">
-                        </div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group">
-                          <label for="project_cost">Cost ($)</label>
-                          <input type="text" class="form-control" id="project_cost" oninput="formatNumberWithCommas(this);" name="project_cost" value="0">
-                        </div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group">
-                          <label for="benefit">Benefit (ROI or $)</label>
-                          <input type="text" class="form-control" id="benefit" oninput="formatNumberWithCommas(this);" name="benefit" value="0">
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-row">
-                      <div class="col">
-                        <div class="form-group">
-                          <label for="tag_1">Tag 1:</label>
-                          <select name="tag_1" id="tag_1" class="form-control">
-                            <% if (tags && tags.length > 0) { %>
-                            <% tags.forEach(function(tag){ %>
-                            <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                            <% }) %>
-                            <% } else { %>
-                            <option value="">No tags available</option>
-                            <% } %>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-row">
-                      <div class="col">
-                        <div class="form-group">
-                          <label for="tag_2">Tag 2:</label>
-                          <select name="tag_2" id="tag_2" class="form-control">
-                            <% if (tags && tags.length > 0) { %>
-                            <% tags.forEach(function(tag){ %>
-                            <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                            <% }) %>
-                            <% } else { %>
-                            <option value="">No tags available</option>
-                            <% } %>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-row">
-                      <div class="col">
-                        <div class="form-group">
-                          <label for="tag_3">Tag 3:</label>
-                          <select name="tag_3" id="tag_3" class="form-control">
-                            <% if (tags && tags.length > 0) { %>
-                            <% tags.forEach(function(tag){ %>
-                            <option value="<%= tag.id %>"><%= tag.tag_name %></option>
-                            <% }) %>
-                            <% } else { %>
-                            <option value="">No tags available</option>
-                            <% } %>
-                          </select>
-                        </div>
-                        <div class="form-group">
-                          <label for="reference">Reference:</label>
-                          <input type="text" class="form-control" id="reference" name="reference">
-                          
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
-                  <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
-                </div>
-              </form>
+   <div id="addProject" class="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content" style="width: 900px;">
+            <div class="modal-header">
+              <h5 class="modal-title mt-0">Add Project</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body">
+              <%- include('../Partials/add-project', {phases: phases, priorities: priorities, sponsors: sponsors, primes: primes, tags: tags}) %>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+</div>
 
 <%- contentFor('FooterJs') %>
 <script src="public/assets/plugins/peity-chart/jquery.peity.min.js"></script>
@@ -371,6 +535,7 @@
 <script src="public/assets/plugins/jquery-knob/jquery.knob.js"></script>
 
 <%- contentFor('BottomJs') %>
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     'use strict';
@@ -431,12 +596,41 @@
         });
     });
     
-    // Initialize Flatpickr for all datepicker inputs
-    flatpickr(".datepicker", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true,     // Allow manual input if needed
-      allowInvalidPreload: true, // Allow invalid dates to be preloaded
-    });
+    // Calculate initial day count on page load
+    updateDayCount();
+    
+    // Apply colors to COST and EFFORT percentage values based on thresholds
+    function applyPercentageColors() {
+      const costEl = document.getElementById('cost-percentage');
+      const effortEl = document.getElementById('effort-percentage');
+      
+      function setColor(element) {
+        if (!element) return;
+        
+        const text = element.textContent || '';
+        const match = text.match(/-?\d+\.?\d*/);
+        const number = match ? parseFloat(match[0]) : 0;
+        
+        // Color thresholds: 0-95% green, 95-110% yellow, >110% red
+        if (number >= 0 && number < 95) {
+          element.style.color = '#28a745'; // Green
+        } else if (number >= 95 && number <= 110) {
+          element.style.color = '#ffc107'; // Yellow
+        } else if (number > 110) {
+          element.style.color = '#dc3545'; // Red
+        } else {
+          element.style.color = '#000'; // Black/default
+        }
+      }
+      
+      setColor(costEl);
+      setColor(effortEl);
+    }
+    
+    // Apply colors immediately and with delays to ensure DOM is fully rendered
+    applyPercentageColors();
+    setTimeout(applyPercentageColors, 100);
+    setTimeout(applyPercentageColors, 500);
 
     // Show or hide date_section based on phase selection
     const phaseSelect = document.getElementById("phase_id_fk");
@@ -488,35 +682,20 @@
   function cancelForm(){
     window.location.replace("/projects");
   }
-</script>
-<script>
-  function loadProject(project_id) {
-    window.location.replace('/projects/cockpit/' + project_id);
-  }
+  
   function loadFunnel() {
     window.location.replace('/projects/funnel/view/');
   }
+  
   function loadFreezer() {
     window.location.replace('/projects/freezer/view/');
   }
-  function loadRadar() {
-   
-    window.location.replace('/projects/radar/view/');
-  }
-  function loadHealth() {
-   
-    window.location.replace('/projects/health/view/');
-  }
+  
   function loadFlightPlan() {
     window.location.replace('/projects/flight/view/');
-  }
-  function loadFlightFull() {
-    
-    window.location.replace('/projects/flightview/view/');
   }
  
   function getProjects() {
     window.location.replace('/projects/');
   }
-
 </script>

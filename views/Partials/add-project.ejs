@@ -1,157 +1,710 @@
-<form action="/projects" class="needs-validation" novalidate method="POST">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-6">
-          <!-- First column of form fields -->
-          <div class="form-group">
-            <label for="project_name">Name</label>
-            <input type="text" class="form-control" id="project_name" name="project_name" required>
-            <div class="invalid-feedback">
-              Please enter project name.
+﻿<form action="/projects" class="needs-validation" novalidate method="POST">
+  <input type="hidden" name="funnelPage" id="funnelPage" value="n">
+  
+  <!-- Display validation errors if they exist -->
+  <% if (typeof validationErrors !== 'undefined' && validationErrors && validationErrors.length > 0) { %>
+    <div class="alert alert-danger" role="alert">
+      <h6><i class="mdi mdi-alert-circle"></i> Please fix the following errors:</h6>
+      <ul class="mb-0">
+        <% validationErrors.forEach(function(error) { %>
+          <li><%= error %></li>
+        <% }); %>
+      </ul>
+    </div>
+  <% } %>
+
+  <!-- Client-side validation errors container -->
+  <div id="clientValidationErrors" class="alert alert-danger" role="alert" style="display: none;">
+    <h6><i class="mdi mdi-alert-circle"></i> Please fix the following errors:</h6>
+    <ul id="clientValidationErrorsList" class="mb-0"></ul>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <!-- Left Column -->
+        <div class="mb-2">
+          <small class="text-danger"><i class="mdi mdi-asterisk"></i> Required</small>
+        </div>
+        <div class="form-group">
+          <label for="project_name">Project Name:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+          <input type="text" class="form-control" id="project_name" maxlength="255" name="project_name" required 
+                
+                 title="Project name is required"
+                 value="<%= (typeof formData !== 'undefined' && formData && formData.project_name) ? formData.project_name : '' %>">
+          <div class="invalid-feedback">
+            Project name is required.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="project_headline">Headline:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+          <input type="text" class="form-control" id="project_headline" name="project_headline" maxlength="250" required value="<%= (typeof formData !== 'undefined' && formData && formData.project_headline) ? formData.project_headline : '' %>">
+          <div class="invalid-feedback">
+            Headline is required.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="project_why">Why:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+          <textarea class="form-control" id="project_why" name="project_why" maxlength="1000" required placeholder="Explain why this project is important and the problem it solves..."><%= (typeof formData !== 'undefined' && formData && formData.project_why) ? formData.project_why : '' %></textarea>
+          <div class="invalid-feedback">
+            Why is required.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="project_what">What:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+          <textarea class="form-control" id="project_what" name="project_what" maxlength="500" required placeholder="Describe what will be delivered and the scope of work..."><%= (typeof formData !== 'undefined' && formData && formData.project_what) ? formData.project_what : '' %></textarea>
+          <div class="invalid-feedback">
+            What is required.
+          </div>
+        </div>
+
+        <div class="form-group" id="date_section">
+          
+          <div class="form-row">
+            <div class="col">
+              <label for="start_date">Start:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+              <input type="text" class="form-control flatpickr-input active" id="start_date" name="start_date" placeholder="YYYY-MM-DD" style="width: 150px;" required value="<%= (typeof formData !== 'undefined' && formData && formData.start_date) ? formData.start_date : '' %>" readonly="readonly">
+              <div class="invalid-feedback">
+                Start date is required.
+              </div>
+            </div>
+            <div class="col">
+              <label for="end_date">End:</label> <span class="required_star"><i class="mdi mdi-asterisk"></i></span>
+              <input type="text" class="form-control flatpickr-input active" id="end_date" name="end_date" placeholder="YYYY-MM-DD" style="width: 150px;" required value="<%= (typeof formData !== 'undefined' && formData && formData.end_date) ? formData.end_date : '' %>" readonly="readonly">
+              <div class="invalid-feedback">
+                End date is required.
+              </div>
+            </div>
+            <div class="col">
+              <label for="next_milestone_date">Next Milestone:</label>
+              <input type="text" class="form-control flatpickr-input active" id="next_milestone_date" name="next_milestone_date" placeholder="YYYY-MM-DD" style="width: 150px;" value="<%= (typeof formData !== 'undefined' && formData && formData.next_milestone_date) ? formData.next_milestone_date : '' %>" readonly="readonly">
             </div>
           </div>
-          <div class="form-group">
-            <label for="project_headline">Headline</label>
-            <input type="text" class="form-control" id="project_headline" name="project_headline">
+          <div class="form-row" id="milestone_details_row" style="padding-top:5px;">
+            <div class="col">
+              <input type="text" class="form-control" id="next_milestone_date_details" name="next_milestone_date_details" placeholder="Next Milestone Details" maxlength="100">
+              <small class="form-text text-muted">Maximum 100 characters</small>
+            </div>
           </div>
-          <div id="leftElements">
+         
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <!-- Right Column -->
+        <div class="form-row">
+          <div class="col">
             <div class="form-group">
-              <label for="project_why">Why?</label>
-              <textarea rows="4" class="form-control" id="project_why" name="project_why"></textarea>
+              <label for="phase">Phase:</label>
+              <select name="phase_id_fk" id="phase_id_fk" class="form-control">
+                <% 
+                // Remove duplicate phases by creating a unique array
+                const uniquePhases = phases.filter((phase, index, self) => 
+                  index === self.findIndex(p => p.id === phase.id && p.phase_name === phase.phase_name)
+                );
+                uniquePhases.forEach(function(phase){ %>
+                <option value="<%= phase.id %>"><%= phase.phase_name %></option>
+                <% }) %>
+              </select>
             </div>
+          </div>
+          <div class="col">
             <div class="form-group">
-              <label for="project_what">What?</label>
-              <textarea rows="4" class="form-control" id="project_what" name="project_what"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="start_date">Start Date (YYYY-MM-DD):</label>
-              <input type="text" class="form-control" id="start_date" name="start_date" placeholder="yyyy-mm-dd">
-            </div>
-            <div class="form-group">
-              <label for="end_date">End Date (YYYY-MM-DD):</label>
-              <input type="text" class="form-control" id="end_date" name="end_date" placeholder="yyyy-mm-dd">
-            </div>
-            <div class="form-group">
-              <label for="next_milestone_date">Next Milestone Date (YYYY-MM-DD):</label>
-              <input type="text" class="form-control" id="next_milestone_date" name="next_milestone_date" placeholder="yyyy-mm-dd">
+              <label for="priority">Priority:</label>
+              <select name="priority_id_fk" id="priority_id_fk" class="form-control">
+                <% 
+                // Remove duplicate priorities by creating a unique array
+                const uniquePriorities = priorities.filter((priority, index, self) => 
+                  index === self.findIndex(p => p.id === priority.id && p.priority_name === priority.priority_name)
+                );
+                uniquePriorities.forEach(function(priority){ %>
+                <option value="<%= priority.id %>"><%= priority.priority_name %></option>
+                <% }) %>
+              </select>
             </div>
           </div>
         </div>
-    
-        <div class="col-md-6">
-          <!-- Second column of form fields -->
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="phase">Phase:</label>
-                <select name="phase_id_fk" id="phase_id_fk" class="form-control">
-                  <% phases.forEach(function(phase){ %>
-                    <option value="<%= phase.id %>"><%= phase.phase_name %></option>
-                  <% }) %>
-                </select>
-              </div>
-            </div>
+        <div class="form-row">
+          <div class="col">
             <div class="form-group">
-              <textarea name="pitch_message" rows=4 id="pitch_message" style="width:400px;" placeholder="Enter your pitch message here"></textarea>
-              </div>
-            </div>
-            <div id="otherPhaseFields">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="priority">Priority:</label>
-                <select name="priority_id_fk" id="priority_id_fk" class="form-control">
-                  <% priorities.forEach(function(priority){ %>
-                    <option value="<%= priority.id %>"><%= priority.priority_name %></option>
-                  <% }) %>
-                </select>
-              </div>
+              <label for="sponsor">Sponsor:</label>
+              <select name="sponsor_id_fk" id="sponsor_id_fk" class="form-control">
+                <% 
+                // Remove duplicate sponsors by creating a unique array
+                const uniqueSponsors = sponsors.filter((sponsor, index, self) => 
+                  index === self.findIndex(s => s.id === sponsor.id && s.first_name === sponsor.first_name && s.last_name === sponsor.last_name)
+                );
+                uniqueSponsors.forEach(function(sponsor){ %>
+                <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
+                <% }) %>
+              </select>
             </div>
           </div>
-    
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="sponsor">Sponsor:</label>
-                <select name="sponsor_id_fk" id="sponsor_id_fk" class="form-control">
-                  <% sponsors.forEach(function(sponsor){ %>
-                    <option value="<%= sponsor.id %>"><%= sponsor.last_name %>, <%= sponsor.first_name %></option>
-                  <% }) %>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="prime">Prime:</label>
-                <select name="prime_id_fk" id="prime_id_fk" class="form-control">
-                  <% primes.forEach(function(prime){ %>
-                    <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
-                  <% }) %>
-                </select>
-              </div>
+          <div class="col" id="prime_section" style="display: none;">
+            <div class="form-group">
+              <label for="prime">Prime:</label>
+              <select name="prime_id_fk" id="prime_id_fk" class="form-control">
+                <option value="-1">-- Select Prime --</option>
+                <%
+                // Remove duplicate primes by creating a unique array
+                const uniquePrimes = primes.filter((prime, index, self) =>
+                  index === self.findIndex(p => p.id === prime.id && p.first_name === prime.first_name && p.last_name === prime.last_name)
+                );
+                uniquePrimes.forEach(function(prime){ %>
+                <option value="<%= prime.id %>"><%= prime.last_name %>, <%= prime.first_name %></option>
+                <% }) %>
+              </select>
             </div>
           </div>
-    
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="effort">Effort (PH)</label>
-                <input type="text" class="form-control" id="effort" name="effort" style="width:100px;">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="benefit">Benefit (ROI or $)</label>
-                <input type="text" class="form-control" id="benefit" name="benefit" style="width:100px;">
-              </div>
+        </div>
+        <div class="form-row">
+          <div class="col">
+            <div class="form-group">
+              <label for="effort">Effort (PH)</label>
+              <input type="text" class="form-control" id="effort" oninput="formatNumberWithCommas(this);" name="effort" value="0">
             </div>
           </div>
-    
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="impact">Impact:</label>
-                <select name="impact" id="impact" class="form-control">
-                  <% for (var i = 1; i <= 10; i++) { %>
-                    <option value="<%= i %>"><%= i %></option>
-                  <% } %>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="complexity">Complexity:</label>
-                <select name="complexity" id="complexity" class="form-control">
-                  <% for (var i = 1; i <= 10; i++) { %>
-                    <option value="<%= i %>"><%= i %></option>
-                  <% } %>
-                </select>
-              </div>
+          <div class="col">
+            <div class="form-group">
+              <label for="project_cost">Cost ($)</label>
+              <input type="text" class="form-control" id="project_cost" oninput="formatNumberWithCommas(this);" name="project_cost" value="0">
             </div>
           </div>
-    
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="project_cost">Estimated Cost</label>
-                <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
+          <div class="col">
+            <div class="form-group">
+              <label for="benefit">Benefit (ROI or $)</label>
+              <input type="text" class="form-control" id="benefit" oninput="formatNumberWithCommas(this);" name="benefit" value="0">
+            </div>
+          </div>
+        </div>
+       
+        <div class="form-row">
+          <div class="col">
+            <div class="form-group">
+              <label for="tag_1">Tag 1:</label>
+              <select name="tag_1" id="tag_1" class="form-control">
+                <% if (tags && tags.length > 0) { %>
+                <% tags.forEach(function(tag){ %>
+                <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                <% }) %>
+                <% } else { %>
+                <option value="">No tags available</option>
+                <% } %>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col">
+            <div class="form-group">
+              <label for="tag_2">Tag 2:</label>
+              <select name="tag_2" id="tag_2" class="form-control">
+                <% if (tags && tags.length > 0) { %>
+                <% tags.forEach(function(tag){ %>
+                <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                <% }) %>
+                <% } else { %>
+                <option value="">No tags available</option>
+                <% } %>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col">
+            <div class="form-group">
+              <label for="tag_3">Tag 3:</label>
+              <select name="tag_3" id="tag_3" class="form-control">
+                <% if (tags && tags.length > 0) { %>
+                <% tags.forEach(function(tag){ %>
+                <option value="<%= tag.id %>"><%= tag.tag_name %></option>
+                <% }) %>
+                <% } else { %>
+                <option value="">No tags available</option>
+                <% } %>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col">
+            <div class="form-group">
+              <label for="reference">Reference:</label>
+              <input type="text" class="form-control" id="reference" name="reference">
+              <div class="invalid-feedback">
+                Please enter a reference.
               </div>
             </div>
-            <!-- <div class="col-md-6">
-              <div class="form-group">
-                <label for="project_tags">Tags (comma separated)</label>
-                <input type="text" class="form-control" id="project_tags" name="project_tags">
-              </div>
-            </div> -->
           </div>
         </div>
       </div>
     </div>
-      <!-- Add more rows and columns if needed -->
-      <div class="modal-footer">
-          <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
-          <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
-          <!-- if edit, add delete button -->
-          <!-- <button class="btn btn-danger w-md waves-effect waves-light" onClick='openDeleteModal()' type="button">Delete</button> -->
-          <!-- if edit, add delete button -->
-      </div>
-  </form>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
+      <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+    </div>
+  </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nextMilestoneDateInput = document.getElementById('next_milestone_date');
+    const milestoneDetailsRow = document.getElementById('milestone_details_row');
+    const phaseSelect = document.getElementById('phase_id_fk');
+    const dateSection = document.getElementById('date_section');
+    const primeSection = document.getElementById('prime_section');
+    const primeSelect = document.getElementById('prime_id_fk');
+
+    // Track previous phase for Pitch -> Done transition
+    let previousPhaseName = '';
+
+    // Function to toggle date section and milestone details visibility
+    function toggleDateSectionVisibility() {
+        const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+        const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+
+        if (dateSection) {
+            if (phaseName === 'pitch') {
+                // Hide entire date section when phase is Pitch
+                dateSection.style.display = 'none';
+                // Remove required attribute when hiding
+                if (document.getElementById('start_date')) {
+                    document.getElementById('start_date').removeAttribute('required');
+                }
+                if (document.getElementById('end_date')) {
+                    document.getElementById('end_date').removeAttribute('required');
+                }
+            } else if (phaseName === 'done') {
+                // For Done phase: show dates if coming from Pitch, otherwise hide
+                if (previousPhaseName === 'pitch') {
+                    // Show date section when transitioning from Pitch to Done
+                    dateSection.style.display = 'block';
+                    // Dates not required for Done phase
+                    if (document.getElementById('start_date')) {
+                        document.getElementById('start_date').removeAttribute('required');
+                    }
+                    if (document.getElementById('end_date')) {
+                        document.getElementById('end_date').removeAttribute('required');
+                    }
+                    toggleMilestoneDetails();
+                } else {
+                    // Hide date section when Done is selected from other phases
+                    dateSection.style.display = 'none';
+                    if (document.getElementById('start_date')) {
+                        document.getElementById('start_date').removeAttribute('required');
+                    }
+                    if (document.getElementById('end_date')) {
+                        document.getElementById('end_date').removeAttribute('required');
+                    }
+                }
+            } else {
+                // Show date section for all other phases
+                dateSection.style.display = 'block';
+
+                // Dates are required for all phases except Pitch, Done, and Archived
+                if (phaseName === 'archived') {
+                    // Show dates but don't require them for Archived phase
+                    if (document.getElementById('start_date')) {
+                        document.getElementById('start_date').removeAttribute('required');
+                    }
+                    if (document.getElementById('end_date')) {
+                        document.getElementById('end_date').removeAttribute('required');
+                    }
+                } else {
+                    // Make dates required for other phases
+                    if (document.getElementById('start_date')) {
+                        document.getElementById('start_date').setAttribute('required', 'required');
+                    }
+                    if (document.getElementById('end_date')) {
+                        document.getElementById('end_date').setAttribute('required', 'required');
+                    }
+                }
+                // Show milestone details if phase is not pitch and not empty
+                toggleMilestoneDetails();
+            }
+        }
+
+        // Update previous phase for next change
+        previousPhaseName = phaseName;
+
+        // Toggle Prime section visibility - show for all phases except Pitch
+        if (primeSection) {
+            if (phaseName === 'pitch') {
+                // Hide Prime dropdown for Pitch phase and set value to -1
+                primeSection.style.display = 'none';
+                if (primeSelect) primeSelect.value = '-1';
+            } else {
+                // Show Prime dropdown for all other phases including Done and Archived
+                primeSection.style.display = 'block';
+            }
+        }
+    }
+    
+    // Function to toggle milestone details visibility (separate from date section)
+    function toggleMilestoneDetails() {
+        const shouldShow = (nextMilestoneDateInput && nextMilestoneDateInput.value) || 
+                          (phaseSelect && checkPhaseTransition());
+        
+        if (milestoneDetailsRow) {
+            if (shouldShow) {
+                milestoneDetailsRow.style.display = 'block';
+            } else {
+                milestoneDetailsRow.style.display = 'none';
+                // Clear the details input when hiding
+                const detailsInput = document.getElementById('next_milestone_date_details');
+                if (detailsInput) {
+                    detailsInput.value = '';
+                }
+            }
+        }
+    }
+    
+    // Function to check if phase has changed from Pitch to another phase
+    function checkPhaseTransition() {
+        if (!phaseSelect) return false;
+        
+        const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+        const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+        
+        // Hide milestone details if phase is Pitch, show for all other phases
+        return phaseName !== 'pitch' && phaseName !== '';
+    }
+    
+    // Add event listener to next milestone date input
+    if (nextMilestoneDateInput) {
+        nextMilestoneDateInput.addEventListener('change', toggleMilestoneDetails);
+        nextMilestoneDateInput.addEventListener('input', toggleMilestoneDetails);
+    }
+    
+    // Add event listener to phase selection for both date section and milestone details
+    if (phaseSelect) {
+        phaseSelect.addEventListener('change', function() {
+            toggleDateSectionVisibility();
+        });
+    }
+    
+    // Initial check on page load
+    if (phaseSelect) {
+        toggleDateSectionVisibility();
+    }
+
+    // Enhanced form validation
+    const form = document.querySelector('.needs-validation');
+    const projectNameInput = document.getElementById('project_name');
+    const headlineInput = document.getElementById('project_headline');
+    const whyInput = document.getElementById('project_why');
+    const whatInput = document.getElementById('project_what');
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+
+    // Custom validation function
+    function validateForm() {
+        let isValid = true;
+        let errorMessages = [];
+
+        // Validate project name
+        const projectNameValue = projectNameInput.value.trim();
+
+        if (!projectNameValue) {
+            projectNameInput.setCustomValidity('Project name is required.');
+            errorMessages.push('Project name is required.');
+            isValid = false;
+        } else if (projectNameValue.length < 3) {
+            projectNameInput.setCustomValidity('Project name must be at least 3 characters long.');
+            errorMessages.push('Project name must be at least 3 characters long.');
+            isValid = false;
+        } else if (projectNameValue.length > 255) {
+            projectNameInput.setCustomValidity('Project name cannot exceed 255 characters.');
+            errorMessages.push('Project name cannot exceed 255 characters.');
+            isValid = false;
+        } else if (!/^[a-zA-Z0-9\s\-_\.\(\)]+$/.test(projectNameValue)) {
+            projectNameInput.setCustomValidity('Project name can only contain letters, numbers, spaces, hyphens, underscores, dots, and parentheses.');
+            errorMessages.push('Project name contains invalid characters.');
+            isValid = false;
+        } else if (/^[\s\-_\.\(\)]+$/.test(projectNameValue)) {
+            projectNameInput.setCustomValidity('Project name must contain meaningful text, not just spaces or symbols.');
+            errorMessages.push('Project name must contain meaningful text.');
+            isValid = false;
+        } else if (projectNameValue.toLowerCase() === 'test' || projectNameValue.toLowerCase() === 'temp' ||
+                   projectNameValue.toLowerCase() === 'example' || projectNameValue.toLowerCase() === 'sample') {
+            projectNameInput.setCustomValidity('Please use a more descriptive project name.');
+            errorMessages.push('Please use a more descriptive project name.');
+            isValid = false;
+        } else {
+            projectNameInput.setCustomValidity('');
+        }
+
+        // Validate headline
+        if (!headlineInput.value.trim()) {
+            headlineInput.setCustomValidity('Headline is required.');
+            errorMessages.push('Headline is required.');
+            isValid = false;
+        } else {
+            headlineInput.setCustomValidity('');
+        }
+
+        // Validate why
+        if (!whyInput.value.trim()) {
+            whyInput.setCustomValidity('Why is required.');
+            errorMessages.push('Why is required.');
+            isValid = false;
+        } else {
+            whyInput.setCustomValidity('');
+        }
+
+        // Validate what
+        if (!whatInput.value.trim()) {
+            whatInput.setCustomValidity('What is required.');
+            errorMessages.push('What is required.');
+            isValid = false;
+        } else {
+            whatInput.setCustomValidity('');
+        }
+
+        // Validate dates only if date section is visible (not Pitch, Done, or Archived phase)
+        const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+        const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+
+        if (phaseName !== 'pitch' && phaseName !== 'done' && phaseName !== 'archived') {
+            // Validate start date
+            if (!startDateInput.value) {
+                startDateInput.setCustomValidity('Start date is required.');
+                errorMessages.push('Start date is required.');
+                isValid = false;
+            } else {
+                startDateInput.setCustomValidity('');
+            }
+
+            // Validate end date
+            if (!endDateInput.value) {
+                endDateInput.setCustomValidity('End date is required.');
+                errorMessages.push('End date is required.');
+                isValid = false;
+            } else {
+                endDateInput.setCustomValidity('');
+            }
+
+            // Validate end date is after start date
+            if (startDateInput.value && endDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
+                if (endDate < startDate) {
+                    endDateInput.setCustomValidity('End date must be after start date.');
+                    errorMessages.push('End date must be after start date.');
+                    isValid = false;
+                }
+            }
+        } else {
+            // Clear date validations for Pitch, Done, and Archived phases
+            startDateInput.setCustomValidity('');
+            endDateInput.setCustomValidity('');
+        }
+
+        return isValid;
+    }
+
+    // Add real-time validation listeners that clear errors when user types
+    projectNameInput.addEventListener('input', function() {
+        const value = projectNameInput.value.trim();
+        if (value) {
+            projectNameInput.classList.remove('is-invalid');
+            // Clear custom validity if the value passes basic checks
+            if (value.length >= 3 && value.length <= 255 &&
+                /^[a-zA-Z0-9\s\-_\.\(\)]+$/.test(value) &&
+                !/^[\s\-_\.\(\)]+$/.test(value) &&
+                !['test', 'temp', 'example', 'sample'].includes(value.toLowerCase())) {
+                projectNameInput.setCustomValidity('');
+            }
+        }
+    });
+
+    headlineInput.addEventListener('input', function() {
+        if (headlineInput.value.trim()) {
+            headlineInput.classList.remove('is-invalid');
+            headlineInput.setCustomValidity('');
+        }
+    });
+
+    whyInput.addEventListener('input', function() {
+        if (whyInput.value.trim()) {
+            whyInput.classList.remove('is-invalid');
+            whyInput.setCustomValidity('');
+        }
+    });
+
+    whatInput.addEventListener('input', function() {
+        if (whatInput.value.trim()) {
+            whatInput.classList.remove('is-invalid');
+            whatInput.setCustomValidity('');
+        }
+    });
+
+    startDateInput.addEventListener('change', function() {
+        if (startDateInput.value) {
+            startDateInput.classList.remove('is-invalid');
+            startDateInput.setCustomValidity('');
+        }
+    });
+
+    endDateInput.addEventListener('change', function() {
+        if (endDateInput.value) {
+            endDateInput.classList.remove('is-invalid');
+            endDateInput.setCustomValidity('');
+        }
+    });
+
+    // Form submission validation
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        console.log('Form submit event triggered');
+        console.log('Project Name:', projectNameInput.value);
+        console.log('Headline:', headlineInput.value);
+        console.log('Why:', whyInput.value);
+        console.log('What:', whatInput.value);
+        console.log('Start Date:', startDateInput.value);
+        console.log('End Date:', endDateInput.value);
+
+        // Run validation to set custom validity messages
+        validateForm();
+
+        // Now check if form is valid using HTML5 validation
+        const isCheckValid = form.checkValidity();
+        console.log('HTML5 validation after custom validation:', isCheckValid);
+
+        // Debug: Check which field is invalid
+        const invalidFields = form.querySelectorAll(':invalid');
+        console.log('Invalid fields count:', invalidFields.length);
+        invalidFields.forEach(field => {
+            console.log('Invalid field:', field.name, 'Validity:', field.validationMessage);
+        });
+
+        if (!isCheckValid) {
+            // Show validation errors
+            form.classList.add('was-validated');
+
+            // Collect all error messages
+            let errorMessages = [];
+            if (!projectNameInput.value.trim()) errorMessages.push('Project Name is required');
+            if (!headlineInput.value.trim()) errorMessages.push('Headline is required');
+            if (!whyInput.value.trim()) errorMessages.push('Why is required');
+            if (!whatInput.value.trim()) errorMessages.push('What is required');
+
+            const selectedPhase = phaseSelect.options[phaseSelect.selectedIndex];
+            const phaseName = selectedPhase ? selectedPhase.text.toLowerCase() : '';
+
+            if (phaseName !== 'pitch' && phaseName !== 'done' && phaseName !== 'archived') {
+                if (!startDateInput.value) errorMessages.push('Start Date is required');
+                if (!endDateInput.value) errorMessages.push('End Date is required');
+            }
+
+            // Display error messages if any
+            if (errorMessages.length > 0) {
+                const errorContainer = document.getElementById('clientValidationErrors');
+                const errorList = document.getElementById('clientValidationErrorsList');
+
+                // Clear previous errors
+                errorList.innerHTML = '';
+
+                // Add new error messages
+                errorMessages.forEach(function(message) {
+                    const li = document.createElement('li');
+                    li.textContent = message;
+                    errorList.appendChild(li);
+                });
+
+                // Show the error container
+                errorContainer.style.display = 'block';
+
+                // Scroll to the top to show errors
+                errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // Focus on first invalid field
+            const firstInvalid = form.querySelector(':invalid');
+            if (firstInvalid) {
+                console.log('First invalid field:', firstInvalid.name, firstInvalid.validationMessage);
+                firstInvalid.focus();
+            }
+        } else {
+            // Form is valid, hide error messages and submit
+            const errorContainer = document.getElementById('clientValidationErrors');
+            errorContainer.style.display = 'none';
+
+            console.log('Form is valid, submitting...');
+            form.classList.add('was-validated');
+            form.submit();
+        }
+    });
+
+    // Initialize Flatpickr for date inputs
+    flatpickr('#start_date', {
+        dateFormat: 'Y-m-d',
+        allowInput: true,
+        onChange: function(selectedDates, dateStr, instance) {
+            if (dateStr) {
+                startDateInput.classList.remove('is-invalid');
+                startDateInput.setCustomValidity('');
+            }
+        }
+    });
+
+    flatpickr('#end_date', {
+        dateFormat: 'Y-m-d',
+        allowInput: true,
+        onChange: function(selectedDates, dateStr, instance) {
+            if (dateStr) {
+                endDateInput.classList.remove('is-invalid');
+                endDateInput.setCustomValidity('');
+            }
+        }
+    });
+
+    flatpickr('#next_milestone_date', {
+        dateFormat: 'Y-m-d',
+        allowInput: true
+    });
+
+    // Clear error messages when modal is opened
+    const addProjectModal = document.getElementById('addProject');
+    if (addProjectModal) {
+        // Using jQuery's modal show event (Bootstrap 4)
+        $(addProjectModal).on('show.bs.modal', function () {
+            // Hide client-side validation errors
+            const clientErrorContainer = document.getElementById('clientValidationErrors');
+            if (clientErrorContainer) {
+                clientErrorContainer.style.display = 'none';
+            }
+
+            // Clear the error list
+            const clientErrorList = document.getElementById('clientValidationErrorsList');
+            if (clientErrorList) {
+                clientErrorList.innerHTML = '';
+            }
+
+            // Remove validation classes and custom validity from form
+            if (form) {
+                form.classList.remove('was-validated');
+
+                // Clear all invalid states and custom validity messages
+                const allInputs = form.querySelectorAll('input, textarea, select');
+                allInputs.forEach(function(input) {
+                    input.classList.remove('is-invalid');
+                    input.setCustomValidity('');
+                });
+            }
+        });
+    }
+
+    // Also handle the link click that opens the modal
+    const openAddProjectModalLink = document.getElementById('openAddProjectModal');
+    if (openAddProjectModalLink) {
+        openAddProjectModalLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Trigger the modal
+            $('#addProject').modal('show');
+        });
+    }
+});
+</script>

@@ -1,39 +1,68 @@
 const db = require("../models");
 const Tag = db.tags;
-const Op = db.Sequelize.Op;
 
 // Create and Save a new Tag
-exports.create = (req, res) => {
-  // Validate request
+exports.create = async (req, res, next) => {
+  try {
+    const tagName = req.body.tag_name;
+    const tagColor = req.body.tag_color;
 
-  if (!req.body.company_tag) {
-    const error = new Error("Tag name is required");
-    error.statusCode = 405;
-    throw error;
-  }
-  // Validate health
-  const tagName = document.getElementById(`company_tag`);
-  console.log("tagName:", tagName);
-  if (!tagName.value || tagName.value === "") {
-    tagName.classList.add("is-invalid");
-    isValid = false;
-  }
-  // Create a Tag
-  const tag = {
-    tag_name: req.body.company_tag,
-    company_id_fk: req.session.company.id,
-  };
+    // Validate tag name
+    if (!tagName || tagName.trim() === "") {
+      const error = new Error("Error adding tag: Tag name required.");
+      error.statusCode = 401;
 
-  // Save Tag in the databasecompany_id_fk = req.session.company.id;
-  Tag.create(tag)
-    .then((data) => {
-      res.redirect("/companies/get/defaults");
-    })
-    .catch((err) => {
+      return next(error);
+    }
+
+    // Validate tag color
+    if (!tagColor) {
+      const error = new Error("Error adding tag: Tag color is required.");
+      error.statusCode = 401;
+      return next(error);
+    }
+
+    // Check for same tag color within the same company
+    const existingTags = await Tag.findAll({
+      where: {
+        tag_color: tagColor,
+        company_id_fk: req.session.company.id,
+      },
+    });
+    if (existingTags && existingTags.length > 0) {
+      const error = new Error(
+        "Error adding tag. Tag color must be unique within your company.",
+      );
+      error.statusCode = 500;
+
+      return next(error);
+    }
+
+    // Create a Tag
+    const tag = {
+      tag_name: tagName.trim(),
+      tag_color: tagColor,
+      company_id_fk: req.session.company.id,
+    };
+
+    // Save Tag in the database
+    const data = await Tag.create(tag);
+    res.redirect("/companies/get/defaults");
+  } catch (err) {
+    console.log("Error creating tag:", err);
+    // For validation or expected errors, redirect back to the defaults page
+    // and surface the error message via a query parameter so the UI can show it.
+    if (err.statusCode) {
+      return res.redirect(
+        "/companies/get/defaults?error=" + encodeURIComponent(err.message),
+      );
+    } else {
+      // Unexpected server errors: respond with 500 as before
       res.status(500).send({
         message: err.message || "Some error occurred while creating the Tag.",
       });
-    });
+    }
+  }
 };
 // Retrieve all  from the database.
 exports.findAll = (req, res) => {
@@ -71,58 +100,50 @@ exports.findOne = (req, res) => {
 };
 
 // Update a Tag by the id in the request
-exports.update = (req, res) => {
-  const id = req.params.id;
-  Tag.update(req.body, {
-    where: { id: id },
-    returning: true, // Ensure the updated rows are returned
-  })
-    .then(([num, updatedTag]) => {
-      if (num == 1) {
-        console.log(
-          "Tag was updated successfully. Direct back to defaults page",
-        );
-        res.redirect("/companies/get/defaults");
-      } else {
-        res.status(404).send({
-          message: `Cannot update Tag with id=${id}. Maybe Tag was not found or req.body is empty!`,
+exports.update = async (req, res) => {
+  try {
+    console.log("tag_color:", req.body.tag_color);
+    const id = req.params.id;
+    const tagColor = req.body.tag_color;
+
+    // If color is being updated, check for uniqueness
+    if (tagColor) {
+      const existingTags = await Tag.findAll({
+        where: {
+          tag_color: tagColor,
+          company_id_fk: req.session.company.id,
+          id: { [db.Sequelize.Op.ne]: id }, // Exclude current tag from check
+        },
+      });
+
+      if (existingTags && existingTags.length > 0) {
+        return res.status(400).send({
+          message:
+            "Error updating tag. Tag color must be unique within your company.",
         });
       }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error updating Tag with id=" + id,
-      });
+    }
+
+    const [num, updatedTag] = await Tag.update(req.body, {
+      where: { id: id },
+      returning: true, // Ensure the updated rows are returned
     });
+
+    if (num == 1) {
+      console.log("Tag was updated successfully. Direct back to defaults page");
+      res.redirect("/companies/get/defaults");
+    } else {
+      res.status(404).send({
+        message: `Cannot update Tag with id=${id}. Maybe Tag was not found or req.body is empty!`,
+      });
+    }
+  } catch (err) {
+    console.log("Error updating tag:", err);
+    res.status(500).send({
+      message: "Error updating Tag with id=" + id,
+    });
+  }
 };
-// exports.updateFromDefaultsPage = (req, res) => {
-//   console.log("req.body:", req.body);
-//   const id = req.body.tag_id; // Extract the id from the request body
-//   const updatedTag = {
-//     tag_id: req.body.tag_id,
-//     tag_name: req.body.tag_name,
-//   };
-//   console.log("updatedTag:", updatedTag);
-//   Tag.update(updatedTag, {
-//     where: { id: id },
-//   })
-//     .then((num) => {
-//       if (num == 1) {
-//         res.send({
-//           message: "Tag was updated successfully.",
-//         });
-//       } else {
-//         res.send({
-//           message: `Cannot update Tag with id=${id}. Maybe Tag was not found or req.body is empty!`,
-//         });
-//       }
-//     })
-//     .catch((err) => {
-//       res.status(500).send({
-//         message: "Error updating Tag with id=" + id,
-//       });
-//     });
-// };
 // Delete a Tag with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;

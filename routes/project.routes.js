@@ -3,12 +3,33 @@ module.exports = (app) => {
   const sessionMiddleware = require("../middleware/sessionMiddleware.js");
   const checkProjectReadonly = require("../middleware/readOnlyProject");
   const companyPortfolioName = require("../middleware/companyPortfolioName.js");
+  const {
+    applyGlobalFilter,
+  } = require("../middleware/globalFilterMiddleware.js");
 
   var router = require("express").Router();
   // Define routes using controller functions
-  router.post("/", sessionMiddleware, companyPortfolioName, projects.create);
-  router.get("/", sessionMiddleware, companyPortfolioName, projects.findAll);
-  router.get("/:id", sessionMiddleware, companyPortfolioName, projects.findOne);
+  router.post(
+    "/",
+    sessionMiddleware,
+    companyPortfolioName,
+    applyGlobalFilter,
+    projects.create,
+  );
+  router.get(
+    "/",
+    sessionMiddleware,
+    companyPortfolioName,
+    applyGlobalFilter,
+    projects.findAll,
+  );
+  router.get(
+    "/:id",
+    sessionMiddleware,
+    companyPortfolioName,
+    applyGlobalFilter,
+    projects.findOne,
+  );
   router.post("/:id", sessionMiddleware, companyPortfolioName, projects.update);
   router.delete(
     "/:id",
@@ -57,43 +78,80 @@ module.exports = (app) => {
     "/radar/view/",
     sessionMiddleware,
     companyPortfolioName,
+    applyGlobalFilter,
     projects.radar,
   );
 
-  router.get("/radar/progress/", sessionMiddleware, projects.progress);
+  // New API endpoint for filtered radar data
+  router.get(
+    "/radar/data",
+    sessionMiddleware,
+    applyGlobalFilter,
+    projects.radarData,
+  );
+
+  // New API endpoint for filtered health data
+  router.get(
+    "/health/data",
+    sessionMiddleware,
+    applyGlobalFilter,
+    projects.healthData,
+  );
+
+  // New API endpoint for filtered accomplishments data
+  router.get(
+    "/accomplishments/data",
+    sessionMiddleware,
+    applyGlobalFilter,
+    projects.accomplishmentsData,
+  );
+
+  router.get(
+    "/radar/progress/",
+    sessionMiddleware,
+    applyGlobalFilter,
+    projects.progress,
+  );
   router.get(
     "/radar/countProjectsByTag1/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countProjectsByTag1,
   );
   router.get(
     "/radar/countCostsByTag1/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countCostsByTag1,
   );
   router.get(
     "/radar/countEffortByTag1/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countEffortByTag1,
   );
   router.get(
     "/radar/countProjectsByTag2/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countProjectsByTag2,
   );
   router.get(
     "/radar/countCostsByTag2/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countCostsByTag2,
   );
   router.get(
     "/radar/countEffortByTag2/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countEffortByTag2,
   );
   router.get(
     "/radar/countProjectsByTag3/",
     sessionMiddleware,
+    applyGlobalFilter,
     projects.countProjectsByTag3,
   );
   router.get(
@@ -116,7 +174,14 @@ module.exports = (app) => {
     "/health/view",
     sessionMiddleware,
     companyPortfolioName,
+    applyGlobalFilter,
     projects.health,
+  );
+  router.get(
+    "/accomplishments/view/",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.accomplishments,
   );
   router.get(
     "/flightview/view/",
@@ -124,7 +189,19 @@ module.exports = (app) => {
     companyPortfolioName,
     projects.flightview,
   );
-  router.get("/flightview/ganttChart/", sessionMiddleware, projects.ganttChart);
+  router.get(
+    "/flightview/ganttChart/",
+    sessionMiddleware,
+    applyGlobalFilter,
+    projects.ganttChart,
+  );
+  // Diagnostic debug route
+  router.get(
+    "/debug/raw",
+    sessionMiddleware,
+    companyPortfolioName,
+    projects.debugProjectsRaw,
+  );
   router.delete(
     "/",
     sessionMiddleware,
@@ -147,5 +224,12 @@ module.exports = (app) => {
     sessionMiddleware,
     projects.exportHealthDataToCSV,
   );
+
+  router.get(
+    "/export/accomplishments-data",
+    sessionMiddleware,
+    projects.exportAccomplishmentsToCSV,
+  );
+
   app.use("/projects", router);
 };

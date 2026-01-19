@@ -1,6 +1,7 @@
 <%- contentFor('HeaderCss') %>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <style>
   #pitch_message {
       display: none;
@@ -92,16 +93,6 @@ body.modal-open {
 }
 </style>
 <%- contentFor('breadcrumb') %>
-<ul class="list-inline menu-left mb-0">
-    <li class="list-inline-item">
-        <button type="button" class="button-menu-mobile open-left waves-effect">
-            <i class="ion-navicon"></i>
-        </button>
-    </li>
-    <li class="hide-phone list-inline-item app-search">
-        <h3 class="page-title">Your Projects</h3>
-    </li>
-</ul>
 
 <%- contentFor('body') %>
 <div class="page-content-wrapper">
@@ -133,15 +124,16 @@ body.modal-open {
                                     <td><%= project.end_date ? project.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "N/A" %></td>
                                     <td><%= project.phase_name %></td>
                                     <td><%= project.project_cost %></td>
-                                    <% if (project.prime_id_fk === person.id) { %>
-                                    <td>
-                                        <i data-toggle="modal" data-target="#myModal_<%= project.id %>" style="cursor:pointer;color:#34b871 !important;"  class="mdi mdi-note-plus"></i> <i data-toggle="modal" style="cursor:pointer;color:#34b871 !important;" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal" class="mdi mdi-eye"></i>
-                                    </td>
-                                    <% } else { %>
-                                    <a href="#"><td data-toggle="modal" onclick="getStatusUpdates(<%= project.id %>)" data-target="#StatusUpdatesModal">
-                                        <i style="cursor:pointer;color:#34b871 !important;width:24px; height:24px;" class="mdi mdi-eye"></i>
-                                    </td></a>
-                                    <% } %>
+                  <% if (project.prime_id_fk === person.id) { %>
+                  <td>
+                    <i data-toggle="modal" data-target="#myModal_<%= project.id %>" style="cursor:pointer;color:#34b871 !important;"  class="mdi mdi-note-plus" title="Add status"></i>
+                    <i data-toggle="modal" data-target="#StatusUpdatesModal" data-project-id="<%= project.id %>" class="mdi mdi-eye js-status-eye" style="cursor:pointer;color:#34b871 !important; width:24px; height:24px;" title="View status"></i>
+                  </td>
+                  <% } else { %>
+                  <td data-toggle="modal" data-target="#StatusUpdatesModal">
+                    <i data-project-id="<%= project.id %>" class="mdi mdi-eye js-status-eye" style="cursor:pointer;color:#34b871 !important;width:24px; height:24px;" title="View status"></i>
+                  </td>
+                  <% } %>
                                 </tr>
 
                                 <!-- Modal -->
@@ -155,20 +147,19 @@ body.modal-open {
                                                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <input type="hidden" name="project_id" value="<%= project.id %>">
-                                                    <input type="hidden" name="prime_id_fk" value="<%= project.prime_id_fk %>">
+                                                    <input type="hidden" name="project_id" value="<%= project.id || '' %>">
+                                                    <input type="hidden" name="prime_id_fk" value="<%= (project.prime_id_fk && !isNaN(project.prime_id_fk)) ? project.prime_id_fk : '' %>">
                                                     
                                                     <div class="row">
                                                         <div class="col-md-12">
                                                             <div class="form-group">
                                                               <i class="bi bi-calendar-check"></i>
                                                               <input
-                                                                  type="text"
+                                                                  type="date"
                                                                   required
-                                                                  class="form-control datepicker"
+                                                                  class="form-control"
                                                                   id="status_date_<%= project.id %>"
                                                                   name="status_date"
-                                                                  placeholder="Status Date"
                                                                 />
                                                                 <div class="invalid-feedback">
                                                                   Please select a valid status date.
@@ -178,21 +169,21 @@ body.modal-open {
                                                             </div>
                                                             <div class="form-group">
                                                                 <strong>Accomplishments:</strong>
-                                                                <textarea class="form-control" name="status_accomplishments" id="accomplishments_<%= project.id %>" required rows="3" placeholder="Enter accomplishments..."></textarea>
+                                                                <textarea class="form-control" maxlength="3000" name="status_accomplishments" id="accomplishments_<%= project.id %>" required rows="3" placeholder="Enter accomplishments..."></textarea>
                                                                 <div class="invalid-feedback">
                                                                   Please enter accomplishments.
                                                                 </div>
                                                               </div>
                                                             <div class="form-group">
                                                                 <strong>Issues:</strong>
-                                                                <textarea class="form-control" name="issue" id="issue_<%= project.id %>" rows="3" required placeholder="Enter issues..."></textarea>
+                                                                <textarea class="form-control" maxlength="3000" name="issue" id="issue_<%= project.id %>" rows="3" required placeholder="Enter issues..."></textarea>
                                                                 <div class="invalid-feedback">
                                                                   Please enter issues.
                                                                 </div>
                                                             </div>
                                                             <div class="form-group">
                                                                 <strong>Actions:</strong>
-                                                                <textarea class="form-control" name="actions" id="actions_<%= project.id %>" rows="3" required placeholder="Enter actions..."></textarea>
+                                                                <textarea class="form-control" maxlength="3000" name="actions" id="actions_<%= project.id %>" rows="3" required placeholder="Enter actions..."></textarea>
                                                                 <div class="invalid-feedback">
                                                                   Please enter actions.
                                                                 </div>
@@ -257,16 +248,16 @@ body.modal-open {
                                           
                                           <div class="form-group">
                                             <label for="status_accomplishments"><strong>Accomplishments:</strong></label>
-                                            <textarea id="view_status_accomplishments" class="form-control" rows="3" disabled></textarea>
+                                            <textarea id="view_status_accomplishments" maxlength="1000" class="form-control" rows="3" disabled></textarea>
                                           </div>
                                           <div class="form-group">
                                             <label for="status_issue"><strong>Issue</strong></label>
-                                            <textarea id="view_status_issue" class="form-control" rows="3" disabled></textarea>
+                                            <textarea id="view_status_issue"  maxlength="1000"  class="form-control" rows="3" disabled></textarea>
                                           </div>
                                           
                                           <div class="form-group">
                                             <label for="status_action"><strong>Action</strong></label>
-                                            <textarea id="view_status_action" class="form-control" rows="3" disabled></textarea>
+                                            <textarea id="view_status_action" maxlength="1000"  class="form-control" rows="3" disabled></textarea>
                                           </div>
                                           <div class="form-group">
                                             <label for="status_progress"><strong>Progress</strong></label>
@@ -506,12 +497,16 @@ event.preventDefault();
       if (data.status_date) {
         // Parse and adjust the status_date to ensure correct timezone handling
         const parsedStatusDate = new Date(data.status_date);
+        console.log("Parsed status date:", parsedStatusDate);
         const adjustedStatusDate = new Date(
           parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
         );
+         console.log("Adjusted status date:", adjustedStatusDate);
         // Format adjustedStatusDate to yyyy-mm-dd
         const formattedStatusDate = adjustedStatusDate.toISOString().split("T")[0];
         document.getElementById('view_status_date').innerText = formattedStatusDate;
+         console.log("Adjusted formattedStatusDate:", formattedStatusDate);
+       
         //fetch prime name
         console.log("Prime id",data.prime_id_fk)
         fetch(`/persons/${data.prime_id_fk}`)
@@ -538,6 +533,24 @@ event.preventDefault();
     .catch(err => console.error("Error fetching status data:", err));
 }
   
+</script>
+
+<script>
+  // Delegated handler for status eye icons to avoid inline onclick with EJS
+  document.addEventListener('DOMContentLoaded', function () {
+    document.body.addEventListener('click', function (e) {
+      var el = e.target.closest && e.target.closest('.js-status-eye');
+      if (!el) return;
+      var pid = el.getAttribute('data-project-id');
+      if (!pid) return;
+      // call the existing function to fetch and show status updates
+      try {
+        window.getStatusUpdates(parseInt(pid, 10));
+      } catch (err) {
+        console.error('Error calling getStatusUpdates for project', pid, err);
+      }
+    });
+  });
 </script>
 
 <%- contentFor('FooterJs') %>

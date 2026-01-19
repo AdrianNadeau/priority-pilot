@@ -1,9 +1,9 @@
 const db = require("../models");
-const Project = db.projects;
 const Phase = db.phases;
 const Priority = db.priorities;
 const Person = db.persons;
 const currentDate = new Date();
+const path = require("path");
 
 async function isAdminMiddleware(req, res, next) {
   try {
@@ -39,6 +39,22 @@ async function isAdminMiddleware(req, res, next) {
       replacements: [companyId, userId, userId],
       type: db.sequelize.QueryTypes.SELECT,
     });
+
+    // Remove duplicates based on project ID
+    const uniqueProjects = [];
+    const seenProjectIds = new Set();
+
+    projectsData.forEach((project) => {
+      if (!seenProjectIds.has(project.id)) {
+        uniqueProjects.push(project);
+        seenProjectIds.add(project.id);
+      }
+    });
+
+    console.log(
+      `Total projects retrieved for non-admin: ${projectsData.length}, Unique projects: ${uniqueProjects.length}`,
+    );
+
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
     });
@@ -50,7 +66,8 @@ async function isAdminMiddleware(req, res, next) {
 
     // Render the "Pages/pages-projects" view with filtered data
     res.render("Pages/pages-prime-only", {
-      projects: projectsData,
+      pageTitle: "Your Projects",
+      projects: uniqueProjects, // Use deduplicated projects
       phases: phasesData,
       priorities: prioritiesData,
       sponsors: personsData,

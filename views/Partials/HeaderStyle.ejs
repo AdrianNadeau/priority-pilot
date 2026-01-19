@@ -22,6 +22,18 @@
   rel="stylesheet"
   href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css"
 />
+<style>
+  /* Ensure Flatpickr calendar displays above all elements */
+  .flatpickr-calendar {
+    z-index: 99999 !important;
+    display: block !important;
+  }
+
+  /* Ensure input fields don't hide the calendar */
+  .flatpickr-input {
+    position: relative;
+  }
+</style>
 <script
   type="text/javascript"
   src="https://www.gstatic.com/charts/loader.js"

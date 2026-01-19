@@ -1,5 +1,5 @@
 <%- contentFor('HeaderCss') %>
-
+<!-- padding for mini-stat boxes will be applied at runtime to avoid CSS parsing conflicts -->
 <%- contentFor('breadcrumb') %>
 <ul class="list-inline menu-left mb-0"> 
     <li class="list-inline-item">
@@ -118,6 +118,11 @@
                     </div>
                     <div>
                         <button type="button" class="btn btn-light" style="width: 75%; margin-bottom: 5px; border-width: 2px; border-color: black;" onClick="loadRadar();">
+                            Funnel (<%= totalPitchCount %>, $<%= pitchTotalCost %>, <%= totalPitchPH %> PH)
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-light" style="width: 75%; margin-bottom: 5px; border-width: 2px; border-color: black;" onClick="loadRadar();">
                             Radar
                         </button>
                     </div>
@@ -162,6 +167,12 @@
 <%- contentFor('BottomJs') %>
 
 <script>
+    // Apply 5px padding to mini-stat boxes at runtime to avoid template/CSS parser conflicts
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.mini-stat.bg-white.clearfix').forEach(function (el) {
+            el.style.padding = '5px';
+        });
+    });
   function loadProject(project_id) {
     window.location.replace('/projects/cockpit/' + project_id);
   }

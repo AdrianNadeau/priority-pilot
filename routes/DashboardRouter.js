@@ -4,7 +4,7 @@ var DashboardRouter = express.Router();
 
 // Dashboard
 DashboardRouter.get("/", async function (req, res) {
-  res.render("/control");
+  res.render("Dashboard/dashboard1");
 });
 
 module.exports = DashboardRouter;
