@@ -235,13 +235,7 @@
             <i style="color: <%= healthStatus === 'green' ? '#28a745' : healthStatus === 'yellow' ? '#ffc107' : healthStatus === 'red' ? '#dc3545' : '#6c757d' %>; margin-right: 4px; font-size: 14px;"></i>[%<%= status.progress %>]
           <% if (status.status_date) { %>
             <a href="#" onClick="getStatus(event, '<%= status.id %>')" data-target="#viewStatusModal" id="viewStatusLink">
-              <%= (() => {
-                const parsedStatusDate = new Date(status.status_date);
-                const adjustedStatusDate = new Date(
-                  parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000
-                );
-                return adjustedStatusDate.toISOString().split("T")[0]; // Format to yyyy-mm-dd
-              })() %>
+              <%= new Date(status.status_date).toISOString().split("T")[0] %>
             </a>
           <% } %>
           <br/>
@@ -518,13 +512,6 @@
       const statusActions = form.querySelector('#actions');
       const statusIssue = form.querySelector('#issue');
 
-      // Parse and adjust the status_date to ensure correct timezone handling
-    const parsedStatusDate = new Date(statusDate);
-    const adjustedStatusDate = new Date(
-      parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
-    );
-     
-    
       if (!statusDate.value) {
         // alert("Please select a date");
         isValid = false;
@@ -583,15 +570,8 @@
       if (data.progress) document.getElementById('view_status_progress').value = data.progress;
       if (data.health) document.getElementById('view_status_health').value = data.health;
       if (data.status_date) {
-        // Parse and adjust the status_date to ensure correct timezone handling
-        const parsedStatusDate = new Date(data.status_date);
-        const adjustedStatusDate = new Date(
-          parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
-        );
-
-        // Format adjustedStatusDate to yyyy-mm-dd
-        const formattedStatusDate = adjustedStatusDate.toISOString().split("T")[0];
-
+        // Format status_date to yyyy-mm-dd
+        const formattedStatusDate = new Date(data.status_date).toISOString().split("T")[0];
         document.getElementById('view_status_date').innerText = formattedStatusDate;
       }
 

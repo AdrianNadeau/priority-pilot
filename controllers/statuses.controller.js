@@ -35,11 +35,6 @@ exports.create = async (req, res) => {
       return res.status(400).send({ message: "Invalid status date provided." });
     }
 
-    const parsedStatusDate = new Date(statusDate);
-    const adjustedStatusDate = new Date(
-      parsedStatusDate.getTime() + parsedStatusDate.getTimezoneOffset() * 60000,
-    );
-
     const status = {
       project_id_fk:
         req.body.project_id &&
@@ -63,7 +58,7 @@ exports.create = async (req, res) => {
       attachments: req.body.attachment
         ? String(req.body.attachment).trim()
         : null,
-      status_date: adjustedStatusDate, // Save the adjusted date
+      status_date: statusDate, // Save the date string directly
     };
 
     // Remove undefined keys so Sequelize uses defaults or NULL
