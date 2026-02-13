@@ -40,9 +40,9 @@
 
     function updateToggleIcon(isCollapsed) {
       if (isCollapsed) {
-        $toggleIcon.removeClass("dripicons-folder-open").addClass("dripicons-folder");
+        $toggleIcon.removeClass("mdi-chevron-left").addClass("mdi-chevron-right");
       } else {
-        $toggleIcon.removeClass("dripicons-folder").addClass("dripicons-folder-open");
+        $toggleIcon.removeClass("mdi-chevron-right").addClass("mdi-chevron-left");
       }
     }
 
@@ -66,37 +66,9 @@
     $("[data-toggle=\"tooltip\"]").tooltip();
     $("[data-toggle=\"popover\"]").popover();
   }),
-  //full screen
+  //sidebar collapse toggle
   (MainApp.prototype.initFullScreen = function () {
-    var $this = this;
-    $this.$btnFullScreen.on("click", function (e) {
-      e.preventDefault();
-
-      if (
-        !document.fullscreenElement &&
-        /* alternative standard method */ !document.mozFullScreenElement &&
-          !document.webkitFullscreenElement
-      ) {
-        // current working methods
-        if (document.documentElement.requestFullscreen) {
-          document.documentElement.requestFullscreen();
-        } else if (document.documentElement.mozRequestFullScreen) {
-          document.documentElement.mozRequestFullScreen();
-        } else if (document.documentElement.webkitRequestFullscreen) {
-          document.documentElement.webkitRequestFullscreen(
-            Element.ALLOW_KEYBOARD_INPUT,
-          );
-        }
-      } else {
-        if (document.cancelFullScreen) {
-          document.cancelFullScreen();
-        } else if (document.mozCancelFullScreen) {
-          document.mozCancelFullScreen();
-        } else if (document.webkitCancelFullScreen) {
-          document.webkitCancelFullScreen();
-        }
-      }
-    });
+    // Empty - using global toggleSidebar function instead
   }),
   //full screen
   (MainApp.prototype.initMenu = function () {
@@ -195,3 +167,12 @@
   "use strict";
   $.MainApp.init();
 })(window.jQuery);
+
+// Global function for sidebar toggle
+function toggleSidebar(e) {
+  e.preventDefault();
+  var $wrapper = $("#wrapper");
+  var $body = $("body");
+  $body.toggleClass("fixed-left-void");
+  $wrapper.toggleClass("enlarged");
+}

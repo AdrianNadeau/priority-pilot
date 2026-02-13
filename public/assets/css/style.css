@@ -5101,6 +5101,30 @@ canvas {
   transform: rotate(180deg);
 }
 
+.sidebar-collapse-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 10px;
+  position: relative;
+  z-index: 9999;
+}
+
+.sidebar-collapse-btn i {
+  font-size: 24px;
+  color: #505458;
+}
+
+#sidebar-collapse-icon {
+  display: inline-block;
+  transition: transform 0.4s ease;
+  pointer-events: none;
+}
+
+#wrapper.enlarged #sidebar-collapse-icon {
+  transform: rotate(180deg) !important;
+}
+
 #wrapper.sidebar-collapsed .logo-full {
   display: none;
 }

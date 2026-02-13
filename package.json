@@ -27,6 +27,7 @@
   "author": "CODERTHEMES",
   "license": "ISC",
   "dependencies": {
+    "@google-analytics/data": "^4.8.0",
     "@sendgrid/mail": "^8.1.4",
     "a-color-picker": "^1.2.1",
     "assert": "^1.4.1",

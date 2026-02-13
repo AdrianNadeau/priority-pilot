@@ -23,25 +23,12 @@
               <%- include ../Partials/portfolio_name %>
         
 
-              <!-- Search -->
-              <!-- <li class="list-inline-item dropdown notification-list">
-                <a
-                  class="nav-link waves-effect toggle-search"
-                  href="#"
-                  data-target="#search-wrap"
-                >
-                  <i class="mdi mdi-magnify noti-icon"></i>
-                </a>
-              </li> -->
-              <!-- Fullscreen -->
-               <ul>
-              <li class="list-inline-item dropdown notification-list hidden-xs-down">
-                <a class="nav-link waves-effect" href="#" id="btn-fullscreen">
-                  <i class="mdi mdi-fullscreen noti-icon"></i>
-                </a>
-              </li>
-              <!-- language-->
-        
+              <!-- Sidebar Toggle -->
+              <button type="button" id="btn-fullscreen" class="sidebar-collapse-btn" onclick="toggleSidebar(event)">
+                <i id="sidebar-collapse-icon" class="mdi mdi-chevron-left"></i>
+              </button>
+
+              <ul>
               <!-- User-->
               <li class="list-inline-item dropdown notification-list">
                 <a
