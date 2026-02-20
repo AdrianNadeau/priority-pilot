@@ -5063,6 +5063,8 @@ canvas {
 }
 
 .sidebar-toggle-btn i {
+  display: inline-block;
+  transform: rotate(90deg);
   transition: transform 0.4s ease;
 }
 
@@ -5098,7 +5100,7 @@ canvas {
 }
 
 #wrapper.sidebar-collapsed .sidebar-toggle-btn i {
-  transform: rotate(180deg);
+  transform: rotate(90deg);
 }
 
 .sidebar-collapse-btn {

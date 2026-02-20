@@ -395,6 +395,8 @@ ORDER BY
         phaseData[phase].cost += projectCost;
         phaseData[phase].ph += projectEffortPH;
 
+        console.log(`[PhaseTotal] Project ID=${project.id} "${project.project_name}" | phase=${phase} | cost=${projectCost} | effort=${projectEffortPH} | running: count=${phaseData[phase].count}, cost=${phaseData[phase].cost}, ph=${phaseData[phase].ph}`);
+
         // Track pitch projects for debugging
         if (phase === "pitch") {
           pitchProjects.push({
@@ -413,6 +415,8 @@ ORDER BY
       }
     });
 
+    console.log(`[PhaseTotal] === SUMMARY ===`, JSON.stringify(phaseData));
+
     // Override pitch count with separate query result for accuracy
     const pitchCost = pitchData.reduce((sum, project) => {
       return (
@@ -429,9 +433,6 @@ ORDER BY
     phaseData.pitch.ph = pitchEffort;
 
     // Calculate filtered phase totals for display
-    const filterStart = fromDate ? new Date(fromDate) : null;
-    const filterEnd = toDate ? new Date(toDate) : new Date();
-
     const filteredPhaseData = {
       pitch: { count: 0, cost: 0, ph: 0 },
       planning: { count: 0, cost: 0, ph: 0 },
@@ -448,57 +449,32 @@ ORDER BY
       return parseFloat(String(val).replace(/[^0-9.\-]/g, "")) || 0;
     }
 
-    // Calculate filtered costs based on date range overlap
+    // Calculate filtered phase totals using filter formula: (filtered_days / 365) * project_value
+    const filteredDays = req.session.filtered_days || 0;
+    const seenFilteredIds = new Set();
+
     data.forEach((project) => {
+      if (seenFilteredIds.has(project.id)) return;
+      seenFilteredIds.add(project.id);
+
       const phase = mapPhaseToKey(project.phase_name);
-      if (!phase || phase === "unknown") return;
+      if (!phase || phase === "unknown" || !filteredPhaseData[phase]) return;
 
       const cost = parseCost(project.project_cost);
       const effort = parseCost(project.effort);
-      const start = project.start_date ? new Date(project.start_date) : null;
-      const end = project.end_date ? new Date(project.end_date) : null;
 
-      // For pitch and archived, use full values regardless of dates
-      if (phase === "pitch" || phase === "archived") {
-        if (filteredPhaseData[phase]) {
-          filteredPhaseData[phase].count++;
-          filteredPhaseData[phase].cost += cost;
-          filteredPhaseData[phase].ph += effort;
-        }
-        return;
-      }
+      // Apply filter formula per project: (filtered_days / 365) * project_value
+      const costForFilter = filteredDays ? (filteredDays / 365) * cost : cost;
+      const effortForFilter = filteredDays ? (filteredDays / 365) * effort : effort;
 
-      // For other phases, calculate proportional values based on date overlap
-      if (!start || !end) return;
+      filteredPhaseData[phase].count++;
+      filteredPhaseData[phase].cost += costForFilter;
+      filteredPhaseData[phase].ph += effortForFilter;
 
-      const projectStart = start;
-      const projectEnd = end;
-      const overlapStart =
-        filterStart && filterStart > projectStart ? filterStart : projectStart;
-      const overlapEnd =
-        filterEnd && filterEnd < projectEnd ? filterEnd : projectEnd;
-
-      const projectDays = Math.max(
-        1,
-        Math.ceil((projectEnd - projectStart) / (1000 * 60 * 60 * 24)) + 1,
-      );
-      const daysInFilter =
-        overlapEnd >= overlapStart
-          ? Math.max(
-              0,
-              Math.ceil((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) +
-                1,
-            )
-          : 0;
-
-      if (daysInFilter > 0) {
-        filteredPhaseData[phase].count++;
-        const dailyCost = projectDays > 0 ? cost / projectDays : 0;
-        const dailyEffort = projectDays > 0 ? effort / projectDays : 0;
-        filteredPhaseData[phase].cost += dailyCost * daysInFilter;
-        filteredPhaseData[phase].ph += dailyEffort * daysInFilter;
-      }
+      console.log(`[FilteredPhaseTotal] Project ID=${project.id} "${project.project_name}" | phase=${phase} | cost=${cost} | effort=${effort} | filteredDays=${filteredDays} | costForFilter=${costForFilter.toFixed(2)} | effortForFilter=${effortForFilter.toFixed(2)} | running: count=${filteredPhaseData[phase].count}, cost=${filteredPhaseData[phase].cost.toFixed(2)}, ph=${filteredPhaseData[phase].ph.toFixed(2)}`);
     });
+
+    console.log(`[FilteredPhaseTotal] === SUMMARY ===`, JSON.stringify(filteredPhaseData));
 
     // Update phaseData with filtered values for display
     phaseData.planning = filteredPhaseData.planning;
@@ -506,83 +482,6 @@ ORDER BY
     phaseData.delivery = filteredPhaseData.delivery;
     phaseData.done = filteredPhaseData.done;
     phaseData.archived = filteredPhaseData.archived;
-
-    // --- Proportional cost calculation for dashboard totals (budget/effort) ---
-    // Only for non-pitch, non-archived projects (phases: planning, discovery, delivery, done)
-    let proportionalTotalCost = 0;
-    let proportionalUsedCost = 0;
-    let proportionalAvailableCost = 0;
-    let proportionalTotalEffort = 0;
-    let proportionalUsedEffort = 0;
-    let proportionalAvailableEffort = 0;
-
-    // Only sum for planning, discovery, delivery, done
-    const relevantPhases = ["planning", "discovery", "delivery", "done"];
-    let allTimeCost = 0;
-    let allTimeEffort = 0;
-    data.forEach((project) => {
-      const phase = mapPhaseToKey(project.phase_name);
-      if (!relevantPhases.includes(phase)) return;
-      const cost = parseCost(project.project_cost);
-      const effort = parseCost(project.effort);
-      const start = project.start_date ? new Date(project.start_date) : null;
-      const end = project.end_date ? new Date(project.end_date) : null;
-      if (!start || !end) return;
-      // Calculate overlap between project and filter
-      const projectStart = start;
-      const projectEnd = end;
-      const overlapStart =
-        filterStart && filterStart > projectStart ? filterStart : projectStart;
-      const overlapEnd =
-        filterEnd && filterEnd < projectEnd ? filterEnd : projectEnd;
-      const projectDays = Math.max(
-        1,
-        Math.ceil((projectEnd - projectStart) / (1000 * 60 * 60 * 24)) + 1,
-      );
-      const daysInFilter =
-        overlapEnd >= overlapStart
-          ? Math.max(
-              0,
-              Math.ceil((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) +
-                1,
-            )
-          : 0;
-
-      // Calculate estimated daily cost
-      const dailyCost = projectDays > 0 ? cost / projectDays : 0;
-      // For totalCost: sum all project costs (full duration)
-      proportionalTotalCost += cost;
-      // For usedCost: sum daily cost * days in filter (overlap)
-      const costUsed = dailyCost * daysInFilter;
-      proportionalUsedCost += costUsed;
-
-      // Effort logic (same as before)
-      const dailyEffort = projectDays > 0 ? effort / projectDays : 0;
-      proportionalTotalEffort += effort;
-      const effortUsed = dailyEffort * daysInFilter;
-      proportionalUsedEffort += effortUsed;
-
-      // All time (entire project, not just filter)
-      allTimeCost += cost;
-      allTimeEffort += effort;
-    });
-    proportionalAvailableCost = proportionalTotalCost - proportionalUsedCost;
-    proportionalAvailableEffort =
-      proportionalTotalEffort - proportionalUsedEffort;
-
-    // Determine colors based on availability
-    const availablePHColor =
-      proportionalAvailableEffort > 0
-        ? "#28a745"
-        : proportionalAvailableEffort < 0
-          ? "#dc3545"
-          : "#000";
-    const availableCostColor =
-      proportionalAvailableCost > 0
-        ? "#28a745"
-        : proportionalAvailableCost < 0
-          ? "#dc3545"
-          : "#000";
 
     // Format all totals as whole numbers (no decimals)
     function formatWholeNumber(val) {
@@ -598,6 +497,54 @@ ORDER BY
     if (portfolio_effort && req.session.filtered_days) {
       effortForFilter = (req.session.filtered_days / 365) * portfolio_effort;
     }
+
+    // --- Dashboard totals: Total = budget/effort, Used = sum of phase totals, Available = Total - Used ---
+    const relevantPhases = ["planning", "discovery", "delivery", "done"];
+
+    // Used = sum of filtered phase totals across relevant phases
+    const proportionalUsedCost = relevantPhases.reduce(
+      (sum, p) => sum + (filteredPhaseData[p]?.cost || 0), 0
+    );
+    const proportionalUsedEffort = relevantPhases.reduce(
+      (sum, p) => sum + (filteredPhaseData[p]?.ph || 0), 0
+    );
+
+    // Total = budget and effort for filter period
+    const proportionalTotalCost = budgetForFilter;
+    const proportionalTotalEffort = effortForFilter;
+
+    // Available = Total - Used
+    const proportionalAvailableCost = proportionalTotalCost - proportionalUsedCost;
+    const proportionalAvailableEffort = proportionalTotalEffort - proportionalUsedEffort;
+
+    // All time = sum of all project costs (unfiltered) for relevant phases
+    let allTimeCost = 0;
+    let allTimeEffort = 0;
+    const seenAllTimeIds = new Set();
+    data.forEach((project) => {
+      if (seenAllTimeIds.has(project.id)) return;
+      seenAllTimeIds.add(project.id);
+      const phase = mapPhaseToKey(project.phase_name);
+      if (!relevantPhases.includes(phase)) return;
+      allTimeCost += parseCost(project.project_cost);
+      allTimeEffort += parseCost(project.effort);
+    });
+
+    console.log(`[DashboardTotals] Total(budget): cost=${proportionalTotalCost.toFixed(2)}, effort=${proportionalTotalEffort.toFixed(2)} | Used(phases): cost=${proportionalUsedCost.toFixed(2)}, effort=${proportionalUsedEffort.toFixed(2)} | Available: cost=${proportionalAvailableCost.toFixed(2)}, effort=${proportionalAvailableEffort.toFixed(2)} | AllTime: cost=${allTimeCost}, effort=${allTimeEffort}`);
+
+    // Determine colors based on availability
+    const availablePHColor =
+      proportionalAvailableEffort > 0
+        ? "#28a745"
+        : proportionalAvailableEffort < 0
+          ? "#dc3545"
+          : "#000";
+    const availableCostColor =
+      proportionalAvailableCost > 0
+        ? "#28a745"
+        : proportionalAvailableCost < 0
+          ? "#dc3545"
+          : "#000";
     // Format for display
     const budgetForFilterDisplay = formatWholeNumber(budgetForFilter);
     const effortForFilterDisplay = formatWholeNumber(effortForFilter);

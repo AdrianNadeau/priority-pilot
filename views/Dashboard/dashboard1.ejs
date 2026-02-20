@@ -185,28 +185,34 @@
   // Calculate deliveryTotalCost as (portfolio_budget / 365) * filteredDays
   let deliveryTotalCost = 0, deliveryUsedCost = 0, deliveryAvailCost = 0;
   let deliveryTotalEffort = 0, deliveryUsedEffort = 0, deliveryAvailEffort = 0;
+  let discoveryTotalCost = 0, discoveryTotalEffort = 0;
     let portfolioBudget = 0, portfolioEffort  = 0;
     if (typeof companies !== 'undefined' && companies && companies.length > 0) {
       if (typeof companies[0].portfolio_budget !== 'undefined') {
         // Remove commas before converting to number
         portfolioBudget = Number(String(companies[0].portfolio_budget).replace(/,/g, ''));
       }
-      if (typeof companies[0].effort !== 'undefined') {
-        portfolioEffort = Number(companies[0].effort) || 20000;
+      if (companies[0].effort != null && companies[0].effort !== '') {
+        portfolioEffort = Number(String(companies[0].effort).replace(/,/g, ''));
       }
     }
     if (typeof filteredDays !== 'undefined' && filteredDays) {
       deliveryTotalCost = Math.round((portfolioBudget / 365) * filteredDays);
       deliveryTotalEffort = Math.round((portfolioEffort / 365) * filteredDays);
+      discoveryTotalCost = Math.round((portfolioBudget / 365) * filteredDays);
+      discoveryTotalEffort = Math.round((portfolioEffort / 365) * filteredDays);
     } else {
       deliveryTotalCost = Math.round(portfolioBudget);
       deliveryTotalEffort = Math.round(portfolioEffort);
+      discoveryTotalCost = Math.round(portfolioBudget);
+      discoveryTotalEffort = Math.round(portfolioEffort);
     }
-  // Optionally, you can still sum up used/available as before if needed
+  // Calculate used values across all relevant phases (planning, discovery, delivery, done)
+  const relevantPhases = ['planning', 'discovery', 'delivery', 'done'];
   projects.forEach(function(project) {
     if (project.phase_name) {
         const phase = project.phase_name.trim().toLowerCase();
-        if (phase === 'delivery') {
+        if (relevantPhases.indexOf(phase) !== -1) {
             let usedCost = (typeof getFilteredValue === 'function') ? Math.round(getFilteredValue(project, currentFromDate, currentToDate, 'project_cost')) : 0;
             let usedEffort = (typeof getFilteredValue === 'function') ? Math.round(getFilteredValue(project, currentFromDate, currentToDate, 'effort')) : 0;
             deliveryUsedCost += usedCost;
@@ -215,7 +221,8 @@
       }
   });
   deliveryAvailCost = deliveryTotalCost - deliveryUsedCost;
-  deliveryAvailEffort = deliveryTotalEffort - deliveryUsedEffort;
+  // Effort left = default effort - calculated effort (NOT calculated - used)
+  const effortLeft = Math.round(portfolioEffort - deliveryTotalEffort);
  
   %>
                  
@@ -307,7 +314,7 @@
            <div class="col-md-6 phase-column" style="padding-bottom: 15px;">
             <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
               <div class="mini-stat-info">
-                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %> / $<%= formatNumberWithCommas(discovery.cost) %> / <%= formatNumberWithCommas(discovery.ph) %> PH)</span>
+                                <span class="counter"><strong>Discovery</strong> (<%= discovery.count %> / $<%= formatNumberWithCommas(discoveryTotalCost) %> / <%= formatNumberWithCommas(discoveryTotalEffort) %> PH)</span>
                             </div>
                             <div class="phase-buttons" style="padding-left: 10px;">
                             <% projects.forEach(function(project) { 
@@ -398,29 +405,35 @@
                 <div class="col-md-6 d-flex align-items-center">
                   <span class="mdi mdi-currency-usd" style="font-size: 1.5rem; margin-right: 8px;"></span>
                   <span style="font-weight: 500; margin-right: 12px;">Cost</span>
-                  <span class="text-muted" style="margin-right: 8px;">Total:</span>
+                  <span class="text-muted" style="margin-right: 8px;">Default:</span>
                   <span style="font-weight: 500; margin-right: 16px;">
-                    $<%= formatNumberWithCommas(deliveryTotalCost) %>
+                    $<%= formatNumberWithCommas(portfolioBudget) %>
                   </span>
                   <span class="text-muted" style="margin-right: 8px;">Used:</span>
                   <span style="font-weight: 500; margin-right: 16px;">$<%= formatNumberWithCommas(deliveryUsedCost) %></span>
+                  <span class="text-muted" style="margin-right: 8px;">Calculated:</span>
+                  <span style="font-weight: 500; margin-right: 16px;">$<%= formatNumberWithCommas(deliveryTotalCost) %></span>
                   <span class="text-muted" style="margin-right: 8px;">Available:</span>
                   <span style="font-weight: 500;">$<%= formatNumberWithCommas(deliveryAvailCost) %></span>
                 </div>
                 <div class="col-md-6 d-flex align-items-center">
                   <span class="mdi mdi-rocket" style="font-size: 1.5rem; margin-right: 8px;"></span>
                   <span style="font-weight: 500; margin-right: 12px;">Effort</span>
-                  <span class="text-muted" style="margin-right: 8px;">Total:</span>
+                  <span class="text-muted" style="margin-right: 8px;">Default:</span>
                   <span style="font-weight: 500; margin-right: 16px;">
-                    <%= formatNumberWithCommas(deliveryTotalEffort) %>h
+                    <%= formatNumberWithCommas(portfolioEffort) %>h
                   </span>
                   <span class="text-muted" style="margin-right: 8px;">Used:</span>
                   <span style="font-weight: 500; margin-right: 16px;">
                     <%= formatNumberWithCommas(deliveryUsedEffort) %>h
                   </span>
-                  <span class="text-muted" style="margin-right: 8px;">Available:</span>
+                  <span class="text-muted" style="margin-right: 8px;">Calculated:</span>
+                  <span style="font-weight: 500; margin-right: 16px;">
+                    <%= formatNumberWithCommas(deliveryTotalEffort) %>h
+                  </span>
+                  <span class="text-muted" style="margin-right: 8px;">Left:</span>
                   <span style="font-weight: 500;">
-                    <%= formatNumberWithCommas(deliveryAvailEffort) %>h
+                    <%= formatNumberWithCommas(effortLeft) %>h
                   </span>
                 </div>
               </div>
@@ -486,15 +499,16 @@
                     <div class="row text-center" style="padding-top: 20px;padding-bottom: 20px;">
                         <div class="col-md-12">
                           
-                          <% 
-                            // Always show percent block, using same logic for all-time and filtered
+                          <%
+                            // Cost % = used cost / calculated budget
                             let costPercentRaw = (deliveryTotalCost && !isNaN(deliveryTotalCost) && deliveryTotalCost > 0)
                               ? ((deliveryUsedCost / deliveryTotalCost) * 100)
                               : 0;
                             let costPercentVal = Math.round(costPercentRaw) + '%';
-                            
-                            let effortPercentRaw = (deliveryTotalEffort && !isNaN(deliveryTotalEffort) && deliveryTotalEffort > 0)
-                              ? ((deliveryUsedEffort / deliveryTotalEffort) * 100)
+
+                            // Effort % = used effort / default effort (portfolio effort)
+                            let effortPercentRaw = (portfolioEffort && !isNaN(portfolioEffort) && portfolioEffort > 0)
+                              ? ((deliveryUsedEffort / portfolioEffort) * 100)
                               : 0;
                             let effortPercentVal = Math.round(effortPercentRaw) + '%';
                             

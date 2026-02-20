@@ -40,9 +40,9 @@
 
     function updateToggleIcon(isCollapsed) {
       if (isCollapsed) {
-        $toggleIcon.removeClass("mdi-chevron-left").addClass("mdi-chevron-right");
+        $toggleIcon.removeClass("mdi-folder-open").addClass("mdi-folder");
       } else {
-        $toggleIcon.removeClass("mdi-chevron-right").addClass("mdi-chevron-left");
+        $toggleIcon.removeClass("mdi-folder").addClass("mdi-folder-open");
       }
     }
 
