@@ -11,13 +11,6 @@ exports.create = (req, res) => {
     error.statusCode = 405;
     throw error;
   }
-  // Validate health
-  const tagName = document.getElementById(`company_tag`);
-  console.log("tagName:", tagName);
-  if (!tagName.value || tagName.value === "") {
-    tagName.classList.add("is-invalid");
-    isValid = false;
-  }
   // Create a Tag
   const tag = {
     tag_name: req.body.company_tag,
