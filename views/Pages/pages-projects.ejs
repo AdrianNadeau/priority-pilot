@@ -301,7 +301,8 @@
       );
     });
     //add event listenter for export
-    document.getElementById('btnExportProjects').addEventListener('click', function() {
+    const btnExport = document.getElementById('btnExportProjects');
+    if (btnExport) btnExport.addEventListener('click', function() {
   
       fetch('/projects/export/export-project-list/')
         .then(response => {
@@ -364,12 +365,20 @@
             this.value = input;
         });
     });
-    console.log("Initializing flatpickr");
     // Initialize Flatpickr for all datepicker inputs
-    flatpickr(".datepicker", {
-      dateFormat: "Y-m-d", // Format the date as YYYY-MM-DD
-      allowInput: true,     // Allow manual input if needed
-      allowInvalidPreload: true, // Allow invalid dates to be preloaded
+    flatpickr("#start_date", {
+      dateFormat: "Y-m-d",
+      allowInput: true,
+    });
+
+    flatpickr("#end_date", {
+      dateFormat: "Y-m-d",
+      allowInput: true,
+    });
+
+    flatpickr("#next_milestone_date", {
+      dateFormat: "Y-m-d",
+      allowInput: true,
     });
 
     // Show or hide date_section based on phase selection
