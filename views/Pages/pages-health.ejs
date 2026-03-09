@@ -79,7 +79,7 @@
                                 <% let health = ''; %>
                                 <% let statsHealth = ''; %>
                         
-                                <% projects.forEach(project => { %>
+                                <% projects.sort((a, b) => (a.phase_name || '').localeCompare(b.phase_name || '')).forEach(project => { %>
                                     <% if (project.phase_name === 'Delivery' || project.phase_name === 'Discovery') { %>
                                     <% if (project.phase_name !== currentPhase) { %>
                                         <% currentPhase = project.phase_name; %>
@@ -87,9 +87,6 @@
                                         <td colspan="12" style="background-color:#ececec;font-weight: bold; text-align: center;"><%= currentPhase %></td>
                                         </tr>
                                     <% } %>
-                                     <thead>
-                              
-                            </thead>
                            
                                    <%
                                       let backgroundColor = 'gray'; // default gray
