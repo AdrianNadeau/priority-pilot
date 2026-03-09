@@ -6,14 +6,15 @@ const Op = db.Sequelize.Op;
 exports.create = (req, res) => {
   // Validate request
 
-  if (!req.body.company_tag) {
+  if (!req.body.tag_name) {
     const error = new Error("Tag name is required");
     error.statusCode = 405;
     throw error;
   }
   // Create a Tag
   const tag = {
-    tag_name: req.body.company_tag,
+    tag_name: req.body.tag_name,
+    tag_color: req.body.tag_color,
     company_id_fk: req.session.company.id,
   };
 

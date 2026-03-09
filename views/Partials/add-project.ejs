@@ -4,7 +4,7 @@
         <div class="col-md-6">
           <!-- First column of form fields -->
           <div class="form-group">
-            <label for="project_name">Name </label>
+            <label for="project_name">Name</label>
             <input type="text" class="form-control" id="project_name" name="project_name" required>
             <div class="invalid-feedback">
               Please enter project name.
@@ -24,16 +24,18 @@
               <textarea rows="4" class="form-control" id="project_what" name="project_what"></textarea>
             </div>
             <div class="form-group">
-              <label for="start_date">Start Date (YYYY-MM-DD):</label>
-              <input type="text" class="form-control" id="start_date" name="start_date" placeholder="yyyy-mm-dd">
-            </div>
-            <div class="form-group">
-              <label for="end_date">End Date (YYYY-MM-DD):</label>
-              <input type="text" class="form-control" id="end_date" name="end_date" placeholder="yyyy-mm-dd">
-            </div>
-            <div class="form-group">
-              <label for="next_milestone_date">Next Milestone Date (YYYY-MM-DD):</label>
-              <input type="text" class="form-control" id="next_milestone_date" name="next_milestone_date" placeholder="yyyy-mm-dd">
+              <label for="dates">Start Date and End Date:</label>
+              <div class="form-row">
+                <div class="col">
+                  <input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date">
+                </div>
+                <div class="col">
+                  <input type="text" class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date">
+                </div>
+                <div class="col">
+                  <input type="text" class="form-control datepicker" id="next_milestone_date" name="next_milestone_date" placeholder="Milestone Date">
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -136,12 +138,7 @@
                 <input type="text" class="form-control" id="project_cost" name="project_cost" value="0">
               </div>
             </div>
-            <!-- <div class="col-md-6">
-              <div class="form-group">
-                <label for="project_tags">Tags (comma separated)</label>
-                <input type="text" class="form-control" id="project_tags" name="project_tags">
-              </div>
-            </div> -->
+            
           </div>
         </div>
       </div>
