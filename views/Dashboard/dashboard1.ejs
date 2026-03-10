@@ -22,8 +22,8 @@
         <div class="row">
             <!-- Main content -->
             <div class="col-md-10">
+                <%- include '../Partials/date_filter_bar' %>
                 <div class="row">
-                   
                     <!-- Priority and Discovery Section Side by Side -->
                     <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
@@ -489,6 +489,7 @@
     window.location.replace("/projects");
   }
 </script>
+
 <script>
   function loadProject(project_id) {
     window.location.replace('/projects/cockpit/' + project_id);

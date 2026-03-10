@@ -213,6 +213,21 @@ exports.findAllRadar = async (req, res) => {
 exports.findAll = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
+    const filterStart = req.query.filter_start || null;
+    const filterEnd = req.query.filter_end || null;
+
+    let dateFilter = "";
+    let queryParams = [company_id_fk];
+    if (filterStart && filterEnd) {
+      dateFilter = `AND proj.start_date >= ? AND proj.end_date <= ?`;
+      queryParams.push(filterStart, filterEnd);
+    } else if (filterStart) {
+      dateFilter = `AND proj.start_date >= ?`;
+      queryParams.push(filterStart);
+    } else if (filterEnd) {
+      dateFilter = `AND proj.end_date <= ?`;
+      queryParams.push(filterEnd);
+    }
 
     const phasesData = await Phase.findAll({
       order: [["id", "ASC"]],
@@ -220,9 +235,7 @@ exports.findAll = async (req, res) => {
     let priorities = await Priority.findAll();
 
     const personsData = await Person.findAll({
-      where: {
-        company_id_fk: company_id_fk, // Replace `specificCompanyId` with the actual value or variable
-      },
+      where: { company_id_fk: company_id_fk },
     });
     // Fetch tags
     let tagsData = await Tag.findAll({
@@ -235,7 +248,7 @@ exports.findAll = async (req, res) => {
     // Add "None" option at the top of the tags list
     tagsData = [{ id: 0, tag_name: "None" }, ...tagsData];
     const query = `
-  SELECT 
+  SELECT
     proj.company_id_fk,
     proj.id,
     proj.project_name,
@@ -249,25 +262,25 @@ exports.findAll = async (req, res) => {
     proj.effort,
     proj.benefit,
     phases.phase_name
-  FROM 
+  FROM
     projects proj
-  LEFT JOIN 
+  LEFT JOIN
     persons prime_person ON prime_person.id = proj.prime_id_fk
-  LEFT JOIN 
+  LEFT JOIN
     persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-  LEFT JOIN 
+  LEFT JOIN
     phases ON phases.id = proj.phase_id_fk
-  WHERE 
+  WHERE
     proj.company_id_fk = ?
     AND proj.phase_id_fk NOT IN (1, 6)
+    ${dateFilter}
   ORDER BY proj.project_name ASC;
 `;
     await db.sequelize
       .query(query, {
-        replacements: [company_id_fk],
+        replacements: queryParams,
         type: db.sequelize.QueryTypes.SELECT,
       })
-
       .then((data) => {
         res.render("Pages/pages-projects", {
           projects: data,
@@ -276,9 +289,10 @@ exports.findAll = async (req, res) => {
           sponsors: personsData,
           primes: personsData,
           tags: tagsData,
+          currentFilterStart: filterStart || "",
+          currentFilterEnd: filterEnd || "",
         });
       })
-
       .catch((err) => {
         res.status(500).send({
           message: err.message || "Some error occurred while retrieving data.",
@@ -640,6 +654,21 @@ exports.findOneForPrime = async (req, res) => {
 
 exports.radar = async (req, res) => {
   const companyId = req.session.company.id;
+  const filterStart = req.query.filter_start || null;
+  const filterEnd = req.query.filter_end || null;
+
+  let dateFilter = "";
+  let radarParams = [companyId];
+  if (filterStart && filterEnd) {
+    dateFilter = `AND p.start_date >= ? AND p.end_date <= ?`;
+    radarParams.push(filterStart, filterEnd);
+  } else if (filterStart) {
+    dateFilter = `AND p.start_date >= ?`;
+    radarParams.push(filterStart);
+  } else if (filterEnd) {
+    dateFilter = `AND p.end_date <= ?`;
+    radarParams.push(filterEnd);
+  }
 
   try {
     // Query stats per phase using latest status health from statuses table
@@ -667,11 +696,11 @@ exports.radar = async (req, res) => {
           GROUP BY project_id_fk
         ) latest ON s.project_id_fk = latest.project_id_fk AND s.status_date = latest.max_status_date
       ) ls ON ls.project_id_fk = p.id
-      WHERE p.company_id_fk = ?
+      WHERE p.company_id_fk = ? ${dateFilter}
       GROUP BY p.phase_id_fk
       `,
       {
-        replacements: [companyId],
+        replacements: radarParams,
         type: db.Sequelize.QueryTypes.SELECT,
       },
     );
@@ -717,11 +746,12 @@ exports.radar = async (req, res) => {
       };
     });
 
-    // Render just three variables
     res.render("Pages/pages-radar", {
       portfolioName: company.company_headline,
       currentDate: new Date().toLocaleDateString(),
       phaseStats,
+      currentFilterStart: filterStart || "",
+      currentFilterEnd: filterEnd || "",
     });
   } catch (err) {
     console.error(err);
@@ -1512,10 +1542,24 @@ exports.findFunnel = async (req, res) => {
     );
     const company_id_fk = req.session.company.id;
     const person_id_fk = req.session.person.id;
+    const filterStart = req.query.filter_start || null;
+    const filterEnd = req.query.filter_end || null;
+
+    let dateFilter = "";
+    let queryParams = [company_id_fk];
+    if (filterStart && filterEnd) {
+      dateFilter = `AND proj.start_date >= ? AND proj.end_date <= ?`;
+      queryParams.push(filterStart, filterEnd);
+    } else if (filterStart) {
+      dateFilter = `AND proj.start_date >= ?`;
+      queryParams.push(filterStart);
+    } else if (filterEnd) {
+      dateFilter = `AND proj.end_date <= ?`;
+      queryParams.push(filterEnd);
+    }
+
     const personsData = await Person.findAll({
-      where: {
-        company_id_fk: company_id_fk,
-      },
+      where: { company_id_fk: company_id_fk },
     });
 
     let tagsData = await Tag.findAll({
@@ -1524,11 +1568,10 @@ exports.findFunnel = async (req, res) => {
       },
       order: [["id", "ASC"]],
     });
-    // Custom SQL query to retrieve project data
     console.log("Company ID:", company_id_fk, "Person ID:", person_id_fk);
 
     const query = `
-    SELECT 
+    SELECT
       proj.company_id_fk,
       proj.id,
       proj.project_name,
@@ -1552,7 +1595,7 @@ exports.findFunnel = async (req, res) => {
     LEFT JOIN
       phases ON phases.id = proj.phase_id_fk
     WHERE
-      proj.company_id_fk = ? AND proj.phase_id_fk = 1
+      proj.company_id_fk = ? AND proj.phase_id_fk = 1 ${dateFilter}
     GROUP BY
       proj.company_id_fk,
       proj.id,
@@ -1570,7 +1613,7 @@ exports.findFunnel = async (req, res) => {
   `;
 
     const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk, person_id_fk, person_id_fk],
+      replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
     });
 
@@ -1580,8 +1623,6 @@ exports.findFunnel = async (req, res) => {
     let pitchTotalPH = 0;
 
     data.forEach((project) => {
-      // Correctly accumulate the total cost
-
       console.log("project effort:", project.effort);
       pitchTotalCost +=
         parseFloat((project.project_cost || "0").replace(/,/g, "")) || 0;
@@ -1590,32 +1631,24 @@ exports.findFunnel = async (req, res) => {
     });
 
     console.log("Effort :", formatToKMB(pitchTotalPH));
-    // Retrieve phases and priorities
-    const phases = await Phase.findAll({
-      order: [["id", "ASC"]],
-    });
+    const phases = await Phase.findAll({ order: [["id", "ASC"]] });
     const priorities = await Priority.findAll();
-
-    // Retrieve sponsors and primes
-    const persons = await Person.findAll({
-      where: { company_id_fk: company_id_fk },
-    });
-    const sponsors = persons.filter((person) => person.role === "sponsor");
-    const primes = persons.filter((person) => person.role === "prime");
+    const persons = await Person.findAll({ where: { company_id_fk } });
 
     const portfolioName = await returnPortfolioName(company_id_fk);
-    // Render the funnel page with the retrieved data
     res.render("Pages/pages-funnel", {
-      phases: phases,
-      priorities: priorities,
+      phases,
+      priorities,
       projects: data,
       sponsors: personsData,
       primes: personsData,
-      pitchCount: pitchCount,
+      pitchCount,
       pitchTotalCost: formatCost(pitchTotalCost),
       pitchTotalPH: formatCost(pitchTotalPH),
       tags: tagsData,
       portfolioName,
+      currentFilterStart: filterStart || "",
+      currentFilterEnd: filterEnd || "",
     });
   } catch (error) {
     console.error("Error finding funnel:", error);
@@ -1626,44 +1659,56 @@ exports.findFunnel = async (req, res) => {
 exports.findFreezer = async (req, res) => {
   // Get the company ID from the session
   const company_id_fk = req.session.company.id;
+  const filterStart = req.query.filter_start || null;
+  const filterEnd = req.query.filter_end || null;
+
+  let dateFilter = "";
+  let queryParams = [company_id_fk];
+  if (filterStart && filterEnd) {
+    dateFilter = `AND proj.start_date >= ? AND proj.end_date <= ?`;
+    queryParams.push(filterStart, filterEnd);
+  } else if (filterStart) {
+    dateFilter = `AND proj.start_date >= ?`;
+    queryParams.push(filterStart);
+  } else if (filterEnd) {
+    dateFilter = `AND proj.end_date <= ?`;
+    queryParams.push(filterEnd);
+  }
 
   const query = `
-    SELECT  
-    proj.company_id_fk, 
-    proj.id, 
-    proj.project_name, 
-    proj.start_date, 
+    SELECT
+    proj.company_id_fk,
+    proj.id,
+    proj.project_name,
+    proj.start_date,
     proj.end_date,
-    proj.health, 
-    proj.effort, 
+    proj.health,
+    proj.effort,
     prime_person.first_name AS prime_first_name,
-    prime_person.last_name AS prime_last_name, 
+    prime_person.last_name AS prime_last_name,
     sponsor_person.first_name AS sponsor_first_name,
-    sponsor_person.last_name AS sponsor_last_name, 
-    proj.project_cost, 
+    sponsor_person.last_name AS sponsor_last_name,
+    proj.project_cost,
     phases.phase_name,
     companies.portfolio_budget AS company_budget,
     companies.company_headline AS portfolio_name,
     companies.effort AS company_effort,
     latest_status.health AS latest_status_health,
     latest_status.status_date AS latest_status_date,
-
-    
     (
-  SELECT COALESCE(SUM(REPLACE(p1.effort, ',', '')::integer), 0)
-  FROM projects p1
-  WHERE p1.company_id_fk = proj.company_id_fk AND p1.phase_id_fk = 1
-) AS total_effort_phase_1
-
-FROM 
+      SELECT COALESCE(SUM(REPLACE(p1.effort, ',', '')::integer), 0)
+      FROM projects p1
+      WHERE p1.company_id_fk = proj.company_id_fk AND p1.phase_id_fk = 1
+    ) AS total_effort_phase_1
+FROM
     projects proj
-LEFT JOIN 
+LEFT JOIN
     persons prime_person ON prime_person.id = proj.prime_id_fk
-LEFT JOIN 
+LEFT JOIN
     persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-LEFT JOIN 
+LEFT JOIN
     phases ON phases.id = proj.phase_id_fk
-LEFT JOIN 
+LEFT JOIN
     companies ON companies.id = proj.company_id_fk
 LEFT JOIN (
     SELECT s1.*
@@ -1674,17 +1719,15 @@ LEFT JOIN (
         GROUP BY project_id_fk
     ) s2 ON s1.project_id_fk = s2.project_id_fk AND s1.status_date = s2.max_date
 ) latest_status ON latest_status.project_id_fk = proj.id
-
-WHERE 
-    proj.company_id_fk = ? AND proj.phase_id_fk = 6
-
-ORDER BY 
+WHERE
+    proj.company_id_fk = ? AND proj.phase_id_fk = 6 ${dateFilter}
+ORDER BY
     proj.phase_id_fk;
 `;
 
   try {
     const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk],
+      replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
     });
     if (!data || data.length === 0) {
@@ -1851,6 +1894,8 @@ ORDER BY
       archivedTotalCost,
       archivedCount,
       archivedTotalPH,
+      currentFilterStart: filterStart || "",
+      currentFilterEnd: filterEnd || "",
     });
   } catch (error) {
     console.error("Error executing query:", error);
@@ -1976,11 +2021,25 @@ exports.update = async (req, res) => {
 };
 
 exports.health = async (req, res) => {
-  //get all company projects
   const company_id_fk = req.session.company.id;
   const portfolioName = req.session.company.company_headline;
+  const filterStart = req.query.filter_start || null;
+  const filterEnd = req.query.filter_end || null;
 
-  const query = `SELECT  
+  let dateFilter = "";
+  let queryParams = [company_id_fk];
+  if (filterStart && filterEnd) {
+    dateFilter = `AND proj.start_date >= ? AND proj.end_date <= ?`;
+    queryParams.push(filterStart, filterEnd);
+  } else if (filterStart) {
+    dateFilter = `AND proj.start_date >= ?`;
+    queryParams.push(filterStart);
+  } else if (filterEnd) {
+    dateFilter = `AND proj.end_date <= ?`;
+    queryParams.push(filterEnd);
+  }
+
+  const query = `SELECT
     proj.company_id_fk,
     proj.id AS project_id,
     proj.project_name,
@@ -2022,19 +2081,15 @@ LEFT JOIN LATERAL (
     LIMIT 1
 ) last_status ON true
 WHERE
-    proj.company_id_fk = ?
+    proj.company_id_fk = ? ${dateFilter}
 ORDER BY last_status.status_date DESC;
-
-
-
 `;
   data = await db.sequelize.query(query, {
-    replacements: [company_id_fk],
+    replacements: queryParams,
     type: db.sequelize.QueryTypes.SELECT,
   });
 
   if (data) {
-    // Loop through data and get the most recent progress for each project
     data.forEach((project) => {
       if (project.statuses && project.statuses.length > 0) {
         project.mostRecentProgress = project.statuses.reduce(
@@ -2052,6 +2107,8 @@ ORDER BY last_status.status_date DESC;
       portfolioName,
       projects: data,
       currentDate: moment().format("MMMM Do YYYY"),
+      currentFilterStart: filterStart || "",
+      currentFilterEnd: filterEnd || "",
     });
   } else {
     console.log("Error fetching project data, nothing there");
@@ -2081,19 +2138,20 @@ exports.ganttChart = async (req, res) => {
   res.json({ companyProjects: companyProjects, colors: colors });
 };
 exports.flightview = async (req, res) => {
-  //get all company projects
-
   const company_id_fk = req.session.company.id;
+  const filterStart = req.query.filter_start || null;
+  const filterEnd = req.query.filter_end || null;
 
-  const companyProjects = await Project.findAll({
-    where: { company_id_fk: company_id_fk },
-  });
+  const whereClause = { company_id_fk };
+  if (filterStart) whereClause.start_date = { [Op.gte]: filterStart };
+  if (filterEnd) whereClause.end_date = { ...(whereClause.end_date || {}), [Op.lte]: filterEnd };
+
+  const companyProjects = await Project.findAll({ where: whereClause });
   const company = await db.companies.findOne({
     where: { id: company_id_fk },
     attributes: ["company_headline"],
   });
 
-  // Check if the company exists
   if (!company) {
     return res.status(404).json({ message: "Company not found" });
   }
@@ -2103,6 +2161,8 @@ exports.flightview = async (req, res) => {
     projects: companyProjects,
     currentDate: moment().format("MMMM Do YYYY"),
     portfolioName,
+    currentFilterStart: filterStart || "",
+    currentFilterEnd: filterEnd || "",
   });
 };
 

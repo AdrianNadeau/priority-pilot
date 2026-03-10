@@ -33,35 +33,54 @@ function removeCommasAndConvert(numStr) {
 router.get("/", isAdminMiddleware, async (req, res) => {
   const company_id_fk = req.session.company.id;
 
+  // Extract date filter parameters from query string
+  const filterStart = req.query.filter_start || null;
+  const filterEnd = req.query.filter_end || null;
+
+  // Build optional date filter clause
+  let dateFilter = "";
+  let queryParams = [company_id_fk];
+
+  if (filterStart && filterEnd) {
+    dateFilter = `AND proj.start_date >= ? AND proj.end_date <= ?`;
+    queryParams.push(filterStart, filterEnd);
+  } else if (filterStart) {
+    dateFilter = `AND proj.start_date >= ?`;
+    queryParams.push(filterStart);
+  } else if (filterEnd) {
+    dateFilter = `AND proj.end_date <= ?`;
+    queryParams.push(filterEnd);
+  }
+
   const query = `
-   SELECT 
-  proj.company_id_fk, 
-  proj.id, 
-  proj.project_name, 
-  proj.start_date, 
+   SELECT
+  proj.company_id_fk,
+  proj.id,
+  proj.project_name,
+  proj.start_date,
   proj.end_date,
-  proj.health, 
-  proj.effort, 
+  proj.health,
+  proj.effort,
   prime_person.first_name AS prime_first_name,
-  prime_person.last_name AS prime_last_name, 
+  prime_person.last_name AS prime_last_name,
   sponsor_person.first_name AS sponsor_first_name,
-  sponsor_person.last_name AS sponsor_last_name, 
-  proj.project_cost, 
+  sponsor_person.last_name AS sponsor_last_name,
+  proj.project_cost,
   phases.phase_name,
   companies.portfolio_budget AS company_budget,
   companies.company_headline AS portfolio_name,
   companies.effort AS company_effort,
   latest_status.health AS latest_status_health,
   latest_status.status_date AS latest_status_date
-FROM 
+FROM
   projects proj
-LEFT JOIN 
+LEFT JOIN
   persons prime_person ON prime_person.id = proj.prime_id_fk
-LEFT JOIN 
+LEFT JOIN
   persons sponsor_person ON sponsor_person.id = proj.sponsor_id_fk
-LEFT JOIN 
+LEFT JOIN
   phases ON phases.id = proj.phase_id_fk
-LEFT JOIN 
+LEFT JOIN
   companies ON companies.id = proj.company_id_fk
 LEFT JOIN (
     SELECT s1.*
@@ -72,14 +91,14 @@ LEFT JOIN (
         GROUP BY project_id_fk
     ) s2 ON s1.project_id_fk = s2.project_id_fk AND s1.status_date = s2.max_date
 ) latest_status ON latest_status.project_id_fk = proj.id
-WHERE 
-  proj.company_id_fk = ? 
-ORDER BY 
+WHERE
+  proj.company_id_fk = ? ${dateFilter}
+ORDER BY
   proj.phase_id_fk;`;
 
   try {
     const data = await db.sequelize.query(query, {
-      replacements: [company_id_fk],
+      replacements: queryParams,
       type: db.sequelize.QueryTypes.SELECT,
     });
 
@@ -239,7 +258,8 @@ ORDER BY
       sponsors: persons,
       primes: persons,
       tags: tagsData,
-      // statusData,
+      currentFilterStart: filterStart || "",
+      currentFilterEnd: filterEnd || "",
     });
   } catch (error) {
     console.error("Error executing query:", error);
