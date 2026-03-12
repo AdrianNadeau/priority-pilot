@@ -705,13 +705,20 @@ exports.radar = async (req, res) => {
       },
     );
 
-    // Fetch phase names and company headline
-    const [phaseRows, company] = await Promise.all([
+    // Fetch phase names, company headline, and first tag name per slot
+    const [phaseRows, company, tagSlotLabels] = await Promise.all([
       db.phases.findAll({ attributes: ["id", "phase_name"], raw: true }),
       db.companies.findByPk(companyId, {
         attributes: ["company_headline"],
         raw: true,
       }),
+      db.sequelize.query(
+        `SELECT
+          (SELECT t.tag_name FROM tags t INNER JOIN projects p ON p.tag_1 = t.id WHERE p.company_id_fk = ? AND p.tag_1 IS NOT NULL LIMIT 1) AS tag1,
+          (SELECT t.tag_name FROM tags t INNER JOIN projects p ON p.tag_2 = t.id WHERE p.company_id_fk = ? AND p.tag_2 IS NOT NULL LIMIT 1) AS tag2,
+          (SELECT t.tag_name FROM tags t INNER JOIN projects p ON p.tag_3 = t.id WHERE p.company_id_fk = ? AND p.tag_3 IS NOT NULL LIMIT 1) AS tag3`,
+        { replacements: [companyId, companyId, companyId], type: db.Sequelize.QueryTypes.SELECT }
+      ),
     ]);
     if (!company) return res.status(404).send("Company not found");
 
@@ -752,6 +759,9 @@ exports.radar = async (req, res) => {
       phaseStats,
       currentFilterStart: filterStart || "",
       currentFilterEnd: filterEnd || "",
+      tag1Label: (tagSlotLabels[0] && tagSlotLabels[0].tag1) || "Tag 1",
+      tag2Label: (tagSlotLabels[0] && tagSlotLabels[0].tag2) || "Tag 2",
+      tag3Label: (tagSlotLabels[0] && tagSlotLabels[0].tag3) || "Tag 3",
     });
   } catch (err) {
     console.error(err);

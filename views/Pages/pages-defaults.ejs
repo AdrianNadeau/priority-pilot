@@ -80,6 +80,21 @@
                          oninput="formatNumberWithCommas(this)">
                 </div>
 
+                <div class="form-group">
+                  <label>Tag 1 Label</label>
+                  <input class="form-control" name="tag_1_label" value="<%= company.tag_1_label || '' %>" placeholder="Tag 1">
+                </div>
+
+                <div class="form-group">
+                  <label>Tag 2 Label</label>
+                  <input class="form-control" name="tag_2_label" value="<%= company.tag_2_label || '' %>" placeholder="Tag 2">
+                </div>
+
+                <div class="form-group">
+                  <label>Tag 3 Label</label>
+                  <input class="form-control" name="tag_3_label" value="<%= company.tag_3_label || '' %>" placeholder="Tag 3">
+                </div>
+
                 <div class="modal-footer">
                   <button type="submit" class="btn btn-primary">Update</button>
                 </div>

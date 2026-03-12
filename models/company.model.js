@@ -31,6 +31,18 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: true,
     },
+    tag_1_label: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+    tag_2_label: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+    tag_3_label: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
   });
 
   return Company;

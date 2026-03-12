@@ -196,6 +196,9 @@ exports.setDefaults = async (req, res, next) => {
         portfolio_budget: req.body.portfolio_budget,
         effort: req.body.portfolio_effort,
         company_timezone: req.body.company_timezone,
+        tag_1_label: req.body.tag_1_label,
+        tag_2_label: req.body.tag_2_label,
+        tag_3_label: req.body.tag_3_label,
       },
       {
         returning: true,

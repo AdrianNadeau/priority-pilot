@@ -127,7 +127,7 @@
 
     <!-- Tag charts: three per row -->
     <div class="row mt-5">
-      <p><strong>Tag 1</strong></p>
+      <p><strong><%= tag1Label %></strong></p>
       <div class="col-lg-3 mb-4" style="margin-right: 50px">
         <div id="tag1Chart"></div>
         <span id="tag1NoTags" class="d-block"></span>
@@ -142,7 +142,7 @@
       </div>
     </div>
     <div class="row mt-3">
-      <p><strong>Tag 2</strong></p>
+      <p><strong><%= tag2Label %></strong></p>
       <div class="col-lg-3 mb-4" style="margin-right: 50px">
         <div id="tag2Chart"></div>
         <span id="tag2NoTags" class="d-block"></span>
@@ -157,7 +157,7 @@
       </div>
     </div>
     <div class="row mt-3">
-      <p><strong>Tag 3</strong></p>
+      <p><strong><%= tag3Label %></strong></p>
       <div class="col-lg-3 mb-4" style="margin-right: 50px">
         <div id="tag3Chart"></div>
         <span id="tag3NoTags" class="d-block"></span>
@@ -266,7 +266,7 @@
                       },
                     },
                     plugins: {
-                      title: { display: false },
+                      title: { display: true, text: "In-Flight Commitment Progress" },
                       legend: { display: false },
                       tooltip: {
                         callbacks: {
@@ -318,7 +318,7 @@
 
                 const data = google.visualization.arrayToDataTable(chartDataArray);
                 const options = {
-                  title: "Portfolio Health",
+                  title: "Initiatives by Health",
                   pieHole: 0.4,
                   backgroundColor: "transparent",
                   width: 600,
@@ -344,13 +344,16 @@
         }
 
         const phaseStats = <%- JSON.stringify(phaseStats) %>;
+        const tag1Label = <%- JSON.stringify(tag1Label) %>;
+        const tag2Label = <%- JSON.stringify(tag2Label) %>;
+        const tag3Label = <%- JSON.stringify(tag3Label) %>;
 
         function drawProjectsByPhaseChart() {
-          const phases          = phaseStats.map(p => p.phaseName);
-          const troubleCounts   = phaseStats.map(p => p.troubleCount);
-          const cautionCounts   = phaseStats.map(p => p.cautionCount);
-          const healthyCounts   = phaseStats.map(p => p.healthyCount);
-          const noStatusCounts  = phaseStats.map(p => p.noStatusCount);
+          const filteredPhaseStats = phaseStats.filter(p => p.phaseName !== 'Pitch');
+          const phases          = filteredPhaseStats.map(p => p.phaseName);
+          const cautionCounts   = filteredPhaseStats.map(p => p.cautionCount);
+          const healthyCounts   = filteredPhaseStats.map(p => p.healthyCount);
+          const noStatusCounts  = filteredPhaseStats.map(p => p.noStatusCount + p.troubleCount);
 
           // Build annotations only for non‐zero values
           const ann = arr => arr.map(c => c > 0 ? String(c) : '');
@@ -359,7 +362,6 @@
           const dataArray = [
             [
               'Phase',
-              'Trouble',   { type:'string', role:'annotation' },
               'Caution',   { type:'string', role:'annotation' },
               'Healthy',   { type:'string', role:'annotation' },
               'No Status', { type:'string', role:'annotation' }
@@ -368,7 +370,6 @@
           phases.forEach((phase, i) => {
             dataArray.push([
               phase,
-              troubleCounts[i],  ann(troubleCounts)[i],
               cautionCounts[i],  ann(cautionCounts)[i],
               healthyCounts[i],  ann(healthyCounts)[i],
               noStatusCounts[i], ann(noStatusCounts)[i]
@@ -378,12 +379,12 @@
           // Draw with Google Charts
           const data = google.visualization.arrayToDataTable(dataArray);
           const options = {
-            title: 'Initiatives by Phase',
+            title: 'In-Flight',
             isStacked: true,
             width: 650,
             height: 300,
             chartArea: { left:60, top:60, width:'75%', height:'65%' },
-            colors: ['#dc3545','#ffc107','#28a745','#42a5f5'],
+            colors: ['#ffc107','#28a745','#42a5f5'],
             vAxis: {
               minValue: 0,
               gridlines: { color:'#eee' },
@@ -414,18 +415,17 @@
 
         function drawCostByPhaseChart() {
           // Extract names & per‐status cost arrays from phaseStats
-          const phases         = phaseStats.map(p => p.phaseName);
-          const troubleCosts   = phaseStats.map(p => p.troubleCost);
-          const cautionCosts   = phaseStats.map(p => p.cautionCost);
-          const healthyCosts   = phaseStats.map(p => p.healthyCost);
-          const noStatusCosts  = phaseStats.map(p => p.noStatusCost);
+          const filteredPhaseStats = phaseStats.filter(p => p.phaseName !== 'Pitch');
+          const phases         = filteredPhaseStats.map(p => p.phaseName);
+          const cautionCosts   = filteredPhaseStats.map(p => p.cautionCost);
+          const healthyCosts   = filteredPhaseStats.map(p => p.healthyCost);
+          const noStatusCosts  = filteredPhaseStats.map(p => p.noStatusCost + p.troubleCost);
 
           // Formatter: only show annotation if cost > 0, add commas & dollar sign
           const fmt = n => {
             if (n <= 0) return '';
             return '$' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
           };
-          const troubleAnn   = troubleCosts.map(fmt);
           const cautionAnn   = cautionCosts.map(fmt);
           const healthyAnn   = healthyCosts.map(fmt);
           const noStatusAnn  = noStatusCosts.map(fmt);
@@ -434,7 +434,6 @@
           const dataArray = [
             [
               'Phase',
-              'Trouble',   { type: 'string', role: 'annotation' },
               'Caution',   { type: 'string', role: 'annotation' },
               'Healthy',   { type: 'string', role: 'annotation' },
               'No Status', { type: 'string', role: 'annotation' }
@@ -443,7 +442,6 @@
           phases.forEach((phase, i) => {
             dataArray.push([
               phase,
-              troubleCosts[i],  troubleAnn[i],
               cautionCosts[i],  cautionAnn[i],
               healthyCosts[i],  healthyAnn[i],
               noStatusCosts[i], noStatusAnn[i]
@@ -455,12 +453,12 @@
 
           // Chart options – stacked, currency axis, white annotations, one‐row legend
           const options = {
-            title: 'Investment by Phase',
+            title: 'Commitment Health',
             isStacked: true,
             width: 650,
             height: 300,
             chartArea: { left:80, top:60, width:'75%', height:'65%' },
-            colors: ['#dc3545','#ffc107','#28a745','#42a5f5'],
+            colors: ['#ffc107','#28a745','#42a5f5'],
             vAxis: {
               minValue: 0,
               format: '$#,###',
@@ -512,7 +510,7 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Initiatives ",
+                title: tag1Label + " - Initiatives",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -549,7 +547,7 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Cost",
+                title: tag1Label + " - Cost",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -586,7 +584,7 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Effort",
+                title: tag1Label + " - Effort",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -621,7 +619,7 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Initiatives",
+                title: tag2Label + " - Initiatives",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -658,7 +656,7 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Cost",
+                title: tag2Label + " - Cost",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -695,7 +693,7 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Effort",
+                title: tag2Label + " - Effort",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -748,7 +746,7 @@
               const data = google.visualization.arrayToDataTable(formattedData);
 
               const options = {
-                title: "Initiatives",
+                title: tag3Label + " - Initiatives",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -787,7 +785,7 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Cost",
+                title: tag3Label + " - Cost",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
@@ -824,7 +822,7 @@
               const data = google.visualization.arrayToDataTable(chartData);
 
               const options = {
-                title: "Effort",
+                title: tag3Label + " - Effort",
                 pieHole: 0.4,
                 backgroundColor: "transparent",
                 width: 550,
