@@ -188,7 +188,6 @@ exports.login = async (req, res, next) => {
       const formattedEnd = moment(person.filtered_end).format("YYYY-MM-DD");
       req.session.filtered_end = formattedEnd;
     }
-    // next_milestone_date_details column removed
 
     req.session.save((err) => {
       if (err) {
