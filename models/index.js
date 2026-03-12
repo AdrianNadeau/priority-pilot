@@ -31,7 +31,6 @@ db.changed_projects = require("./changed_project.model.js")(
   sequelize,
   Sequelize.DataTypes,
 );
-db.changed_persons = require("./changed_person.model.js")(sequelize, Sequelize.DataTypes);
 db.changed_password_token = require("./changed_password_token.model.js")(
   sequelize,
   Sequelize.DataTypes,
