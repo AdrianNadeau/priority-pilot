@@ -24,18 +24,6 @@
     opacity: 1;
   }
 
-  /* ===== PHASE HEADER ROW ===== */
-  .phase-header-row {
-    background-color: #e9ecef !important;
-  }
-  .phase-header-row:hover {
-    background-color: #e9ecef !important;
-    cursor: default;
-  }
-  .phase-header-row td {
-    border-top: 2px solid #dee2e6;
-  }
-
   /* ===== SLOW SORT ANIMATION ===== */
   tbody tr {
     transition: transform 0.35s ease, opacity 0.35s ease;
@@ -221,16 +209,7 @@
             </tr>
           </thead>
           <tbody>
-            <% let currentPhase = null; %>
             <% projects.forEach(function(project) { %>
-              <% if (project.phase_name !== currentPhase) { %>
-                <% currentPhase = project.phase_name; %>
-                <tr class="phase-header-row" style="background-color: #e9ecef;">
-                  <td colspan="8" style="font-weight: bold; font-size: 1.1rem; padding: 12px 8px;">
-                    <%= currentPhase || 'No Phase' %>
-                  </td>
-                </tr>
-              <% } %>
             <tr class="project-row" data-project-id="<%= project.id %>" onclick="window.location.replace='/projects/edit/<%= project.id %>';" style="cursor: pointer;">
               <td><%= project.project_name %></td>
               <td><%= project.prime_first_name %> <%= project.prime_last_name %></td>
@@ -491,49 +470,25 @@ document.addEventListener('DOMContentLoaded', function () {
       th.classList.remove('sorted-asc', 'sorted-desc');
       th.classList.add(isAsc ? 'sorted-asc' : 'sorted-desc');
 
-      // Group rows by phase (keep phase headers in place, sort projects within each phase)
-      const groups = [];
-      let currentGroup = null;
+      allRows.sort((a, b) => {
+        let aVal = a.children[columnIndex]?.innerText.trim() || '';
+        let bVal = b.children[columnIndex]?.innerText.trim() || '';
 
-      allRows.forEach(row => {
-        if (row.classList.contains('phase-header-row')) {
-          if (currentGroup) groups.push(currentGroup);
-          currentGroup = { header: row, projects: [] };
-        } else if (currentGroup) {
-          currentGroup.projects.push(row);
+        if (column.includes('date')) {
+          aVal = new Date(aVal).getTime() || 0;
+          bVal = new Date(bVal).getTime() || 0;
+        } else if (column.includes('cost')) {
+          aVal = parseFloat(aVal.replace(/[^0-9.-]+/g,"")) || 0;
+          bVal = parseFloat(bVal.replace(/[^0-9.-]+/g,"")) || 0;
         }
-      });
-      if (currentGroup) groups.push(currentGroup);
 
-      // Sort projects within each group
-      groups.forEach(group => {
-        group.projects.sort((a, b) => {
-          let aVal = a.children[columnIndex]?.innerText.trim() || '';
-          let bVal = b.children[columnIndex]?.innerText.trim() || '';
-
-          // Handle dates
-          if (column.includes('date')) {
-              aVal = new Date(aVal).getTime() || 0;
-              bVal = new Date(bVal).getTime() || 0;
-          }
-          // Handle currency/numbers
-          else if (column.includes('cost')) {
-              aVal = parseFloat(aVal.replace(/[^0-9.-]+/g,"")) || 0;
-              bVal = parseFloat(bVal.replace(/[^0-9.-]+/g,"")) || 0;
-          }
-
-          if (aVal < bVal) return isAsc ? -1 : 1;
-          if (aVal > bVal) return isAsc ? 1 : -1;
-          return 0;
-        });
+        if (aVal < bVal) return isAsc ? -1 : 1;
+        if (aVal > bVal) return isAsc ? 1 : -1;
+        return 0;
       });
 
-      // Re-append rows in order
       tbody.innerHTML = '';
-      groups.forEach(group => {
-        tbody.appendChild(group.header);
-        group.projects.forEach(row => tbody.appendChild(row));
-      });
+      allRows.forEach(row => tbody.appendChild(row));
     });
   });
 
