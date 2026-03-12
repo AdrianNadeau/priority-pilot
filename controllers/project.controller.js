@@ -1798,10 +1798,14 @@ async function getTagDataForFilter(companyId, tagField, dateWhereConditions) {
 exports.progress = async (req, res) => {
   const companyId = req.session.company.id;
 
-  // Use the same global filter approach as radar function (excluding Pitch phase)
+  // Exclude Pitch, Planning, and Archived phases by name (robust against ID changes)
   const baseWhere = {
     company_id_fk: companyId,
-    phase_id_fk: { [db.Sequelize.Op.notIn]: [1, 2, 6] }, // Exclude Pitch, Planning, Archived phase
+    phase_id_fk: {
+      [db.Sequelize.Op.notIn]: db.Sequelize.literal(
+        "(SELECT id FROM phases WHERE phase_name IN ('Pitch', 'Planning', 'Archived'))"
+      ),
+    },
   };
   const whereConditions = applyProjectDateFilter(req, baseWhere);
 
