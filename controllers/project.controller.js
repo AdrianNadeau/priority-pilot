@@ -202,6 +202,11 @@ exports.create = (req, res) => {
           message: err.message || "Some error occurred while retrieving data.",
         });
       });
+  }).catch((err) => {
+    console.error("Error creating project:", err);
+    res.status(500).send({
+      message: err.message || "Some error occurred while creating the project.",
+    });
   });
 };
 
