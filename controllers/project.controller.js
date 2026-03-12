@@ -3447,7 +3447,7 @@ FROM (
     WHERE proj.company_id_fk = ? AND proj.deleted_yn = false${dateFilter}
     ORDER BY proj.id, last_status.status_date DESC NULLS LAST
 ) subquery
-WHERE phase_name NOT IN ('Planning', 'Done')
+WHERE phase_name NOT IN ('Planning', 'Done', 'Archived')
 ORDER BY
     CASE phase_name
         WHEN 'Discovery' THEN 1
@@ -3601,7 +3601,7 @@ exports.healthData = async (req, res) => {
       WHERE proj.company_id_fk = ? AND proj.deleted_yn = false${dateFilter}
       ORDER BY proj.id, last_status.status_date DESC NULLS LAST
   ) subquery
-  WHERE phase_name NOT IN ('Planning', 'Done')
+  WHERE phase_name NOT IN ('Planning', 'Done', 'Archived')
   ORDER BY
       CASE phase_name
           WHEN 'Discovery' THEN 1
