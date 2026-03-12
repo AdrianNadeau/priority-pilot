@@ -213,8 +213,17 @@ exports.findAllRadar = async (req, res) => {
 exports.findAll = async (req, res) => {
   try {
     const company_id_fk = req.session.company.id;
-    const filterStart = req.query.filter_start || null;
-    const filterEnd = req.query.filter_end || null;
+
+    if (req.query.clear) {
+      req.session.findAllFilterStart = null;
+      req.session.findAllFilterEnd = null;
+    } else if (req.query.filter_start || req.query.filter_end) {
+      req.session.findAllFilterStart = req.query.filter_start || null;
+      req.session.findAllFilterEnd = req.query.filter_end || null;
+    }
+
+    const filterStart = req.query.filter_start || req.session.findAllFilterStart || null;
+    const filterEnd = req.query.filter_end || req.session.findAllFilterEnd || null;
 
     let dateFilter = "";
     let queryParams = [company_id_fk];
@@ -654,8 +663,17 @@ exports.findOneForPrime = async (req, res) => {
 
 exports.radar = async (req, res) => {
   const companyId = req.session.company.id;
-  const filterStart = req.query.filter_start || null;
-  const filterEnd = req.query.filter_end || null;
+
+  if (req.query.clear) {
+    req.session.radarFilterStart = null;
+    req.session.radarFilterEnd = null;
+  } else if (req.query.filter_start || req.query.filter_end) {
+    req.session.radarFilterStart = req.query.filter_start || null;
+    req.session.radarFilterEnd = req.query.filter_end || null;
+  }
+
+  const filterStart = req.query.filter_start || req.session.radarFilterStart || null;
+  const filterEnd = req.query.filter_end || req.session.radarFilterEnd || null;
 
   let dateFilter = "";
   let radarParams = [companyId];
@@ -1552,8 +1570,17 @@ exports.findFunnel = async (req, res) => {
     );
     const company_id_fk = req.session.company.id;
     const person_id_fk = req.session.person.id;
-    const filterStart = req.query.filter_start || null;
-    const filterEnd = req.query.filter_end || null;
+
+    if (req.query.clear) {
+      req.session.funnelFilterStart = null;
+      req.session.funnelFilterEnd = null;
+    } else if (req.query.filter_start || req.query.filter_end) {
+      req.session.funnelFilterStart = req.query.filter_start || null;
+      req.session.funnelFilterEnd = req.query.filter_end || null;
+    }
+
+    const filterStart = req.query.filter_start || req.session.funnelFilterStart || null;
+    const filterEnd = req.query.filter_end || req.session.funnelFilterEnd || null;
 
     let dateFilter = "";
     let queryParams = [company_id_fk];
@@ -1669,8 +1696,17 @@ exports.findFunnel = async (req, res) => {
 exports.findFreezer = async (req, res) => {
   // Get the company ID from the session
   const company_id_fk = req.session.company.id;
-  const filterStart = req.query.filter_start || null;
-  const filterEnd = req.query.filter_end || null;
+
+  if (req.query.clear) {
+    req.session.freezerFilterStart = null;
+    req.session.freezerFilterEnd = null;
+  } else if (req.query.filter_start || req.query.filter_end) {
+    req.session.freezerFilterStart = req.query.filter_start || null;
+    req.session.freezerFilterEnd = req.query.filter_end || null;
+  }
+
+  const filterStart = req.query.filter_start || req.session.freezerFilterStart || null;
+  const filterEnd = req.query.filter_end || req.session.freezerFilterEnd || null;
 
   let dateFilter = "";
   let queryParams = [company_id_fk];
@@ -2033,8 +2069,17 @@ exports.update = async (req, res) => {
 exports.health = async (req, res) => {
   const company_id_fk = req.session.company.id;
   const portfolioName = req.session.company.company_headline;
-  const filterStart = req.query.filter_start || null;
-  const filterEnd = req.query.filter_end || null;
+
+  if (req.query.clear) {
+    req.session.healthFilterStart = null;
+    req.session.healthFilterEnd = null;
+  } else if (req.query.filter_start || req.query.filter_end) {
+    req.session.healthFilterStart = req.query.filter_start || null;
+    req.session.healthFilterEnd = req.query.filter_end || null;
+  }
+
+  const filterStart = req.query.filter_start || req.session.healthFilterStart || null;
+  const filterEnd = req.query.filter_end || req.session.healthFilterEnd || null;
 
   let dateFilter = "";
   let queryParams = [company_id_fk];
@@ -2149,8 +2194,17 @@ exports.ganttChart = async (req, res) => {
 };
 exports.flightview = async (req, res) => {
   const company_id_fk = req.session.company.id;
-  const filterStart = req.query.filter_start || null;
-  const filterEnd = req.query.filter_end || null;
+
+  if (req.query.clear) {
+    req.session.flightviewFilterStart = null;
+    req.session.flightviewFilterEnd = null;
+  } else if (req.query.filter_start || req.query.filter_end) {
+    req.session.flightviewFilterStart = req.query.filter_start || null;
+    req.session.flightviewFilterEnd = req.query.filter_end || null;
+  }
+
+  const filterStart = req.query.filter_start || req.session.flightviewFilterStart || null;
+  const filterEnd = req.query.filter_end || req.session.flightviewFilterEnd || null;
 
   const whereClause = { company_id_fk };
   if (filterStart) whereClause.start_date = { [Op.gte]: filterStart };

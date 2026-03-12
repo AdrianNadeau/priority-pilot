@@ -86,14 +86,18 @@ exports.create = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   try {
     const company_id_fk = req.session.company?.id;
-    const data = await Person.findAll({
-      where: { company_id_fk },
-      order: [
-        ["last_name", "ASC"],
-        ["first_name", "ASC"],
-      ],
-    });
-    res.render("Pages/pages-persons", { persons: data });
+    const [data, changedPersons] = await Promise.all([
+      Person.findAll({
+        where: { company_id_fk },
+        order: [["last_name", "ASC"], ["first_name", "ASC"]],
+      }),
+      db.changed_persons.findAll({
+        where: { company_id_fk },
+        order: [["change_date", "DESC"]],
+        limit: 50,
+      }),
+    ]);
+    res.render("Pages/pages-persons", { persons: data, changedPersons });
   } catch (error) {
     next(error);
   }
@@ -183,6 +187,19 @@ exports.update = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
+
+    await db.changed_persons.create({
+      person_id_fk: person_id,
+      company_id_fk: req.session.company?.id,
+      first_name: personDetails.first_name,
+      last_name: personDetails.last_name,
+      email: personDetails.email,
+      initials: personDetails.initials,
+      isAdmin: personDetails.isAdmin,
+      change_date: new Date(),
+      changed_by_id_fk: req.session.person?.id,
+    });
+
     res.redirect("/persons/");
   } catch (error) {
     next(error);

@@ -69,8 +69,8 @@
       (function () {
         var fs = document.getElementById('filter_start');
         var fe = document.getElementById('filter_end');
-        if (fs) flatpickr(fs, { dateFormat: 'Y-m-d', allowInput: true });
-        if (fe) flatpickr(fe, { dateFormat: 'Y-m-d', allowInput: true });
+        if (fs) flatpickr(fs, { dateFormat: 'Y-m-d', allowInput: true, defaultDate: fs.value || null });
+        if (fe) flatpickr(fe, { dateFormat: 'Y-m-d', allowInput: true, defaultDate: fe.value || null });
       })();
       function applyDateFilter() {
         var start = document.getElementById('filter_start') ? document.getElementById('filter_start').value : '';
@@ -82,7 +82,7 @@
         window.location.href = qs ? (window.location.pathname + '?' + qs) : window.location.pathname;
       }
       function clearDateFilter() {
-        window.location.href = window.location.pathname;
+        window.location.href = window.location.pathname + '?clear=1';
       }
     </script>
 

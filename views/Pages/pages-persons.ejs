@@ -94,6 +94,41 @@
                     </div>
                 </div>
             </div>
+        <!-- Change Log -->
+        <% if (changedPersons && changedPersons.length > 0) { %>
+        <div class="row mt-4">
+          <div class="col-lg-12">
+            <div class="card-body" style="border:0px !important;">
+              <h5>Change Log</h5>
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Initials</th>
+                      <th>Admin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% changedPersons.forEach(function(cp) { %>
+                    <tr>
+                      <td><%= cp.change_date ? new Date(cp.change_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '' %></td>
+                      <td><%= cp.last_name %>, <%= cp.first_name %></td>
+                      <td><%= cp.email %></td>
+                      <td><%= cp.initials %></td>
+                      <td><% if (cp.isAdmin) { %><span style="color:green;"><i class="mdi mdi-checkbox-marked"></i></span><% } %></td>
+                    </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% } %>
+
         <div class="row">
             <div class="col-md-12 m-t-30">
                 <!-- sample modal content -->

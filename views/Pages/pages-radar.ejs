@@ -108,10 +108,10 @@
     <!-- Top row: Projects by Phase & Investment by Phase -->
     <div class="row mt-5">
       <div class="col-lg-6 text-center">
-        <div id="columnchart_values"></div>
+        <div id="columnChartCost_values"></div>
       </div>
       <div class="col-lg-6 text-center">
-        <div id="columnChartCost_values"></div>
+        <div id="columnchart_values"></div>
       </div>
     </div>
 
@@ -379,7 +379,7 @@
           // Draw with Google Charts
           const data = google.visualization.arrayToDataTable(dataArray);
           const options = {
-            title: 'In-Flight',
+            title: 'In-Flight Commitments by Cost',
             isStacked: true,
             width: 650,
             height: 300,
@@ -453,7 +453,7 @@
 
           // Chart options – stacked, currency axis, white annotations, one‐row legend
           const options = {
-            title: 'Commitment Health',
+            title: 'Initiatives by Phase',
             isStacked: true,
             width: 650,
             height: 300,
