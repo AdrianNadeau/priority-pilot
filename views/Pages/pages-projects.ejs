@@ -32,6 +32,10 @@
   tbody.sorting tr {
     opacity: 0.6;
   }
+
+  .table tbody tr {
+    background-color: transparent !important;
+  }
 </style>
 
 <!-- ================= BREADCRUMB / BODY ================= -->
@@ -198,12 +202,11 @@
         <table class="table">
           <thead>
             <tr>
-              <th class="sortable" data-column="project_name">Name <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
+              <th class="sortable" data-column="project_name">Name1 <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
               <th class="sortable" data-column="prime_name">Prime <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
               <th class="sortable" data-column="sponsor_name">Sponsor <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
               <th class="sortable" data-column="start_date">Start <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
               <th class="sortable" data-column="end_date">End <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
-              <th class="sortable" data-column="phase_name">Phase <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
               <th class="sortable" data-column="project_cost">Cost <i class="sort-arrow mdi mdi-sort-alphabetical-ascending"></i></th>
               <th>Status</th>
             </tr>
@@ -216,7 +219,6 @@
               <td><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
               <td><%= project.start_date ? new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '' %></td>
               <td><%= project.end_date ? new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '' %></td>
-              <td><%= project.phase_name %></td>
               <td>$<%= project.project_cost %></td>
               <td>
                 <% if (project.can_update_status) { %>
