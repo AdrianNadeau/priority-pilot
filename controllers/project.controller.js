@@ -1392,15 +1392,15 @@ exports.radarData = async (req, res) => {
   const fromDate = req.query.from_date;
   const toDate = req.query.to_date;
 
-  // Build date filter conditions
+  // Build date filter conditions (overlap: project overlaps the filter period)
   let dateWhereConditions = {};
   if (fromDate && toDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: toDate };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: fromDate };
   } else if (fromDate) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: fromDate };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: fromDate };
   } else if (toDate) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: toDate };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: toDate };
   }
 
   try {
@@ -1898,12 +1898,12 @@ exports.countProjectsByTag1 = async (req, res) => {
   // Build date filter conditions
   let dateWhereConditions = {};
   if (filtered_start && filtered_end) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_start) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_end) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -1981,12 +1981,12 @@ exports.countCostsByTag1 = async (req, res) => {
   // Build date filter conditions
   let dateWhereConditions = {};
   if (filtered_start && filtered_end) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_start) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_end) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -2083,12 +2083,12 @@ exports.countEffortByTag1 = async (req, res) => {
   // Build date filter conditions
   let dateWhereConditions = {};
   if (filtered_start && filtered_end) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_start) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_end) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -2175,12 +2175,12 @@ exports.countProjectsByTag2 = async (req, res) => {
   // Build date filter conditions
   let dateWhereConditions = {};
   if (filtered_start && filtered_end) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_start) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_end) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -2248,12 +2248,12 @@ exports.countCostsByTag2 = async (req, res) => {
   // Build date filter conditions
   let dateWhereConditions = {};
   if (filtered_start && filtered_end) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_start) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_end) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -2350,12 +2350,12 @@ exports.countEffortByTag2 = async (req, res) => {
   // Build date filter conditions
   let dateWhereConditions = {};
   if (filtered_start && filtered_end) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_start) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_end) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -2442,12 +2442,12 @@ exports.countProjectsByTag3 = async (req, res) => {
   // Build date filter conditions
   let dateWhereConditions = {};
   if (filtered_start && filtered_end) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_start) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_end) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -2515,12 +2515,12 @@ exports.countCostsByTag3 = async (req, res) => {
   // Build date filter conditions
   let dateWhereConditions = {};
   if (filtered_start && filtered_end) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_start) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_end) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -2617,12 +2617,12 @@ exports.countEffortByTag3 = async (req, res) => {
   // Build date filter conditions
   let dateWhereConditions = {};
   if (filtered_start && filtered_end) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_start) {
-    dateWhereConditions.start_date = { [db.Sequelize.Op.gte]: filtered_start };
+    dateWhereConditions.end_date = { [db.Sequelize.Op.gte]: filtered_start };
   } else if (filtered_end) {
-    dateWhereConditions.end_date = { [db.Sequelize.Op.lte]: filtered_end };
+    dateWhereConditions.start_date = { [db.Sequelize.Op.lte]: filtered_end };
   }
 
   try {
@@ -3959,13 +3959,13 @@ exports.accomplishmentsData = async (req, res) => {
     let queryParams = [company_id_fk];
 
     if (fromDate && toDate) {
-      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
-      queryParams.push(fromDate, toDate);
+      dateFilter = " AND proj.start_date <= ? AND proj.end_date >= ?";
+      queryParams.push(toDate, fromDate);
     } else if (fromDate) {
-      dateFilter = " AND proj.start_date >= ?";
+      dateFilter = " AND proj.end_date >= ?";
       queryParams.push(fromDate);
     } else if (toDate) {
-      dateFilter = " AND proj.end_date <= ?";
+      dateFilter = " AND proj.start_date <= ?";
       queryParams.push(toDate);
     }
 
@@ -4763,13 +4763,13 @@ exports.exportHealthDataToPDF = async (req, res) => {
     let queryParams = [company_id_fk];
 
     if (fromDate && toDate) {
-      dateFilter = " AND proj.start_date >= ? AND proj.end_date <= ?";
-      queryParams.push(fromDate, toDate);
+      dateFilter = " AND proj.start_date <= ? AND proj.end_date >= ?";
+      queryParams.push(toDate, fromDate);
     } else if (fromDate) {
-      dateFilter = " AND proj.start_date >= ?";
+      dateFilter = " AND proj.end_date >= ?";
       queryParams.push(fromDate);
     } else if (toDate) {
-      dateFilter = " AND proj.end_date <= ?";
+      dateFilter = " AND proj.start_date <= ?";
       queryParams.push(toDate);
     }
 
