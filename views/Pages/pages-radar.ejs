@@ -110,7 +110,11 @@
         // Initialize Flatpickr for date inputs
         flatpickr('#from_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
         flatpickr('#to_date', { dateFormat: 'Y-m-d', onChange: updateDayCount });
-        
+
+        // Also listen to direct input changes as fallback
+        document.getElementById('from_date').addEventListener('change', updateDayCount);
+        document.getElementById('to_date').addEventListener('change', updateDayCount);
+
         // Update day count immediately
         updateDayCount();
       });

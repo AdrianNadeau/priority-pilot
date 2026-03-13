@@ -188,6 +188,13 @@ exports.login = async (req, res, next) => {
       const formattedEnd = moment(person.filtered_end).format("YYYY-MM-DD");
       req.session.filtered_end = formattedEnd;
     }
+    // Calculate filtered_days so cost/effort calculations are correct immediately after login
+    if (req.session.filtered_start && req.session.filtered_end) {
+      const from = new Date(req.session.filtered_start);
+      const to = new Date(req.session.filtered_end);
+      const diffTime = Math.abs(to - from);
+      req.session.filtered_days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    }
 
     req.session.save((err) => {
       if (err) {

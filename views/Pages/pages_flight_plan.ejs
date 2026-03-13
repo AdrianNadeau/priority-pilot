@@ -206,6 +206,10 @@
       onChange: updateDayCount,
     });
 
+    // Also listen to direct input changes as fallback
+    document.getElementById("from_date").addEventListener("change", updateDayCount);
+    document.getElementById("to_date").addEventListener("change", updateDayCount);
+
     // Update day count on page load if dates exist
     if (
       document.getElementById("from_date").value &&
