@@ -209,17 +209,14 @@ exports.setDefaults = async (req, res, next) => {
 
   // Update company portfolio budget and effort
   try {
-    const [rowsUpdated, [updatedCompany]] = await Company.update(
+    const [rowsUpdated] = await Company.update(
       {
-        company_name: req.body.company_name,
         company_headline: req.body.company_headline,
         portfolio_budget: req.body.portfolio_budget,
         effort: req.body.portfolio_effort,
-        company_timezone: req.body.company_timezone,
       },
       {
-        returning: true,
-        where: { id: company_id_fk }, // Use the correct company ID
+        where: { id: company_id_fk },
       },
     );
 

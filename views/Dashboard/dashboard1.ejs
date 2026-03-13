@@ -400,43 +400,27 @@
           
             </div> <!-- close inner delivery/done row -->
 
-              <!-- Budget/Effort Summary Row (under Delivery and Done) -->
-              <div class="row mt-3 mb-2 align-items-center" style="margin-left:0px;margin-right:0px;min-height: 50px;height:50px;background: #e2fbef; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
-                <div class="col-md-6 d-flex align-items-center">
-                  <span class="mdi mdi-currency-usd" style="font-size: 1.5rem; margin-right: 8px;"></span>
-                  <span style="font-weight: 500; margin-right: 12px;">Cost</span>
-                  <span class="text-muted" style="margin-right: 8px;">Default:</span>
-                  <span style="font-weight: 500; margin-right: 16px;">
-                    $<%= formatNumberWithCommas(portfolioBudget) %>
-                  </span>
-                  <span class="text-muted" style="margin-right: 8px;">Used:</span>
-                  <span style="font-weight: 500; margin-right: 16px;">$<%= formatNumberWithCommas(deliveryUsedCost) %></span>
-                  <span class="text-muted" style="margin-right: 8px;">Calculated:</span>
-                  <span style="font-weight: 500; margin-right: 16px;">$<%= formatNumberWithCommas(deliveryTotalCost) %></span>
-                  <span class="text-muted" style="margin-right: 8px;">Available:</span>
-                  <span style="font-weight: 500;">$<%= formatNumberWithCommas(deliveryAvailCost) %></span>
-                </div>
-                <div class="col-md-6 d-flex align-items-center">
-                  <span class="mdi mdi-rocket" style="font-size: 1.5rem; margin-right: 8px;"></span>
-                  <span style="font-weight: 500; margin-right: 12px;">Effort</span>
-                  <span class="text-muted" style="margin-right: 8px;">Default:</span>
-                  <span style="font-weight: 500; margin-right: 16px;">
-                    <%= formatNumberWithCommas(portfolioEffort) %>h
-                  </span>
-                  <span class="text-muted" style="margin-right: 8px;">Used:</span>
-                  <span style="font-weight: 500; margin-right: 16px;">
-                    <%= formatNumberWithCommas(deliveryUsedEffort) %>h
-                  </span>
-                  <span class="text-muted" style="margin-right: 8px;">Calculated:</span>
-                  <span style="font-weight: 500; margin-right: 16px;">
-                    <%= formatNumberWithCommas(deliveryTotalEffort) %>h
-                  </span>
-                  <span class="text-muted" style="margin-right: 8px;">Left:</span>
-                  <span style="font-weight: 500;">
-                    <%= formatNumberWithCommas(effortLeft) %>h
-                  </span>
-                </div>
-              </div>
+              <!-- Cost / Effort Summary Table -->
+              <table class="mt-3 mb-2" style="width:100%;border-collapse:collapse;box-shadow:0 1px 2px rgba(0,0,0,0.04);font-size:0.9rem;">
+                <tr style="background:#e2fbef;">
+                  <td style="padding:6px 10px;white-space:nowrap;font-weight:600;">
+                    <span class="mdi mdi-currency-usd" style="font-size:1.1rem;vertical-align:middle;"></span> Cost
+                  </td>
+                  <td style="padding:6px 10px;white-space:nowrap;"><span class="text-muted">Default:</span> <strong>$<%= formatNumberWithCommas(portfolioBudget) %></strong></td>
+                  <td style="padding:6px 10px;white-space:nowrap;"><span class="text-muted">Used:</span> <strong>$<%= formatNumberWithCommas(deliveryUsedCost) %></strong></td>
+                  <td style="padding:6px 10px;white-space:nowrap;"><span class="text-muted">Calculated:</span> <strong>$<%= formatNumberWithCommas(deliveryTotalCost) %></strong></td>
+                  <td style="padding:6px 10px;white-space:nowrap;"><span class="text-muted">Available:</span> <strong>$<%= formatNumberWithCommas(deliveryAvailCost) %></strong></td>
+                </tr>
+                <tr style="background:#d4f5e9;">
+                  <td style="padding:6px 10px;white-space:nowrap;font-weight:600;">
+                    <span class="mdi mdi-rocket" style="font-size:1.1rem;vertical-align:middle;"></span> Effort
+                  </td>
+                  <td style="padding:6px 10px;white-space:nowrap;"><span class="text-muted">Default:</span> <strong><%= formatNumberWithCommas(portfolioEffort) %>h</strong></td>
+                  <td style="padding:6px 10px;white-space:nowrap;"><span class="text-muted">Used:</span> <strong><%= formatNumberWithCommas(deliveryUsedEffort) %>h</strong></td>
+                  <td style="padding:6px 10px;white-space:nowrap;"><span class="text-muted">Calculated:</span> <strong><%= formatNumberWithCommas(deliveryTotalEffort) %>h</strong></td>
+                  <td style="padding:6px 10px;white-space:nowrap;"><span class="text-muted">Left:</span> <strong><%= formatNumberWithCommas(effortLeft) %>h</strong></td>
+                </tr>
+              </table>
 
             <!-- Combined Budget & Effort summary row spanning both columns -->
            
