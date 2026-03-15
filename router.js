@@ -630,8 +630,8 @@ ORDER BY
       filteredDays: req.session.filtered_days || null,
       currentMilestoneDetails: currentMilestoneDetails,
       companies: company ? [company] : [],
-      deliveryUsedCostRaw: Math.round(proportionalUsedCost),
-      deliveryUsedEffortRaw: Math.round(proportionalUsedEffort),
+      deliveryUsedCostRaw: Math.round(allTimeCost),
+      deliveryUsedEffortRaw: Math.round(allTimeEffort),
     });
   } catch (error) {
     console.error("Error executing query:", error);
