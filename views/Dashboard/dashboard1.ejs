@@ -211,19 +211,9 @@
       discoveryTotalCost = Math.round(portfolioBudget);
       discoveryTotalEffort = Math.round(portfolioEffort);
     }
-  // Calculate used values across all relevant phases (planning, discovery, delivery, done)
-  const relevantPhases = ['planning', 'discovery', 'delivery', 'done'];
-  projects.forEach(function(project) {
-    if (project.phase_name) {
-        const phase = project.phase_name.trim().toLowerCase();
-        if (relevantPhases.indexOf(phase) !== -1) {
-            let usedCost = (typeof getFilteredValue === 'function') ? Math.round(getFilteredValue(project, currentFromDate, currentToDate, 'project_cost')) : 0;
-            let usedEffort = (typeof getFilteredValue === 'function') ? Math.round(getFilteredValue(project, currentFromDate, currentToDate, 'effort')) : 0;
-            deliveryUsedCost += usedCost;
-            deliveryUsedEffort += usedEffort;
-        }
-      }
-  });
+  // Use router-computed values (proration: filteredDays/365 × cost) for consistency
+  deliveryUsedCost = (typeof deliveryUsedCostRaw !== 'undefined') ? deliveryUsedCostRaw : 0;
+  deliveryUsedEffort = (typeof deliveryUsedEffortRaw !== 'undefined') ? deliveryUsedEffortRaw : 0;
   deliveryAvailCost = deliveryTotalCost - deliveryUsedCost;
   // Effort left = default effort - calculated effort (NOT calculated - used)
   const effortLeft = Math.round(portfolioEffort - deliveryTotalEffort);
