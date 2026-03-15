@@ -215,7 +215,7 @@
   deliveryUsedCost = (typeof deliveryUsedCostRaw !== 'undefined') ? deliveryUsedCostRaw : 0;
   deliveryUsedEffort = (typeof deliveryUsedEffortRaw !== 'undefined') ? deliveryUsedEffortRaw : 0;
   deliveryAvailCost = deliveryTotalCost - deliveryUsedCost;
-  // Effort left = default effort - calculated effort (NOT calculated - used)
+  // Effort left = default (annual) effort minus calculated (prorated) effort for period (per Dashboard Filter Calculator)
   const effortLeft = Math.round(portfolioEffort - deliveryTotalEffort);
  
   %>

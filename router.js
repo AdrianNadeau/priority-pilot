@@ -63,6 +63,35 @@ function calculateFilteredDays(fromDate, toDate) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both dates
 }
 
+// Prorate a project value by the overlap of project dates with filter dates.
+// Returns (overlapDays / projectTotalDays) * value, or 0 if project has no dates.
+function prorateByOverlap(project, filterStart, filterEnd, value) {
+  if (!project.start_date || !project.end_date) return 0;
+  const projectStart = new Date(project.start_date);
+  const projectEnd = new Date(project.end_date);
+  const filterStartDate = filterStart ? new Date(filterStart) : projectStart;
+  const filterEndDate = filterEnd ? new Date(filterEnd) : projectEnd;
+  const overlapStart =
+    projectStart > filterStartDate ? projectStart : filterStartDate;
+  const overlapEnd =
+    projectEnd < filterEndDate ? projectEnd : filterEndDate;
+  const msInDay = 1000 * 60 * 60 * 24;
+  const overlapDays = Math.max(
+    0,
+    Math.ceil((overlapEnd - overlapStart) / msInDay) + 1
+  );
+  const totalDays = Math.max(
+    1,
+    Math.ceil((projectEnd - projectStart) / msInDay) + 1
+  );
+  const percent = overlapDays / totalDays;
+  const numVal =
+    typeof value === "number"
+      ? value
+      : parseFloat(String(value).replace(/[^0-9.\-]/g, "")) || 0;
+  return numVal * percent;
+}
+
 router.get("/", isAdminMiddleware, applyGlobalFilter, async (req, res) => {
   const company_id_fk = req.session.company.id;
 
@@ -449,7 +478,8 @@ ORDER BY
       return parseFloat(String(val).replace(/[^0-9.\-]/g, "")) || 0;
     }
 
-    // Calculate filtered phase totals using filter formula: (filtered_days / 365) * project_value
+    // Calculate filtered phase totals using overlap-based proration:
+    // for each project, (overlap_days / project_total_days) * project_value
     const filteredDays = req.session.filtered_days || 0;
     const seenFilteredIds = new Set();
 
@@ -463,15 +493,29 @@ ORDER BY
       const cost = parseCost(project.project_cost);
       const effort = parseCost(project.effort);
 
-      // Apply filter formula per project: (filtered_days / 365) * project_value
-      const costForFilter = filteredDays ? (filteredDays / 365) * cost : cost;
-      const effortForFilter = filteredDays ? (filteredDays / 365) * effort : effort;
+      // Pitch and archived: use full values (no date filter). Others: prorate by overlap.
+      let costForFilter = cost;
+      let effortForFilter = effort;
+      if (phase !== "pitch" && phase !== "archived" && fromDate && toDate) {
+        costForFilter = prorateByOverlap(
+          project,
+          fromDate,
+          toDate,
+          project.project_cost
+        );
+        effortForFilter = prorateByOverlap(
+          project,
+          fromDate,
+          toDate,
+          project.effort
+        );
+      }
 
       filteredPhaseData[phase].count++;
       filteredPhaseData[phase].cost += costForFilter;
       filteredPhaseData[phase].ph += effortForFilter;
 
-      console.log(`[FilteredPhaseTotal] Project ID=${project.id} "${project.project_name}" | phase=${phase} | cost=${cost} | effort=${effort} | filteredDays=${filteredDays} | costForFilter=${costForFilter.toFixed(2)} | effortForFilter=${effortForFilter.toFixed(2)} | running: count=${filteredPhaseData[phase].count}, cost=${filteredPhaseData[phase].cost.toFixed(2)}, ph=${filteredPhaseData[phase].ph.toFixed(2)}`);
+      console.log(`[FilteredPhaseTotal] Project ID=${project.id} "${project.project_name}" | phase=${phase} | cost=${cost} | effort=${effort} | costForFilter=${costForFilter.toFixed(2)} | effortForFilter=${effortForFilter.toFixed(2)} | running: count=${filteredPhaseData[phase].count}, cost=${filteredPhaseData[phase].cost.toFixed(2)}, ph=${filteredPhaseData[phase].ph.toFixed(2)}`);
     });
 
     console.log(`[FilteredPhaseTotal] === SUMMARY ===`, JSON.stringify(filteredPhaseData));
@@ -630,8 +674,9 @@ ORDER BY
       filteredDays: req.session.filtered_days || null,
       currentMilestoneDetails: currentMilestoneDetails,
       companies: company ? [company] : [],
-      deliveryUsedCostRaw: Math.round(allTimeCost),
-      deliveryUsedEffortRaw: Math.round(allTimeEffort),
+      // Summary section: Used = filter-period used (proportional), not all-time
+      deliveryUsedCostRaw: Math.round(proportionalUsedCost),
+      deliveryUsedEffortRaw: Math.round(proportionalUsedEffort),
     });
   } catch (error) {
     console.error("Error executing query:", error);
