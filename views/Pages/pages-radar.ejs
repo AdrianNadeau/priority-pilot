@@ -349,14 +349,20 @@
         const tag3Label = <%- JSON.stringify(tag3Label) %>;
 
         function drawProjectsByPhaseChart() {
-          const filteredPhaseStats = phaseStats.filter(p => p.phaseName !== 'Pitch');
-          const phases          = filteredPhaseStats.map(p => p.phaseName);
-          const cautionCounts   = filteredPhaseStats.map(p => p.cautionCount);
-          const healthyCounts   = filteredPhaseStats.map(p => p.healthyCount);
-          const noStatusCounts  = filteredPhaseStats.map(p => p.noStatusCount + p.troubleCount);
+          const filteredPhaseStats = phaseStats.filter(p => ['Planning', 'Discovery', 'Delivery'].includes(p.phaseName));
+          const phases         = filteredPhaseStats.map(p => p.phaseName);
+          const cautionCosts   = filteredPhaseStats.map(p => p.cautionCost);
+          const healthyCosts   = filteredPhaseStats.map(p => p.healthyCost);
+          const noStatusCosts  = filteredPhaseStats.map(p => p.noStatusCost + p.troubleCost);
 
-          // Build annotations only for non‐zero values
-          const ann = arr => arr.map(c => c > 0 ? String(c) : '');
+          // Formatter: only show annotation if cost > 0, add commas & dollar sign
+          const fmt = n => {
+            if (n <= 0) return '';
+            return '$' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          };
+          const cautionAnn   = cautionCosts.map(fmt);
+          const healthyAnn   = healthyCosts.map(fmt);
+          const noStatusAnn  = noStatusCosts.map(fmt);
 
           // Prepare DataTable rows
           const dataArray = [
@@ -370,9 +376,9 @@
           phases.forEach((phase, i) => {
             dataArray.push([
               phase,
-              cautionCounts[i],  ann(cautionCounts)[i],
-              healthyCounts[i],  ann(healthyCounts)[i],
-              noStatusCounts[i], ann(noStatusCounts)[i]
+              cautionCosts[i],  cautionAnn[i],
+              healthyCosts[i],  healthyAnn[i],
+              noStatusCosts[i], noStatusAnn[i]
             ]);
           });
 
@@ -383,10 +389,11 @@
             isStacked: true,
             width: 650,
             height: 300,
-            chartArea: { left:60, top:60, width:'75%', height:'65%' },
+            chartArea: { left:80, top:60, width:'75%', height:'65%' },
             colors: ['#ffc107','#28a745','#42a5f5'],
             vAxis: {
               minValue: 0,
+              format: '$#,###',
               gridlines: { color:'#eee' },
               textStyle: { fontSize: 12 }
             },
@@ -398,7 +405,7 @@
             annotations: {
               alwaysOutside: false,
               textStyle: {
-                fontSize: 14,
+                fontSize: 12,
                 color: '#fff',
                 bold: true,
                 auraColor: 'none'

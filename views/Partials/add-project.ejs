@@ -152,3 +152,22 @@
           <!-- if edit, add delete button -->
       </div>
   </form>
+
+<script>
+  (function() {
+    var phaseSelect = document.getElementById('phase_id_fk');
+    var leftElements = document.getElementById('leftElements');
+
+    function toggleDateSection() {
+      // Hide date pickers for Pitch (1) and Archived (6); show for Planning, Done, and all active phases
+      if (phaseSelect.value == '1' || phaseSelect.value == '6') {
+        leftElements.style.display = 'none';
+      } else {
+        leftElements.style.display = 'block';
+      }
+    }
+
+    toggleDateSection();
+    phaseSelect.addEventListener('change', toggleDateSection);
+  })();
+</script>
