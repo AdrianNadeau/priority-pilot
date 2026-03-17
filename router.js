@@ -176,6 +176,11 @@ ORDER BY
       isNaN(totalAvailPH) || totalAvailPH < 0 ? "red" : "green";
     const availableCostColor =
       isNaN(availableCost) || availableCost < 0 ? "red" : "green";
+    // Calculate percentages for dashboard display
+    const costPercentRaw = portfolio_budget > 0 ? Math.round((usedCost / portfolio_budget) * 100) : 0;
+    const effortPercentRaw = portfolio_effort > 0 ? Math.round((usedEffort / portfolio_effort) * 100) : 0;
+    const costPercentColor = costPercentRaw < 95 ? '#28a745' : (costPercentRaw <= 110 ? '#ffc107' : '#dc3545');
+    const effortPercentColor = effortPercentRaw < 95 ? '#28a745' : (effortPercentRaw <= 110 ? '#ffc107' : '#dc3545');
     // Format data for response
     const formattedData = {
       totalPH: formatToKMB(portfolio_effort),
@@ -252,6 +257,10 @@ ORDER BY
       ...formattedData,
       availableCostColor,
       availablePHColor,
+      costPercentRaw,
+      effortPercentRaw,
+      costPercentColor,
+      effortPercentColor,
       portfolioName,
       phases,
       priorities,
