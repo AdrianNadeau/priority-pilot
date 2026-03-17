@@ -101,8 +101,18 @@
                             }); %>
                             </div>
                         </div>
+                        <div class="mini-stat bg-white clearfix" style="margin-top: 10px;">
+                            <div class="mini-stat-info">
+                                <span class="counter"><strong>Budget</strong></span>
+                            </div>
+                            <div class="row text-center" style="padding: 10px 0;">
+                                <div class="col-md-4">Budget: $<%= totalCost %></div>
+                                <div class="col-md-4">Used: $<%= usedCost %></div>
+                                <div class="col-md-4">Avail: <span style="color: <%= availableCostColor %>; font-weight: 900;"><strong>$<%= availableCost %></strong></span></div>
+                            </div>
+                        </div>
                     </div>
-    
+
                     <div class="col-md-6">
                         <div class="mini-stat bg-white clearfix" style="min-height: 150px;">
                             <div class="mini-stat-info">
