@@ -125,6 +125,19 @@
       </div>
     </div>
 
+    <!-- All tags associated with projects -->
+    <div class="row mt-5">
+      <div class="col-lg-12">
+        <p><strong>All Tags in Use</strong></p>
+        <% allProjectTags.forEach(function(tag) { %>
+          <span class="badge badge-secondary mr-1" style="font-size:13px; padding:6px 10px; margin-bottom:4px;"><%= tag.tag_name %></span>
+        <% }) %>
+        <% if (!allProjectTags.length) { %>
+          <span class="text-muted">No tags assigned to any projects.</span>
+        <% } %>
+      </div>
+    </div>
+
     <!-- Tag charts: three per row -->
     <div class="row mt-5">
       <p><strong><%= tag1Label %></strong></p>
@@ -179,10 +192,8 @@
 <script type="text/javascript">
       document.addEventListener("DOMContentLoaded", function() {
         const portfolioTitle = document.getElementById("portfolioTitle");
-        console.error("DRAW!");
         const barCtx = document.getElementById("barChart")?.getContext("2d");
         if (!barCtx) {
-          console.error("Canvas element with ID 'barChart' not found!");
           return;
         }
 
@@ -215,7 +226,6 @@
           fetch(`/projects/radar/progress`)
             .then((response) => response.json())
             .then((progressData) => {
-              console.log("Progress Headline:", progressData);
               if (
                 progressData &&
                 progressData.progress &&
@@ -241,7 +251,6 @@
                 );
 
                 const barCtx = document.getElementById("barChart")?.getContext("2d");
-                console.log(barCtx); // Should log the 2D context or `null` if not found
                 new Chart(barCtx, {
                   type: "bar",
                   data: {
@@ -609,7 +618,6 @@
           fetch(`/projects/radar/countProjectsByTag2`)
             .then((response) => response.json())
             .then((tagsData) => {
-              console.log("Tag 2 Data:", tagsData); // Debugging log
               if (!tagsData || tagsData.length === 0) {
                 document.getElementById("tag2NoTags").innerText =
                   "No data found for tag 2";
@@ -847,14 +855,12 @@
      document.getElementById("btnPrintPage").addEventListener("click", function () {
     // Get the progress bar element
      const downloadLabel = document.getElementById("download-label");
-     console.log(downloadLabel);
     downloadLabel.style.display = "block"; // Show the label
     const progressBar = document.querySelector(".progress-bar");
     let progress = 0;
     progressBar.style.width = "0%";
     progressBar.textContent = "0%";
     const htmlContent = document.querySelector(".page-content-wrapper").innerHTML;
-    console.log(htmlContent);
     // Animate progress bar from 0 to 100%
     const interval = setInterval(() => {
       progress += 2; // Increase speed as needed

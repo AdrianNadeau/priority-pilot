@@ -71,7 +71,10 @@ router.get("/", isAdminMiddleware, async (req, res) => {
   companies.company_headline AS portfolio_name,
   companies.effort AS company_effort,
   latest_status.health AS latest_status_health,
-  latest_status.status_date AS latest_status_date
+  latest_status.status_date AS latest_status_date,
+  proj.tag_1, tag1.tag_name AS tag_1_name,
+  proj.tag_2, tag2.tag_name AS tag_2_name,
+  proj.tag_3, tag3.tag_name AS tag_3_name
 FROM
   projects proj
 LEFT JOIN
@@ -82,6 +85,9 @@ LEFT JOIN
   phases ON phases.id = proj.phase_id_fk
 LEFT JOIN
   companies ON companies.id = proj.company_id_fk
+LEFT JOIN tags tag1 ON tag1.id = proj.tag_1
+LEFT JOIN tags tag2 ON tag2.id = proj.tag_2
+LEFT JOIN tags tag3 ON tag3.id = proj.tag_3
 LEFT JOIN (
     SELECT s1.*
     FROM statuses s1
@@ -103,7 +109,6 @@ ORDER BY
     });
 
     if (!data || data.length === 0) {
-      console.log("No data found for company_id_fk:", company_id_fk);
       return res.redirect("/projects");
     }
     // console.log("Data retrieved successfully:", data.length, "records found.");
@@ -250,6 +255,18 @@ ORDER BY
       }
     }
 
+    // Collect unique tags used across filtered projects
+    const seenTagIds = new Set();
+    const usedTags = [];
+    for (const project of uniqueProjects) {
+      [[project.tag_1, project.tag_1_name], [project.tag_2, project.tag_2_name], [project.tag_3, project.tag_3_name]].forEach(([id, name]) => {
+        if (id && id != 0 && name && !seenTagIds.has(id)) {
+          seenTagIds.add(id);
+          usedTags.push({ id, tag_name: name });
+        }
+      });
+    }
+
     const portfolioName = req.session.company.company_headline;
     res.render("Dashboard/dashboard1", {
       company_id: company_id_fk,
@@ -267,6 +284,7 @@ ORDER BY
       sponsors: persons,
       primes: persons,
       tags: tagsData,
+      usedTags,
       currentFilterStart: filterStart || "",
       currentFilterEnd: filterEnd || "",
     });
