@@ -1,0 +1,166 @@
+<%- contentFor('HeaderCss') %>
+<style>
+  .hc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .hc-table th { background: #5b6abf; color: #fff; padding: 8px 10px; text-align: left; font-weight: 500; white-space: nowrap; }
+  .hc-table td { padding: 8px 10px; border-bottom: 0.5px solid rgba(0,0,0,0.1); vertical-align: top; }
+  .hc-table tr:hover td { background: #f5f5f3; }
+  .hc-table tr.state-group td { background: #ececec; font-weight: 700; font-size: 12px; padding: 6px 10px; border-bottom: 0.5px solid rgba(0,0,0,0.18); }
+  .hc-progress-track { height: 14px; background: #ececec; border-radius: 7px; overflow: hidden; min-width: 90px; }
+  .hc-progress-fill { height: 100%; border-radius: 7px; display: flex; align-items: center; padding-left: 6px; }
+  .hc-progress-label { font-size: 10px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .hc-health-label { font-size: 10px; color: #6b6b67; margin-bottom: 3px; }
+  @media print {
+    #btnPrintPage, .button-menu-mobile, .page-title, .portfolio-title { display: none !important; }
+    td, th, tr, .table, .card-body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .page-content-wrapper { margin: 0; padding: 0; }
+  }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<%- contentFor('breadcrumb') %>
+<div class="row">
+  <div class="col-md-4">
+    <button type="button" class="button-menu-mobile open-left waves-effect">
+      <i class="ion-navicon"></i>
+    </button>
+    <h3 class="page-title">Health Check</h3>
+    <button type="button" class="btn btn-primary waves-effect waves-light" id="btnPrintPage" name="btnPrintPage">
+      Download Report
+    </button>
+  </div>
+  <div class="col-md-4">
+    <h3 class="page-title portfolio-title" style="color: #34b871; min-width: 600px">
+      <%= portfolio_name %>
+    </h3>
+  </div>
+  <div class="col-md-4 text-right"></div>
+</div>
+<br/>
+
+<%- contentFor('body') %>
+
+<div class="page-content-wrapper">
+  <div class="container-fluid">
+    <%- include('../Partials/date_filter_bar') %>
+    <div class="row">
+      <div class="col-lg-12">
+        <div style="overflow-x: auto;">
+          <table class="hc-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th style="min-width:140px">Status</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>NMS</th>
+                <th>Prime</th>
+                <th>Sponsor</th>
+                <th style="max-width:220px">Issues</th>
+                <th style="max-width:220px">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <%
+                let currentPhase = '';
+                const healthColors = { green: '#28a745', yellow: '#ffc107', red: '#dc3545' };
+                const healthLabels = { green: 'Healthy', yellow: 'Caution', red: 'In Trouble' };
+
+                projects
+                  .filter(p => p.phase_name === 'Delivery' || p.phase_name === 'Discovery')
+                  .sort((a, b) => (a.phase_name || '').localeCompare(b.phase_name || ''))
+                  .forEach(project => {
+                    if (project.phase_name !== currentPhase) {
+                      currentPhase = project.phase_name;
+              %>
+              <tr class="state-group">
+                <td colspan="9">&#9660; <%= currentPhase %></td>
+              </tr>
+              <%
+                    }
+                    let healthKey = '';
+                    let healthColor = '#aaa';
+                    let healthLabel = '—';
+                    let progress = 0;
+                    if (project.last_status && project.last_status.health) {
+                      healthKey = project.last_status.health.toLowerCase().trim();
+                      healthColor = healthColors[healthKey] || '#aaa';
+                      healthLabel = healthLabels[healthKey] || project.last_status.health;
+                    }
+                    if (project.last_status && project.last_status.progress) {
+                      progress = Math.min(100, Math.max(0, parseInt(project.last_status.progress) || 0));
+                    }
+              %>
+              <tr>
+                <td style="font-weight:500; white-space:nowrap;">
+                  <%= project.project_name %>
+                  <a href="/projects/edit/<%= project.project_id %>"><i class="mdi mdi-border-color"></i></a>
+                </td>
+                <td style="min-width:140px">
+                  <div class="hc-health-label"><%= healthLabel %> (<%= progress %>%)</div>
+                  <div class="hc-progress-track">
+                    <div class="hc-progress-fill" style="width:<%= progress %>%; background:<%= healthColor %>">
+                      <span class="hc-progress-label"><%= progress %>%</span>
+                    </div>
+                  </div>
+                </td>
+                <td style="white-space:nowrap;">
+                  <% if (project.start_date) { %>
+                    <%= new Date(project.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  <% } %>
+                </td>
+                <td style="white-space:nowrap;">
+                  <% if (project.end_date) { %>
+                    <%= new Date(project.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  <% } %>
+                </td>
+                <td style="white-space:nowrap;">
+                  <% if (project.next_milestone_date) { %>
+                    <%= new Date(project.next_milestone_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  <% } %>
+                </td>
+                <td style="white-space:nowrap;"><%= project.prime_first_name %> <%= project.prime_last_name %></td>
+                <td style="white-space:nowrap;"><%= project.sponsor_first_name %> <%= project.sponsor_last_name %></td>
+                <td style="max-width:220px;"><% if (project.last_status) { %><%= project.last_status.issue %><% } %></td>
+                <td style="max-width:220px;"><% if (project.last_status) { %><%= project.last_status.actions %><% } %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- contentFor('FooterJs') %>
+<%- contentFor('BottomJs') %>
+
+<script>
+  document.getElementById("btnPrintPage").addEventListener("click", function () {
+    const portfolioTitleElement = document.querySelector(".portfolio-title");
+    if (!portfolioTitleElement) return;
+
+    const portfolioName = portfolioTitleElement.textContent.trim();
+    const style = document.createElement("style");
+    style.setAttribute("type", "text/css");
+    style.setAttribute("media", "print");
+    style.appendChild(document.createTextNode(`
+      @page { size: landscape; margin-top: 3cm; }
+      body::before {
+        content: "${portfolioName}";
+        display: block; text-align: center; font-weight: bold;
+        font-size: 1.5em; margin-bottom: 1cm;
+      }
+      #btnPrintPage, .button-menu-mobile, .page-title, .portfolio-title { display: none !important; }
+      td, th, tr, .hc-table, .card-body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    `));
+    document.head.appendChild(style);
+
+    const oldTitle = document.title;
+    document.title = new Date().toISOString().split('T')[0] + " - PriorityPilot - Health Report";
+    window.print();
+    setTimeout(() => { document.title = oldTitle; }, 1000);
+  });
+</script>

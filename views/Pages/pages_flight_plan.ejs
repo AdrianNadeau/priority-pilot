@@ -1,0 +1,191 @@
+<%- contentFor('HeaderCss') %>
+<style>
+  .gantt-wrap { overflow-x: auto; position: relative; }
+  .gantt-table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 900px; }
+  .gantt-table th {
+    font-size: 11px; font-weight: 500; color: #6b6b67;
+    padding: 4px 6px; border-bottom: 0.5px solid rgba(0,0,0,0.1);
+    white-space: nowrap; text-align: center; background: #f5f5f3;
+  }
+  .gantt-table td {
+    padding: 3px 4px; border-bottom: 0.5px solid rgba(0,0,0,0.1);
+    vertical-align: middle; background: #fff;
+  }
+  .gantt-table tr:hover td { background: #f5f5f3; }
+  .gantt-table th.name-col,
+  .gantt-table td.name-cell {
+    position: sticky; left: 0; z-index: 2;
+    width: 180px; min-width: 180px; max-width: 180px;
+    background: #fff; border-right: 0.5px solid rgba(0,0,0,0.1);
+  }
+  .gantt-table th.name-col { background: #f5f5f3; text-align: left; z-index: 3; }
+  .gantt-table tr:hover td.name-cell { background: #f5f5f3; }
+  .gantt-table td.name-cell { font-size: 12px; padding-left: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gantt-table td.name-cell.group { font-weight: 700; font-size: 13px; }
+  .q-header { background: #eeede9 !important; }
+  @media print {
+    .button-menu-mobile, .page-title, .portfolio-title { display: none; }
+    .gantt-wrap { overflow: visible; }
+  }
+</style>
+
+<%- contentFor('breadcrumb') %>
+<div class="row">
+  <div class="col-md-4">
+    <button type="button" class="button-menu-mobile open-left waves-effect">
+      <i class="ion-navicon"></i>
+    </button>
+    <h3 class="page-title">Flight Plan</h3>
+    <button type="button" class="btn btn-primary waves-effect waves-light" id="btnPrintPage">
+      Download Report
+    </button>
+  </div>
+  <div class="col-md-4">
+    <h3 class="page-title portfolio-title" style="color: #34b871; min-width: 600px">
+      <%= portfolio_name %>
+    </h3>
+  </div>
+  <div class="col-md-4 text-right"></div>
+</div>
+
+<%- contentFor('body') %>
+<div class="page-content-wrapper">
+  <div class="container-fluid">
+    <%- include('../Partials/date_filter_bar') %>
+    <div class="gantt-wrap" style="margin-top: 16px;">
+      <div id="ganttContent">
+        <div style="color:#6b6b67; padding:20px; font-size:13px;">Loading flight plan…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- contentFor('FooterJs') %>
+<%- contentFor('BottomJs') %>
+
+<script>
+  const PHASE_MAP = { 2: 'Planning', 3: 'Discovery', 4: 'Delivery' };
+  const HEALTH_COLORS = { Green: '#28a745', Yellow: '#ffc107', Red: '#dc3545' };
+  const PHASE_COLOR = '#5b8dee';
+  const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("/projects/flightview/ganttChart/")
+      .then(r => r.json())
+      .then(pData => {
+        const projects = pData.companyProjects || [];
+        const colors   = pData.colors || [];
+        projects.forEach((p, i) => { p._health = colors[i] || ''; });
+        buildGantt(projects);
+      })
+      .catch(err => {
+        document.getElementById('ganttContent').innerHTML =
+          '<div style="color:#dc3545;padding:20px;">Failed to load flight plan data.</div>';
+        console.error(err);
+      });
+  });
+
+  function buildGantt(projects) {
+    const now = new Date();
+    const ganttStart = new Date(now.getFullYear() - 1, 0, 1);
+    const ganttEnd   = new Date(now.getFullYear() + 1, 11, 31);
+    const totalMs    = ganttEnd - ganttStart;
+
+    // Build month list
+    const months = [];
+    let cur = new Date(ganttStart.getFullYear(), ganttStart.getMonth(), 1);
+    while (cur <= ganttEnd) {
+      months.push(new Date(cur));
+      cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+    }
+
+    // Build quarter spans
+    const quarters = {};
+    months.forEach(m => {
+      const q = 'Q' + (Math.floor(m.getMonth() / 3) + 1) + ' ' + m.getFullYear();
+      quarters[q] = (quarters[q] || 0) + 1;
+    });
+
+    // Table header
+    let html = '<table class="gantt-table"><thead>';
+    html += '<tr><th class="name-col">Project Name</th>';
+    Object.entries(quarters).forEach(([q, count]) => {
+      html += `<th colspan="${count}" class="q-header">${q}</th>`;
+    });
+    html += '</tr><tr><th class="name-col"></th>';
+    months.forEach(m => {
+      html += `<th>${MONTH_NAMES[m.getMonth()]} ${String(m.getFullYear()).slice(2)}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    // Group projects by phase
+    const phases = ['Planning', 'Discovery', 'Delivery'];
+    phases.forEach(phaseName => {
+      const group = projects.filter(p => PHASE_MAP[p.phase_id_fk] === phaseName);
+      if (!group.length) return;
+
+      // Phase group row: span from earliest start to latest end
+      const starts = group.map(p => p.start_date).filter(Boolean).sort();
+      const ends   = group.map(p => p.end_date).filter(Boolean).sort();
+      const gStart = starts[0] || null;
+      const gEnd   = ends[ends.length - 1] || null;
+
+      html += `<tr>
+        <td class="name-cell group" style="padding-left:8px">&#9660; ${phaseName}</td>
+        <td colspan="${months.length}" style="padding:2px 0">${barCell(gStart, gEnd, 'group', phaseName, 100, ganttStart, totalMs)}</td>
+      </tr>`;
+
+      group.forEach(p => {
+        const label = p.project_name || '';
+        const progress = (p.last_status && p.last_status.progress) ? parseInt(p.last_status.progress) : 0;
+        const healthKey = p._health || '';
+        const truncated = label.length > 24 ? label.slice(0, 22) + '…' : label;
+        html += `<tr>
+          <td class="name-cell" style="padding-left:20px" title="${label}">${truncated}</td>
+          <td colspan="${months.length}" style="padding:2px 0">${barCell(p.start_date, p.end_date, healthKey, label, progress, ganttStart, totalMs)}</td>
+        </tr>`;
+      });
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('ganttContent').innerHTML = html;
+  }
+
+  function barCell(s, e, health, label, progress, ganttStart, totalMs) {
+    if (!s || !e) return '<div style="height:22px"></div>';
+    const sd = new Date(s), ed = new Date(e);
+    const left  = Math.max(0, (sd - ganttStart) / totalMs * 100);
+    const right = Math.max(0, (ganttStart.getTime() + totalMs - ed.getTime()) / totalMs * 100);
+    const width = Math.max(0.5, 100 - left - right);
+    const color = health === 'group' ? PHASE_COLOR : (HEALTH_COLORS[health] || '#888780');
+    const pct   = Math.min(100, Math.max(0, progress));
+    return `<div style="position:relative;height:22px;width:100%">
+      <div style="position:absolute;left:${left.toFixed(1)}%;width:${width.toFixed(1)}%;height:18px;top:2px;border-radius:9px;background:${color};display:flex;align-items:center;overflow:hidden">
+        <div style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:rgba(255,255,255,0.28);border-radius:9px 0 0 9px"></div>
+        <span style="position:relative;padding:0 8px;font-size:11px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">${label}</span>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById("btnPrintPage").addEventListener("click", function () {
+    const portfolioTitleElement = document.querySelector(".portfolio-title");
+    if (!portfolioTitleElement) return;
+    const portfolioName = portfolioTitleElement.textContent.trim();
+    const style = document.createElement("style");
+    style.setAttribute("type", "text/css");
+    style.setAttribute("media", "print");
+    style.appendChild(document.createTextNode(`
+      @page { margin-top: 3cm; }
+      body::before {
+        content: "${portfolioName}";
+        display: block; text-align: center;
+        font-weight: bold; font-size: 1.5em; margin-bottom: 1cm;
+      }
+      .button-menu-mobile, .page-title, .portfolio-title, #btnPrintPage { display: none !important; }
+      .gantt-wrap { overflow: visible !important; }
+    `));
+    document.head.appendChild(style);
+    window.print();
+    setTimeout(() => document.head.removeChild(style), 100);
+  });
+</script>

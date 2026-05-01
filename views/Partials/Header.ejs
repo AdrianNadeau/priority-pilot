@@ -1,0 +1,116 @@
+
+<div class="left side-menu">
+  <!-- LOGO -->
+  <div class="topbar-left">
+    <% include ../Partials/sidebar-logo %>
+  </div>
+
+  <div class="sidebar-inner slimscrollleft">
+    <div id="sidebar-menu">
+      <ul>
+        <% if (person && person.isAdmin) { %>
+        <li class="has_sub">
+          <a a href="#" onclick="forwardToDashboard();"
+            ><i class="mdi mdi-view-dashboard"></i> <span>Dashboard</span>
+          </a>
+        </li>
+
+        <!-- <li>
+                    <a href="widgets" class="waves-effect"><i class="mdi mdi-cube-outline"></i><span> Widgets </span></a>
+                </li> -->
+
+        <!-- <li class="has_sub">
+                    <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-email-outline"></i><span> Email <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span></a>
+                    <ul class="list-unstyled">
+                        <li><a href="email-inbox">Inbox</a></li>
+                        <li><a href="email-read">Email Read</a></li>
+                        <li><a href="email-compose">Email Compose</a></li>
+                    </ul>
+                </li> -->
+
+        <!-- <li>
+                    <a href="calendar" class="waves-effect"><i class="mdi mdi-calendar-check"></i><span> Calendar </span></a>
+                </li> -->
+
+        <!-- <li class="menu-title">Components</li>
+
+                <li class="has_sub">
+                    <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-buffer"></i> <span> User Interface <span class="pull-right"><i class="mdi mdi-chevron-right"></i></span> </span> </a>
+                    <ul class="list-unstyled">
+                        <li><a href="ui-buttons">Buttons</a></li>
+                        <li><a href="ui-colors">Colors</a></li>
+                        <li><a href="ui-cards">Cards</a></li>
+                        <li><a href="ui-tabs-accordions">Tabs &amp; Accordions</a></li>
+                        <li><a href="ui-modals">Modals</a></li>
+                        <li><a href="ui-images">Images</a></li>
+                        <li><a href="ui-alerts">Alerts</a></li>
+                        <li><a href="ui-progressbars">Progress Bars</a></li>
+                        <li><a href="ui-dropdowns">Dropdowns</a></li>
+                        <li><a href="ui-lightbox">Lightbox</a></li>
+                        <li><a href="ui-navs">Navs</a></li>
+                        <li><a href="ui-pagination">Pagination</a></li>
+                        <li><a href="ui-popover-tooltips">Popover & Tooltips</a></li>
+                        <li><a href="ui-badge">Badge</a></li>
+                        <li><a href="ui-carousel">Carousel</a></li>
+                        <li><a href="ui-video">Video</a></li>
+                        <li><a href="ui-typography">Typography</a></li>
+                        <li><a href="ui-sweet-alert">Sweet-Alert</a></li>
+                        <li><a href="ui-grid">Grid</a></li>
+                        <li><a href="ui-animation">Animation</a></li>
+                        <li><a href="ui-highlight">Highlight</a></li>
+                        <li><a href="ui-rating">Rating</a></li>
+                        <li><a href="ui-nestable">Nestable</a></li>
+                        <li><a href="ui-alertify">Alertify</a></li>
+                        <li><a href="ui-rangeslider">Range Slider</a></li>
+                        <li><a href="ui-sessiontimeout">Session Timeout</a></li>
+                    </ul>
+                </li> -->
+                    <li>
+                        <a href="/projects" class="waves-effect"
+                          ><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a
+                        >
+                      </li>
+                      <li>
+                        <a href="/persons" class="waves-effect"
+                          ><i class="mdi mdi-account-location"></i><span> People </span></a
+                        >
+                      </li>
+                      <li>
+                        <a href="/companies/get/defaults" class="waves-effect"
+                          ><i class="dripicons-gear"></i><span> Defaults </span></a
+                        >
+                      </li>
+                      <!-- <li>
+                        <a href="/companies/get/defaults" class="waves-effect"
+                          ><i class="mdi mdi-folder-multiple-outline"></i><span> Sample Project </span></a>
+                        >
+                      </li> -->
+                      <% }else if (person && !person.isAdmin) { %><i class="dripicons-gear"></i>
+                      <li>
+                        <a href="/" class="waves-effect"
+                          ><i class="mdi mdi-clipboard-outline"></i><span> Projects </span></a
+                        >
+                      </li>
+                  <% } %>
+                  <li class="has_sub">
+                    <a href="/help" class="waves-effect" onclick="window.open('/help');return false;" target="_blank">
+                      <i class="mdi mdi-help"></i> <span> Help </span>
+                    </a>
+                  </li>
+                 
+        </ul>
+                  
+        
+        
+      
+    </div>
+    <div class="clearfix"></div>
+  </div>
+  <!-- end sidebarinner -->
+</div>
+<script>
+  function forwardToDashboard() {
+    window.location.replace("/");
+  }
+
+</script>

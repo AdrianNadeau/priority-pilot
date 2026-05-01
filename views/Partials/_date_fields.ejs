@@ -1,0 +1,20 @@
+<div class="form-group-inline">
+    <label for="<%= prefix %>_year"><%= prefix.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %> Year:</label>
+    <select id="<%= prefix %>_year" name="<%= prefix %>_year">
+      <% years.forEach(year => { %>
+        <option value="<%= year %>"><%= year %></option>
+      <% }); %>
+    </select>
+    
+    <label for="<%= prefix %>_month">Month:</label>
+    <select id="<%= prefix %>_month" name="<%= prefix %>_month">
+      <% monthsOfYear.forEach(month => { %>
+        <option value="<%= month %>"><%= month %></option>
+      <% }); %>
+    </select>
+    
+    <label for="<%= prefix %>_day">Day:</label>
+    <select id="<%= prefix %>_day" name="<%= prefix %>_day">
+      <!-- Days will be populated by JavaScript -->
+    </select>
+  </div>

@@ -1,0 +1,275 @@
+
+<%- contentFor('HeaderCss') %>
+<!-- Bootstrap CSS -->
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+/>
+<style>
+   .password-container {
+    position: relative;
+    width: 300px;
+  }
+
+  .password-container input {
+    width: 100%;
+    padding-right: 40px;
+  }
+
+  .password-container .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+  .toggle-password:hover {
+    cursor: pointer;
+  }
+  </style>
+<%- contentFor('breadcrumb') %>
+<div class="row">
+  <div class="col-md-4">
+      <button type="button" class="button-menu-mobile open-left waves-effect">
+          <i class="ion-navicon"></i>
+      </button>
+      <h3 class="page-title">People</h3>
+      <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#personForm" id="btnAddPerson">Add Person</button>
+  </div>
+  <% include ../Partials/portfolio_name %>
+  <div class="col-md-4 text-right">
+      <!-- Add any additional content here -->
+  </div>
+  
+</div>
+
+
+<%- contentFor('body') %>
+<div class="page-content-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+              <div class="card-body" style="border:0px !important;">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        
+                                        <th>Name</th>
+                                        <th>Email</th>
+          
+                                        <th>Initials</th>
+                                        <th>Admin</th>
+                                        
+                                        
+                        
+                                    </tr>
+                                    
+                                </thead>
+                               
+                                <% persons.forEach(function(person){ %>
+                                    <tbody>
+                                        <tr style="cursor: pointer;">
+                                            <td style="display: none;"><%= person.id %></td>
+                                            <td><%= person.last_name %>, <%= person.first_name %></td>
+                                            <td><%= person.email %></td>
+                                            <td><%= person.initials %></td>
+                                            <td>
+                                                <% if (person.isAdmin){%>
+                                                    <span style="color:green;"><i class="mdi mdi-checkbox-marked"></i></span>
+                                                   
+                                                <% } else { %>
+                                                   </td>
+                                                <% } %>
+                                                
+                                            
+                                            
+                                        </tr>
+                                    </tbody>
+                                    <% }); %>
+                               
+                            </table>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        <!-- Change Log -->
+        <% if (changedPersons && changedPersons.length > 0) { %>
+        <div class="row mt-4">
+          <div class="col-lg-12">
+            <div class="card-body" style="border:0px !important;">
+              <h5>Change Log</h5>
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Initials</th>
+                      <th>Admin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% changedPersons.forEach(function(cp) { %>
+                    <tr>
+                      <td><%= cp.change_date ? new Date(cp.change_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '' %></td>
+                      <td><%= cp.last_name %>, <%= cp.first_name %></td>
+                      <td><%= cp.email %></td>
+                      <td><%= cp.initials %></td>
+                      <td><% if (cp.isAdmin) { %><span style="color:green;"><i class="mdi mdi-checkbox-marked"></i></span><% } %></td>
+                    </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% } %>
+
+        <div class="row">
+            <div class="col-md-12 m-t-30">
+                <!-- sample modal content -->
+                <div id="personForm" class="modal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="modal-content" style="width: 500px;">
+                          <div class="modal-header">
+                              <h5 class="modal-title mt-0" id="personTitle">Add Person</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                          </div>
+                          <div class="modal-body">
+                              <form action="/persons" class="needs-validation" id="addPerson" novalidate method="POST">                             
+                                <input type="hidden" id="add_yn"  name="add_yn" value="y">
+                                  <div class="row">
+                                      <div class="col-md-12">
+                                          <!-- First column of form fields -->
+                                          <div class="form-group needs-validation" novalidate>
+                                            <label for="last_name">Email</label><span class="required_star">*</span>
+                                           
+                                            <input type="email" class="form-control" id="email"  name="email" required>
+                                            <div class="invalid-feedback">
+                                                Please enter valid email.
+                                        </div>
+                                          <div class="form-group needs-validation" novalidate>
+                                              <label for="first_name">First Name</label><span class="required_star">*</span>
+                                              <input type="text" class="form-control" id="first_name"  name="first_name" required>
+                                              <div class="invalid-feedback">
+                                                  Please enter first name.
+                                              </div>
+                                          </div>
+                                          <div class="form-group needs-validation" novalidate>
+                                            <label for="last_name">Last Name</label><span class="required_star">*</span>
+                                            <input type="text" class="form-control" id="last_name"  name="last_name" required>
+                                            <div class="invalid-feedback">
+                                                Please enter first name.
+                                        </div>
+                                        <div class="form-group needs-validation" novalidate>
+                                            <label for="initials">Initials</label>
+                                            <input type="text" class="form-control" id="initials"  name="initials">
+                                        </div>
+                                       
+                                        <div class="form-check">
+                                          <input class="form-check-input" type="checkbox" value="" id="isAdmin" name="isAdmin">
+                                          <label class="form-check-label" for="isAdmin">
+                                            Admin
+                                          </label>
+                                        </div>
+                                        <div>
+                                          <div class="form-group">
+                                            <label for="password">Password</label>
+                                            <i class="fas fa-eye toggle-password" id="togglePassword"></i><input
+                                              type="password"
+                                              class="form-control"
+                                              id="password"
+                                              name="password"
+                                              placeholder="Enter password"
+                                            />
+                                          </div>
+                                       
+                                        
+                                        
+                                     
+                                  <!-- Add more rows and columns if needed -->
+                                  <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
+                                      <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Submit</button>
+                                  </div>
+                              </form>
+                          </div>
+                      </div><!-- /.modal-content -->
+                  </div><!-- /.modal-dialog -->
+              </div><!-- /.modal -->
+              
+            </div>
+        </div> <!-- end row -->
+    </div>
+
+<%- contentFor('FooterJs') %> <%- contentFor('BottomJs') %>
+<script>
+    const isAdminCheckbox = document.getElementById("isAdmin");
+
+    isAdminCheckbox.addEventListener("change", (event) => {
+        isAdminCheckbox.value = event.target.checked
+    });
+  (function () {
+    'use strict'
+  
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+  
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+  
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })()
+  
+
+     // Get the clear button element
+     var addPersonBtn = document.getElementById('btnAddPerson');
+
+
+ // Wait for the DOM to be ready
+ document.addEventListener("DOMContentLoaded", function() {
+        // Get all table rows
+        var rows = document.querySelectorAll(".table tbody tr");
+
+        // Loop through each row
+        rows.forEach(function(row) {
+            console.log("row:",row)
+            // Add a click event listener to each row
+            row.addEventListener("click", function() {
+                var id = row.cells[0].textContent; // Assuming the ID is in the first cell
+        
+                // Now you have the ID, you can use it as needed
+                
+                // Show the modal when a row is clicked
+                window.location.replace('/persons/'+id)
+
+                // $('#personForm').modal('show'); // Assuming you're using jQuery
+            });
+        });
+    });
+     const togglePassword = document.querySelector("#togglePassword");
+    const password = document.querySelector("#password");
+
+    togglePassword.addEventListener("click", function (e) {
+      // Toggle the type attribute
+      const type =
+        password.getAttribute("type") === "password" ? "text" : "password";
+      password.setAttribute("type", type);
+
+      // Toggle the eye / eye slash icon
+      this.classList.toggle("fa-eye-slash");
+    });
+
+</script>

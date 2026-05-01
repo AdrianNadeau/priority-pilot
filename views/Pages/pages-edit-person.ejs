@@ -1,0 +1,163 @@
+
+<%- contentFor('HeaderCss') %>
+<!-- Bootstrap CSS -->
+
+
+<%- contentFor('breadcrumb') %>
+<div class="row">
+  <div class="col-md-4">
+    <button type="button" class="button-menu-mobile open-left waves-effect">
+      <i class="ion-navicon"></i>
+    </button>
+    <h3 class="page-title">Edit Person</h3>
+  </div>
+  <div class="col-md-4">
+    <h3
+      id = "portfolio_name" class="page-title"
+      style="color: #34b871; min-width: 600px"
+    >
+    <%= portfolio_name %>
+    </h3>
+  </div>
+  <div class="col-md-4 text-right">
+    <!-- Add any additional content here -->
+  </div>
+</div>
+
+<%- contentFor('body') %>
+<div class="page-content-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+              <div class="card-body" style="border:0px !important;">
+                <form action="/persons/<%= personData.id %>" class="needs-validation" id="editPersonForm" novalidate method="POST">
+                                
+                                
+                    <input type="hidden" id="person_id"  name="person_id" value="<%= personData.id %>">
+
+                      <div class="row">
+                          <div class="col-md-6">
+                              <!-- First column of form fields -->
+                              <div class="form-group needs-validation" novalidate>
+                                <label for="last_name">Email</label>
+                               
+                                <input type="email" class="form-control" id="email"  name="email" disabled value ="<%= personData.email %>">
+                                
+                              <div class="form-group needs-validation" novalidate>
+                                  <label for="first_name">First Name</label>
+                                  <input type="text" class="form-control" id="first_name"  name="first_name" value ="<%= personData.first_name %>" required>
+                                  <div class="invalid-feedback">
+                                      Please enter first name.
+                                  </div>
+                              </div>
+                              <div class="form-group needs-validation" novalidate>
+                                <label for="last_name">Last Name</label>
+                                <input type="text" class="form-control" id="last_name"  name="last_name" value ="<%= personData.last_name %>"required>
+                                <div class="invalid-feedback">
+                                    Please enter first name.
+                            </div>
+                            <div class="form-group needs-validation" novalidate>
+                                <label for="initials">Initials</label>
+                                <input type="text" class="form-control" id="initials"  value="<%= personData.initials %>" name="initials">
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="isAdmin" name="isAdmin"<%= personData.isAdmin ? 'checked' : '' %>>
+                                <label class="form-check-label" for="isAdmin">
+                                  Admin
+                                </label>
+                              </div>
+                          
+                           
+                            
+                         
+                      <!-- Add more rows and columns if needed -->
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary waves-effect" onclick="window.location.replace('/persons')">Cancel</button>
+
+                          <button type="button" class="btn btn-danger waves-effect waves-light" data-toggle="modal" data-target="#deleteEmpyoyee" id="btnDeletePerson">Delete</button>
+                          <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Update</button>
+                      </div>
+                  </form>
+                
+            
+                    </div>
+                </div>
+            </div>
+        </div>
+     
+        </div> <!-- end row -->
+    </div>
+</div>
+<div id="deleteEmpyoyee" class="modal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 500px;">
+            <div class="modal-header">
+                <h5 class="modal-title mt-0" id="personTitle">Delete Employee?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form action="/persons/delete/<%= personData.id %>" class="needs-validation" id="deletePersonForm" novalidate method="POST">
+                  
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <!-- First column of form fields -->
+                           <stong>Employee data will be lost and cannot be undone:</stong>
+                            <ul>
+                                <li>
+                                    Prime and Sponsor data for projects.
+                                </li>
+                                <li>
+                                    They will not be able to update statuses.
+                                </li>
+                            </ul>
+
+                        </div>
+                       
+                         
+                         
+                       
+                    <!-- Add more rows and columns if needed -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger w-md waves-effect waves-light" type="submit">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<%- contentFor('FooterJs') %>
+
+<%- contentFor('BottomJs') %>
+<script>
+    const isAdminCheckbox = document.getElementById("isAdmin");
+
+    isAdminCheckbox.addEventListener("change", (event) => {
+        isAdminCheckbox.value = event.target.checked
+    });
+  (function () {
+    'use strict'
+  
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+  
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+  
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })()
+
+ 
+   
+
+</script>
