@@ -1,0 +1,27 @@
+<div class="row" style="padding-bottom: 15px;">
+    <div class="col-md-12">
+        <div class="mini-stat bg-white clearfix">
+            <div class="mini-stat-info d-flex align-items-center flex-wrap" style="gap: 10px;">
+                <span><strong>Date Range:</strong></span>
+                <div class="d-flex align-items-center">
+                    <strong style="margin-right: 8px;">From:</strong>
+                    <input type="text" class="form-control" id="filter_start" name="filter_start" placeholder="Start Date" style="width: 150px;" value="<%= currentFilterStart || '' %>">
+                </div>
+                <div class="d-flex align-items-center">
+                    <strong style="margin-right: 8px;">To:</strong>
+                    <input type="text" class="form-control" id="filter_end" name="filter_end" placeholder="End Date" style="width: 150px;" value="<%= currentFilterEnd || '' %>">
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="applyDateFilter()">Filter</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="clearDateFilter()">Clear</button>
+                <% if (locals.currentFilterStart || locals.currentFilterEnd) { %>
+                <span class="badge badge-info" style="font-size: 13px;">
+                    Active:
+                    <% if (locals.currentFilterStart) { %><%= new Date(currentFilterStart).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %>
+                    <% if (locals.currentFilterStart && locals.currentFilterEnd) { %> &mdash; <% } %>
+                    <% if (locals.currentFilterEnd) { %><%= new Date(currentFilterEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %><% } %>
+                </span>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>

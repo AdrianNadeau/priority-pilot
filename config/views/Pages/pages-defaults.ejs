@@ -1,0 +1,417 @@
+<%- contentFor('FooterJs') %>
+<%- contentFor('BottomJs') %>
+
+<%- contentFor('HeaderCss') %>
+
+<style>
+  .tag-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    font-size: 14px;
+    transition: transform 0.2s ease;
+  }
+
+  .tag-item:hover {
+    transform: translateX(4px);
+  }
+
+  .tag-bullet {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .mdi {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+  }
+
+  .mdi:hover {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+
+  .mdi-pencil:hover {
+    filter: brightness(1.2);
+  }
+
+  .mdi-delete:hover {
+    color: #dc3545 !important;
+    filter: brightness(1.2);
+  }
+</style>
+
+<%- contentFor('breadcrumb') %>
+<%- contentFor('body') %>
+
+<div class="page-content-wrapper">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card-body">
+
+          <!-- ================= DEFAULTS FORM ================= -->
+          <form action="/companies/set/defaults" method="POST" novalidate>
+            <input type="hidden" name="company_id" value="<%= company.id %>">
+
+            <div class="row">
+              <div class="col-md-6">
+
+                <div class="form-group">
+                  <label>Portfolio Name</label>
+                  <input class="form-control" name="company_headline" value="<%= company.company_headline %>">
+                </div>
+
+                <div class="form-group">
+                  <label>Portfolio Budget ($)</label>
+                  <input class="form-control" name="portfolio_budget"
+                         value="<%= company.portfolio_budget %>"
+                         oninput="formatNumberWithCommas(this)">
+                </div>
+
+                <div class="form-group">
+                  <label>Portfolio Effort</label>
+                  <input class="form-control" name="portfolio_effort"
+                         value="<%= company.effort %>"
+                         oninput="formatNumberWithCommas(this)">
+                </div>
+
+                <div class="form-group">
+                  <label>Tag 1 Label</label>
+                  <input class="form-control" name="tag_1_label" value="<%= company.tag_1_label || '' %>" placeholder="Tag 1">
+                </div>
+
+                <div class="form-group">
+                  <label>Tag 2 Label</label>
+                  <input class="form-control" name="tag_2_label" value="<%= company.tag_2_label || '' %>" placeholder="Tag 2">
+                </div>
+
+                <div class="form-group">
+                  <label>Tag 3 Label</label>
+                  <input class="form-control" name="tag_3_label" value="<%= company.tag_3_label || '' %>" placeholder="Tag 3">
+                </div>
+
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+              </div>
+
+              <!-- ================= TAGS ================= -->
+              <div class="col-md-6">
+                <label>Company Tags</label>
+                <ul style="list-style:none;padding-left:0">
+
+                  <% tags.forEach(tag => { %>
+                    <li class="tag-item">
+                      <span class="tag-bullet"
+                            style="background:<%= tag.tag_color || '#6c757d' %>"></span>
+
+                      <span><%= tag.tag_name %></span>
+
+                      <i class="mdi mdi-pencil edit-tag"
+                         data-toggle="modal"
+                         data-target="#editTagModal"
+                         data-id="<%= tag.id %>"
+                         data-name="<%= tag.tag_name %>"
+                         data-company="<%= tag.company_id_fk %>"
+                         data-color="<%= tag.tag_color || '#6c757d' %>"
+                         title="Edit"
+                         style="color: <%= tag.tag_color || '#6c757d' %>;"
+                         onclick="editTag(this)">
+                      </i>
+
+                      <i class="mdi mdi-delete delete-tag"
+                         data-toggle="modal"
+                         data-target="#deleteTagModal"
+                         data-id="<%= tag.id %>"
+                         data-name="<%- tag.tag_name %>"
+                         data-company="<%= tag.company_id_fk %>"
+                         title="Delete"
+                         onclick="deleteTag(this)">
+                      </i>
+                    </li>
+                  <% }) %>
+
+                </ul>
+
+                <!-- ADD TAG -->
+                <form action="/tags" method="POST">
+                  <input type="hidden" name="company_id_fk" value="<%= company.id %>">
+
+                  <div class="form-group">
+                    <label>Tag Color</label>
+                    <div>
+                      <input type="color" id="colorInput" value="#000000" style="width: 60px; height: 40px;">
+                      <input type="text" id="tag_color" name="tag_color" value="#000000" class="form-control" readonly style="display: inline-block; width: 120px; margin-left: 10px;">
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Tag Name</label>
+                    <input class="form-control" name="tag_name" required>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary mt-2">Add Tag</button>
+                </form>
+
+              </div>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= EDIT MODAL ================= -->
+<div class="modal fade" id="editTagModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5>Edit Tag</h5></div>
+      <div class="modal-body">
+        <form id="editTagForm">
+          <input type="hidden" id="edit_tag_id">
+          <input type="hidden" id="edit_company_id_fk">
+
+          <label>Color</label>
+          <input type="color" id="edit_colorInput" style="width: 60px; height: 40px;">
+          <input type="text" id="edit_tag_color" class="form-control" readonly style="display: inline-block; width: 120px; margin-left: 10px;">
+
+          <label>Name</label>
+          <input class="form-control" id="edit_tag_name" required>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancelTagBtn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveTagBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= DELETE MODAL ================= -->
+<div class="modal fade" id="deleteTagModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5>Delete Tag</h5></div>
+      <div class="modal-body">
+        <input type="hidden" id="delete_tag_id">
+        <p>Are you sure you want to delete the tag: <strong id="delete_tag_name"></strong>?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================= EDIT TAG =================
+function editTag(el) {
+  const tagId = el.dataset.id;
+  const companyId = el.dataset.company;
+  const tagName = el.dataset.name;
+  const tagColor = el.dataset.color;
+
+  console.log('Edit tag - Raw data:', { tagId, companyId, tagName, tagColor });
+
+  // Ensure tagColor is a valid hex code
+  const hexColor = (tagColor && tagColor.startsWith('#')) ? tagColor.toUpperCase() : '#000000';
+  console.log('Hex color formatted:', hexColor);
+
+  // Set values using vanilla JavaScript
+  document.getElementById('edit_tag_id').value = tagId || '';
+  document.getElementById('edit_company_id_fk').value = companyId || '';
+  document.getElementById('edit_tag_name').value = tagName || '';
+  document.getElementById('edit_tag_color').value = hexColor;
+  document.getElementById('edit_colorInput').value = hexColor;
+
+  console.log('Form values set:');
+  console.log('  - Tag Name:', document.getElementById('edit_tag_name').value);
+  console.log('  - Tag Color (text input):', document.getElementById('edit_tag_color').value);
+  console.log('  - Color Input (picker):', document.getElementById('edit_colorInput').value);
+
+  $('#editTagModal').modal('show');
+}
+
+// ================= DELETE TAG =================
+function deleteTag(el) {
+  const tagId = el.dataset.id;
+  const tagName = el.dataset.name;
+
+  console.log('Delete tag:', { tagId, tagName, allData: el.dataset });
+
+  $('#delete_tag_id').val(tagId || '');
+  $('#delete_tag_name').text(tagName || 'this tag');
+
+  console.log('Modal text set to:', $('#delete_tag_name').text());
+
+  $('#deleteTagModal').modal('show');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  // ================= DISPLAY ERROR MESSAGES =================
+  const urlParams = new URLSearchParams(window.location.search);
+  const errorMessage = urlParams.get('error');
+  if (errorMessage) {
+    alert('Error: ' + decodeURIComponent(errorMessage));
+    console.error('Server error:', errorMessage);
+    // Remove error from URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  // ================= CANCEL TAG =================
+  document.getElementById('cancelTagBtn').addEventListener('click', () => {
+    $('#editTagModal').modal('hide');
+  });
+
+  // ================= SAVE TAG =================
+  document.getElementById('saveTagBtn').addEventListener('click', () => {
+    const id = document.getElementById('edit_tag_id').value;
+    const tagName = document.getElementById('edit_tag_name').value;
+    const tagColor = document.getElementById('edit_tag_color').value;
+
+    console.log('Saving tag:', { id, tagName, tagColor });
+
+    if (!id) {
+      console.error('No tag ID found for update');
+      alert('Error: No tag ID found');
+      return;
+    }
+
+    if (!tagName) {
+      console.error('Tag name is required');
+      alert('Tag name is required');
+      return;
+    }
+
+    fetch(`/tags/${id}`, {
+      method: 'PUT',
+      body: new URLSearchParams({
+        tag_name: tagName,
+        tag_color: tagColor
+      }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    })
+    .then(response => {
+      console.log('Response status:', response.status);
+      // Backend redirects on success (302) or returns error JSON
+      if (response.ok || response.redirected || response.status === 302) {
+        console.log('Tag updated successfully');
+        location.reload();
+      } else {
+        return response.json().then(data => {
+          throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error updating tag:', error);
+      alert('Error updating tag: ' + error.message);
+    });
+  });
+
+  // ================= DELETE TAG =================
+  document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+    const id = document.getElementById('delete_tag_id').value;
+    if (!id) {
+      console.error('No tag ID found');
+      return;
+    }
+    fetch(`/tags/${id}`, { method: 'DELETE' })
+      .then(response => {
+        if (response.ok) {
+          location.reload();
+        } else {
+          console.error('Failed to delete tag');
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting tag:', error);
+      });
+  });
+
+  // ================= ADD TAG FORM SUBMISSION =================
+  const addTagForm = document.querySelector('form[action="/tags"]');
+  if (addTagForm) {
+    addTagForm.addEventListener('submit', function(e) {
+      const formData = new FormData(addTagForm);
+      console.log('=== Add Tag Form Submission ===');
+      console.log('Tag Name:', formData.get('tag_name'));
+      console.log('Tag Color:', formData.get('tag_color'));
+      console.log('Company ID:', formData.get('company_id_fk'));
+
+      // Don't prevent default - let the form submit naturally
+    });
+  }
+
+  // ================= COLOR SYNC =================
+  const addColorInput = document.getElementById('colorInput');
+  const addTagColorField = document.getElementById('tag_color');
+  const editColorInput = document.getElementById('edit_colorInput');
+  const editTagColorField = document.getElementById('edit_tag_color');
+
+  if (addColorInput && addTagColorField) {
+    console.log('Add tag color sync initialized - Initial values:', {
+      colorInput: addColorInput.value,
+      tagColor: addTagColorField.value
+    });
+
+    // Function to sync color
+    function syncAddColor() {
+      const color = addColorInput.value.toUpperCase();
+      addTagColorField.value = color;
+      console.log('Color synced to:', color);
+    }
+
+    // Multiple event listeners for better browser compatibility
+    addColorInput.addEventListener('input', function(e) {
+      console.log('Color picker input event:', e.target.value);
+      syncAddColor();
+    });
+
+    addColorInput.addEventListener('change', function(e) {
+      console.log('Color picker change event:', e.target.value);
+      syncAddColor();
+    });
+
+    addColorInput.addEventListener('blur', function(e) {
+      console.log('Color picker blur event:', e.target.value);
+      syncAddColor();
+    });
+
+    // Also sync on click for browsers that don't fire input events
+    addColorInput.addEventListener('click', function() {
+      console.log('Color picker clicked, current value:', addColorInput.value);
+    });
+  } else {
+    console.error('Add tag color inputs not found', {
+      colorInput: addColorInput,
+      tagColorField: addTagColorField
+    });
+  }
+
+  if (editColorInput && editTagColorField) {
+    console.log('Edit tag color sync initialized');
+
+    editColorInput.addEventListener('input', function(e) {
+      editTagColorField.value = e.target.value.toUpperCase();
+      console.log('Edit tag color synced:', e.target.value);
+    });
+
+    editColorInput.addEventListener('change', function(e) {
+      editTagColorField.value = e.target.value.toUpperCase();
+    });
+  } else {
+    console.error('Edit tag color inputs not found');
+  }
+
+});
+</script>
